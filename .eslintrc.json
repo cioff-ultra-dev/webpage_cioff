@@ -1,6 +1,10 @@
 {
   "root": true,
-  "extends": ["next/core-web-vitals", "plugin:drizzle/recommended"],
+  "extends": ["next/core-web-vitals", "plugin:drizzle/recommended", "next"],
   "plugins": ["drizzle"],
-  "parser": "@typescript-eslint/parser"
+  "parser": "@typescript-eslint/parser",
+  "rules": {
+    "react/no-unescaped-entities": "off",
+    "@next/next/no-page-custom-font": "off"
+  }
 }
