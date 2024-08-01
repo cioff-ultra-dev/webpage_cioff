@@ -1,3 +1,8 @@
+CREATE TABLE IF NOT EXISTS "events" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"name" text NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "users" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,

@@ -1,6 +1,6 @@
 {
-  "id": "5df126c2-83f8-4adc-94d6-0586139fcda7",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "decdb9c6-5a06-41d9-bbfb-db67251c8ecd",
+  "prevId": "5df126c2-83f8-4adc-94d6-0586139fcda7",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -19,6 +19,12 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "location": {
+          "name": "location",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},

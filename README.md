@@ -37,6 +37,8 @@ POSTGRES_DATABASE="************"
 
 2. If this process will be configured on another new database or cluster just run `npx drizzle-kit generate && npx drizzle-kit migrate`
 
+2.1. To show db studio: `npx drizzle-kit studio`
+
 #### Contribution
 
 We're open to receive any feedbacks related to the docs and guideline for provide great experiences for the dev environment.
