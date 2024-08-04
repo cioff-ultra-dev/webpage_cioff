@@ -27,11 +27,6 @@ export async function updateUser(id: SelectUser["id"], user: InsertUser) {
     });
 }
 
-export async function updateContainerUser(
-  id: SelectUser["id"],
-  user: InsertUser,
-) {}
-
 export async function deleteUser(id: SelectUser["id"]) {
   return db.delete(usersTable).where(eq(usersTable.id, id)).returning({
     deletedName: usersTable.name,
