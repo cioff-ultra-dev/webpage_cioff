@@ -126,7 +126,7 @@ export default function Event() {
               <CardTitle>Things you can find at this event</CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-2">
+              <ul className="space-y-2 list-disc">
                 <li>International</li>
                 <li>Folk singing</li>
                 <li>Folk dance</li>
