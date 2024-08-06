@@ -6,6 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Gallery } from "react-grid-gallery";
+import { Skeleton } from "@/components/ui/skeleton";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 
@@ -134,6 +135,16 @@ export default function Event() {
           />
         </section>
       </main>
+
+      <footer className="bg-gray-900 py-4 sm:py-8">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-gray-400 text-xs sm:text-sm">info@cioff.org</p>
+          <Skeleton className="h-[125px] w-[250px] rounded-xl inline-block m-2" />
+          <p className="text-gray-400 text-xs sm:text-sm">
+            © CIOFF 1998 - 2024 | cioff.org
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
