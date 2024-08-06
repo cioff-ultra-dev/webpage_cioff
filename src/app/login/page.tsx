@@ -15,9 +15,9 @@ import { Separator } from "@/components/ui/separator";
 
 export default function Login() {
   return (
-    <div className="grid w-full h-screen grid-cols-1 lg:grid-cols-2 bg-gray-900">
+    <div className="grid w-full h-screen grid-cols-1 lg:grid-cols-2 bg-gray-900 text-white">
       <div className="flex items-center justify-center">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md bg-gray-800">
           <CardHeader>
             <CardTitle className="text-2xl">Welcome back</CardTitle>
             <CardDescription>
@@ -27,11 +27,11 @@ export default function Login() {
           <CardContent className="space-y-4">
             {" "}
             <div className="flex justify-end mb-4">
-              <Button variant="outline" className="w-full mt-4">
+              <Button variant="secondary" className="w-full mt-4">
                 I want my membership
               </Button>
             </div>
-            <Separator className="my-4" />
+            <Separator className="my-4 " />
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input

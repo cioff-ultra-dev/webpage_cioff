@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function Home() {
   return (
     <div className="bg-black text-white">
-      <header className="flex items-center justify-between px-4 py-4 sm:px-8 md:px-6">
+      <header className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between px-4 py-4 sm:px-8 md:px-6">
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon" className="lg:hidden">
@@ -42,7 +42,7 @@ export default function Home() {
             </nav>
           </SheetContent>
         </Sheet>
-        <nav className="hidden space-x-4 sm:space-x-6 md:flex">
+        <nav className="hidden space-x-4 sm:space-x-6 lg:flex">
           <Link href="#" className="text-white" prefetch={false}>
             FESTIVALS
           </Link>
@@ -75,19 +75,31 @@ export default function Home() {
         </div>
       </header>
       <main>
-        <section
-          className="flex flex-col items-center justify-center h-screen bg-cover bg-center"
-          style={{ backgroundImage: "url('/path/to/fireworks.jpg')" }}
-        >
-          <h1 className="text-4xl font-bold sm:text-6xl">Welcome to</h1>
-          <h2 className="text-4xl font-bold sm:text-6xl">CIOFF</h2>
+        <section className="flex flex-col items-center justify-center h-screen bg-cover bg-center relative">
+          <video
+            autoPlay
+            loop
+            muted
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src="/hero-video.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-center text-white">
+            <h1 className="text-6xl font-bold">Welcome to</h1>
+            <h2 className="text-8xl font-bold mt-4">CIOFF</h2>
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 flex justify-center space-x-2 mb-4">
+            <button className="w-4 h-4 rounded-full bg-white" />
+            <button className="w-4 h-4 rounded-full bg-white" />
+            <button className="w-4 h-4 rounded-full bg-white" />
+          </div>
         </section>
         <section className="bg-gray-900 py-4 sm:py-8">
           <div className="container mx-auto px-4">
             <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
               <Input placeholder="Explore events" className="flex-1" />
               <Input placeholder="Choose a date" className="flex-1" />
-              <Input placeholder="Agrega fecha" className="flex-1" />
+              <Input placeholder="Add date" className="flex-1" />
               <Input placeholder="¿Cuántos?" className="flex-1" />
               <Button variant="ghost" size="icon" className="rounded-full">
                 <SearchIcon className="text-white" />
@@ -309,7 +321,7 @@ export default function Home() {
                 placeholder="Tell us about your event..."
                 className="w-full mt-4"
               />
-              <Button variant="ghost" className="mt-4 text-white">
+              <Button variant="secondary" className="mt-4">
                 Submit
               </Button>
             </div>
