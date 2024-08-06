@@ -27,7 +27,7 @@ export default function Home() {
               <Link href="#" className="text-white" prefetch={false}>
                 NEWS
               </Link>
-              <Link href="#" className="text-white" prefetch={false}>
+              <Link href="/event" className="text-white" prefetch={false}>
                 EVENTS
               </Link>
               <Link href="#" className="text-white" prefetch={false}>

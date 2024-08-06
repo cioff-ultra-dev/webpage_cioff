@@ -27,8 +27,8 @@ export default function Event() {
     <div className="w-full bg-gray-900 text-white">
       <header className="flex items-center justify-between p-4 border-b border-gray-800">
         <nav className="flex space-x-4">
-          <Link href="#" className="text-sm font-medium" prefetch={false}>
-            FESTIVALS
+          <Link href="/" className="text-sm font-medium" prefetch={false}>
+            HOME
           </Link>
           <Link href="#" className="text-sm font-medium" prefetch={false}>
             FOLKLORIADAS
@@ -36,7 +36,7 @@ export default function Event() {
           <Link href="#" className="text-sm font-medium" prefetch={false}>
             NEWS
           </Link>
-          <Link href="#" className="text-sm font-medium" prefetch={false}>
+          <Link href="/event" className="text-sm font-medium" prefetch={false}>
             EVENTS
           </Link>
           <Link href="#" className="text-sm font-medium" prefetch={false}>
@@ -50,7 +50,7 @@ export default function Event() {
           </Link>
         </nav>
         <div className="flex items-center space-x-4">
-          <Link href="#" className="text-sm font-medium" prefetch={false}>
+          <Link href="/login" className="text-sm font-medium" prefetch={false}>
             LOGIN
           </Link>
           <Avatar>
