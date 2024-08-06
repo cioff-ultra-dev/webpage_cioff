@@ -308,7 +308,7 @@ export default function Home() {
             </Button>
           </div>
         </section>
-        <section className="bg-gray-900 py-4 sm:py-8">
+        <section className="bg-gray-900 py-4 sm:py-8 hidden">
           <div className="container mx-auto px-4">
             <h2 className="text-xl font-bold text-white sm:text-2xl">
               Publish your event
