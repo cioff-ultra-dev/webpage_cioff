@@ -24,7 +24,7 @@ export default function Event() {
 
   return (
     <div className="w-full bg-gray-900 text-white">
-      <header className="flex items-center justify-between p-4 border-b">
+      <header className="flex items-center justify-between p-4 border-b border-gray-800">
         <nav className="flex space-x-4">
           <Link href="#" className="text-sm font-medium" prefetch={false}>
             FESTIVALS
