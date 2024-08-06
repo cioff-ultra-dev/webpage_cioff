@@ -1,9 +1,11 @@
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Linkedin, Instagram, Facebook } from "lucide-react";
 
 export default function Home() {
   return (
@@ -19,7 +21,12 @@ export default function Home() {
           <SheetContent side="left" className="bg-gray-900 sm:bg-[#1f2937]">
             <nav className="flex flex-col space-y-4 text-lg font-medium">
               <Link href="#" className="text-white" prefetch={false}>
-                FESTIVALS
+                <Image
+                  src="/logo.png"
+                  width="100"
+                  height="100"
+                  alt="CIOFF Logo"
+                />
               </Link>
               <Link href="#" className="text-white" prefetch={false}>
                 FOLKLORIADAS
@@ -42,10 +49,12 @@ export default function Home() {
             </nav>
           </SheetContent>
         </Sheet>
-        <nav className="hidden space-x-4 sm:space-x-6 lg:flex">
+        <nav className="hidden space-x-4 sm:space-x-6 lg:flex items-center">
           <Link href="#" className="text-white" prefetch={false}>
-            FESTIVALS
+            <Image src="/logo.png" width="100" height="100" alt="CIOFF Logo" />
           </Link>
+        </nav>
+        <nav className="hidden lg:flex space-x-4 sm:space-x-6">
           <Link href="#" className="text-white" prefetch={false}>
             FOLKLORIADAS
           </Link>
@@ -88,10 +97,16 @@ export default function Home() {
             <h1 className="text-6xl font-bold">Welcome to</h1>
             <h2 className="text-8xl font-bold mt-4">CIOFF</h2>
           </div>
-          <div className="absolute bottom-0 left-0 right-0 flex justify-center space-x-2 mb-4">
-            <button className="w-4 h-4 rounded-full bg-white" />
-            <button className="w-4 h-4 rounded-full bg-white" />
-            <button className="w-4 h-4 rounded-full bg-white" />
+          <div className="absolute bottom-0 left-0 right-0 flex justify-center space-x-2 mb-4 gap-[0.1rem]">
+            <Link href="#">
+              <Facebook className="w-5 h-5" />
+            </Link>
+            <Link href="#">
+              <Instagram className="w-5 h-5" />
+            </Link>
+            <Link href="#">
+              <Linkedin className="w-5 h-5" />
+            </Link>
           </div>
         </section>
         <section className="bg-gray-900 py-4 sm:py-8">
@@ -112,65 +127,65 @@ export default function Home() {
             <div className="flex space-x-4 overflow-x-auto">
               <Button
                 variant="ghost"
-                className="flex flex-col items-center text-white rounded-lg"
+                className="flex flex-col items-center text-white rounded-lg py-[0.15rem]"
               >
-                <CalendarIcon className="text-white" />
+                <CalendarIcon />
                 <span>New events</span>
               </Button>
               <Button
                 variant="ghost"
-                className="flex flex-col items-center text-white rounded-lg"
+                className="flex flex-col items-center text-white hover:text-black rounded-lg py-[0.15rem]"
               >
-                <GlobeIcon className="text-white" />
+                <GlobeIcon />
                 <span>International</span>
               </Button>
               <Button
                 variant="ghost"
-                className="flex flex-col items-center text-white rounded-lg"
+                className="flex flex-col items-center text-white rounded-lg py-[0.15rem]"
               >
-                <CogIcon className="text-white" />
+                <CogIcon />
                 <span>CIOFF</span>
               </Button>
               <Button
                 variant="ghost"
-                className="flex flex-col items-center text-white rounded-lg"
+                className="flex flex-col items-center text-white rounded-lg py-[0.15rem]"
               >
-                <BabyIcon className="text-white" />
+                <BabyIcon />
                 <span>Childrens</span>
               </Button>
               <Button
                 variant="ghost"
-                className="flex flex-col items-center text-white rounded-lg"
+                className="flex flex-col items-center text-white rounded-lg py-[0.15rem]"
               >
-                <SirenIcon className="text-white" />
+                <SirenIcon />
                 <span>Folk Singing</span>
               </Button>
               <Button
                 variant="ghost"
-                className="flex flex-col items-center text-white rounded-lg"
+                className="flex flex-col items-center text-white rounded-lg py-[0.15rem]"
               >
-                <DrumIcon className="text-white" />
+                <DrumIcon />
                 <span>Folk dance</span>
               </Button>
               <Button
                 variant="ghost"
-                className="flex flex-col items-center text-white rounded-lg"
+                className="flex flex-col items-center text-white rounded-lg py-[0.15rem]"
               >
-                <FishIcon className="text-white" />
+                <FishIcon />
                 <span>Folk music</span>
               </Button>
               <Button
                 variant="ghost"
-                className="flex flex-col items-center text-white rounded-lg"
+                className="flex flex-col items-center text-white rounded-lg py-[0.15rem]"
               >
-                <CookingPotIcon className="text-white" />
+                <CookingPotIcon />
                 <span>Traditional food</span>
               </Button>
               <Button
                 variant="ghost"
-                className="flex flex-col items-center text-white rounded-lg"
+                className="flex flex-col items-center text-white rounded-lg py-[0.15rem]"
               >
-                <TruckIcon className="text-white" />
+                <TruckIcon />
                 <span>Traditional trade</span>
               </Button>
             </div>
@@ -180,9 +195,13 @@ export default function Home() {
           <div className="container mx-auto px-4">
             <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
               <div className="flex-1 bg-gray-800 p-4 rounded-lg">
-                <div className="animate-pulse">
-                  <div className="h-[200px] sm:h-[300px] bg-gray-700 rounded-lg" />
-                </div>
+                <iframe
+                  style={{ border: 0 }}
+                  className="w-full h-full"
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"
+                  src="https://www.google.com/maps/embed/v1/view?key=AIzaSyBRO_oBiyzOAQbH7Jcv3ZrgOgkfNp1wJeI&center=0,-28.50&zoom=2"
+                ></iframe>
               </div>
               <div className="flex-1 bg-gray-800 p-4 rounded-lg">
                 <div className="space-y-4">
@@ -331,7 +350,13 @@ export default function Home() {
       <footer className="bg-gray-900 py-4 sm:py-8">
         <div className="container mx-auto px-4 text-center">
           <p className="text-gray-400 text-xs sm:text-sm">info@cioff.org</p>
-          <Skeleton className="h-[125px] w-[250px] rounded-xl inline-block m-2" />
+          <Image
+            src="/logo.png"
+            width="100"
+            height="100"
+            alt="CIOFF Logo"
+            className="inline-block my-6"
+          />
           <p className="text-gray-400 text-xs sm:text-sm">
             © CIOFF 1998 - 2024 | cioff.org
           </p>
