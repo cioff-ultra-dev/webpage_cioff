@@ -171,7 +171,6 @@ export default function Event() {
             style={{ border: 0 }}
             className="w-full md:h-[40rem] rounded-sm h-[20rem]"
             loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"
             src="https://www.google.com/maps/embed/v1/view?key=AIzaSyBRO_oBiyzOAQbH7Jcv3ZrgOgkfNp1wJeI&center=0,-28.50&zoom=2"
           ></iframe>
         </section>
