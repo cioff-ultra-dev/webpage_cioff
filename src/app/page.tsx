@@ -20,7 +20,7 @@ export default function Home() {
           </SheetTrigger>
           <SheetContent side="left" className="bg-gray-900 sm:bg-[#1f2937]">
             <nav className="flex flex-col space-y-4 text-lg font-medium">
-              <Link href="#" className="text-white" prefetch={false}>
+              <Link href="/" className="text-white" prefetch={false}>
                 <Image
                   src="/logo.png"
                   width="100"
@@ -50,7 +50,7 @@ export default function Home() {
           </SheetContent>
         </Sheet>
         <nav className="hidden space-x-4 sm:space-x-6 lg:flex items-center">
-          <Link href="#" className="text-white" prefetch={false}>
+          <Link href="/" className="text-white" prefetch={false}>
             <Image src="/logo.png" width="100" height="100" alt="CIOFF Logo" />
           </Link>
         </nav>
