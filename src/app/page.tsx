@@ -1,88 +1,15 @@
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Header } from "@/components/common/header";
 import { Linkedin, Instagram, Facebook } from "lucide-react";
 
 export default function Home() {
   return (
     <div className="bg-black text-white">
-      <header className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between px-4 py-4 sm:px-8 md:px-6">
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="lg:hidden">
-              <MenuIcon className="h-6 w-6 text-black" />
-              <span className="sr-only">Toggle navigation menu</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="bg-gray-900 sm:bg-[#1f2937]">
-            <nav className="flex flex-col space-y-4 text-lg font-medium">
-              <Link href="/" className="text-white" prefetch={false}>
-                <Image
-                  src="/logo.png"
-                  width="100"
-                  height="100"
-                  alt="CIOFF Logo"
-                />
-              </Link>
-              <Link href="#" className="text-white" prefetch={false}>
-                FOLKLORIADAS
-              </Link>
-              <Link href="#" className="text-white" prefetch={false}>
-                NEWS
-              </Link>
-              <Link href="/event" className="text-white" prefetch={false}>
-                EVENTS
-              </Link>
-              <Link href="#" className="text-white" prefetch={false}>
-                MEMBERS
-              </Link>
-              <Link href="#" className="text-white" prefetch={false}>
-                ABOUT
-              </Link>
-              <Link href="#" className="text-white" prefetch={false}>
-                CONTACT
-              </Link>
-            </nav>
-          </SheetContent>
-        </Sheet>
-        <nav className="hidden space-x-4 sm:space-x-6 lg:flex items-center">
-          <Link href="/" className="text-white" prefetch={false}>
-            <Image src="/logo.png" width="100" height="100" alt="CIOFF Logo" />
-          </Link>
-        </nav>
-        <nav className="hidden lg:flex space-x-4 sm:space-x-6">
-          <Link href="#" className="text-white" prefetch={false}>
-            FOLKLORIADAS
-          </Link>
-          <Link href="#" className="text-white" prefetch={false}>
-            NEWS
-          </Link>
-          <Link href="/event" className="text-white" prefetch={false}>
-            EVENTS
-          </Link>
-          <Link href="#" className="text-white" prefetch={false}>
-            MEMBERS
-          </Link>
-          <Link href="#" className="text-white" prefetch={false}>
-            ABOUT
-          </Link>
-          <Link href="#" className="text-white" prefetch={false}>
-            CONTACT
-          </Link>
-        </nav>
-        <div className="flex items-center space-x-4">
-          <Link href="/login" className="text-white" prefetch>
-            LOGIN
-          </Link>
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <UserIcon className="text-white" />
-          </Button>
-        </div>
-      </header>
+      <Header className="absolute left-0 right-0 top-0" />
       <main>
         <section className="flex flex-col items-center justify-center h-screen bg-cover bg-center relative">
           <video

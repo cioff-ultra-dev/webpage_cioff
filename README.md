@@ -24,7 +24,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 > Please, reach out dev team to provide all the variables needed, our database just supported by [Vercel Postgres](https://vercel.com/docs/storage/vercel-postgres)
 
-```
+```env
 POSTGRES_URL="************"
 POSTGRES_PRISMA_URL="************"
 POSTGRES_URL_NO_SSL="************"
