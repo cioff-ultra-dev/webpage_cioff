@@ -132,11 +132,3 @@ export function Header({ className, ...props }: HeaderProps) {
     </header>
   );
 }
-
-export function HeaderProxy<T extends object>(data: T) {
-  return new Proxy<T>(data, {
-    get(target, p, _) {
-      return Reflect.get(target, p);
-    },
-  });
-}
