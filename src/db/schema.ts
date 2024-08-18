@@ -1,29 +1,23 @@
-import { sql } from "drizzle-orm";
-import { integer, pgTable, serial, text, index } from "drizzle-orm/pg-core";
+import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
-export const usersTable = pgTable("users", {
+export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   age: integer("age").notNull(),
   email: text("email").notNull().unique(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
-export type InsertUser = typeof usersTable.$inferInsert;
-export type SelectUser = typeof usersTable.$inferSelect;
+export const events = pgTable("events", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
 
-export const eventsTable = pgTable(
-  "events",
-  {
-    id: serial("id").primaryKey(),
-    name: text("name").notNull(),
-  },
-  (table) => ({
-    nameSearchIndex: index("name_search_index").using(
-      "gin",
-      sql`to_tsvector('english', ${table.name})`,
-    ),
-  }),
-);
+export type InsertUser = typeof users.$inferInsert;
+export type SelectUser = typeof users.$inferSelect;
 
-export type InsertEvents = typeof eventsTable.$inferInsert;
-export type SelectEvents = typeof eventsTable.$inferSelect;
+export type InsertEvents = typeof events.$inferInsert;
+export type SelectEvents = typeof events.$inferSelect;
