@@ -11,8 +11,11 @@
   "dependencies": {
     "@next/env": "^14.2.5",
     "@radix-ui/react-avatar": "^1.1.0",
+    "@radix-ui/react-checkbox": "^1.1.1",
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-popover": "^1.1.1",
+    "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.0",
@@ -23,16 +26,18 @@
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "drizzle-orm": "^0.33.0",
+    "drizzle-zod": "^0.5.1",
     "eslint-plugin-drizzle": "^0.2.3",
     "lucide-react": "^0.412.0",
     "next": "14.2.5",
     "react": "^18",
-    "react-day-picker": "^9.0.6",
+    "react-day-picker": "^8.10.1",
     "react-dom": "^18",
     "react-grid-gallery": "^1.0.1",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
-    "yet-another-react-lightbox": "^3.21.2"
+    "yet-another-react-lightbox": "^3.21.2",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20",
