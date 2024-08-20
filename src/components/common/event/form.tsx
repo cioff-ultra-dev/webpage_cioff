@@ -15,13 +15,8 @@ import { Button } from "@/components/ui/button";
 import { createEvent } from "@/app/actions";
 import { useFormState } from "react-dom";
 
-export default function EventForm() {
-  const [state, formAction] = useFormState(createEvent, {
-    title: "",
-    description: "",
-    approved: true,
-    errors: null,
-  });
+export default function EventForm({ eventTypes }: { eventTypes: Array<any> }) {
+  const [state, formAction] = useFormState(createEvent, undefined);
 
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -57,8 +52,13 @@ export default function EventForm() {
                   <SelectValue placeholder="Select a type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="type1">Type 1</SelectItem>
-                  <SelectItem value="type2">Type 2</SelectItem>
+                  {eventTypes.map((item) => {
+                    return (
+                      <SelectItem key={item.slug} value={item.slug}>
+                        {item.name}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
@@ -83,7 +83,13 @@ export default function EventForm() {
             </div>
             <div>
               <Label htmlFor="url">Official Website (URL)</Label>
-              <Input id="url" name="url" placeholder="Enter URL" />
+              <Input
+                id="url"
+                name="url"
+                placeholder="Enter URL"
+                type="url"
+                pattern="[Hh][Tt][Tt][Pp][Ss]?:\/\/(?:(?:[a-zA-Z\u00a1-\uffff0-9]+-?)*[a-zA-Z\u00a1-\uffff0-9]+)(?:\.(?:[a-zA-Z\u00a1-\uffff0-9]+-?)*[a-zA-Z\u00a1-\uffff0-9]+)*(?:\.(?:[a-zA-Z\u00a1-\uffff]{2,}))(?::\d{2,5})?(?:\/[^\s]*)?"
+              />
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox id="approved" name="approved" />
@@ -202,113 +208,113 @@ export default function EventForm() {
         <section className="mt-6">
           <h2 className="text-xl font-semibold">Categories</h2>
           <div className="mt-4 space-y-4">
-            <div className="flex items-center space-x-2">
-              <Checkbox id="cioff" />
-              <Label htmlFor="cioff">CIOFF</Label>
-              <Checkbox id="cioff-label" />
-              <Label htmlFor="cioff-label">CIOFF Label</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Day" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 31 }).map((_, day) => (
-                    <SelectItem key={day} value={day + 1}>
-                      {day + 1}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Month" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 12 }).map((_, month) => (
-                    <SelectItem key={month} value={month + 1}>
-                      {month + 1}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Year" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 10 }).map((_, year) => (
-                    <SelectItem key={year} value={2023 + year}>
-                      {2023 + year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>International</Label>
-              <Checkbox
-                id="international"
-                name="categories"
-                value="international"
-              />
-            </div>
-            <div>
-              <Label>Children Festival</Label>
-              <Checkbox
-                id="children-festival"
-                name="categories"
-                value="children-festival"
-              />
-            </div>
+            {/* <div className="flex items-center space-x-2"> */}
+            {/*   <Checkbox id="cioff" /> */}
+            {/*   <Label htmlFor="cioff">CIOFF</Label> */}
+            {/*   <Checkbox id="cioff-label" /> */}
+            {/*   <Label htmlFor="cioff-label">CIOFF Label</Label> */}
+            {/*   <Select> */}
+            {/*     <SelectTrigger> */}
+            {/*       <SelectValue placeholder="Day" /> */}
+            {/*     </SelectTrigger> */}
+            {/*     <SelectContent> */}
+            {/*       {Array.from({ length: 31 }).map((_, day) => ( */}
+            {/*         <SelectItem key={day} value={day + 1}> */}
+            {/*           {day + 1} */}
+            {/*         </SelectItem> */}
+            {/*       ))} */}
+            {/*     </SelectContent> */}
+            {/*   </Select> */}
+            {/*   <Select> */}
+            {/*     <SelectTrigger> */}
+            {/*       <SelectValue placeholder="Month" /> */}
+            {/*     </SelectTrigger> */}
+            {/*     <SelectContent> */}
+            {/*       {Array.from({ length: 12 }).map((_, month) => ( */}
+            {/*         <SelectItem key={month} value={month + 1}> */}
+            {/*           {month + 1} */}
+            {/*         </SelectItem> */}
+            {/*       ))} */}
+            {/*     </SelectContent> */}
+            {/*   </Select> */}
+            {/*   <Select> */}
+            {/*     <SelectTrigger> */}
+            {/*       <SelectValue placeholder="Year" /> */}
+            {/*     </SelectTrigger> */}
+            {/*     <SelectContent> */}
+            {/*       {Array.from({ length: 10 }).map((_, year) => ( */}
+            {/*         <SelectItem key={year} value={2023 + year}> */}
+            {/*           {2023 + year} */}
+            {/*         </SelectItem> */}
+            {/*       ))} */}
+            {/*     </SelectContent> */}
+            {/*   </Select> */}
+            {/* </div> */}
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Folk Singing</Label>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="international"
+                  name="categories"
+                  value="international"
+                />
+                <Label htmlFor="international">International</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="children-festival"
+                  name="categories"
+                  value="children-festival"
+                />
+                <Label htmlFor="children-festival">Children Festival</Label>
+              </div>
+              <div className="flex items-center space-x-2">
                 <Checkbox
                   id="folk-singing"
                   name="categories"
                   value="folk-singing"
                 />
+                <Label htmlFor="folk-singing">Folk Singing</Label>
               </div>
-              <div>
-                <Label>Folk Dancing</Label>
-                <Checkbox id="folk-dancing" />
+              <div className="flex items-center space-x-2">
+                <Checkbox id="folk-dancing" name="categories" />
+                <Label htmlFor="folk-dancing">Folk Dancing</Label>
               </div>
-              <div>
-                <Label>Folk Music</Label>
-                <Checkbox id="folk-music" />
+              <div className="flex items-center space-x-2">
+                <Checkbox id="folk-music" name="categories" />
+                <Label htmlFor="folk-music">Folk Music</Label>
               </div>
-              <div>
-                <Label>Traditional Cooking</Label>
-                <Checkbox id="traditional-cooking" />
+              <div className="flex items-center space-x-2">
+                <Checkbox id="traditional-cooking" name="categories" />
+                <Label htmlFor="traditional-cooking">Traditional Cooking</Label>
               </div>
-              <div>
-                <Label>Traditional Trade</Label>
-                <Checkbox id="traditional-trade" />
-              </div>
-              <div>
-                <Label>Traditional Game</Label>
-                <Checkbox id="traditional-game" />
-              </div>
-              <div>
-                <Label>Exposition</Label>
-                <Checkbox id="exposition" />
-              </div>
-              <div>
-                <Label>Conference</Label>
-                <Checkbox id="conference" />
-              </div>
-              <div>
-                <Label>Authentic</Label>
-                <Checkbox id="authentic" />
-              </div>
-              <div>
-                <Label>Elaborate</Label>
-                <Checkbox id="elaborate" />
-              </div>
-              <div>
-                <Label>Stylized</Label>
-                <Checkbox id="stylized" />
-              </div>
+              {/* <div> */}
+              {/*   <Label>Traditional Trade</Label> */}
+              {/*   <Checkbox id="traditional-trade" /> */}
+              {/* </div> */}
+              {/* <div> */}
+              {/*   <Label>Traditional Game</Label> */}
+              {/*   <Checkbox id="traditional-game" /> */}
+              {/* </div> */}
+              {/* <div> */}
+              {/*   <Label>Exposition</Label> */}
+              {/*   <Checkbox id="exposition" /> */}
+              {/* </div> */}
+              {/* <div> */}
+              {/*   <Label>Conference</Label> */}
+              {/*   <Checkbox id="conference" /> */}
+              {/* </div> */}
+              {/* <div> */}
+              {/*   <Label>Authentic</Label> */}
+              {/*   <Checkbox id="authentic" /> */}
+              {/* </div> */}
+              {/* <div> */}
+              {/*   <Label>Elaborate</Label> */}
+              {/*   <Checkbox id="elaborate" /> */}
+              {/* </div> */}
+              {/* <div> */}
+              {/*   <Label>Stylized</Label> */}
+              {/*   <Checkbox id="stylized" /> */}
+              {/* </div> */}
             </div>
           </div>
         </section>

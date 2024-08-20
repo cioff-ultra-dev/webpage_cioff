@@ -110,7 +110,9 @@ export const events = pgTable("events", {
 export const eventTypes = pgTable("event_types", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  tag: varchar("tag").notNull(),
+  slug: varchar("slug").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
 export const eventsToEventTypes = pgTable(
@@ -131,6 +133,7 @@ export const eventsToEventTypes = pgTable(
 export const categories = pgTable("categories", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  slug: text("slug").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });

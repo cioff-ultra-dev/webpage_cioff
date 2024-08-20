@@ -5,18 +5,17 @@ import { revalidatePath } from "next/cache";
 import { put } from "@vercel/blob";
 import { AuthError } from "next-auth";
 import { signIn } from "@/auth";
-import { generateHashPassword } from "@/lib/password";
 import { redirect } from "next/navigation";
+import { newEvent } from "@/db/queries/events";
 
 export async function authenticate(
-  prevState: string | undefined,
+  _prevState: string | undefined,
   formData: FormData,
 ) {
-  formData.set("redirectTo", "/dashboard");
+  formData.set("redirectTo", "/dashboard/events");
   try {
     await signIn("credentials", formData);
   } catch (error) {
-    console.log(error);
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":
@@ -31,8 +30,8 @@ export async function authenticate(
   redirect("/dashboard");
 }
 
-export async function createEvent(prevState: InsertEvent, formData: FormData) {
-  const schema = insertEventSchema.omit({ id: true });
+export async function createEvent(prevState: unknown, formData: FormData) {
+  const schema = insertEventSchema;
 
   const categories = formData.getAll("categories") || [];
   const isApproved = formData.get("approved") === "on";
@@ -50,11 +49,10 @@ export async function createEvent(prevState: InsertEvent, formData: FormData) {
   });
 
   if (!parse.success) {
-    console.log({ errors: parse.error.flatten().fieldErrors });
+    return { errors: parse.error.flatten().fieldErrors };
   }
 
-  console.log(await generateHashPassword("password"));
+  await newEvent(parse.data!);
 
-  revalidatePath("/events/new");
-  return { title: "", approved: false, description: "", errors: null };
+  redirect("/dashboard/events");
 }
