@@ -133,7 +133,7 @@ export default function EventForm({ eventTypes }: { eventTypes: Array<any> }) {
                   </SelectTrigger>
                   <SelectContent>
                     {Array.from({ length: 10 }).map((_, year) => (
-                      <SelectItem key={year} value={2023 + year}>
+                      <SelectItem key={year} value={`${2023 + year}`}>
                         {2023 + year}
                       </SelectItem>
                     ))}

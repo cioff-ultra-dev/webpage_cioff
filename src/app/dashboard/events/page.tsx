@@ -176,7 +176,8 @@ export default function DashboardPage() {
   );
 }
 
-function CalendarIcon(props) {
+type SVGComponentProps = React.ComponentPropsWithoutRef<"svg">;
+function CalendarIcon(props: SVGComponentProps) {
   return (
     <svg
       {...props}
@@ -198,7 +199,7 @@ function CalendarIcon(props) {
   );
 }
 
-function CirclePlusIcon(props) {
+function CirclePlusIcon(props: SVGComponentProps) {
   return (
     <svg
       {...props}
@@ -219,7 +220,7 @@ function CirclePlusIcon(props) {
   );
 }
 
-function FileIcon(props) {
+function FileIcon(props: SVGComponentProps) {
   return (
     <svg
       {...props}
@@ -239,7 +240,7 @@ function FileIcon(props) {
   );
 }
 
-function HomeIcon(props) {
+function HomeIcon(props: SVGComponentProps) {
   return (
     <svg
       {...props}
@@ -259,7 +260,7 @@ function HomeIcon(props) {
   );
 }
 
-function LineChartIcon(props) {
+function LineChartIcon(props: SVGComponentProps) {
   return (
     <svg
       {...props}
@@ -279,7 +280,7 @@ function LineChartIcon(props) {
   );
 }
 
-function ListFilterIcon(props) {
+function ListFilterIcon(props: SVGComponentProps) {
   return (
     <svg
       {...props}
@@ -300,7 +301,7 @@ function ListFilterIcon(props) {
   );
 }
 
-function MoveHorizontalIcon(props) {
+function MoveHorizontalIcon(props: SVGComponentProps) {
   return (
     <svg
       {...props}
@@ -321,7 +322,7 @@ function MoveHorizontalIcon(props) {
   );
 }
 
-function PackageIcon(props) {
+function PackageIcon(props: SVGComponentProps) {
   return (
     <svg
       {...props}
@@ -343,7 +344,7 @@ function PackageIcon(props) {
   );
 }
 
-function PanelLeftIcon(props) {
+function PanelLeftIcon(props: SVGComponentProps) {
   return (
     <svg
       {...props}
@@ -363,7 +364,7 @@ function PanelLeftIcon(props) {
   );
 }
 
-function SearchIcon(props) {
+function SearchIcon(props: SVGComponentProps) {
   return (
     <svg
       {...props}
@@ -383,7 +384,7 @@ function SearchIcon(props) {
   );
 }
 
-function SettingsIcon(props) {
+function SettingsIcon(props: SVGComponentProps) {
   return (
     <svg
       {...props}
@@ -403,7 +404,7 @@ function SettingsIcon(props) {
   );
 }
 
-function UsersIcon(props) {
+function UsersIcon(props: SVGComponentProps) {
   return (
     <svg
       {...props}
