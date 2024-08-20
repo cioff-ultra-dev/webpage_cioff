@@ -1,6 +1,6 @@
 {
-  "id": "1000d616-2d6f-4e33-b182-08439311981f",
-  "prevId": "e1a5f8b3-805b-409f-beaa-1247fd534efa",
+  "id": "fdcd775b-f3c6-48ca-a784-bdd362606198",
+  "prevId": "3fae2986-9b68-4bf4-aaed-f40e7966eb38",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -206,6 +206,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -241,11 +247,24 @@
           "primaryKey": false,
           "notNull": true
         },
-        "tag": {
-          "name": "tag",
+        "slug": {
+          "name": "slug",
           "type": "varchar",
           "primaryKey": false,
           "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},

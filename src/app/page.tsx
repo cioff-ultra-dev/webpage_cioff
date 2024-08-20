@@ -5,8 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Header } from "@/components/common/header";
 import { Linkedin, Instagram, Facebook } from "lucide-react";
+import { getAllEvents } from "@/db/queries/events";
 
-export default function Home() {
+export default async function Home() {
+  const result = await getAllEvents();
+
+  console.log(result);
   return (
     <div className="bg-black text-white">
       <Header className="absolute left-0 right-0 top-0" />
