@@ -1,12 +1,60 @@
 "use server";
-import { InsertEvent, insertEventSchema, SelectEvent } from "@/db/schema";
+
+import { InsertEvent, insertEventSchema } from "@/db/schema";
 import { revalidatePath } from "next/cache";
+import { put } from "@vercel/blob";
+import { AuthError } from "next-auth";
+import { signIn } from "@/auth";
+import { generateHashPassword } from "@/lib/password";
+import { redirect } from "next/navigation";
+
+export async function authenticate(
+  prevState: string | undefined,
+  formData: FormData,
+) {
+  formData.set("redirectTo", "/dashboard");
+  try {
+    await signIn("credentials", formData);
+  } catch (error) {
+    console.log(error);
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case "CredentialsSignin":
+          return "Invalid Credentials";
+        default:
+          return "Something went wrong.";
+      }
+    }
+    throw error;
+  }
+
+  redirect("/dashboard");
+}
 
 export async function createEvent(prevState: InsertEvent, formData: FormData) {
   const schema = insertEventSchema.omit({ id: true });
 
-  console.log(Object.fromEntries(formData.entries()));
+  const categories = formData.getAll("categories") || [];
+  const isApproved = formData.get("approved") === "on";
+  const logo = formData.get("logo") as File;
+  let logoUrl = null;
+
+  if (logo.size) {
+    logoUrl = await put(`logos/${logo.name}`, logo, { access: "public" });
+  }
+
+  const parse = schema.safeParse({
+    title: formData.get("title"),
+    description: formData.get("description"),
+    stateMode: formData.get("state_mode"),
+  });
+
+  if (!parse.success) {
+    console.log({ errors: parse.error.flatten().fieldErrors });
+  }
+
+  console.log(await generateHashPassword("password"));
 
   revalidatePath("/events/new");
-  return { title: "", approved: false, description: "" };
+  return { title: "", approved: false, description: "", errors: null };
 }

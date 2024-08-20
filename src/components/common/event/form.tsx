@@ -20,9 +20,9 @@ export default function EventForm() {
     title: "",
     description: "",
     approved: true,
+    errors: null,
   });
 
-  console.log({ state });
   return (
     <div className="max-w-4xl mx-auto p-4">
       <h1 className="text-2xl font-bold">ADD AN EVENT</h1>
@@ -246,16 +246,28 @@ export default function EventForm() {
             </div>
             <div>
               <Label>International</Label>
-              <Checkbox id="international" />
+              <Checkbox
+                id="international"
+                name="categories"
+                value="international"
+              />
             </div>
             <div>
               <Label>Children Festival</Label>
-              <Checkbox id="children-festival" />
+              <Checkbox
+                id="children-festival"
+                name="categories"
+                value="children-festival"
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Folk Singing</Label>
-                <Checkbox id="folk-singing" />
+                <Checkbox
+                  id="folk-singing"
+                  name="categories"
+                  value="folk-singing"
+                />
               </div>
               <div>
                 <Label>Folk Dancing</Label>

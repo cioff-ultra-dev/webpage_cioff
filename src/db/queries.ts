@@ -1,16 +1,24 @@
 import { InsertUser, SelectUser, users } from "@/db/schema";
 import { db } from ".";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
-export async function getUserById(id: SelectUser["id"]): Promise<
-  Array<{
-    id: number;
-    name: string;
-    age: number;
-    email: string;
-  }>
-> {
+// Placeholders
+const selectUserByP1 = db
+  .select()
+  .from(users)
+  .where(eq(users.email, sql.placeholder("email")))
+  .prepare("selectUserByP1");
+
+export async function getUserById(
+  id: SelectUser["id"],
+): Promise<Array<SelectUser>> {
   return db.select().from(users).where(eq(users.id, id));
+}
+
+export async function getUserByEmail(
+  email: SelectUser["email"],
+): Promise<Array<SelectUser>> {
+  return selectUserByP1.execute({ email });
 }
 
 export async function createUser(user: InsertUser) {
