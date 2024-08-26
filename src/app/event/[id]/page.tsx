@@ -12,6 +12,7 @@ import { Header } from "@/components/common/header";
 import { format } from "date-fns";
 import { MapMarkerEvent } from "@/components/common/event/map-marker";
 import { GalleryImageEvent } from "@/components/common/event/gallery-images";
+import { CoverImageEvent } from "@/components/common/event/cover";
 
 export default async function EventDetail({
   params,
@@ -26,14 +27,7 @@ export default async function EventDetail({
       <Header className="border-b" text="text-black" />
       <main className="flex flex-col flex-1 gap-4 md:gap-8 bg-gray-50">
         <div className="relative w-full h-[400px]">
-          <Image
-            src={event.cover || "/placeholder.svg"}
-            alt="Banner"
-            className="object-cover w-full h-full"
-            width="1200"
-            height="400"
-            style={{ aspectRatio: "1200/400", objectFit: "cover" }}
-          />
+          <CoverImageEvent cover={event.cover || ""} />
           <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent">
             <div className="flex items-center gap-2">
               <Avatar>
