@@ -60,7 +60,6 @@ function Submit() {
   return (
     <Button
       type="submit"
-      className="w-full"
       aria-disabled={status.pending}
       disabled={status.pending}
     >
