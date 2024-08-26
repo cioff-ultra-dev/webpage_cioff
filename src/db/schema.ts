@@ -12,6 +12,8 @@ import {
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import type { AdapterAccountType } from "next-auth/adapters";
+import { isPossiblePhoneNumber } from "libphonenumber-js";
+import { z } from "zod";
 
 // Enums
 export const stateModeEnum = pgEnum("state_mode", ["offline", "online"]);
@@ -49,7 +51,7 @@ export const accounts = pgTable(
     compoundKey: primaryKey({
       columns: [account.provider, account.providerAccountId],
     }),
-  }),
+  })
 );
 
 export const sessions = pgTable("session", {
@@ -71,7 +73,7 @@ export const verificationTokens = pgTable(
     compositePk: primaryKey({
       columns: [verificationToken.identifier, verificationToken.token],
     }),
-  }),
+  })
 );
 
 export const authenticators = pgTable(
@@ -92,7 +94,7 @@ export const authenticators = pgTable(
     compositePK: primaryKey({
       columns: [authenticator.userId, authenticator.credentialID],
     }),
-  }),
+  })
 );
 
 export const events = pgTable("events", {
@@ -103,6 +105,25 @@ export const events = pgTable("events", {
   logo: text("logo"),
   url: text("url"),
   approved: boolean("approved"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const festivals = pgTable("festivals", {
+  id: serial("id").primaryKey(),
+  stateMode: stateModeEnum("state_mode").default("offline"),
+  name: text("name").notNull(),
+  directorName: text("director_name").notNull(),
+  phone: text("phone"),
+  description: text("description").notNull(),
+  address: text("address"),
+  location: text("location").notNull(),
+  currentDates: text("current_dates").notNull(),
+  nextDates: text("next_dates"),
+  logo: text("logo"),
+  cover: text("cover"),
+  photos: text("photos"),
+  youtubeId: text("youtube_id"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -127,7 +148,7 @@ export const eventsToEventTypes = pgTable(
   },
   (table) => ({
     pk: primaryKey({ columns: [table.eventId, table.eventTypeId] }),
-  }),
+  })
 );
 
 export const categories = pgTable("categories", {
@@ -158,7 +179,7 @@ export const eventsToEventTypesRelations = relations(
       fields: [eventsToEventTypes.eventTypeId],
       references: [eventTypes.id],
     }),
-  }),
+  })
 );
 
 // Schemas
@@ -176,6 +197,19 @@ export const insertEventSchema = createInsertSchema(events, {
   description: (schema) => schema.description.min(20),
 });
 export const selectEventSchema = createSelectSchema(events);
+export const insertFestivalSchema = createInsertSchema(festivals, {
+  name: (schema) => schema.name.min(1),
+  directorName: (schema) => schema.directorName.min(1),
+  description: (schema) => schema.description.max(500),
+  phone: (schema) =>
+    schema.phone.refine(
+      (value) => {
+        return isPossiblePhoneNumber(value || "");
+      },
+      { message: "Invalid phone number" }
+    ),
+});
+export const selectFestivalSchema = createSelectSchema(festivals);
 
 // Infered Types
 export type InsertUser = typeof users.$inferInsert;
@@ -186,3 +220,6 @@ export type SelectEvent = typeof events.$inferSelect;
 
 export type InsertCategory = typeof categories.$inferInsert;
 export type SelectCategory = typeof categories.$inferSelect;
+
+export type InsertFestival = typeof festivals.$inferInsert;
+export type SelectFestival = typeof festivals.$inferSelect;

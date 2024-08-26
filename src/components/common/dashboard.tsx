@@ -5,6 +5,7 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import Link from "next/link";
+import Image from "next/image";
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,8 +26,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 
-import { SignOut } from "./signout-button";
-import Image from "next/image";
+import { SignOut } from "@/components/common/signout-button";
 
 export default function Dashboard({ children }: { children: React.ReactNode }) {
   return (

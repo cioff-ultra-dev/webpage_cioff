@@ -36,6 +36,20 @@
       "when": 1724185940872,
       "tag": "0004_slow_nova",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1724666377393,
+      "tag": "0005_luxuriant_pepper_potts",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1724674590245,
+      "tag": "0006_daffy_imperial_guard",
+      "breakpoints": true
     }
   ]
 }

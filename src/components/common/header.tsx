@@ -47,14 +47,18 @@ function MenuIcon(props: SVGComponentProps) {
   );
 }
 
-export type HeaderProps = React.HTMLAttributes<HTMLElement>;
+export type HeaderProps = React.HTMLAttributes<HTMLElement> & { text?: string };
 
-export function Header({ className, ...props }: HeaderProps) {
+export function Header({
+  className,
+  text = "text-white",
+  ...props
+}: HeaderProps) {
   return (
     <header
       className={cn(
         "z-10 flex items-center justify-between px-4 py-4 sm:px-8 md:px-6",
-        className,
+        className
       )}
       {...props}
     >
@@ -67,7 +71,7 @@ export function Header({ className, ...props }: HeaderProps) {
         </SheetTrigger>
         <SheetContent side="left" className="bg-gray-900 sm:bg-[#1f2937]">
           <nav className="flex flex-col space-y-4 text-lg font-medium">
-            <Link href="/" className="text-white" prefetch={false}>
+            <Link href="/" className={`${text}`} prefetch={false}>
               <Image
                 src="/logo.png"
                 width="100"
@@ -75,58 +79,58 @@ export function Header({ className, ...props }: HeaderProps) {
                 alt="CIOFF Logo"
               />
             </Link>
-            <Link href="#" className="text-white" prefetch={false}>
+            <Link href="#" className={`${text}`} prefetch={false}>
               FOLKLORIADAS
             </Link>
-            <Link href="#" className="text-white" prefetch={false}>
+            <Link href="#" className={`${text}`} prefetch={false}>
               NEWS
             </Link>
-            <Link href="/event" className="text-white" prefetch={false}>
+            <Link href="/event" className={`${text}`} prefetch={false}>
               EVENTS
             </Link>
-            <Link href="#" className="text-white" prefetch={false}>
+            <Link href="#" className={`${text}`} prefetch={false}>
               MEMBERS
             </Link>
-            <Link href="#" className="text-white" prefetch={false}>
+            <Link href="#" className={`${text}`} prefetch={false}>
               ABOUT
             </Link>
-            <Link href="#" className="text-white" prefetch={false}>
+            <Link href="#" className={`${text}`} prefetch={false}>
               CONTACT
             </Link>
           </nav>
         </SheetContent>
       </Sheet>
       <nav className="hidden space-x-4 sm:space-x-6 lg:flex items-center">
-        <Link href="/" className="text-white" prefetch={false}>
+        <Link href="/" className={`${text}`} prefetch={false}>
           <Image src="/logo.png" width="100" height="100" alt="CIOFF Logo" />
         </Link>
       </nav>
       <nav className="hidden lg:flex space-x-4 sm:space-x-6">
-        <Link href="#" className="text-white" prefetch={false}>
+        <Link href="#" className={`${text}`} prefetch={false}>
           FOLKLORIADAS
         </Link>
-        <Link href="#" className="text-white" prefetch={false}>
+        <Link href="#" className={`${text}`} prefetch={false}>
           NEWS
         </Link>
-        <Link href="/event" className="text-white" prefetch={false}>
+        <Link href="/event" className={`${text}`} prefetch={false}>
           EVENTS
         </Link>
-        <Link href="#" className="text-white" prefetch={false}>
+        <Link href="#" className={`${text}`} prefetch={false}>
           MEMBERS
         </Link>
-        <Link href="#" className="text-white" prefetch={false}>
+        <Link href="#" className={`${text}`} prefetch={false}>
           ABOUT
         </Link>
-        <Link href="#" className="text-white" prefetch={false}>
+        <Link href="#" className={`${text}`} prefetch={false}>
           CONTACT
         </Link>
       </nav>
       <div className="flex items-center space-x-4">
-        <Link href="/login" className="text-white" prefetch>
+        <Link href="/login" className={`${text}`} prefetch>
           LOGIN
         </Link>
         <Button variant="ghost" size="icon" className="rounded-full">
-          <UserIcon className="text-white" />
+          <UserIcon className={`${text}`} />
         </Button>
       </div>
     </header>

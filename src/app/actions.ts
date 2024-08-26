@@ -1,16 +1,20 @@
 "use server";
 
-import { InsertEvent, insertEventSchema } from "@/db/schema";
+import {
+  InsertEvent,
+  insertEventSchema,
+  insertFestivalSchema,
+} from "@/db/schema";
 import { revalidatePath } from "next/cache";
 import { put } from "@vercel/blob";
 import { AuthError } from "next-auth";
 import { signIn } from "@/auth";
 import { redirect } from "next/navigation";
-import { newEvent } from "@/db/queries/events";
+import { newEvent, newFestival } from "@/db/queries/events";
 
 export async function authenticate(
   _prevState: string | undefined,
-  formData: FormData,
+  formData: FormData
 ) {
   formData.set("redirectTo", "/dashboard/events");
   try {
@@ -31,28 +35,58 @@ export async function authenticate(
 }
 
 export async function createEvent(prevState: unknown, formData: FormData) {
-  const schema = insertEventSchema;
+  const schema = insertFestivalSchema;
 
-  const categories = formData.getAll("categories") || [];
-  const isApproved = formData.get("approved") === "on";
+  console.log(formData);
+
   const logo = formData.get("logo") as File;
+  const photos = formData.getAll("photos") as Array<File>;
+  const cover = formData.get("coverPhoto") as File;
   let logoUrl = null;
+  let coverUrl = null;
+  let photosUrl = [];
 
   if (logo.size) {
-    logoUrl = await put(`logos/${logo.name}`, logo, { access: "public" });
+    logoUrl = (await put(`logos/${logo.name}`, logo, { access: "public" })).url;
+  }
+
+  if (cover.size) {
+    coverUrl = (await put(`logos/${cover.name}`, cover, { access: "public" }))
+      .url;
+  }
+
+  if (photos.length) {
+    for await (const item of photos) {
+      if (item.size) {
+        const result = (
+          await put(`logos/${item.name}`, item, { access: "public" })
+        ).url;
+        photosUrl.push(result);
+      }
+    }
   }
 
   const parse = schema.safeParse({
-    title: formData.get("title"),
+    name: formData.get("name"),
     description: formData.get("description"),
-    stateMode: formData.get("state_mode"),
+    stateMode: formData.get("stateMode"),
+    directorName: formData.get("directorName"),
+    phone: formData.get("phone"),
+    address: formData.get("mailAddress"),
+    location: formData.get("location"),
+    currentDates: formData.get("currentDates"),
+    nextDates: formData.get("nextDates"),
+    photos: photosUrl.join(","),
+    cover: coverUrl,
+    logo: logoUrl,
+    youtubeId: formData.get("youtubeId"),
   });
 
   if (!parse.success) {
     return { errors: parse.error.flatten().fieldErrors };
   }
 
-  await newEvent(parse.data!);
+  await newFestival(parse.data!);
 
   redirect("/dashboard/events");
 }

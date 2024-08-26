@@ -24,15 +24,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { getAllFestivals } from "@/db/queries/events";
+import { format } from "date-fns";
+import { EllipsisVertical } from "lucide-react";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const events = await getAllFestivals();
+  console.log({ events });
   return (
     <Tabs defaultValue="all">
       <div className="flex items-center">
         <TabsList>
           <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-          <TabsTrigger value="past">Past</TabsTrigger>
+          {/* <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+          <TabsTrigger value="past">Past</TabsTrigger> */}
         </TabsList>
         <div className="ml-auto flex items-center gap-2">
           {/* <DropdownMenu> */}
@@ -83,90 +88,50 @@ export default function DashboardPage() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead className="hidden md:table-cell">Date</TableHead>
-                  <TableHead className="hidden md:table-cell">
-                    Location
-                  </TableHead>
-                  <TableHead className="hidden md:table-cell">
-                    Attendees
-                  </TableHead>
+                  <TableHead className="hidden md:table-cell">State</TableHead>
                   <TableHead>
                     <span className="sr-only">Actions</span>
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow>
-                  <TableCell className="font-medium">
-                    Annual Sales Conference
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    June 15, 2023
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    Acme HQ, San Francisco
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">250</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          aria-haspopup="true"
-                          size="icon"
-                          variant="ghost"
-                        >
-                          <MoveHorizontalIcon className="h-4 w-4" />
-                          <span className="sr-only">Toggle menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>View</DropdownMenuItem>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">
-                    Product Launch Party
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    August 10, 2023
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    Acme Showroom, New York
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">150</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          aria-haspopup="true"
-                          size="icon"
-                          variant="ghost"
-                        >
-                          <MoveHorizontalIcon className="h-4 w-4" />
-                          <span className="sr-only">Toggle menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>View</DropdownMenuItem>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">
-                    Customer Appreciation Dinner
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    November 20, 2023
-                  </TableCell>
-                </TableRow>
+                {events.map((item) => {
+                  return (
+                    <TableRow key={item.id}>
+                      <TableCell className="font-medium">{item.name}</TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {format(item.createdAt, "PPP")}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell capitalize">
+                        {item.stateMode}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              aria-haspopup="true"
+                              size="icon"
+                              variant="ghost"
+                            >
+                              <EllipsisVertical className="h-4 w-4" />
+                              <span className="sr-only">Toggle menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem>
+                              <Link href={`/event/${item.id}`} target="_blank">
+                                Preview
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem disabled>Edit</DropdownMenuItem>
+                            <DropdownMenuItem disabled>Delete</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </CardContent>
@@ -177,6 +142,7 @@ export default function DashboardPage() {
 }
 
 type SVGComponentProps = React.ComponentPropsWithoutRef<"svg">;
+
 function CalendarIcon(props: SVGComponentProps) {
   return (
     <svg
