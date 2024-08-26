@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { createEvent } from "@/app/actions";
-import { useFormState } from "react-dom";
+import { useFormState, useFormStatus } from "react-dom";
 import * as RPNInput from "react-phone-number-input";
 import {
   Form,
@@ -53,6 +53,21 @@ const globalEventSchema = insertFestivalSchema.merge(
     _nextDates: z.array(z.date()),
   })
 );
+
+function Submit() {
+  const status = useFormStatus();
+
+  return (
+    <Button
+      type="submit"
+      className="w-full"
+      aria-disabled={status.pending}
+      disabled={status.pending}
+    >
+      Save
+    </Button>
+  );
+}
 
 export default function EventForm() {
   const [state, formAction] = useFormState(createEvent, undefined);
@@ -654,7 +669,7 @@ export default function EventForm() {
             <Link href="/dashboard/events">
               <Button variant="outline">Cancel</Button>
             </Link>
-            <Button type="submit">Submit</Button>
+            <Submit />
           </div>
         </form>
       </Form>

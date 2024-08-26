@@ -14,8 +14,23 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { Separator } from "@/components/ui/separator";
-import { useFormState } from "react-dom";
+import { useFormState, useFormStatus } from "react-dom";
 import { authenticate } from "@/app/actions";
+
+function Submit() {
+  const status = useFormStatus();
+
+  return (
+    <Button
+      type="submit"
+      className="w-full"
+      aria-disabled={status.pending}
+      disabled={status.pending}
+    >
+      Sign in
+    </Button>
+  );
+}
 
 export default function LoginForm() {
   const [error, formAction, isPending] = useFormState(authenticate, undefined);
@@ -52,9 +67,7 @@ export default function LoginForm() {
             </div>
           </CardContent>
           <CardFooter className="flex items-center justify-between">
-            <Button type="submit" className="w-full" aria-disabled={isPending}>
-              Sign in
-            </Button>
+            <Submit />
           </CardFooter>
           <div className="mb-4 text-center text-sm text-muted-foreground flex justify-center items-center">
             {error && (
