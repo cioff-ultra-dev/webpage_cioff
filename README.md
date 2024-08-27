@@ -22,7 +22,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 1. Just create a `.env` on the root of the project with the following variables:
 
-> Please, reach out dev team to provide all the variables needed, our database just supported by [Vercel Postgres](https://vercel.com/docs/storage/vercel-postgres)
+> Please, reach out developers team to provide all the variables needed, our database just supported by [Vercel Postgres](https://vercel.com/docs/storage/vercel-postgres)
 
 ```env
 POSTGRES_URL="************"
@@ -41,4 +41,4 @@ POSTGRES_DATABASE="************"
 
 #### Contribution
 
-We're open to receive any feedbacks related to the docs and guideline for provide great experiences for the dev environment.
+We're open to receive any feedback related to the docs and guideline for provide great experiences for the dev environment.
