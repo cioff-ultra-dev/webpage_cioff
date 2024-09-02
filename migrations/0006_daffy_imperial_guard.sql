@@ -1,1 +1,0 @@
-ALTER TABLE "festivals" ADD COLUMN "youtube_id" text;

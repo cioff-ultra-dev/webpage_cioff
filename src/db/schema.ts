@@ -8,12 +8,11 @@ import {
   serial,
   text,
   timestamp,
-  varchar,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import type { AdapterAccountType } from "next-auth/adapters";
 import { isPossiblePhoneNumber } from "libphonenumber-js";
-import { z } from "zod";
+import slug from "slug";
 
 // Enums
 export const stateModeEnum = pgEnum("state_mode", ["offline", "online"]);
@@ -51,7 +50,7 @@ export const accounts = pgTable(
     compoundKey: primaryKey({
       columns: [account.provider, account.providerAccountId],
     }),
-  })
+  }),
 );
 
 export const sessions = pgTable("session", {
@@ -73,7 +72,7 @@ export const verificationTokens = pgTable(
     compositePk: primaryKey({
       columns: [verificationToken.identifier, verificationToken.token],
     }),
-  })
+  }),
 );
 
 export const authenticators = pgTable(
@@ -94,7 +93,7 @@ export const authenticators = pgTable(
     compositePK: primaryKey({
       columns: [authenticator.userId, authenticator.credentialID],
     }),
-  })
+  }),
 );
 
 export const events = pgTable("events", {
@@ -128,29 +127,6 @@ export const festivals = pgTable("festivals", {
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
-export const eventTypes = pgTable("event_types", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  slug: varchar("slug").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
-});
-
-export const eventsToEventTypes = pgTable(
-  "events_to_event_types",
-  {
-    eventId: integer("event_id")
-      .notNull()
-      .references(() => events.id),
-    eventTypeId: integer("event_types_id")
-      .notNull()
-      .references(() => eventTypes.id),
-  },
-  (table) => ({
-    pk: primaryKey({ columns: [table.eventId, table.eventTypeId] }),
-  })
-);
-
 export const categories = pgTable("categories", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -159,28 +135,42 @@ export const categories = pgTable("categories", {
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
+export const typeGroups = pgTable("type_groups", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  slug: text("slug"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const groups = pgTable("groups", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  generalDirectorName: text("general_director_name").notNull(),
+  generalDirectorProfile: text("general_director_profile"),
+  generalDirectorPhoto: text("general_director_photo"),
+  artisticDirectorName: text("artistic_director_name"),
+  artisticDirectorProfile: text("artistic_director_profile"),
+  artisticDirectorPhoto: text("artistic_director_photo"),
+  phone: text("phone"),
+  address: text("address"),
+  typeId: integer("type_id"),
+  description: text("description"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
 // Relations
-export const eventsRelations = relations(events, ({ many }) => ({
-  eventToTypes: many(eventsToEventTypes),
+export const groupsRelations = relations(groups, ({ one }) => ({
+  type: one(typeGroups, {
+    fields: [groups.typeId],
+    references: [typeGroups.id],
+  }),
 }));
 
-export const eventTypesRelations = relations(eventTypes, ({ many }) => ({
-  eventToTypes: many(eventsToEventTypes),
+export const typeGroupsRelations = relations(typeGroups, ({ many }) => ({
+  groups: many(groups),
 }));
-
-export const eventsToEventTypesRelations = relations(
-  eventsToEventTypes,
-  ({ one }) => ({
-    event: one(events, {
-      fields: [eventsToEventTypes.eventId],
-      references: [events.id],
-    }),
-    type: one(eventTypes, {
-      fields: [eventsToEventTypes.eventTypeId],
-      references: [eventTypes.id],
-    }),
-  })
-);
 
 // Schemas
 export const inserUserSchema = createInsertSchema(users, {
@@ -206,10 +196,15 @@ export const insertFestivalSchema = createInsertSchema(festivals, {
       (value) => {
         return isPossiblePhoneNumber(value || "");
       },
-      { message: "Invalid phone number" }
+      { message: "Invalid phone number" },
     ),
 });
 export const selectFestivalSchema = createSelectSchema(festivals);
+
+export const insertTypeGroupSchema = createInsertSchema(typeGroups, {
+  slug: (schema) =>
+    schema.slug.transform((value) => (value ? slug(value) : value)),
+});
 
 // Infered Types
 export type InsertUser = typeof users.$inferInsert;
@@ -223,3 +218,9 @@ export type SelectCategory = typeof categories.$inferSelect;
 
 export type InsertFestival = typeof festivals.$inferInsert;
 export type SelectFestival = typeof festivals.$inferSelect;
+
+export type InsertGroup = typeof groups.$inferInsert;
+export type SelectGroup = typeof groups.$inferSelect;
+
+export type InsertTypeGroup = typeof typeGroups.$inferInsert;
+export type SelectTypeGroup = typeof typeGroups.$inferSelect;
