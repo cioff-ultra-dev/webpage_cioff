@@ -67,3 +67,11 @@
 ```
   SELECT name, state_desc FROM sys.databases WHERE name = 'cioff';
 ```
+
+## Passwords
+
+Cioff2024
+$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My
+
+UltraDev2024
+$2a$10$hlg9ywg6TKzvEVSdmEaWkePeIPIwDT58W3VX4QG1PDAay7CxZq41K

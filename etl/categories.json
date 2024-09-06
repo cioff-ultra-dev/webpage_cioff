@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "name": "International",
+    "order": 1
+  },
+  {
+    "id": 2,
+    "name": "Folk Dancing",
+    "order": 7
+  },
+  {
+    "id": 3,
+    "name": "Folk Singing",
+    "order": 6
+  },
+  {
+    "id": 4,
+    "name": "Folk Music",
+    "order": 8
+  },
+  {
+    "id": 5,
+    "name": "Traditional Cooking",
+    "order": 9
+  },
+  {
+    "id": 6,
+    "name": "Traditional Trades",
+    "order": 11
+  },
+  {
+    "id": 7,
+    "name": "Traditional games",
+    "order": 12
+  },
+  {
+    "id": 8,
+    "name": "Sector",
+    "order": 2
+  },
+  {
+    "id": 9,
+    "name": "National",
+    "order": 3
+  },
+  {
+    "id": 10,
+    "name": "CIOFF",
+    "order": 4
+  },
+  {
+    "id": 11,
+    "name": "Children",
+    "order": 5
+  },
+  {
+    "id": 12,
+    "name": "Expositions",
+    "order": 10
+  },
+  {
+    "id": 13,
+    "name": "Conferences",
+    "order": 13
+  },
+  {
+    "id": 14,
+    "name": "Authentik",
+    "order": 14
+  },
+  {
+    "id": 15,
+    "name": "Elaborate",
+    "order": 15
+  },
+  {
+    "id": 16,
+    "name": "Stylized",
+    "order": 16
+  }
+]

@@ -18,34 +18,48 @@ import slug from "slug";
 // Enums
 export const stateModeEnum = pgEnum("state_mode", ["offline", "online"]);
 
-// Tables
+/* Users Table */
+
 export const users = pgTable("users", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  name: text("name"),
+  roleId: integer("role_id"),
+  countryId: integer("country_id"),
+  title: text("title"),
+  firstname: text("firstname"),
+  lastname: text("lastname"),
   email: text("email").notNull().unique(),
-  emailVerified: timestamp("emailVerified", { mode: "date" }),
-  password: text("password").notNull(),
+  address: text("address"),
+  city: text("city"),
+  zip: text("zip"),
+  phone: text("phone"),
   image: text("image"),
+  password: text("password"),
+  active: boolean("active"),
+  emailVerified: timestamp("email_verified", { mode: "date" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
+
+/* Account Table */
 
 export const accounts = pgTable(
   "account",
   {
-    userId: text("userId")
+    userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     type: text("type").$type<AdapterAccountType>().notNull(),
     provider: text("provider").notNull(),
-    providerAccountId: text("providerAccountId").notNull(),
-    refresh_token: text("refresh_token"),
-    access_token: text("access_token"),
-    expires_at: integer("expires_at"),
-    token_type: text("token_type"),
+    providerAccountId: text("provider_account_id").notNull(),
+    refreshToken: text("refresh_token"),
+    accessToken: text("access_token"),
+    expiresAt: integer("expires_at"),
+    tokenType: text("token_type"),
     scope: text("scope"),
-    id_token: text("id_token"),
-    session_state: text("session_state"),
+    idToken: text("id_token"),
+    sessionState: text("session_state"),
   },
   (account) => ({
     compoundKey: primaryKey({
@@ -54,13 +68,17 @@ export const accounts = pgTable(
   })
 );
 
+/* Session Table */
+
 export const sessions = pgTable("session", {
-  sessionToken: text("sessionToken").primaryKey(),
-  userId: text("userId")
+  sessionToken: text("session_token").primaryKey(),
+  userId: text("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   expires: timestamp("expires", { mode: "date" }).notNull(),
 });
+
+/* Verification Token Table */
 
 export const verificationTokens = pgTable(
   "verificationToken",
@@ -76,26 +94,30 @@ export const verificationTokens = pgTable(
   })
 );
 
+/* Authenticator Table */
+
 export const authenticators = pgTable(
   "authenticator",
   {
-    credentialID: text("credentialID").notNull().unique(),
-    userId: text("userId")
+    credentialId: text("credential_id").notNull().unique(),
+    userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    providerAccountId: text("providerAccountId").notNull(),
-    credentialPublicKey: text("credentialPublicKey").notNull(),
+    providerAccountId: text("provider_account_id").notNull(),
+    credentialPublicKey: text("credential_public_key").notNull(),
     counter: integer("counter").notNull(),
-    credentialDeviceType: text("credentialDeviceType").notNull(),
-    credentialBackedUp: boolean("credentialBackedUp").notNull(),
+    credentialDeviceType: text("credential_device_type").notNull(),
+    credentialBackedUp: boolean("credential_backed_up").notNull(),
     transports: text("transports"),
   },
   (authenticator) => ({
     compositePK: primaryKey({
-      columns: [authenticator.userId, authenticator.credentialID],
+      columns: [authenticator.userId, authenticator.credentialId],
     }),
   })
 );
+
+/* Events Table */
 
 export const events = pgTable("events", {
   id: serial("id").primaryKey(),
@@ -109,24 +131,36 @@ export const events = pgTable("events", {
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
+/* Festivals Table */
+
 export const festivals = pgTable("festivals", {
   id: serial("id").primaryKey(),
-  stateMode: stateModeEnum("state_mode").default("offline"),
-  name: text("name").notNull(),
-  directorName: text("director_name").notNull(),
-  phone: text("phone"),
-  description: text("description").notNull(),
   address: text("address"),
-  location: text("location").notNull(),
-  currentDates: text("current_dates").notNull(),
+  name: text("name"),
+  email: text("email"),
+  url: text("url"),
+  contact: text("contact"),
+  countryId: integer("country_id"),
+  urlValidated: boolean("url_validated"),
+  description: text("description"),
+  phone: text("phone"),
+  stateMode: stateModeEnum("state_mode").default("offline"),
+  location: text("location"),
+  currentDates: text("current_dates"),
   nextDates: text("next_dates"),
   logo: text("logo"),
   cover: text("cover"),
   photos: text("photos"),
   youtubeId: text("youtube_id"),
+  directorName: text("director_name"),
+  categories: text("categories"),
+  lang: integer("lang"),
+  publish: boolean("publish"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
+
+/* Categories Table */
 
 export const categories = pgTable("categories", {
   id: serial("id").primaryKey(),
@@ -136,6 +170,8 @@ export const categories = pgTable("categories", {
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
+/* Type groups Table */
+
 export const typeGroups = pgTable("type_groups", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -143,6 +179,8 @@ export const typeGroups = pgTable("type_groups", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
+
+/* Groups Table */
 
 export const groups = pgTable("groups", {
   id: serial("id").primaryKey(),
@@ -161,7 +199,91 @@ export const groups = pgTable("groups", {
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
-// Relations
+/* Docs Table */
+
+export const docsTable = pgTable("docs", {
+  id: serial("id").primaryKey(),
+  title: text("title"),
+  docfile: text("docfile").notNull(),
+  docKeywords: text("dockeywords"),
+  lang: text("lang"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+/* Countries Table */
+
+export const countriesTable = pgTable("countries", {
+  id: serial("id").primaryKey(),
+  name: text("name"),
+  lang: integer("lang"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+/* Countries Lang Index Table */
+
+export const countriesLangIndexTable = pgTable("countries_lang_index", {
+  id: serial("id").primaryKey(),
+  en: integer("en"),
+  es: integer("es"),
+  fr: integer("fr"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+/* Languages Table */
+
+export const languagesTable = pgTable("languages", {
+  id: serial("id").primaryKey(),
+  name: text("name"),
+  code: text("code"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+/* Roles Table */
+
+export const rolesTable = pgTable("roles", {
+  id: serial("id").primaryKey(),
+  name: text("name"),
+  active: boolean("active"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+/* Permissions Table */
+
+export const permissionsTable = pgTable("permissions", {
+  id: serial("id").primaryKey(),
+  name: text("name"),
+  active: boolean("active"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+/* Roles to Permissions Table */
+
+export const rolesToPermissionsTable = pgTable("roles_to_permissions", {
+  id: serial("id").primaryKey(),
+  roleId: integer("role_id"),
+  permissionId: integer("permission_id"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+/* Festival to categories Table */
+
+export const festivalsToCategoriesTable = pgTable("festivals_to_categories", {
+  id: serial("id").primaryKey(),
+  festivalId: integer("festival_id"),
+  categoryId: integer("category_id"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+/* Relations */
+
 export const groupsRelations = relations(groups, ({ one }) => ({
   type: one(typeGroups, {
     fields: [groups.typeId],
@@ -172,17 +294,6 @@ export const groupsRelations = relations(groups, ({ one }) => ({
 export const typeGroupsRelations = relations(typeGroups, ({ many }) => ({
   groups: many(groups),
 }));
-
-// Schemas
-export const inserUserSchema = createInsertSchema(users, {
-  email: (schema) => schema.email.email(),
-  password: (schema) => schema.password.min(6),
-});
-export const selectUserSchema = createSelectSchema(users);
-export const requestAuthSchema = inserUserSchema.pick({
-  email: true,
-  password: true,
-});
 
 export const insertEventSchema = createInsertSchema(events, {
   description: (schema) => schema.description.min(20),
@@ -207,7 +318,20 @@ export const insertTypeGroupSchema = createInsertSchema(typeGroups, {
     schema.slug.transform((value) => (value ? slug(value) : value)),
 });
 
-// Infered Types
+/* Schema */
+
+export const inserUserSchema = createInsertSchema(users, {
+  email: (schema) => schema.email.email(),
+  password: (schema) => schema.password.min(6),
+});
+export const selectUserSchema = createSelectSchema(users);
+export const requestAuthSchema = inserUserSchema.pick({
+  email: true,
+  password: true,
+});
+
+/* Infered Types */
+
 export type InsertUser = typeof users.$inferInsert;
 export type SelectUser = typeof users.$inferSelect;
 
@@ -225,3 +349,33 @@ export type SelectGroup = typeof groups.$inferSelect;
 
 export type InsertTypeGroup = typeof typeGroups.$inferInsert;
 export type SelectTypeGroup = typeof typeGroups.$inferSelect;
+
+export type InsertDocs = typeof docsTable.$inferInsert;
+export type SelectDocs = typeof docsTable.$inferSelect;
+
+export type InsertCountries = typeof countriesTable.$inferInsert;
+export type SelectCountries = typeof countriesTable.$inferSelect;
+
+export type InsertCountriesLangIndex =
+  typeof countriesLangIndexTable.$inferInsert;
+export type SelectCountriesLangIndex =
+  typeof countriesLangIndexTable.$inferSelect;
+
+export type InsertLanguages = typeof languagesTable.$inferInsert;
+export type SelectLanguages = typeof languagesTable.$inferSelect;
+
+export type InsertRoles = typeof rolesTable.$inferInsert;
+export type SelectRoles = typeof rolesTable.$inferSelect;
+
+export type InsertPermissions = typeof permissionsTable.$inferInsert;
+export type SelectPermissions = typeof permissionsTable.$inferSelect;
+
+export type InsertRolesToPermissions =
+  typeof rolesToPermissionsTable.$inferInsert;
+export type SelectRolesToPermissions =
+  typeof rolesToPermissionsTable.$inferSelect;
+
+export type InsertFestivalToCategories =
+  typeof festivalsToCategoriesTable.$inferInsert;
+export type SelectFestivalToCategories =
+  typeof festivalsToCategoriesTable.$inferSelect;

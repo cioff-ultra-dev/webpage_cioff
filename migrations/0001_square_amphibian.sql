@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS "users" (
+	"id" text PRIMARY KEY NOT NULL,
+	"role_id" integer,
+	"country_id" integer,
+	"title" text,
+	"firstname" text,
+	"lastname" text,
+	"email" text NOT NULL,
+	"address" text,
+	"city" text,
+	"zip" text,
+	"phone" text,
+	"image" text,
+	"password" text,
+	"active" boolean,
+	"emailVerified" timestamp,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp,
+	CONSTRAINT "users_email_unique" UNIQUE("email")
+);
