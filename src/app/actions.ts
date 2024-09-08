@@ -14,7 +14,7 @@ import { newEvent, newFestival } from "@/db/queries/events";
 
 export async function authenticate(
   _prevState: string | undefined,
-  formData: FormData
+  formData: FormData,
 ) {
   formData.set("redirectTo", "/dashboard/events");
   try {
@@ -36,12 +36,10 @@ export async function authenticate(
 
 export async function createEvent(prevState: unknown, formData: FormData) {
   const schema = insertFestivalSchema;
-
-  console.log(formData);
-
   const logo = formData.get("logo") as File;
   const photos = formData.getAll("photos") as Array<File>;
   const cover = formData.get("coverPhoto") as File;
+
   let logoUrl = null;
   let coverUrl = null;
   let photosUrl = [];

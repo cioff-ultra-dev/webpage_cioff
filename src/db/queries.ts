@@ -1,4 +1,4 @@
-import { eventTypes, InsertUser, SelectUser, users } from "@/db/schema";
+import { InsertUser, SelectUser, users } from "@/db/schema";
 import { db } from ".";
 import { eq, sql } from "drizzle-orm";
 
@@ -35,8 +35,4 @@ export async function deleteUser(id: SelectUser["id"]) {
   return db.delete(users).where(eq(users.id, id)).returning({
     deletedName: users.name,
   });
-}
-
-export async function getAllEventTypes() {
-  return db.select().from(eventTypes);
 }

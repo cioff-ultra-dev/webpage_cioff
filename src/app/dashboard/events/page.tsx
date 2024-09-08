@@ -30,7 +30,6 @@ import { EllipsisVertical } from "lucide-react";
 
 export default async function DashboardPage() {
   const events = await getAllFestivals();
-  console.log({ events });
   return (
     <Tabs defaultValue="all">
       <div className="flex items-center">
