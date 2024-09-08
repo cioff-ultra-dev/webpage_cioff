@@ -27,6 +27,7 @@ export const users = pgTable("users", {
   roleId: integer("role_id"),
   countryId: integer("country_id"),
   title: text("title"),
+  name: text("name"),
   firstname: text("firstname"),
   lastname: text("lastname"),
   email: text("email").notNull().unique(),
@@ -53,13 +54,13 @@ export const accounts = pgTable(
     type: text("type").$type<AdapterAccountType>().notNull(),
     provider: text("provider").notNull(),
     providerAccountId: text("provider_account_id").notNull(),
-    refreshToken: text("refresh_token"),
-    accessToken: text("access_token"),
-    expiresAt: integer("expires_at"),
-    tokenType: text("token_type"),
+    refresh_token: text("refresh_token"),
+    access_token: text("access_token"),
+    expires_at: integer("expires_at"),
+    token_type: text("token_type"),
     scope: text("scope"),
-    idToken: text("id_token"),
-    sessionState: text("session_state"),
+    id_token: text("id_token"),
+    session_state: text("session_state"),
   },
   (account) => ({
     compoundKey: primaryKey({
@@ -99,7 +100,7 @@ export const verificationTokens = pgTable(
 export const authenticators = pgTable(
   "authenticator",
   {
-    credentialId: text("credential_id").notNull().unique(),
+    credentialID: text("credential_id").notNull().unique(),
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
@@ -112,7 +113,7 @@ export const authenticators = pgTable(
   },
   (authenticator) => ({
     compositePK: primaryKey({
-      columns: [authenticator.userId, authenticator.credentialId],
+      columns: [authenticator.userId, authenticator.credentialID],
     }),
   })
 );
@@ -136,13 +137,13 @@ export const events = pgTable("events", {
 export const festivals = pgTable("festivals", {
   id: serial("id").primaryKey(),
   address: text("address"),
-  name: text("name"),
+  name: text("name").notNull().default(""),
   email: text("email"),
   url: text("url"),
   contact: text("contact"),
   countryId: integer("country_id"),
   urlValidated: boolean("url_validated"),
-  description: text("description"),
+  description: text("description").notNull().default(""),
   phone: text("phone"),
   stateMode: stateModeEnum("state_mode").default("offline"),
   location: text("location"),
@@ -152,7 +153,7 @@ export const festivals = pgTable("festivals", {
   cover: text("cover"),
   photos: text("photos"),
   youtubeId: text("youtube_id"),
-  directorName: text("director_name"),
+  directorName: text("director_name").notNull().default(""),
   categories: text("categories"),
   lang: integer("lang"),
   publish: boolean("publish"),
