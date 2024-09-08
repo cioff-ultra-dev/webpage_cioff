@@ -116,7 +116,7 @@ export default async function EventDetail({
                     <CardTitle>Festival Date</CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-wrap gap-2">
-                    {event.currentDates.split(",").map((item) => {
+                    {event?.currentDates?.split(",").map((item) => {
                       return (
                         <Badge key={item}>
                           {format(new Date(Number(item) * 1000), "PPP")}
