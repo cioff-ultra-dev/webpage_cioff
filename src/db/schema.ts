@@ -1,7 +1,6 @@
 import { relations } from "drizzle-orm";
 import {
   boolean,
-  date,
   integer,
   pgEnum,
   pgTable,
@@ -66,7 +65,7 @@ export const accounts = pgTable(
     compoundKey: primaryKey({
       columns: [account.provider, account.providerAccountId],
     }),
-  })
+  }),
 );
 
 /* Session Table */
@@ -92,8 +91,12 @@ export const verificationTokens = pgTable(
     compositePk: primaryKey({
       columns: [verificationToken.identifier, verificationToken.token],
     }),
-  })
+  }),
 );
+
+export const sessionsContainer = pgTable("session_group", {
+  id: serial("id").primaryKey(),
+});
 
 /* Authenticator Table */
 
@@ -115,7 +118,7 @@ export const authenticators = pgTable(
     compositePK: primaryKey({
       columns: [authenticator.userId, authenticator.credentialID],
     }),
-  })
+  }),
 );
 
 /* Events Table */
@@ -309,7 +312,7 @@ export const insertFestivalSchema = createInsertSchema(festivals, {
       (value) => {
         return isPossiblePhoneNumber(value || "");
       },
-      { message: "Invalid phone number" }
+      { message: "Invalid phone number" },
     ),
 });
 export const selectFestivalSchema = createSelectSchema(festivals);

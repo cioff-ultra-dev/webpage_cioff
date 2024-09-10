@@ -26,7 +26,7 @@ export async function newFestival(festival: InsertFestival) {
 }
 
 export async function getFestivalById(
-  id: SelectFestival["id"]
+  id: SelectFestival["id"],
 ): Promise<Array<SelectFestival>> {
   return db.select().from(festivals).where(eq(festivals.id, id));
 }
