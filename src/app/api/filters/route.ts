@@ -39,12 +39,12 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  if (search) {
-    baseQuery.where(ilike(festivals.name, `%${search}%`));
-  }
-
   if (categoriesIn.length) {
     baseQuery.where(inArray(categories.slug, categoriesIn));
+  }
+
+  if (search) {
+    baseQuery.where(ilike(festivals.name, `%${search}%`));
   }
 
   const result = await baseQuery;
