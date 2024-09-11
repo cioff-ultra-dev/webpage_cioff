@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { auth } from "@/auth";
 
 type SVGComponentProps = React.ComponentPropsWithoutRef<"svg">;
 
@@ -51,7 +52,7 @@ export type HeaderProps = React.HTMLAttributes<HTMLElement> & { text?: string };
 
 export function Header({
   className,
-  text = "text-black",
+  text = "text-white",
   ...props
 }: HeaderProps) {
   return (
@@ -71,7 +72,7 @@ export function Header({
         </SheetTrigger>
         <SheetContent side="left" className="text-black">
           <nav className="flex flex-col space-y-4 text-lg font-medium">
-            <Link href="/" className={`${text}`} prefetch={false}>
+            <Link href="/" prefetch={false}>
               <Image
                 src="/logo.png"
                 width="100"
@@ -79,22 +80,22 @@ export function Header({
                 alt="CIOFF Logo"
               />
             </Link>
-            <Link href="#" className={`${text}`} prefetch={false}>
+            <Link href="#" prefetch={false}>
               FOLKLORIADAS
             </Link>
-            <Link href="#" className={`${text}`} prefetch={false}>
+            <Link href="#" prefetch={false}>
               NEWS
             </Link>
-            <Link href="/event" className={`${text}`} prefetch={false}>
+            <Link href="/event" prefetch={false}>
               EVENTS
             </Link>
-            <Link href="#" className={`${text}`} prefetch={false}>
+            <Link href="#" prefetch={false}>
               MEMBERS
             </Link>
-            <Link href="#" className={`${text}`} prefetch={false}>
+            <Link href="#" prefetch={false}>
               ABOUT
             </Link>
-            <Link href="#" className={`${text}`} prefetch={false}>
+            <Link href="#" prefetch={false}>
               CONTACT
             </Link>
           </nav>
