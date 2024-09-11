@@ -5,6 +5,8 @@ import {
   festivals,
   InsertFestival,
   SelectFestival,
+  festivalsToCategoriesTable,
+  categories,
 } from "@/db/schema";
 import { db } from "@/db";
 import { eq } from "drizzle-orm";
@@ -26,7 +28,27 @@ export async function newFestival(festival: InsertFestival) {
 }
 
 export async function getFestivalById(
-  id: SelectFestival["id"],
+  id: SelectFestival["id"]
 ): Promise<Array<SelectFestival>> {
   return db.select().from(festivals).where(eq(festivals.id, id));
+}
+
+export async function getAllNestedFestivals() {
+  const baseQuery = db
+    .select({
+      festivals: festivals,
+    })
+    .from(festivalsToCategoriesTable)
+    .innerJoin(
+      festivals,
+      eq(festivalsToCategoriesTable.festivalId, festivals.id)
+    )
+    .leftJoin(
+      categories,
+      eq(festivalsToCategoriesTable.categoryId, categories.id)
+    )
+    .groupBy(festivals.id)
+    .limit(10);
+
+  return await baseQuery;
 }

@@ -1,13 +1,10 @@
-import Link from "next/link";
 import Image from "next/image";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getFestivalById } from "@/db/queries/events";
-import { redirect } from "next/navigation";
 import { Header } from "@/components/common/header";
 import { format } from "date-fns";
 import { MapMarkerEvent } from "@/components/common/event/map-marker";

@@ -65,7 +65,7 @@ export const accounts = pgTable(
     compoundKey: primaryKey({
       columns: [account.provider, account.providerAccountId],
     }),
-  }),
+  })
 );
 
 /* Session Table */
@@ -91,7 +91,7 @@ export const verificationTokens = pgTable(
     compositePk: primaryKey({
       columns: [verificationToken.identifier, verificationToken.token],
     }),
-  }),
+  })
 );
 
 export const sessionsContainer = pgTable("session_group", {
@@ -118,7 +118,7 @@ export const authenticators = pgTable(
     compositePK: primaryKey({
       columns: [authenticator.userId, authenticator.credentialID],
     }),
-  }),
+  })
 );
 
 /* Events Table */
@@ -278,15 +278,42 @@ export const rolesToPermissionsTable = pgTable("roles_to_permissions", {
 
 /* Festival to categories Table */
 
-export const festivalsToCategoriesTable = pgTable("festivals_to_categories", {
-  id: serial("id").primaryKey(),
-  festivalId: integer("festival_id"),
-  categoryId: integer("category_id"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
-});
+export const festivalsToCategoriesTable = pgTable(
+  "festivals_to_categories",
+  {
+    festivalId: integer("festival_id").references(() => festivals.id),
+    categoryId: integer("category_id").references(() => categories.id),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.festivalId, t.categoryId] }),
+  })
+);
 
 /* Relations */
+
+export const festivalRelations = relations(festivals, ({ many }) => ({
+  festivalsToCategories: many(festivalsToCategoriesTable),
+}));
+
+export const categoriesRelations = relations(categories, ({ many }) => ({
+  festivalsToCategories: many(festivalsToCategoriesTable),
+}));
+
+export const festivalsToGroupsRelations = relations(
+  festivalsToCategoriesTable,
+  ({ one }) => ({
+    festival: one(festivals, {
+      fields: [festivalsToCategoriesTable.festivalId],
+      references: [festivals.id],
+    }),
+    category: one(categories, {
+      fields: [festivalsToCategoriesTable.categoryId],
+      references: [categories.id],
+    }),
+  })
+);
 
 export const groupsRelations = relations(groups, ({ one }) => ({
   type: one(typeGroups, {
@@ -299,10 +326,26 @@ export const typeGroupsRelations = relations(typeGroups, ({ many }) => ({
   groups: many(groups),
 }));
 
+/* Schema */
+
+export const inserUserSchema = createInsertSchema(users, {
+  email: (schema) => schema.email.email(),
+  password: (schema) => schema.password.min(6),
+});
+
+export const selectUserSchema = createSelectSchema(users);
+
+export const requestAuthSchema = inserUserSchema.pick({
+  email: true,
+  password: true,
+});
+
 export const insertEventSchema = createInsertSchema(events, {
   description: (schema) => schema.description.min(20),
 });
+
 export const selectEventSchema = createSelectSchema(events);
+
 export const insertFestivalSchema = createInsertSchema(festivals, {
   name: (schema) => schema.name.min(1),
   directorName: (schema) => schema.directorName.min(1),
@@ -312,26 +355,15 @@ export const insertFestivalSchema = createInsertSchema(festivals, {
       (value) => {
         return isPossiblePhoneNumber(value || "");
       },
-      { message: "Invalid phone number" },
+      { message: "Invalid phone number" }
     ),
 });
+
 export const selectFestivalSchema = createSelectSchema(festivals);
 
 export const insertTypeGroupSchema = createInsertSchema(typeGroups, {
   slug: (schema) =>
     schema.slug.transform((value) => (value ? slug(value) : value)),
-});
-
-/* Schema */
-
-export const inserUserSchema = createInsertSchema(users, {
-  email: (schema) => schema.email.email(),
-  password: (schema) => schema.password.min(6),
-});
-export const selectUserSchema = createSelectSchema(users);
-export const requestAuthSchema = inserUserSchema.pick({
-  email: true,
-  password: true,
 });
 
 /* Infered Types */

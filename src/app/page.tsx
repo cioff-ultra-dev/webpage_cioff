@@ -5,10 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Header } from "@/components/common/header";
 import { Linkedin, Instagram, Facebook } from "lucide-react";
+import GlobalFilter from "@/components/common/global-filter";
+import { getAllNestedFestivals } from "@/db/queries/events";
+import CarouselHistory from "@/components/common/carousel-history";
 
 export default async function Home() {
+  const festivals = await getAllNestedFestivals();
   return (
-    <div className="bg-black text-white">
+    <div>
       <Header className="absolute left-0 right-0 top-0" />
       <main>
         <section className="flex flex-col items-center justify-center h-screen bg-cover bg-center relative">
@@ -26,213 +30,76 @@ export default async function Home() {
           </div>
           <div className="absolute bottom-0 left-0 right-0 flex justify-center space-x-2 mb-4 gap-[0.1rem]">
             <Link href="#">
-              <Facebook className="w-5 h-5" />
+              <Facebook className="w-5 h-5 text-white" />
             </Link>
             <Link href="#">
-              <Instagram className="w-5 h-5" />
+              <Instagram className="w-5 h-5 text-white" />
             </Link>
             <Link href="#">
-              <Linkedin className="w-5 h-5" />
+              <Linkedin className="w-5 h-5 text-white" />
             </Link>
           </div>
         </section>
-        <section className="bg-gray-900 py-4 sm:py-8">
+        <GlobalFilter fallbackFestivals={festivals} />
+        <section className="bg-white py-4 sm:py-8">
           <div className="container mx-auto px-4">
-            <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-              <Input placeholder="Explore events" className="flex-1" />
-              <Input placeholder="Choose a date" className="flex-1" />
-              <Input placeholder="Add date" className="flex-1" />
-              <Input placeholder="¿Cuántos?" className="flex-1" />
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <SearchIcon className="text-white" />
-              </Button>
-            </div>
-          </div>
-        </section>
-        <section className="bg-gray-800 py-4 sm:py-8">
-          <div className="container mx-auto px-4">
-            <div className="flex space-x-4 overflow-x-auto">
-              <Button
-                variant="ghost"
-                className="flex flex-col items-center text-white rounded-lg py-[0.15rem]"
-              >
-                <CalendarIcon />
-                <span>New events</span>
-              </Button>
-              <Button
-                variant="ghost"
-                className="flex flex-col items-center text-white hover:text-black rounded-lg py-[0.15rem]"
-              >
-                <GlobeIcon />
-                <span>International</span>
-              </Button>
-              <Button
-                variant="ghost"
-                className="flex flex-col items-center text-white rounded-lg py-[0.15rem]"
-              >
-                <CogIcon />
-                <span>CIOFF</span>
-              </Button>
-              <Button
-                variant="ghost"
-                className="flex flex-col items-center text-white rounded-lg py-[0.15rem]"
-              >
-                <BabyIcon />
-                <span>Childrens</span>
-              </Button>
-              <Button
-                variant="ghost"
-                className="flex flex-col items-center text-white rounded-lg py-[0.15rem]"
-              >
-                <SirenIcon />
-                <span>Folk Singing</span>
-              </Button>
-              <Button
-                variant="ghost"
-                className="flex flex-col items-center text-white rounded-lg py-[0.15rem]"
-              >
-                <DrumIcon />
-                <span>Folk dance</span>
-              </Button>
-              <Button
-                variant="ghost"
-                className="flex flex-col items-center text-white rounded-lg py-[0.15rem]"
-              >
-                <FishIcon />
-                <span>Folk music</span>
-              </Button>
-              <Button
-                variant="ghost"
-                className="flex flex-col items-center text-white rounded-lg py-[0.15rem]"
-              >
-                <CookingPotIcon />
-                <span>Traditional food</span>
-              </Button>
-              <Button
-                variant="ghost"
-                className="flex flex-col items-center text-white rounded-lg py-[0.15rem]"
-              >
-                <TruckIcon />
-                <span>Traditional trade</span>
-              </Button>
-            </div>
-          </div>
-        </section>
-        <section className="bg-gray-900 py-4 sm:py-8">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-              <div className="flex-1 bg-gray-800 p-4 rounded-lg">
-                <iframe
-                  style={{ border: 0 }}
-                  className="w-full h-full"
-                  loading="lazy"
-                  src="https://www.google.com/maps/embed/v1/view?key=AIzaSyBRO_oBiyzOAQbH7Jcv3ZrgOgkfNp1wJeI&center=0,-28.50&zoom=2"
-                ></iframe>
-              </div>
-              <div className="flex-1 bg-gray-800 p-4 rounded-lg">
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-4">
-                    <div className="animate-pulse">
-                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-700 rounded-lg" />
-                    </div>
-                    <div>
-                      <h3 className="text-white text-sm sm:text-base">
-                        FOLKLORE CIRCUIT CARIBBEAN INTERNATIONAL
-                      </h3>
-                      <p className="text-gray-400 text-xs sm:text-sm">
-                        Date: 18/02/2024
-                      </p>
-                      <p className="text-gray-400 text-xs sm:text-sm">
-                        Place: Barranquilla, Colombia
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <div className="animate-pulse">
-                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-700 rounded-lg" />
-                    </div>
-                    <div>
-                      <h3 className="text-white text-sm sm:text-base">
-                        RENCINTRES DE INTERNATIONAL FOLKLORE
-                      </h3>
-                      <p className="text-gray-400 text-xs sm:text-sm">
-                        Date: 19/08/2024
-                      </p>
-                      <p className="text-gray-400 text-xs sm:text-sm">
-                        Place: Fribourg, Switzerland
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <div className="animate-pulse">
-                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-700 rounded-lg" />
-                    </div>
-                    <div>
-                      <h3 className="text-white text-sm sm:text-base">
-                        VALIANT INTERNATIONAL CHEMNITZ FOLKLORE FESTIVAL
-                      </h3>
-                      <p className="text-gray-400 text-xs sm:text-sm">
-                        Date: 20/08/2024
-                      </p>
-                      <p className="text-gray-400 text-xs sm:text-sm">
-                        Place: Vantaa, Finland
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        <section className="bg-gray-900 py-4 sm:py-8">
-          <div className="container mx-auto px-4">
-            <h2 className="text-xl font-bold text-white sm:text-2xl">
+            <h2 className="text-xl font-bold text-black sm:text-2xl">
               Latest news
             </h2>
             <div className="flex flex-col space-y-4 mt-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-              <div className="flex-1 bg-gray-800 p-4 rounded-lg">
+              <div className="flex-1 bg-gray-100 p-4 rounded-lg">
                 <div className="animate-pulse">
                   <div className="h-32 sm:h-48 bg-gray-700 rounded-lg" />
                 </div>
-                <h3 className="text-white mt-2 text-sm sm:text-base">
+                <h3 className="text-black mt-2 text-sm sm:text-base">
                   Bruno Ravnikar – In memoriam
                 </h3>
-                <p className="text-gray-400 text-xs sm:text-sm">11 Sept 2023</p>
-                <p className="text-gray-400 text-xs sm:text-sm">
+                <p className="text-gray-700 text-xs sm:text-sm">11 Sept 2023</p>
+                <p className="text-gray-700 text-xs sm:text-sm">
                   We are hear to remember the Master, colleague and dear friend
                   Bruno...
                 </p>
               </div>
-              <div className="flex-1 bg-gray-800 p-4 rounded-lg">
+              <div className="flex-1 bg-gray-100 p-4 rounded-lg">
                 <div className="animate-pulse">
                   <div className="h-32 sm:h-48 bg-gray-700 rounded-lg" />
                 </div>
-                <h3 className="text-white mt-2 text-sm sm:text-base">
+                <h3 className="text-black mt-2 text-sm sm:text-base">
                   51st CIOFF World Congress in Puerto Vallarta, Jalisco; Mexico.
                 </h3>
-                <p className="text-gray-400 text-xs sm:text-sm">19 Oct 2022</p>
-                <p className="text-gray-400 text-xs sm:text-sm">
+                <p className="text-gray-700 text-xs sm:text-sm">19 Oct 2022</p>
+                <p className="text-gray-700 text-xs sm:text-sm">
                   We want to thank Dr. Ismael García Ávila, President of CIOFF
                   Mexico...
                 </p>
               </div>
-              <div className="flex-1 bg-gray-800 p-4 rounded-lg">
+              <div className="flex-1 bg-gray-100 p-4 rounded-lg">
                 <div className="animate-pulse">
                   <div className="h-32 sm:h-48 bg-gray-700 rounded-lg" />
                 </div>
-                <h3 className="text-white mt-2 text-sm sm:text-base">
+                <h3 className="text-black mt-2 text-sm sm:text-base">
                   Welcome to the Netherlands
                 </h3>
-                <p className="text-gray-400 text-xs sm:text-sm">19 Oct 2022</p>
-                <p className="text-gray-400 text-xs sm:text-sm">
+                <p className="text-gray-700 text-xs sm:text-sm">19 Oct 2022</p>
+                <p className="text-gray-700 text-xs sm:text-sm">
                   Sector Meeting CIOFF® Central and Northern Europe Fifteen
                   delegates...
                 </p>
               </div>
             </div>
-            <Button variant="secondary" className="mt-4">
+            <Button variant="default" className="mt-4">
               All News
             </Button>
+          </div>
+        </section>
+        <section className="bg-white py-4 sm:py-8">
+          <div className="container mx-auto px-4">
+            <h2 className="text-xl font-bold text-black sm:text-2xl">
+              Our History
+            </h2>
+            <div className="flex space-y-4 mt-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+              <CarouselHistory />
+            </div>
           </div>
         </section>
         <section className="bg-gray-900 py-4 sm:py-8 hidden">
@@ -273,9 +140,9 @@ export default async function Home() {
           </div>
         </section>
       </main>
-      <footer className="bg-gray-900 py-4 sm:py-8">
+      <footer className="bg-gray-50 py-4 sm:py-8">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-gray-400 text-xs sm:text-sm">info@cioff.org</p>
+          <p className="text-gray-800 text-xs sm:text-sm">info@cioff.org</p>
           <Image
             src="/logo.png"
             width="100"
@@ -283,7 +150,7 @@ export default async function Home() {
             alt="CIOFF Logo"
             className="inline-block my-6"
           />
-          <p className="text-gray-400 text-xs sm:text-sm">
+          <p className="text-gray-800 text-xs sm:text-sm">
             © CIOFF 1998 - 2024 | cioff.org
           </p>
         </div>
