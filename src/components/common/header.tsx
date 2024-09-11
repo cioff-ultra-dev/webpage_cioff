@@ -51,7 +51,7 @@ export type HeaderProps = React.HTMLAttributes<HTMLElement> & { text?: string };
 
 export function Header({
   className,
-  text = "text-white",
+  text = "text-black",
   ...props
 }: HeaderProps) {
   return (
@@ -69,7 +69,7 @@ export function Header({
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="bg-gray-900 sm:bg-[#1f2937]">
+        <SheetContent side="left" className="text-black">
           <nav className="flex flex-col space-y-4 text-lg font-medium">
             <Link href="/" className={`${text}`} prefetch={false}>
               <Image

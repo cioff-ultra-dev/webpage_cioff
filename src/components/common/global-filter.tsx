@@ -220,27 +220,27 @@ export function WrapperFilter() {
               <CogIcon />
               <span>CIOFF</span>
             </ToggleGroupItem>
-            <ToggleGroupItem value="d" className="flex gap-1">
+            <ToggleGroupItem value="children" className="flex gap-1">
               <BabyIcon />
               <span>Childrens</span>
             </ToggleGroupItem>
-            <ToggleGroupItem value="e" className="flex gap-1">
+            <ToggleGroupItem value="folk_singing" className="flex gap-1">
               <SirenIcon />
               <span>Folk Singing</span>
             </ToggleGroupItem>
-            <ToggleGroupItem value="f" className="flex gap-1">
+            <ToggleGroupItem value="folk-dancing" className="flex gap-1">
               <DrumIcon />
               <span>Folk dance</span>
             </ToggleGroupItem>
-            <ToggleGroupItem value="g" className="flex gap-1">
+            <ToggleGroupItem value="folk_music" className="flex gap-1">
               <FishIcon />
               <span>Folk music</span>
             </ToggleGroupItem>
-            <ToggleGroupItem value="h" className="flex gap-1">
+            <ToggleGroupItem value="traditional_cooking" className="flex gap-1">
               <CookingPotIcon />
-              <span>Traditional food</span>
+              <span>Traditional cooking</span>
             </ToggleGroupItem>
-            <ToggleGroupItem value="i" className="flex gap-1">
+            <ToggleGroupItem value="traditional_trades" className="flex gap-1">
               <TruckIcon />
               <span>Traditional trade</span>
             </ToggleGroupItem>
