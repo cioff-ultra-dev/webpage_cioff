@@ -311,7 +311,7 @@ export function WrapperFilter() {
                               <div className="animate-pulse">
                                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-400 rounded-lg" />
                               </div>
-                              <div className="w-full flex-1">
+                              <div className="max-w-[440px] flex-1">
                                 <h3 className="text-black text-sm sm:text-base truncate">
                                   {festival.name}
                                 </h3>
