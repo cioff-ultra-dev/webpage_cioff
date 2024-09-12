@@ -65,7 +65,7 @@ export const accounts = pgTable(
     compoundKey: primaryKey({
       columns: [account.provider, account.providerAccountId],
     }),
-  })
+  }),
 );
 
 /* Session Table */
@@ -91,7 +91,7 @@ export const verificationTokens = pgTable(
     compositePk: primaryKey({
       columns: [verificationToken.identifier, verificationToken.token],
     }),
-  })
+  }),
 );
 
 export const sessionsContainer = pgTable("session_group", {
@@ -118,7 +118,7 @@ export const authenticators = pgTable(
     compositePK: primaryKey({
       columns: [authenticator.userId, authenticator.credentialID],
     }),
-  })
+  }),
 );
 
 /* Events Table */
@@ -288,7 +288,7 @@ export const festivalsToCategoriesTable = pgTable(
   },
   (t) => ({
     pk: primaryKey({ columns: [t.festivalId, t.categoryId] }),
-  })
+  }),
 );
 
 /* Relations */
@@ -312,7 +312,7 @@ export const festivalsToGroupsRelations = relations(
       fields: [festivalsToCategoriesTable.categoryId],
       references: [categories.id],
     }),
-  })
+  }),
 );
 
 export const groupsRelations = relations(groups, ({ one }) => ({
@@ -355,7 +355,7 @@ export const insertFestivalSchema = createInsertSchema(festivals, {
       (value) => {
         return isPossiblePhoneNumber(value || "");
       },
-      { message: "Invalid phone number" }
+      { message: "Invalid phone number" },
     ),
 });
 

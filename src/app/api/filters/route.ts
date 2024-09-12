@@ -5,7 +5,7 @@ import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
   const categoriesIn: string[] = JSON.parse(
-    request.nextUrl.searchParams.get("categories") || "[]"
+    request.nextUrl.searchParams.get("categories") || "[]",
   );
   const search: string = request.nextUrl.searchParams.get("search") || "";
   const rangeDateFrom: string =
@@ -20,11 +20,11 @@ export async function GET(request: NextRequest) {
     .from(festivalsToCategoriesTable)
     .innerJoin(
       festivals,
-      eq(festivalsToCategoriesTable.festivalId, festivals.id)
+      eq(festivalsToCategoriesTable.festivalId, festivals.id),
     )
     .leftJoin(
       categories,
-      eq(festivalsToCategoriesTable.categoryId, categories.id)
+      eq(festivalsToCategoriesTable.categoryId, categories.id),
     )
     .groupBy(festivals.id)
     .limit(10)
@@ -34,8 +34,8 @@ export async function GET(request: NextRequest) {
     baseQuery.where(
       and(
         gte(festivals.createdAt, new Date(Number(rangeDateFrom) * 1000)),
-        lte(festivals.createdAt, new Date(Number(rangeDateTo) * 1000))
-      )
+        lte(festivals.createdAt, new Date(Number(rangeDateTo) * 1000)),
+      ),
     );
   }
 

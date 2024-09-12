@@ -3,7 +3,6 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { auth } from "@/auth";
 
 type SVGComponentProps = React.ComponentPropsWithoutRef<"svg">;
 
@@ -59,7 +58,7 @@ export function Header({
     <header
       className={cn(
         "z-10 flex items-center justify-between px-4 py-4 sm:px-8 md:px-6",
-        className
+        className,
       )}
       {...props}
     >
