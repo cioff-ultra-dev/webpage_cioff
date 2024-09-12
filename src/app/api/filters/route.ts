@@ -3,6 +3,8 @@ import { db } from "@/db";
 import { and, eq, gte, ilike, inArray, lte } from "drizzle-orm";
 import { NextRequest } from "next/server";
 
+const PAGE_SIZE = 10;
+
 export async function GET(request: NextRequest) {
   const categoriesIn: string[] = JSON.parse(
     request.nextUrl.searchParams.get("categories") || "[]",
@@ -12,6 +14,7 @@ export async function GET(request: NextRequest) {
     request.nextUrl.searchParams.get("rangeDateFrom") || "";
   const rangeDateTo: string =
     request.nextUrl.searchParams.get("rangeDateTo") || "";
+  const page: number = Number(request.nextUrl.searchParams.get("page") || "1");
 
   const baseQuery = db
     .select({
@@ -27,7 +30,8 @@ export async function GET(request: NextRequest) {
       eq(festivalsToCategoriesTable.categoryId, categories.id),
     )
     .groupBy(festivals.id)
-    .limit(10)
+    .limit(PAGE_SIZE)
+    .offset((page - 1) * PAGE_SIZE)
     .$dynamic();
 
   if (rangeDateFrom || rangeDateTo) {

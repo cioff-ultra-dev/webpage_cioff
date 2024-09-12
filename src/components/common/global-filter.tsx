@@ -4,7 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import useSWR, { preload } from "swr";
+import { preload } from "swr";
+import useSWRInfinite from "swr/infinite";
+import InfiniteScroll from "@/components/extension/swr-infinite-scroll";
 import fetcher, { cn } from "@/lib/utils";
 import { SelectFestival } from "@/db/schema";
 import { MapPin, CalendarCheck, ExternalLink } from "lucide-react";
@@ -21,6 +23,7 @@ import MapHandler from "./map-handler";
 import { DatePickerWithRange } from "../ui/datepicker-with-range";
 import { DateRange } from "react-day-picker";
 import Link from "next/link";
+import { Badge } from "../ui/badge";
 
 interface FormElements extends HTMLFormControlsCollection {
   search: HTMLInputElement;
@@ -28,6 +31,8 @@ interface FormElements extends HTMLFormControlsCollection {
 interface SearchFormElement extends HTMLFormElement {
   readonly elements: FormElements;
 }
+
+preload("/api/filters", fetcher);
 
 function SkeletonList() {
   return (
@@ -84,9 +89,12 @@ export function WrapperFilter() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const map = useMap();
   const places = useMapsLibrary("places");
-  const { data, isLoading } = useSWR<{ festivals: SelectFestival }[]>(
-    `api/filters?categories=${JSON.stringify(selectedCategories)}&${search}`,
-    fetcher
+  const swr = useSWRInfinite<{ festivals: SelectFestival }[]>(
+    (index, _) =>
+      `api/filters?categories=${JSON.stringify(selectedCategories)}&page=${
+        index + 1
+      }&${search}`,
+    { fetcher }
   );
 
   // https://developers.google.com/maps/documentation/javascript/reference/places-autocomplete-service#AutocompleteSessionToken
@@ -267,52 +275,79 @@ export function WrapperFilter() {
             <div className="flex-1 bg-gray-100 p-4 rounded-lg">
               <ScrollArea className="h-[400px] w-[600px]">
                 <div className="flex flex-col gap-2">
-                  {isLoading ? (
-                    <SkeletonList />
-                  ) : (
-                    data?.map(({ festivals: festival }) => (
-                      <div
-                        key={festival.id}
-                        className={cn(
-                          "flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-200 hover:cursor-pointer",
-                          festival.id === selectedFestival?.id
-                            ? "bg-gray-200"
-                            : null
-                        )}
-                        onClick={() => handleClickSelected(festival)}
-                      >
-                        <div className="animate-pulse">
-                          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-400 rounded-lg" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-black text-sm sm:text-base truncate">
-                            {festival.name}
-                          </h3>
-                          <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
-                            <CalendarCheck size={16} />
-                            <span>{format(festival.createdAt, "PP")}</span>
-                          </p>
-                          <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
-                            <MapPin size={16} />
-                            <span>
-                              {festival?.address || festival?.location}
-                            </span>
-                          </p>
-                        </div>
-                        <div>
-                          <Link href={`/event/${festival.id}`} target="_blank">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-gray-500"
-                            >
-                              <ExternalLink size={15} />
-                            </Button>
-                          </Link>
-                        </div>
+                  <InfiniteScroll
+                    swr={swr}
+                    loadingIndicator={<SkeletonList />}
+                    endingIndicator={
+                      <div className="w-full flex justify-center">
+                        <Badge variant="secondary" className="text-gray-400">
+                          Not more festivals to show! 🎉
+                        </Badge>
                       </div>
-                    ))
-                  )}
+                    }
+                    isReachingEnd={(swr) => {
+                      const lastPosition = swr.data?.at(-1);
+                      return (
+                        swr.data?.at(0)?.length === 0 ||
+                        (typeof lastPosition !== "undefined" &&
+                          lastPosition.length < 10)
+                      );
+                    }}
+                  >
+                    {(response) => {
+                      return (
+                        <>
+                          {response?.map(({ festivals: festival }) => (
+                            <div
+                              key={festival.id}
+                              className={cn(
+                                "flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-200 hover:cursor-pointer",
+                                festival.id === selectedFestival?.id
+                                  ? "bg-gray-200"
+                                  : null
+                              )}
+                              onClick={() => handleClickSelected(festival)}
+                            >
+                              <div className="animate-pulse">
+                                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-400 rounded-lg" />
+                              </div>
+                              <div className="w-full flex-1">
+                                <h3 className="text-black text-sm sm:text-base truncate">
+                                  {festival.name}
+                                </h3>
+                                <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
+                                  <CalendarCheck size={16} />
+                                  <span>
+                                    {format(festival.createdAt, "PP")}
+                                  </span>
+                                </p>
+                                <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
+                                  <MapPin size={16} />
+                                  <span>
+                                    {festival?.address || festival?.location}
+                                  </span>
+                                </p>
+                              </div>
+                              <div>
+                                <Link
+                                  href={`/event/${festival.id}`}
+                                  target="_blank"
+                                >
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-gray-500"
+                                  >
+                                    <ExternalLink size={15} />
+                                  </Button>
+                                </Link>
+                              </div>
+                            </div>
+                          ))}
+                        </>
+                      );
+                    }}
+                  </InfiniteScroll>
                 </div>
               </ScrollArea>
             </div>
