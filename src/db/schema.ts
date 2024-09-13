@@ -204,7 +204,6 @@ export const groups = pgTable("groups", {
 });
 
 /* Docs Table */
-
 export const docsTable = pgTable("docs", {
   id: serial("id").primaryKey(),
   title: text("title"),
@@ -293,12 +292,20 @@ export const festivalsToCategoriesTable = pgTable(
 
 /* Relations */
 
-export const festivalRelations = relations(festivals, ({ many }) => ({
+export const festivalRelations = relations(festivals, ({ many, one }) => ({
   festivalsToCategories: many(festivalsToCategoriesTable),
+  country: one(countriesTable, {
+    fields: [festivals.countryId],
+    references: [countriesTable.id],
+  }),
 }));
 
 export const categoriesRelations = relations(categories, ({ many }) => ({
   festivalsToCategories: many(festivalsToCategoriesTable),
+}));
+
+export const countriesRelations = relations(countriesTable, ({ many }) => ({
+  festivals: many(festivals),
 }));
 
 export const festivalsToGroupsRelations = relations(

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -8,7 +8,7 @@ import { preload } from "swr";
 import useSWRInfinite from "swr/infinite";
 import InfiniteScroll from "@/components/extension/swr-infinite-scroll";
 import fetcher, { cn } from "@/lib/utils";
-import { SelectFestival } from "@/db/schema";
+import { SelectCountries, SelectFestival } from "@/db/schema";
 import { MapPin, CalendarCheck, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -32,7 +32,7 @@ interface SearchFormElement extends HTMLFormElement {
   readonly elements: FormElements;
 }
 
-preload("/api/filters", fetcher);
+preload("/api/filter", fetcher);
 
 function SkeletonList() {
   return (
@@ -89,12 +89,14 @@ export function WrapperFilter() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const map = useMap();
   const places = useMapsLibrary("places");
-  const swr = useSWRInfinite<{ festivals: SelectFestival }[]>(
+  const swr = useSWRInfinite<
+    { festival: SelectFestival; country: SelectCountries }[]
+  >(
     (index, _) =>
-      `api/filters?categories=${JSON.stringify(selectedCategories)}&page=${
+      `api/filter?categories=${JSON.stringify(selectedCategories)}&page=${
         index + 1
       }&${search}`,
-    { fetcher }
+    { fetcher },
   );
 
   // https://developers.google.com/maps/documentation/javascript/reference/places-autocomplete-service#AutocompleteSessionToken
@@ -133,13 +135,18 @@ export function WrapperFilter() {
         return;
       }
 
+      if (!autocompleteService || !inputValue) {
+        setPredictionResults([]);
+        return;
+      }
+
       const request = { input: inputValue, sessionToken };
       const response = await autocompleteService.getPlacePredictions(request);
 
       setPredictionResults(response.predictions);
       return response.predictions;
     },
-    [autocompleteService, sessionToken]
+    [autocompleteService, sessionToken],
   );
 
   const handleSuggestion = useCallback(
@@ -153,7 +160,7 @@ export function WrapperFilter() {
       };
 
       const detailsRequestCallback = (
-        placeDetails: google.maps.places.PlaceResult | null
+        placeDetails: google.maps.places.PlaceResult | null,
       ) => {
         setPredictionResults([]);
         setSelectedPlace(placeDetails);
@@ -162,7 +169,7 @@ export function WrapperFilter() {
 
       placesService?.getDetails(detailRequestOptions, detailsRequestCallback);
     },
-    [places, placesService, sessionToken]
+    [places, placesService, sessionToken],
   );
 
   async function handleSubmit(event: React.FormEvent<SearchFormElement>) {
@@ -171,8 +178,8 @@ export function WrapperFilter() {
     const searchValue = event.currentTarget.elements?.search.value;
     setSearch(
       `search=${searchValue}&rangeDateFrom=${Math.floor(
-        dateRange!.from!.getTime() / 1000
-      )}&rangeDateTo=${Math.floor(dateRange!.to!.getTime() / 1000)}`
+        dateRange!.from!.getTime() / 1000,
+      )}&rangeDateTo=${Math.floor(dateRange!.to!.getTime() / 1000)}`,
     );
   }
 
@@ -180,7 +187,7 @@ export function WrapperFilter() {
     if (!festival?.address && !festival?.location) return;
 
     const predictions = await fetchPredictions(
-      festival?.address || festival?.location || ""
+      festival?.address || festival?.location || "",
     );
 
     handleSuggestion(predictions?.at(0)?.place_id || "");
@@ -297,14 +304,14 @@ export function WrapperFilter() {
                     {(response) => {
                       return (
                         <>
-                          {response?.map(({ festivals: festival }) => (
+                          {response?.map(({ festival, country }) => (
                             <div
                               key={festival.id}
                               className={cn(
                                 "flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-200 hover:cursor-pointer",
                                 festival.id === selectedFestival?.id
                                   ? "bg-gray-200"
-                                  : null
+                                  : null,
                               )}
                               onClick={() => handleClickSelected(festival)}
                             >
@@ -323,9 +330,7 @@ export function WrapperFilter() {
                                 </p>
                                 <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
                                   <MapPin size={16} />
-                                  <span>
-                                    {festival?.address || festival?.location}
-                                  </span>
+                                  <span>{country.name}</span>
                                 </p>
                               </div>
                               <div>
@@ -371,9 +376,6 @@ export default function GlobalFilter({
 }: {
   fallbackFestivals: { festivals: SelectFestival }[];
 }) {
-  const fallback = {
-    "/api/filters": fallbackFestivals,
-  };
   return <BaseWrapperFilter />;
 }
 
@@ -397,28 +399,6 @@ function BabyIcon(props: SVGComponentProps) {
       <path d="M15 12h.01" />
       <path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5" />
       <path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1" />
-    </svg>
-  );
-}
-
-function CalendarIcon(props: SVGComponentProps) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M8 2v4" />
-      <path d="M16 2v4" />
-      <rect width="18" height="18" x="3" y="4" rx="2" />
-      <path d="M3 10h18" />
     </svg>
   );
 }
@@ -547,27 +527,6 @@ function GlobeIcon(props: SVGComponentProps) {
   );
 }
 
-function MenuIcon(props: SVGComponentProps) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <line x1="4" x2="20" y1="12" y2="12" />
-      <line x1="4" x2="20" y1="6" y2="6" />
-      <line x1="4" x2="20" y1="18" y2="18" />
-    </svg>
-  );
-}
-
 function SearchIcon(props: SVGComponentProps) {
   return (
     <svg
@@ -633,46 +592,6 @@ function TruckIcon(props: SVGComponentProps) {
       <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" />
       <circle cx="17" cy="18" r="2" />
       <circle cx="7" cy="18" r="2" />
-    </svg>
-  );
-}
-
-function UserIcon(props: SVGComponentProps) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
-  );
-}
-
-function XIcon(props: SVGComponentProps) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
     </svg>
   );
 }

@@ -1,6 +1,11 @@
-import { categories, festivals, festivalsToCategoriesTable } from "@/db/schema";
+import {
+  categories,
+  countriesTable,
+  festivals,
+  festivalsToCategoriesTable,
+} from "@/db/schema";
 import { db } from "@/db";
-import { and, eq, gte, ilike, inArray, lte } from "drizzle-orm";
+import { and, asc, eq, gte, ilike, inArray, lte } from "drizzle-orm";
 import { NextRequest } from "next/server";
 
 const PAGE_SIZE = 10;
@@ -17,19 +22,18 @@ export async function GET(request: NextRequest) {
   const page: number = Number(request.nextUrl.searchParams.get("page") || "1");
 
   const baseQuery = db
-    .select({
-      festivals: festivals,
-    })
+    .select({ festival: festivals, country: countriesTable })
     .from(festivalsToCategoriesTable)
     .innerJoin(
       festivals,
       eq(festivalsToCategoriesTable.festivalId, festivals.id),
     )
+    .innerJoin(countriesTable, eq(festivals.countryId, countriesTable.id))
     .leftJoin(
       categories,
       eq(festivalsToCategoriesTable.categoryId, categories.id),
     )
-    .groupBy(festivals.id)
+    .groupBy(festivals.id, countriesTable.id)
     .limit(PAGE_SIZE)
     .offset((page - 1) * PAGE_SIZE)
     .$dynamic();
