@@ -4,6 +4,7 @@ import {
   boolean,
   integer,
   pgEnum,
+  pgSchema,
   pgTable,
   primaryKey,
   serial,
