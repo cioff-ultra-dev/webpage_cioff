@@ -57,6 +57,13 @@
       "when": 1726058177579,
       "tag": "0007_sour_captain_america",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1726432154525,
+      "tag": "0008_complex_fat_cobra",
+      "breakpoints": true
     }
   ]
 }

@@ -3,6 +3,7 @@ import {
   boolean,
   integer,
   pgEnum,
+  pgSchema,
   pgTable,
   primaryKey,
   serial,
@@ -65,7 +66,7 @@ export const accounts = pgTable(
     compoundKey: primaryKey({
       columns: [account.provider, account.providerAccountId],
     }),
-  }),
+  })
 );
 
 /* Session Table */
@@ -91,7 +92,7 @@ export const verificationTokens = pgTable(
     compositePk: primaryKey({
       columns: [verificationToken.identifier, verificationToken.token],
     }),
-  }),
+  })
 );
 
 export const sessionsContainer = pgTable("session_group", {
@@ -118,7 +119,7 @@ export const authenticators = pgTable(
     compositePK: primaryKey({
       columns: [authenticator.userId, authenticator.credentialID],
     }),
-  }),
+  })
 );
 
 /* Events Table */
@@ -287,7 +288,7 @@ export const festivalsToCategoriesTable = pgTable(
   },
   (t) => ({
     pk: primaryKey({ columns: [t.festivalId, t.categoryId] }),
-  }),
+  })
 );
 
 /* Relations */
@@ -319,7 +320,7 @@ export const festivalsToGroupsRelations = relations(
       fields: [festivalsToCategoriesTable.categoryId],
       references: [categories.id],
     }),
-  }),
+  })
 );
 
 export const groupsRelations = relations(groups, ({ one }) => ({
@@ -362,7 +363,7 @@ export const insertFestivalSchema = createInsertSchema(festivals, {
       (value) => {
         return isPossiblePhoneNumber(value || "");
       },
-      { message: "Invalid phone number" },
+      { message: "Invalid phone number" }
     ),
 });
 
@@ -422,3 +423,469 @@ export type InsertFestivalToCategories =
   typeof festivalsToCategoriesTable.$inferInsert;
 export type SelectFestivalToCategories =
   typeof festivalsToCategoriesTable.$inferSelect;
+
+/** CIOFF Daniel Schema */
+
+export const cioffSchema = pgSchema("PROD");
+export const langCodeEnum = pgEnum("lang_code", ["en", "es", "fr"]);
+
+/* All tables:
+
+1. USER MODULE:
+Users
+Account
+Session
+Verification Token
+Authenticator
+Roles
+Permissions
+Roles to Permissions
+
+2. SYSTEM:
+Languages
+Social Media Links
+Docs
+
+3. CATEGORY MODULE:
+Categories
+Categories Lang
+
+4. FESTIVAL MODULE:
+Events
+EventsToGroups
+Festivals Lang
+Festivals
+Festivals Photos
+Festival to categories
+
+5. GROUP MODULE:
+Type groups
+Groups
+Groups Lang
+
+6. COUNTRY MODULE:
+Countries
+Countries Lang
+
+7. NATIONAL SECTION MODULE:
+National Section
+National Section Lang
+National Section Positions
+National Section Positions Lang
+
+8. TIMELINE
+Timeline
+Timeline Lang
+
+9. WEBSITE MODULE
+Design
+Menu
+Menu Lang
+
+10. PAGES
+Sub Pages
+Sub Pages Docs
+Sub Pages Texts Lang
+
+11. Announcements
+emails
+emails docs
+*/
+
+export const RolesProd = cioffSchema.table("Roles", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const CountriesProd = cioffSchema.table("Countries", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const UsersProd = cioffSchema.table("Users", {
+  id: serial("id").primaryKey(),
+  roleId: integer("role_id").references(() => RolesProd.id),
+  countryId: integer("country_id").references(() => CountriesProd.id),
+  email: text("email").notNull().unique(),
+  emailVerified: timestamp("email_verified", { mode: "date" }),
+  password: text("password").notNull(),
+  firstname: text("firstname").notNull(),
+  lastname: text("lastname").notNull(),
+  title: text("title"),
+  address: text("address"),
+  city: text("city"),
+  zip: text("zip"),
+  phone: text("phone"),
+  image: integer("image_id").references(() => StorageProd.id),
+  active: boolean("active").default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const AccountsProd = cioffSchema.table(
+  "Account",
+  {
+    userId: integer("user_id").references(() => UsersProd.id, {
+      onDelete: "cascade",
+    }),
+    type: text("type").$type<AdapterAccountType>().notNull(),
+    provider: text("provider").notNull(),
+    providerAccountId: text("provider_account_id").notNull(),
+    refresh_token: text("refresh_token"),
+    access_token: text("access_token"),
+    expires_at: integer("expires_at"),
+    token_type: text("token_type"),
+    scope: text("scope"),
+    id_token: text("id_token"),
+    session_state: text("session_state"),
+  },
+  (account) => ({
+    compoundKey: primaryKey({
+      columns: [account.provider, account.providerAccountId],
+    }),
+  })
+);
+export const SessionsProd = cioffSchema.table("Session", {
+  sessionToken: text("session_token").primaryKey(),
+  userId: integer("user_id").references(() => UsersProd.id, {
+    onDelete: "cascade",
+  }),
+  expires: timestamp("expires", { mode: "date" }).notNull(),
+});
+export const VerificationTokenProd = cioffSchema.table(
+  "VerificationToken",
+  {
+    identifier: text("identifier").notNull(),
+    token: text("token").notNull(),
+    expires: timestamp("expires", { mode: "date" }).notNull(),
+  },
+  (verificationToken) => ({
+    compositePk: primaryKey({
+      columns: [verificationToken.identifier, verificationToken.token],
+    }),
+  })
+);
+export const AuthenticatorProd = cioffSchema.table(
+  "Authenticator",
+  {
+    credentialID: text("credential_id").notNull().unique(),
+    userId: integer("user_id").references(() => UsersProd.id, {
+      onDelete: "cascade",
+    }),
+    providerAccountId: text("provider_account_id").notNull(),
+    credentialPublicKey: text("credential_public_key").notNull(),
+    counter: integer("counter").notNull(),
+    credentialDeviceType: text("credential_device_type").notNull(),
+    credentialBackedUp: boolean("credential_backed_up").notNull(),
+    transports: text("transports"),
+  },
+  (authenticator) => ({
+    compositePK: primaryKey({
+      columns: [authenticator.credentialID],
+    }),
+  })
+);
+export const PermissionsProd = cioffSchema.table("Permissions", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  active: boolean("active").default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const RolesToPermissionsProd = cioffSchema.table("RolesToPermissions", {
+  id: serial("id").primaryKey(),
+  roleId: integer("role_id").references(() => RolesProd.id),
+  permissionId: integer("permission_id").references(() => PermissionsProd.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const LanguagesProd = cioffSchema.table("Languages", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  code: langCodeEnum("code").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const SocialMediaLinksProd = cioffSchema.table("SocialMediaLinks", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  link: text("link"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const StorageProd = cioffSchema.table("Storage", {
+  id: serial("id").primaryKey(),
+  url: text("url").notNull(),
+  name: text("name"),
+  aux: text("aux"),
+  keywords: text("keywords"),
+  lang: integer("lang").references(() => LanguagesProd.id),
+  isFile: boolean("is_file").default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const CategoriesProd = cioffSchema.table("Categories", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  icon: text("icon"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const CategoriesLangProd = cioffSchema.table("CategoriesLang", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  lang: integer("lang").references(() => LanguagesProd.id),
+  categoryId: integer("category_id").references(() => CategoriesProd.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const FestivalsProd = cioffSchema.table("Festivals", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  stateMode: stateModeEnum("state_mode").default("offline"),
+  urlValidated: boolean("url_validated").default(false),
+  directorName: text("director_name").notNull().default(""),
+  email: text("email").notNull().unique(),
+  url: text("url"),
+  contact: text("contact"),
+  phone: text("phone"),
+  location: text("location"),
+  currentDates: text("current_dates"),
+  youtubeId: text("youtube_id"),
+  published: boolean("published").default(false),
+  countryId: integer("country_id").references(() => CountriesProd.id),
+  logoId: integer("logo_id").references(() => StorageProd.id),
+  coverId: integer("cover_id").references(() => StorageProd.id),
+  createdBy: integer("created_by").references(() => UsersProd.id),
+  updatedBy: integer("updated_by").references(() => UsersProd.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const FestivalsLangProd = cioffSchema.table("FestivalsLang", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().default(""),
+  description: text("description").notNull().default(""),
+  address: text("address").notNull(),
+  lang: integer("lang").references(() => LanguagesProd.id),
+  festivalId: integer("festival_id").references(() => FestivalsProd.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const FestivalPhotosProd = cioffSchema.table("FestivalPhotos", {
+  id: serial("id").primaryKey(),
+  festivalId: integer("festival_id").references(() => FestivalsProd.id),
+  photoId: integer("photo_id").references(() => StorageProd.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const FestivalToCategoriesProd = cioffSchema.table(
+  "FestivalToCategories",
+  {
+    id: serial("id").primaryKey(),
+    festivalId: integer("festival_id").references(() => FestivalsProd.id),
+    categoryId: integer("category_id").references(() => CategoriesProd.id),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+export const EventsProd = cioffSchema.table("Events", {
+  id: serial("id").primaryKey(),
+  startDate: timestamp("start_date", { mode: "date" }).notNull(),
+  endDate: timestamp("end_date", { mode: "date" }).notNull(),
+  festivalId: integer("festival_id").references(() => FestivalsProd.id),
+  active: boolean("active").default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const TypeGroupsProd = cioffSchema.table("TypeGroups", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  slug: text("slug"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const GroupsProd = cioffSchema.table("Groups", {
+  id: serial("id").primaryKey(),
+  slug: text("slug"),
+  phone: text("phone"),
+  generalDirectorName: text("general_director_name").notNull(),
+  artisticDirectorName: text("artistic_director_name"),
+  generalDirectorPhotoId: integer("general_director_photo_id").references(
+    () => StorageProd.id
+  ),
+  artisticDirectorPhotoId: integer("artistic_director_photo_id").references(
+    () => StorageProd.id
+  ),
+  typeId: integer("type_id").references(() => TypeGroupsProd.id),
+  createdBy: integer("created_by").references(() => UsersProd.id),
+  updatedBy: integer("updated_by").references(() => UsersProd.id),
+  published: boolean("published").default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const GroupsLangProd = cioffSchema.table("GroupsLang", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull().default(""),
+  address: text("address").notNull(),
+  generalDirectorProfile: text("general_director_profile"),
+  artisticDirectorProfile: text("artistic_director_profile"),
+  lang: integer("lang").references(() => LanguagesProd.id),
+  groupId: integer("group_id").references(() => GroupsProd.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const EventsToGroupsProd = cioffSchema.table("EventsToGroups", {
+  id: serial("id").primaryKey(),
+  eventId: integer("event_id").references(() => EventsProd.id),
+  groupId: integer("group_id").references(() => GroupsProd.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const CountriesLangProd = cioffSchema.table("CountriesLang", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  countryId: integer("country_id").references(() => CountriesProd.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const NationalSectionProd = cioffSchema.table("NationalSection", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  published: boolean("published").default(false),
+  countryId: integer("country_id").references(() => CountriesProd.id),
+  createdBy: integer("created_by").references(() => UsersProd.id),
+  updatedBy: integer("updated_by").references(() => UsersProd.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const NationalSectionLangProd = cioffSchema.table(
+  "NationalSectionLang",
+  {
+    id: serial("id").primaryKey(),
+    name: text("name").notNull(),
+    about: text("about").notNull(),
+    aboutYoung: text("about_young").notNull(),
+    nsId: integer("ns_id").references(() => NationalSectionProd.id),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+export const NationalSectionPositionsProd = cioffSchema.table(
+  "NationalSectionPositions",
+  {
+    id: serial("id").primaryKey(),
+    name: text("name").notNull(),
+    phone: text("phone").notNull(),
+    email: text("email").notNull().unique(),
+    birthDate: timestamp("birth_date", { mode: "date" }).notNull(),
+    deadDate: timestamp("dead_date", { mode: "date" }),
+    isHonorable: boolean("is_honorable").default(false),
+    photoId: integer("photo_id").references(() => StorageProd.id),
+    nsId: integer("ns_id").references(() => NationalSectionProd.id),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+export const NationalSectionPositionsLangProd = cioffSchema.table(
+  "NationalSectionPositionsLang",
+  {
+    id: serial("id").primaryKey(),
+    shortBio: text("short_bio").notNull(),
+    lang: integer("lang").references(() => LanguagesProd.id),
+    nsPositionsId: integer("ns_positions_id").references(
+      () => NationalSectionPositionsProd.id
+    ),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+export const TimelineProd = cioffSchema.table("Timeline", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  videoId: text("video_id"),
+  mediaId: integer("media_id").references(() => StorageProd.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const TimelineLangProd = cioffSchema.table("TimelineLang", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  lang: integer("lang").references(() => LanguagesProd.id),
+  timelineId: integer("timeline_id").references(() => TimelineProd.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const DesignProd = cioffSchema.table("Design", {
+  id: serial("id").primaryKey(),
+  bannerMediaId: integer("banner_media_id")
+    .references(() => StorageProd.id)
+    .notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const MenuProd = cioffSchema.table("Menu", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  order: integer("order"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const MenuLangProd = cioffSchema.table("MenuLang", {
+  id: serial("id").primaryKey(),
+  name: text("name"),
+  lang: integer("lang").references(() => LanguagesProd.id),
+  menuId: integer("menu_id").references(() => MenuProd.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const SubPagesProd = cioffSchema.table("SubPages", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  url: text("url").notNull(),
+  idNews: boolean("is_news").default(false),
+  originalDate: timestamp("original_date", { mode: "date" }).notNull(),
+  published: boolean("published").default(false),
+  createdBy: integer("created_by").references(() => UsersProd.id),
+  updatedBy: integer("updated_by").references(() => UsersProd.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const SubPagesDocsProd = cioffSchema.table("SubPagesDocs", {
+  id: serial("id").primaryKey(),
+  order: integer("order").notNull(),
+  subPageId: integer("subpage_id").references(() => SubPagesProd.id),
+  mediaId: integer("media_id").references(() => StorageProd.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const SubPagesTextsLangProd = cioffSchema.table("SubPagesTextsLang", {
+  id: serial("id").primaryKey(),
+  description: text("description").notNull(),
+  order: integer("order").notNull(),
+  lang: integer("lang").references(() => LanguagesProd.id),
+  subPageId: integer("subpage_id").references(() => SubPagesProd.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const EmailsProd = cioffSchema.table("Emails", {
+  id: serial("id").primaryKey(),
+  to: text("to").notNull(),
+  from: text("from").notNull(),
+  subject: text("subject").notNull(),
+  description: text("description").notNull(),
+  categoryNames: text("category_names").notNull(),
+  createdBy: integer("created_by").references(() => UsersProd.id),
+  updatedBy: integer("updated_by").references(() => UsersProd.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const EmailsDocsProd = cioffSchema.table("EmailsDocs", {
+  id: serial("id").primaryKey(),
+  emailId: integer("email_id").references(() => EmailsProd.id),
+  mediaId: integer("media_id").references(() => StorageProd.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
