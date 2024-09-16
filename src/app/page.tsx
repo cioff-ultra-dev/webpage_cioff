@@ -8,9 +8,11 @@ import { Linkedin, Instagram, Facebook } from "lucide-react";
 import GlobalFilter from "@/components/common/global-filter";
 import { getAllNestedFestivals } from "@/db/queries/events";
 import CarouselHistory from "@/components/common/carousel-history";
+import { getAllCountryCastFestivals } from "@/db/queries/countries";
 
 export default async function Home() {
   const festivals = await getAllNestedFestivals();
+  const countryCast = await getAllCountryCastFestivals();
   return (
     <div>
       <Header text="text-white" className="absolute left-0 right-0 top-0" />
@@ -40,7 +42,10 @@ export default async function Home() {
             </Link>
           </div>
         </section>
-        <GlobalFilter fallbackFestivals={festivals} />
+        <GlobalFilter
+          fallbackFestivals={festivals}
+          fallbackCountryCast={countryCast}
+        />
         <section className="bg-white py-4 sm:py-8">
           <div className="container mx-auto px-4">
             <h2 className="text-xl font-bold text-black sm:text-2xl">

@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { preload } from "swr";
+import useSWR, { preload } from "swr";
 import useSWRInfinite from "swr/infinite";
 import InfiniteScroll from "@/components/extension/swr-infinite-scroll";
 import fetcher, { cn } from "@/lib/utils";
@@ -18,12 +18,14 @@ import {
   useMapsLibrary,
   Map,
   Marker,
+  AdvancedMarker,
 } from "@vis.gl/react-google-maps";
 import MapHandler from "./map-handler";
 import { DatePickerWithRange } from "../ui/datepicker-with-range";
 import { DateRange } from "react-day-picker";
 import Link from "next/link";
 import { Badge } from "../ui/badge";
+import { CountryCastFestivals } from "@/db/queries/countries";
 
 interface FormElements extends HTMLFormControlsCollection {
   search: HTMLInputElement;
@@ -81,23 +83,49 @@ function SkeletonList() {
   );
 }
 
-export function WrapperFilter() {
+export function WrapperFilter({
+  fallbackCountryCast,
+}: {
+  fallbackCountryCast: CountryCastFestivals;
+}) {
   const [search, setSearch] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedFestival, setSelectedFestival] =
     useState<SelectFestival | null>(null);
+  const [selectedCountryId, setSelectedCountryId] = useState<number>(0);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const map = useMap();
   const places = useMapsLibrary("places");
+  const { data: countryCast } = useSWR<CountryCastFestivals>(
+    "/api/filter/country",
+    fetcher,
+    { fallback: fallbackCountryCast }
+  );
   const swr = useSWRInfinite<
     { festival: SelectFestival; country: SelectCountries }[]
   >(
     (index, _) =>
-      `api/filter?categories=${JSON.stringify(selectedCategories)}&page=${
-        index + 1
-      }&${search}`,
-    { fetcher },
+      `api/filter?categories=${JSON.stringify(
+        selectedCategories
+      )}&countryId=${selectedCountryId}&page=${index + 1}&${search}`,
+    { fetcher }
   );
+
+  const countryMapClusters = useMemo(() => {
+    return (
+      countryCast
+        ?.filter((item) => item.lat && item.lng)
+        .map((item) => ({
+          id: item.id,
+          count: item.festivalsCount,
+          name: item.country,
+          position: {
+            lat: parseFloat(item.lat!),
+            lng: parseFloat(item.lng!),
+          },
+        })) || []
+    );
+  }, [countryCast]);
 
   // https://developers.google.com/maps/documentation/javascript/reference/places-autocomplete-service#AutocompleteSessionToken
   const [sessionToken, setSessionToken] =
@@ -111,7 +139,7 @@ export function WrapperFilter() {
   const [placesService, setPlacesService] =
     useState<google.maps.places.PlacesService | null>(null);
 
-  const [predictionResults, setPredictionResults] = useState<
+  const [_, setPredictionResults] = useState<
     Array<google.maps.places.AutocompletePrediction>
   >([]);
 
@@ -146,7 +174,7 @@ export function WrapperFilter() {
       setPredictionResults(response.predictions);
       return response.predictions;
     },
-    [autocompleteService, sessionToken],
+    [autocompleteService, sessionToken]
   );
 
   const handleSuggestion = useCallback(
@@ -160,7 +188,7 @@ export function WrapperFilter() {
       };
 
       const detailsRequestCallback = (
-        placeDetails: google.maps.places.PlaceResult | null,
+        placeDetails: google.maps.places.PlaceResult | null
       ) => {
         setPredictionResults([]);
         setSelectedPlace(placeDetails);
@@ -169,7 +197,7 @@ export function WrapperFilter() {
 
       placesService?.getDetails(detailRequestOptions, detailsRequestCallback);
     },
-    [places, placesService, sessionToken],
+    [places, placesService, sessionToken]
   );
 
   async function handleSubmit(event: React.FormEvent<SearchFormElement>) {
@@ -178,16 +206,23 @@ export function WrapperFilter() {
     const searchValue = event.currentTarget.elements?.search.value;
     setSearch(
       `search=${searchValue}&rangeDateFrom=${Math.floor(
-        dateRange!.from!.getTime() / 1000,
-      )}&rangeDateTo=${Math.floor(dateRange!.to!.getTime() / 1000)}`,
+        dateRange!.from!.getTime() / 1000
+      )}&rangeDateTo=${Math.floor(dateRange!.to!.getTime() / 1000)}`
     );
   }
 
   async function handleClickSelected(festival: SelectFestival) {
+    if (festival.id === selectedFestival?.id) {
+      if (!places) return;
+      setSelectedFestival(null);
+      setSelectedPlace(null);
+      return;
+    }
+
     if (!festival?.address && !festival?.location) return;
 
     const predictions = await fetchPredictions(
-      festival?.address || festival?.location || "",
+      festival?.address || festival?.location || ""
     );
 
     handleSuggestion(predictions?.at(0)?.place_id || "");
@@ -268,8 +303,12 @@ export function WrapperFilter() {
             <MapHandler place={selectedPlace} />
             <div className="flex-1 bg-gray-50 p-4 rounded-lg">
               <Map
+                mapId={"bf51a910020fa25a"}
                 style={{ width: "100%", height: "100%" }}
-                defaultCenter={{ lat: 0, lng: 0 }}
+                defaultCenter={{
+                  lat: map?.getCenter()?.lat() || 0,
+                  lng: map?.getCenter()?.lng() || 0,
+                }}
                 defaultZoom={selectedFestival ? 10 : 2}
                 gestureHandling="greedy"
                 disableDefaultUI={true}
@@ -277,6 +316,28 @@ export function WrapperFilter() {
                 {selectedPlace ? (
                   <Marker position={selectedPlace.geometry?.location} />
                 ) : null}
+                {!selectedPlace
+                  ? countryMapClusters.map((item) => (
+                      <AdvancedMarker
+                        key={item.id}
+                        position={item.position}
+                        onClick={() =>
+                          setSelectedCountryId((prevState) => {
+                            return prevState === item.id ? 0 : item.id;
+                          })
+                        }
+                      >
+                        <div
+                          className={cn(
+                            "w-5 h-5 bg-red-300 flex justify-center items-center rounded-full p-3",
+                            item.id === selectedCountryId && "bg-red-400"
+                          )}
+                        >
+                          <span>{item.count}</span>
+                        </div>
+                      </AdvancedMarker>
+                    ))
+                  : null}
               </Map>
             </div>
             <div className="flex-1 bg-gray-100 p-4 rounded-lg">
@@ -311,7 +372,7 @@ export function WrapperFilter() {
                                 "flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-200 hover:cursor-pointer",
                                 festival.id === selectedFestival?.id
                                   ? "bg-gray-200"
-                                  : null,
+                                  : null
                               )}
                               onClick={() => handleClickSelected(festival)}
                             >
@@ -363,20 +424,29 @@ export function WrapperFilter() {
   );
 }
 
-function BaseWrapperFilter() {
+function BaseWrapperFilter({
+  fallbackCountryCast,
+}: {
+  fallbackCountryCast: CountryCastFestivals;
+}) {
   return (
-    <APIProvider apiKey={"AIzaSyBRO_oBiyzOAQbH7Jcv3ZrgOgkfNp1wJeI"}>
-      <WrapperFilter />
+    <APIProvider
+      apiKey={"AIzaSyBRO_oBiyzOAQbH7Jcv3ZrgOgkfNp1wJeI"}
+      libraries={["marker"]}
+    >
+      <WrapperFilter fallbackCountryCast={fallbackCountryCast} />
     </APIProvider>
   );
 }
 
 export default function GlobalFilter({
   fallbackFestivals,
+  fallbackCountryCast,
 }: {
   fallbackFestivals: { festivals: SelectFestival }[];
+  fallbackCountryCast: CountryCastFestivals;
 }) {
-  return <BaseWrapperFilter />;
+  return <BaseWrapperFilter fallbackCountryCast={fallbackCountryCast} />;
 }
 
 type SVGComponentProps = React.ComponentPropsWithoutRef<"svg">;

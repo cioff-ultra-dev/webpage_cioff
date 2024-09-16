@@ -9,7 +9,12 @@ const MapHandler = ({ place }: Props) => {
   const map = useMap();
 
   useEffect(() => {
-    if (!map || !place) return;
+    if (!map) return;
+
+    if (!place) {
+      map.setZoom(2);
+      return;
+    }
 
     if (place.geometry?.viewport) {
       map.fitBounds(place.geometry?.viewport);

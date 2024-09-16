@@ -57,6 +57,20 @@
       "when": 1726058177579,
       "tag": "0007_sour_captain_america",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1726439410264,
+      "tag": "0008_fine_songbird",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1726441609000,
+      "tag": "0009_wandering_brood",
+      "breakpoints": true
     }
   ]
 }

@@ -12,7 +12,9 @@ import { db } from "@/db";
 import { eq } from "drizzle-orm";
 
 export async function getAllEvents(): Promise<Array<SelectEvent>> {
-  return db.select().from(events).limit(10);
+  return db.query.events.findMany({
+    limit: 10,
+  });
 }
 
 export async function newEvent(event: InsertEvent) {
