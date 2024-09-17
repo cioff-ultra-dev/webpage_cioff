@@ -1,12 +1,12 @@
 {
-  "id": "81102d28-a3b1-4b41-aac8-e7b65d36b9e7",
+  "id": "df4c80b5-3611-48ff-a309-ebbe328a403f",
   "prevId": "270e6842-ba67-44e3-b179-443467fc43b8",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "PROD.Account": {
-      "name": "Account",
-      "schema": "PROD",
+    "prod.account": {
+      "name": "account",
+      "schema": "prod",
       "columns": {
         "user_id": {
           "name": "user_id",
@@ -77,11 +77,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "Account_user_id_Users_id_fk": {
-          "name": "Account_user_id_Users_id_fk",
-          "tableFrom": "Account",
-          "tableTo": "Users",
-          "schemaTo": "PROD",
+        "account_user_id_users_id_fk": {
+          "name": "account_user_id_users_id_fk",
+          "tableFrom": "account",
+          "tableTo": "users",
+          "schemaTo": "prod",
           "columnsFrom": [
             "user_id"
           ],
@@ -93,8 +93,8 @@
         }
       },
       "compositePrimaryKeys": {
-        "Account_provider_provider_account_id_pk": {
-          "name": "Account_provider_provider_account_id_pk",
+        "account_provider_provider_account_id_pk": {
+          "name": "account_provider_provider_account_id_pk",
           "columns": [
             "provider",
             "provider_account_id"
@@ -103,9 +103,9 @@
       },
       "uniqueConstraints": {}
     },
-    "PROD.Authenticator": {
-      "name": "Authenticator",
-      "schema": "PROD",
+    "prod.authenticator": {
+      "name": "authenticator",
+      "schema": "prod",
       "columns": {
         "credential_id": {
           "name": "credential_id",
@@ -158,11 +158,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "Authenticator_user_id_Users_id_fk": {
-          "name": "Authenticator_user_id_Users_id_fk",
-          "tableFrom": "Authenticator",
-          "tableTo": "Users",
-          "schemaTo": "PROD",
+        "authenticator_user_id_users_id_fk": {
+          "name": "authenticator_user_id_users_id_fk",
+          "tableFrom": "authenticator",
+          "tableTo": "users",
+          "schemaTo": "prod",
           "columnsFrom": [
             "user_id"
           ],
@@ -174,16 +174,16 @@
         }
       },
       "compositePrimaryKeys": {
-        "Authenticator_credential_id_pk": {
-          "name": "Authenticator_credential_id_pk",
+        "authenticator_credential_id_pk": {
+          "name": "authenticator_credential_id_pk",
           "columns": [
             "credential_id"
           ]
         }
       },
       "uniqueConstraints": {
-        "Authenticator_credential_id_unique": {
-          "name": "Authenticator_credential_id_unique",
+        "authenticator_credential_id_unique": {
+          "name": "authenticator_credential_id_unique",
           "nullsNotDistinct": false,
           "columns": [
             "credential_id"
@@ -191,9 +191,9 @@
         }
       }
     },
-    "PROD.CategoriesLang": {
-      "name": "CategoriesLang",
-      "schema": "PROD",
+    "prod.categories_lang": {
+      "name": "categories_lang",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -235,11 +235,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "CategoriesLang_lang_Languages_id_fk": {
-          "name": "CategoriesLang_lang_Languages_id_fk",
-          "tableFrom": "CategoriesLang",
-          "tableTo": "Languages",
-          "schemaTo": "PROD",
+        "categories_lang_lang_languages_id_fk": {
+          "name": "categories_lang_lang_languages_id_fk",
+          "tableFrom": "categories_lang",
+          "tableTo": "languages",
+          "schemaTo": "prod",
           "columnsFrom": [
             "lang"
           ],
@@ -249,11 +249,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "CategoriesLang_category_id_Categories_id_fk": {
-          "name": "CategoriesLang_category_id_Categories_id_fk",
-          "tableFrom": "CategoriesLang",
-          "tableTo": "Categories",
-          "schemaTo": "PROD",
+        "categories_lang_category_id_categories_id_fk": {
+          "name": "categories_lang_category_id_categories_id_fk",
+          "tableFrom": "categories_lang",
+          "tableTo": "categories",
+          "schemaTo": "prod",
           "columnsFrom": [
             "category_id"
           ],
@@ -267,9 +267,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.Categories": {
-      "name": "Categories",
-      "schema": "PROD",
+    "prod.categories": {
+      "name": "categories",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -308,9 +308,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.CountriesLang": {
-      "name": "CountriesLang",
-      "schema": "PROD",
+    "prod.countries_lang": {
+      "name": "countries_lang",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -323,6 +323,12 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "lang": {
+          "name": "lang",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         },
         "country_id": {
           "name": "country_id",
@@ -346,11 +352,25 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "CountriesLang_country_id_Countries_id_fk": {
-          "name": "CountriesLang_country_id_Countries_id_fk",
-          "tableFrom": "CountriesLang",
-          "tableTo": "Countries",
-          "schemaTo": "PROD",
+        "countries_lang_lang_languages_id_fk": {
+          "name": "countries_lang_lang_languages_id_fk",
+          "tableFrom": "countries_lang",
+          "tableTo": "languages",
+          "schemaTo": "prod",
+          "columnsFrom": [
+            "lang"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "countries_lang_country_id_countries_id_fk": {
+          "name": "countries_lang_country_id_countries_id_fk",
+          "tableFrom": "countries_lang",
+          "tableTo": "countries",
+          "schemaTo": "prod",
           "columnsFrom": [
             "country_id"
           ],
@@ -364,9 +384,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.Countries": {
-      "name": "Countries",
-      "schema": "PROD",
+    "prod.countries": {
+      "name": "countries",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -379,6 +399,18 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "lat": {
+          "name": "lat",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lng": {
+          "name": "lng",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -399,9 +431,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.Design": {
-      "name": "Design",
-      "schema": "PROD",
+    "prod.design": {
+      "name": "design",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -431,11 +463,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "Design_banner_media_id_Storage_id_fk": {
-          "name": "Design_banner_media_id_Storage_id_fk",
-          "tableFrom": "Design",
-          "tableTo": "Storage",
-          "schemaTo": "PROD",
+        "design_banner_media_id_storage_id_fk": {
+          "name": "design_banner_media_id_storage_id_fk",
+          "tableFrom": "design",
+          "tableTo": "storage",
+          "schemaTo": "prod",
           "columnsFrom": [
             "banner_media_id"
           ],
@@ -449,9 +481,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.EmailsDocs": {
-      "name": "EmailsDocs",
-      "schema": "PROD",
+    "prod.announcements_files": {
+      "name": "announcements_files",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -487,11 +519,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "EmailsDocs_email_id_Emails_id_fk": {
-          "name": "EmailsDocs_email_id_Emails_id_fk",
-          "tableFrom": "EmailsDocs",
-          "tableTo": "Emails",
-          "schemaTo": "PROD",
+        "announcements_files_email_id_announcements_id_fk": {
+          "name": "announcements_files_email_id_announcements_id_fk",
+          "tableFrom": "announcements_files",
+          "tableTo": "announcements",
+          "schemaTo": "prod",
           "columnsFrom": [
             "email_id"
           ],
@@ -501,11 +533,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "EmailsDocs_media_id_Storage_id_fk": {
-          "name": "EmailsDocs_media_id_Storage_id_fk",
-          "tableFrom": "EmailsDocs",
-          "tableTo": "Storage",
-          "schemaTo": "PROD",
+        "announcements_files_media_id_storage_id_fk": {
+          "name": "announcements_files_media_id_storage_id_fk",
+          "tableFrom": "announcements_files",
+          "tableTo": "storage",
+          "schemaTo": "prod",
           "columnsFrom": [
             "media_id"
           ],
@@ -519,9 +551,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.Emails": {
-      "name": "Emails",
-      "schema": "PROD",
+    "prod.announcements": {
+      "name": "announcements",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -587,11 +619,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "Emails_created_by_Users_id_fk": {
-          "name": "Emails_created_by_Users_id_fk",
-          "tableFrom": "Emails",
-          "tableTo": "Users",
-          "schemaTo": "PROD",
+        "announcements_created_by_users_id_fk": {
+          "name": "announcements_created_by_users_id_fk",
+          "tableFrom": "announcements",
+          "tableTo": "users",
+          "schemaTo": "prod",
           "columnsFrom": [
             "created_by"
           ],
@@ -601,11 +633,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "Emails_updated_by_Users_id_fk": {
-          "name": "Emails_updated_by_Users_id_fk",
-          "tableFrom": "Emails",
-          "tableTo": "Users",
-          "schemaTo": "PROD",
+        "announcements_updated_by_users_id_fk": {
+          "name": "announcements_updated_by_users_id_fk",
+          "tableFrom": "announcements",
+          "tableTo": "users",
+          "schemaTo": "prod",
           "columnsFrom": [
             "updated_by"
           ],
@@ -619,9 +651,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.Events": {
-      "name": "Events",
-      "schema": "PROD",
+    "prod.events": {
+      "name": "events",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -670,11 +702,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "Events_festival_id_Festivals_id_fk": {
-          "name": "Events_festival_id_Festivals_id_fk",
-          "tableFrom": "Events",
-          "tableTo": "Festivals",
-          "schemaTo": "PROD",
+        "events_festival_id_festivals_id_fk": {
+          "name": "events_festival_id_festivals_id_fk",
+          "tableFrom": "events",
+          "tableTo": "festivals",
+          "schemaTo": "prod",
           "columnsFrom": [
             "festival_id"
           ],
@@ -688,9 +720,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.EventsToGroups": {
-      "name": "EventsToGroups",
-      "schema": "PROD",
+    "prod.events_to_groups": {
+      "name": "events_to_groups",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -726,11 +758,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "EventsToGroups_event_id_Events_id_fk": {
-          "name": "EventsToGroups_event_id_Events_id_fk",
-          "tableFrom": "EventsToGroups",
-          "tableTo": "Events",
-          "schemaTo": "PROD",
+        "events_to_groups_event_id_events_id_fk": {
+          "name": "events_to_groups_event_id_events_id_fk",
+          "tableFrom": "events_to_groups",
+          "tableTo": "events",
+          "schemaTo": "prod",
           "columnsFrom": [
             "event_id"
           ],
@@ -740,11 +772,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "EventsToGroups_group_id_Groups_id_fk": {
-          "name": "EventsToGroups_group_id_Groups_id_fk",
-          "tableFrom": "EventsToGroups",
-          "tableTo": "Groups",
-          "schemaTo": "PROD",
+        "events_to_groups_group_id_groups_id_fk": {
+          "name": "events_to_groups_group_id_groups_id_fk",
+          "tableFrom": "events_to_groups",
+          "tableTo": "groups",
+          "schemaTo": "prod",
           "columnsFrom": [
             "group_id"
           ],
@@ -758,9 +790,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.FestivalPhotos": {
-      "name": "FestivalPhotos",
-      "schema": "PROD",
+    "prod.festival_photos": {
+      "name": "festival_photos",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -796,11 +828,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "FestivalPhotos_festival_id_Festivals_id_fk": {
-          "name": "FestivalPhotos_festival_id_Festivals_id_fk",
-          "tableFrom": "FestivalPhotos",
-          "tableTo": "Festivals",
-          "schemaTo": "PROD",
+        "festival_photos_festival_id_festivals_id_fk": {
+          "name": "festival_photos_festival_id_festivals_id_fk",
+          "tableFrom": "festival_photos",
+          "tableTo": "festivals",
+          "schemaTo": "prod",
           "columnsFrom": [
             "festival_id"
           ],
@@ -810,11 +842,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "FestivalPhotos_photo_id_Storage_id_fk": {
-          "name": "FestivalPhotos_photo_id_Storage_id_fk",
-          "tableFrom": "FestivalPhotos",
-          "tableTo": "Storage",
-          "schemaTo": "PROD",
+        "festival_photos_photo_id_storage_id_fk": {
+          "name": "festival_photos_photo_id_storage_id_fk",
+          "tableFrom": "festival_photos",
+          "tableTo": "storage",
+          "schemaTo": "prod",
           "columnsFrom": [
             "photo_id"
           ],
@@ -828,9 +860,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.FestivalToCategories": {
-      "name": "FestivalToCategories",
-      "schema": "PROD",
+    "prod.festival_to_categories": {
+      "name": "festival_to_categories",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -866,11 +898,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "FestivalToCategories_festival_id_Festivals_id_fk": {
-          "name": "FestivalToCategories_festival_id_Festivals_id_fk",
-          "tableFrom": "FestivalToCategories",
-          "tableTo": "Festivals",
-          "schemaTo": "PROD",
+        "festival_to_categories_festival_id_festivals_id_fk": {
+          "name": "festival_to_categories_festival_id_festivals_id_fk",
+          "tableFrom": "festival_to_categories",
+          "tableTo": "festivals",
+          "schemaTo": "prod",
           "columnsFrom": [
             "festival_id"
           ],
@@ -880,11 +912,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "FestivalToCategories_category_id_Categories_id_fk": {
-          "name": "FestivalToCategories_category_id_Categories_id_fk",
-          "tableFrom": "FestivalToCategories",
-          "tableTo": "Categories",
-          "schemaTo": "PROD",
+        "festival_to_categories_category_id_categories_id_fk": {
+          "name": "festival_to_categories_category_id_categories_id_fk",
+          "tableFrom": "festival_to_categories",
+          "tableTo": "categories",
+          "schemaTo": "prod",
           "columnsFrom": [
             "category_id"
           ],
@@ -898,9 +930,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.FestivalsLang": {
-      "name": "FestivalsLang",
-      "schema": "PROD",
+    "prod.festivals_lang": {
+      "name": "festivals_lang",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -956,11 +988,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "FestivalsLang_lang_Languages_id_fk": {
-          "name": "FestivalsLang_lang_Languages_id_fk",
-          "tableFrom": "FestivalsLang",
-          "tableTo": "Languages",
-          "schemaTo": "PROD",
+        "festivals_lang_lang_languages_id_fk": {
+          "name": "festivals_lang_lang_languages_id_fk",
+          "tableFrom": "festivals_lang",
+          "tableTo": "languages",
+          "schemaTo": "prod",
           "columnsFrom": [
             "lang"
           ],
@@ -970,11 +1002,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "FestivalsLang_festival_id_Festivals_id_fk": {
-          "name": "FestivalsLang_festival_id_Festivals_id_fk",
-          "tableFrom": "FestivalsLang",
-          "tableTo": "Festivals",
-          "schemaTo": "PROD",
+        "festivals_lang_festival_id_festivals_id_fk": {
+          "name": "festivals_lang_festival_id_festivals_id_fk",
+          "tableFrom": "festivals_lang",
+          "tableTo": "festivals",
+          "schemaTo": "prod",
           "columnsFrom": [
             "festival_id"
           ],
@@ -988,9 +1020,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.Festivals": {
-      "name": "Festivals",
-      "schema": "PROD",
+    "prod.festivals": {
+      "name": "festivals",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -1050,14 +1082,26 @@
           "primaryKey": false,
           "notNull": false
         },
-        "location": {
-          "name": "location",
+        "lat": {
+          "name": "lat",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "current_dates": {
-          "name": "current_dates",
+        "lng": {
+          "name": "lng",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "transport_lat": {
+          "name": "transport_lat",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "transport_lng": {
+          "name": "transport_lng",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -1121,11 +1165,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "Festivals_country_id_Countries_id_fk": {
-          "name": "Festivals_country_id_Countries_id_fk",
-          "tableFrom": "Festivals",
-          "tableTo": "Countries",
-          "schemaTo": "PROD",
+        "festivals_country_id_countries_id_fk": {
+          "name": "festivals_country_id_countries_id_fk",
+          "tableFrom": "festivals",
+          "tableTo": "countries",
+          "schemaTo": "prod",
           "columnsFrom": [
             "country_id"
           ],
@@ -1135,11 +1179,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "Festivals_logo_id_Storage_id_fk": {
-          "name": "Festivals_logo_id_Storage_id_fk",
-          "tableFrom": "Festivals",
-          "tableTo": "Storage",
-          "schemaTo": "PROD",
+        "festivals_logo_id_storage_id_fk": {
+          "name": "festivals_logo_id_storage_id_fk",
+          "tableFrom": "festivals",
+          "tableTo": "storage",
+          "schemaTo": "prod",
           "columnsFrom": [
             "logo_id"
           ],
@@ -1149,11 +1193,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "Festivals_cover_id_Storage_id_fk": {
-          "name": "Festivals_cover_id_Storage_id_fk",
-          "tableFrom": "Festivals",
-          "tableTo": "Storage",
-          "schemaTo": "PROD",
+        "festivals_cover_id_storage_id_fk": {
+          "name": "festivals_cover_id_storage_id_fk",
+          "tableFrom": "festivals",
+          "tableTo": "storage",
+          "schemaTo": "prod",
           "columnsFrom": [
             "cover_id"
           ],
@@ -1163,11 +1207,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "Festivals_created_by_Users_id_fk": {
-          "name": "Festivals_created_by_Users_id_fk",
-          "tableFrom": "Festivals",
-          "tableTo": "Users",
-          "schemaTo": "PROD",
+        "festivals_created_by_users_id_fk": {
+          "name": "festivals_created_by_users_id_fk",
+          "tableFrom": "festivals",
+          "tableTo": "users",
+          "schemaTo": "prod",
           "columnsFrom": [
             "created_by"
           ],
@@ -1177,11 +1221,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "Festivals_updated_by_Users_id_fk": {
-          "name": "Festivals_updated_by_Users_id_fk",
-          "tableFrom": "Festivals",
-          "tableTo": "Users",
-          "schemaTo": "PROD",
+        "festivals_updated_by_users_id_fk": {
+          "name": "festivals_updated_by_users_id_fk",
+          "tableFrom": "festivals",
+          "tableTo": "users",
+          "schemaTo": "prod",
           "columnsFrom": [
             "updated_by"
           ],
@@ -1194,8 +1238,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "Festivals_email_unique": {
-          "name": "Festivals_email_unique",
+        "festivals_email_unique": {
+          "name": "festivals_email_unique",
           "nullsNotDistinct": false,
           "columns": [
             "email"
@@ -1203,9 +1247,9 @@
         }
       }
     },
-    "PROD.GroupsLang": {
-      "name": "GroupsLang",
-      "schema": "PROD",
+    "prod.groups_lang": {
+      "name": "groups_lang",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -1272,11 +1316,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "GroupsLang_lang_Languages_id_fk": {
-          "name": "GroupsLang_lang_Languages_id_fk",
-          "tableFrom": "GroupsLang",
-          "tableTo": "Languages",
-          "schemaTo": "PROD",
+        "groups_lang_lang_languages_id_fk": {
+          "name": "groups_lang_lang_languages_id_fk",
+          "tableFrom": "groups_lang",
+          "tableTo": "languages",
+          "schemaTo": "prod",
           "columnsFrom": [
             "lang"
           ],
@@ -1286,11 +1330,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "GroupsLang_group_id_Groups_id_fk": {
-          "name": "GroupsLang_group_id_Groups_id_fk",
-          "tableFrom": "GroupsLang",
-          "tableTo": "Groups",
-          "schemaTo": "PROD",
+        "groups_lang_group_id_groups_id_fk": {
+          "name": "groups_lang_group_id_groups_id_fk",
+          "tableFrom": "groups_lang",
+          "tableTo": "groups",
+          "schemaTo": "prod",
           "columnsFrom": [
             "group_id"
           ],
@@ -1304,9 +1348,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.Groups": {
-      "name": "Groups",
-      "schema": "PROD",
+    "prod.groups": {
+      "name": "groups",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -1391,11 +1435,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "Groups_general_director_photo_id_Storage_id_fk": {
-          "name": "Groups_general_director_photo_id_Storage_id_fk",
-          "tableFrom": "Groups",
-          "tableTo": "Storage",
-          "schemaTo": "PROD",
+        "groups_general_director_photo_id_storage_id_fk": {
+          "name": "groups_general_director_photo_id_storage_id_fk",
+          "tableFrom": "groups",
+          "tableTo": "storage",
+          "schemaTo": "prod",
           "columnsFrom": [
             "general_director_photo_id"
           ],
@@ -1405,11 +1449,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "Groups_artistic_director_photo_id_Storage_id_fk": {
-          "name": "Groups_artistic_director_photo_id_Storage_id_fk",
-          "tableFrom": "Groups",
-          "tableTo": "Storage",
-          "schemaTo": "PROD",
+        "groups_artistic_director_photo_id_storage_id_fk": {
+          "name": "groups_artistic_director_photo_id_storage_id_fk",
+          "tableFrom": "groups",
+          "tableTo": "storage",
+          "schemaTo": "prod",
           "columnsFrom": [
             "artistic_director_photo_id"
           ],
@@ -1419,11 +1463,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "Groups_type_id_TypeGroups_id_fk": {
-          "name": "Groups_type_id_TypeGroups_id_fk",
-          "tableFrom": "Groups",
-          "tableTo": "TypeGroups",
-          "schemaTo": "PROD",
+        "groups_type_id_type_groups_id_fk": {
+          "name": "groups_type_id_type_groups_id_fk",
+          "tableFrom": "groups",
+          "tableTo": "type_groups",
+          "schemaTo": "prod",
           "columnsFrom": [
             "type_id"
           ],
@@ -1433,11 +1477,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "Groups_created_by_Users_id_fk": {
-          "name": "Groups_created_by_Users_id_fk",
-          "tableFrom": "Groups",
-          "tableTo": "Users",
-          "schemaTo": "PROD",
+        "groups_created_by_users_id_fk": {
+          "name": "groups_created_by_users_id_fk",
+          "tableFrom": "groups",
+          "tableTo": "users",
+          "schemaTo": "prod",
           "columnsFrom": [
             "created_by"
           ],
@@ -1447,11 +1491,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "Groups_updated_by_Users_id_fk": {
-          "name": "Groups_updated_by_Users_id_fk",
-          "tableFrom": "Groups",
-          "tableTo": "Users",
-          "schemaTo": "PROD",
+        "groups_updated_by_users_id_fk": {
+          "name": "groups_updated_by_users_id_fk",
+          "tableFrom": "groups",
+          "tableTo": "users",
+          "schemaTo": "prod",
           "columnsFrom": [
             "updated_by"
           ],
@@ -1465,9 +1509,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.Languages": {
-      "name": "Languages",
-      "schema": "PROD",
+    "prod.languages": {
+      "name": "languages",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -1507,9 +1551,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.MenuLang": {
-      "name": "MenuLang",
-      "schema": "PROD",
+    "prod.menu_lang": {
+      "name": "menu_lang",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -1551,11 +1595,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "MenuLang_lang_Languages_id_fk": {
-          "name": "MenuLang_lang_Languages_id_fk",
-          "tableFrom": "MenuLang",
-          "tableTo": "Languages",
-          "schemaTo": "PROD",
+        "menu_lang_lang_languages_id_fk": {
+          "name": "menu_lang_lang_languages_id_fk",
+          "tableFrom": "menu_lang",
+          "tableTo": "languages",
+          "schemaTo": "prod",
           "columnsFrom": [
             "lang"
           ],
@@ -1565,11 +1609,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "MenuLang_menu_id_Menu_id_fk": {
-          "name": "MenuLang_menu_id_Menu_id_fk",
-          "tableFrom": "MenuLang",
-          "tableTo": "Menu",
-          "schemaTo": "PROD",
+        "menu_lang_menu_id_menu_id_fk": {
+          "name": "menu_lang_menu_id_menu_id_fk",
+          "tableFrom": "menu_lang",
+          "tableTo": "menu",
+          "schemaTo": "prod",
           "columnsFrom": [
             "menu_id"
           ],
@@ -1583,9 +1627,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.Menu": {
-      "name": "Menu",
-      "schema": "PROD",
+    "prod.menu": {
+      "name": "menu",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -1624,9 +1668,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.NationalSectionLang": {
-      "name": "NationalSectionLang",
-      "schema": "PROD",
+    "prod.national_section_lang": {
+      "name": "national_section_lang",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -1674,11 +1718,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "NationalSectionLang_ns_id_NationalSection_id_fk": {
-          "name": "NationalSectionLang_ns_id_NationalSection_id_fk",
-          "tableFrom": "NationalSectionLang",
-          "tableTo": "NationalSection",
-          "schemaTo": "PROD",
+        "national_section_lang_ns_id_national_section_id_fk": {
+          "name": "national_section_lang_ns_id_national_section_id_fk",
+          "tableFrom": "national_section_lang",
+          "tableTo": "national_section",
+          "schemaTo": "prod",
           "columnsFrom": [
             "ns_id"
           ],
@@ -1692,9 +1736,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.NationalSectionPositionsLang": {
-      "name": "NationalSectionPositionsLang",
-      "schema": "PROD",
+    "prod.national_section_positions_lang": {
+      "name": "national_section_positions_lang",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -1736,11 +1780,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "NationalSectionPositionsLang_lang_Languages_id_fk": {
-          "name": "NationalSectionPositionsLang_lang_Languages_id_fk",
-          "tableFrom": "NationalSectionPositionsLang",
-          "tableTo": "Languages",
-          "schemaTo": "PROD",
+        "national_section_positions_lang_lang_languages_id_fk": {
+          "name": "national_section_positions_lang_lang_languages_id_fk",
+          "tableFrom": "national_section_positions_lang",
+          "tableTo": "languages",
+          "schemaTo": "prod",
           "columnsFrom": [
             "lang"
           ],
@@ -1750,11 +1794,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "NationalSectionPositionsLang_ns_positions_id_NationalSectionPositions_id_fk": {
-          "name": "NationalSectionPositionsLang_ns_positions_id_NationalSectionPositions_id_fk",
-          "tableFrom": "NationalSectionPositionsLang",
-          "tableTo": "NationalSectionPositions",
-          "schemaTo": "PROD",
+        "national_section_positions_lang_ns_positions_id_national_section_positions_id_fk": {
+          "name": "national_section_positions_lang_ns_positions_id_national_section_positions_id_fk",
+          "tableFrom": "national_section_positions_lang",
+          "tableTo": "national_section_positions",
+          "schemaTo": "prod",
           "columnsFrom": [
             "ns_positions_id"
           ],
@@ -1768,9 +1812,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.NationalSectionPositions": {
-      "name": "NationalSectionPositions",
-      "schema": "PROD",
+    "prod.national_section_positions": {
+      "name": "national_section_positions",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -1843,11 +1887,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "NationalSectionPositions_photo_id_Storage_id_fk": {
-          "name": "NationalSectionPositions_photo_id_Storage_id_fk",
-          "tableFrom": "NationalSectionPositions",
-          "tableTo": "Storage",
-          "schemaTo": "PROD",
+        "national_section_positions_photo_id_storage_id_fk": {
+          "name": "national_section_positions_photo_id_storage_id_fk",
+          "tableFrom": "national_section_positions",
+          "tableTo": "storage",
+          "schemaTo": "prod",
           "columnsFrom": [
             "photo_id"
           ],
@@ -1857,11 +1901,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "NationalSectionPositions_ns_id_NationalSection_id_fk": {
-          "name": "NationalSectionPositions_ns_id_NationalSection_id_fk",
-          "tableFrom": "NationalSectionPositions",
-          "tableTo": "NationalSection",
-          "schemaTo": "PROD",
+        "national_section_positions_ns_id_national_section_id_fk": {
+          "name": "national_section_positions_ns_id_national_section_id_fk",
+          "tableFrom": "national_section_positions",
+          "tableTo": "national_section",
+          "schemaTo": "prod",
           "columnsFrom": [
             "ns_id"
           ],
@@ -1874,8 +1918,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "NationalSectionPositions_email_unique": {
-          "name": "NationalSectionPositions_email_unique",
+        "national_section_positions_email_unique": {
+          "name": "national_section_positions_email_unique",
           "nullsNotDistinct": false,
           "columns": [
             "email"
@@ -1883,9 +1927,9 @@
         }
       }
     },
-    "PROD.NationalSection": {
-      "name": "NationalSection",
-      "schema": "PROD",
+    "prod.national_section": {
+      "name": "national_section",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -1940,11 +1984,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "NationalSection_country_id_Countries_id_fk": {
-          "name": "NationalSection_country_id_Countries_id_fk",
-          "tableFrom": "NationalSection",
-          "tableTo": "Countries",
-          "schemaTo": "PROD",
+        "national_section_country_id_countries_id_fk": {
+          "name": "national_section_country_id_countries_id_fk",
+          "tableFrom": "national_section",
+          "tableTo": "countries",
+          "schemaTo": "prod",
           "columnsFrom": [
             "country_id"
           ],
@@ -1954,11 +1998,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "NationalSection_created_by_Users_id_fk": {
-          "name": "NationalSection_created_by_Users_id_fk",
-          "tableFrom": "NationalSection",
-          "tableTo": "Users",
-          "schemaTo": "PROD",
+        "national_section_created_by_users_id_fk": {
+          "name": "national_section_created_by_users_id_fk",
+          "tableFrom": "national_section",
+          "tableTo": "users",
+          "schemaTo": "prod",
           "columnsFrom": [
             "created_by"
           ],
@@ -1968,11 +2012,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "NationalSection_updated_by_Users_id_fk": {
-          "name": "NationalSection_updated_by_Users_id_fk",
-          "tableFrom": "NationalSection",
-          "tableTo": "Users",
-          "schemaTo": "PROD",
+        "national_section_updated_by_users_id_fk": {
+          "name": "national_section_updated_by_users_id_fk",
+          "tableFrom": "national_section",
+          "tableTo": "users",
+          "schemaTo": "prod",
           "columnsFrom": [
             "updated_by"
           ],
@@ -1986,9 +2030,119 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.Permissions": {
-      "name": "Permissions",
-      "schema": "PROD",
+    "prod.owners": {
+      "name": "owners",
+      "schema": "prod",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "festival_id": {
+          "name": "festival_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "group_id": {
+          "name": "group_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ns_id": {
+          "name": "ns_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "owners_user_id_users_id_fk": {
+          "name": "owners_user_id_users_id_fk",
+          "tableFrom": "owners",
+          "tableTo": "users",
+          "schemaTo": "prod",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "owners_festival_id_festivals_id_fk": {
+          "name": "owners_festival_id_festivals_id_fk",
+          "tableFrom": "owners",
+          "tableTo": "festivals",
+          "schemaTo": "prod",
+          "columnsFrom": [
+            "festival_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "owners_group_id_groups_id_fk": {
+          "name": "owners_group_id_groups_id_fk",
+          "tableFrom": "owners",
+          "tableTo": "groups",
+          "schemaTo": "prod",
+          "columnsFrom": [
+            "group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "owners_ns_id_national_section_id_fk": {
+          "name": "owners_ns_id_national_section_id_fk",
+          "tableFrom": "owners",
+          "tableTo": "national_section",
+          "schemaTo": "prod",
+          "columnsFrom": [
+            "ns_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "prod.permissions": {
+      "name": "permissions",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -2028,9 +2182,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.Roles": {
-      "name": "Roles",
-      "schema": "PROD",
+    "prod.roles": {
+      "name": "roles",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -2063,9 +2217,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.RolesToPermissions": {
-      "name": "RolesToPermissions",
-      "schema": "PROD",
+    "prod.roles_to_permissions": {
+      "name": "roles_to_permissions",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -2101,11 +2255,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "RolesToPermissions_role_id_Roles_id_fk": {
-          "name": "RolesToPermissions_role_id_Roles_id_fk",
-          "tableFrom": "RolesToPermissions",
-          "tableTo": "Roles",
-          "schemaTo": "PROD",
+        "roles_to_permissions_role_id_roles_id_fk": {
+          "name": "roles_to_permissions_role_id_roles_id_fk",
+          "tableFrom": "roles_to_permissions",
+          "tableTo": "roles",
+          "schemaTo": "prod",
           "columnsFrom": [
             "role_id"
           ],
@@ -2115,11 +2269,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "RolesToPermissions_permission_id_Permissions_id_fk": {
-          "name": "RolesToPermissions_permission_id_Permissions_id_fk",
-          "tableFrom": "RolesToPermissions",
-          "tableTo": "Permissions",
-          "schemaTo": "PROD",
+        "roles_to_permissions_permission_id_permissions_id_fk": {
+          "name": "roles_to_permissions_permission_id_permissions_id_fk",
+          "tableFrom": "roles_to_permissions",
+          "tableTo": "permissions",
+          "schemaTo": "prod",
           "columnsFrom": [
             "permission_id"
           ],
@@ -2133,9 +2287,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.Session": {
-      "name": "Session",
-      "schema": "PROD",
+    "prod.session": {
+      "name": "session",
+      "schema": "prod",
       "columns": {
         "session_token": {
           "name": "session_token",
@@ -2158,11 +2312,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "Session_user_id_Users_id_fk": {
-          "name": "Session_user_id_Users_id_fk",
-          "tableFrom": "Session",
-          "tableTo": "Users",
-          "schemaTo": "PROD",
+        "session_user_id_users_id_fk": {
+          "name": "session_user_id_users_id_fk",
+          "tableFrom": "session",
+          "tableTo": "users",
+          "schemaTo": "prod",
           "columnsFrom": [
             "user_id"
           ],
@@ -2176,9 +2330,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.SocialMediaLinks": {
-      "name": "SocialMediaLinks",
-      "schema": "PROD",
+    "prod.social_media_links": {
+      "name": "social_media_links",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -2217,9 +2371,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.Storage": {
-      "name": "Storage",
-      "schema": "PROD",
+    "prod.storage": {
+      "name": "storage",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -2280,11 +2434,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "Storage_lang_Languages_id_fk": {
-          "name": "Storage_lang_Languages_id_fk",
-          "tableFrom": "Storage",
-          "tableTo": "Languages",
-          "schemaTo": "PROD",
+        "storage_lang_languages_id_fk": {
+          "name": "storage_lang_languages_id_fk",
+          "tableFrom": "storage",
+          "tableTo": "languages",
+          "schemaTo": "prod",
           "columnsFrom": [
             "lang"
           ],
@@ -2298,85 +2452,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.SubPagesDocs": {
-      "name": "SubPagesDocs",
-      "schema": "PROD",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "order": {
-          "name": "order",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "subpage_id": {
-          "name": "subpage_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "media_id": {
-          "name": "media_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "SubPagesDocs_subpage_id_SubPages_id_fk": {
-          "name": "SubPagesDocs_subpage_id_SubPages_id_fk",
-          "tableFrom": "SubPagesDocs",
-          "tableTo": "SubPages",
-          "schemaTo": "PROD",
-          "columnsFrom": [
-            "subpage_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "SubPagesDocs_media_id_Storage_id_fk": {
-          "name": "SubPagesDocs_media_id_Storage_id_fk",
-          "tableFrom": "SubPagesDocs",
-          "tableTo": "Storage",
-          "schemaTo": "PROD",
-          "columnsFrom": [
-            "media_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "PROD.SubPages": {
-      "name": "SubPages",
-      "schema": "PROD",
+    "prod.sub_pages": {
+      "name": "sub_pages",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -2444,11 +2522,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "SubPages_created_by_Users_id_fk": {
-          "name": "SubPages_created_by_Users_id_fk",
-          "tableFrom": "SubPages",
-          "tableTo": "Users",
-          "schemaTo": "PROD",
+        "sub_pages_created_by_users_id_fk": {
+          "name": "sub_pages_created_by_users_id_fk",
+          "tableFrom": "sub_pages",
+          "tableTo": "users",
+          "schemaTo": "prod",
           "columnsFrom": [
             "created_by"
           ],
@@ -2458,11 +2536,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "SubPages_updated_by_Users_id_fk": {
-          "name": "SubPages_updated_by_Users_id_fk",
-          "tableFrom": "SubPages",
-          "tableTo": "Users",
-          "schemaTo": "PROD",
+        "sub_pages_updated_by_users_id_fk": {
+          "name": "sub_pages_updated_by_users_id_fk",
+          "tableFrom": "sub_pages",
+          "tableTo": "users",
+          "schemaTo": "prod",
           "columnsFrom": [
             "updated_by"
           ],
@@ -2476,9 +2554,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.SubPagesTextsLang": {
-      "name": "SubPagesTextsLang",
-      "schema": "PROD",
+    "prod.sub_pages_texts_lang": {
+      "name": "sub_pages_texts_lang",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -2486,15 +2564,15 @@
           "primaryKey": true,
           "notNull": true
         },
-        "description": {
-          "name": "description",
+        "title": {
+          "name": "title",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "order": {
-          "name": "order",
-          "type": "integer",
+        "description": {
+          "name": "description",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -2526,11 +2604,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "SubPagesTextsLang_lang_Languages_id_fk": {
-          "name": "SubPagesTextsLang_lang_Languages_id_fk",
-          "tableFrom": "SubPagesTextsLang",
-          "tableTo": "Languages",
-          "schemaTo": "PROD",
+        "sub_pages_texts_lang_lang_languages_id_fk": {
+          "name": "sub_pages_texts_lang_lang_languages_id_fk",
+          "tableFrom": "sub_pages_texts_lang",
+          "tableTo": "languages",
+          "schemaTo": "prod",
           "columnsFrom": [
             "lang"
           ],
@@ -2540,11 +2618,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "SubPagesTextsLang_subpage_id_SubPages_id_fk": {
-          "name": "SubPagesTextsLang_subpage_id_SubPages_id_fk",
-          "tableFrom": "SubPagesTextsLang",
-          "tableTo": "SubPages",
-          "schemaTo": "PROD",
+        "sub_pages_texts_lang_subpage_id_sub_pages_id_fk": {
+          "name": "sub_pages_texts_lang_subpage_id_sub_pages_id_fk",
+          "tableFrom": "sub_pages_texts_lang",
+          "tableTo": "sub_pages",
+          "schemaTo": "prod",
           "columnsFrom": [
             "subpage_id"
           ],
@@ -2558,9 +2636,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.TimelineLang": {
-      "name": "TimelineLang",
-      "schema": "PROD",
+    "prod.timeline_lang": {
+      "name": "timeline_lang",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -2608,11 +2686,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "TimelineLang_lang_Languages_id_fk": {
-          "name": "TimelineLang_lang_Languages_id_fk",
-          "tableFrom": "TimelineLang",
-          "tableTo": "Languages",
-          "schemaTo": "PROD",
+        "timeline_lang_lang_languages_id_fk": {
+          "name": "timeline_lang_lang_languages_id_fk",
+          "tableFrom": "timeline_lang",
+          "tableTo": "languages",
+          "schemaTo": "prod",
           "columnsFrom": [
             "lang"
           ],
@@ -2622,11 +2700,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "TimelineLang_timeline_id_Timeline_id_fk": {
-          "name": "TimelineLang_timeline_id_Timeline_id_fk",
-          "tableFrom": "TimelineLang",
-          "tableTo": "Timeline",
-          "schemaTo": "PROD",
+        "timeline_lang_timeline_id_timeline_id_fk": {
+          "name": "timeline_lang_timeline_id_timeline_id_fk",
+          "tableFrom": "timeline_lang",
+          "tableTo": "timeline",
+          "schemaTo": "prod",
           "columnsFrom": [
             "timeline_id"
           ],
@@ -2640,9 +2718,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.Timeline": {
-      "name": "Timeline",
-      "schema": "PROD",
+    "prod.timeline": {
+      "name": "timeline",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -2684,11 +2762,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "Timeline_media_id_Storage_id_fk": {
-          "name": "Timeline_media_id_Storage_id_fk",
-          "tableFrom": "Timeline",
-          "tableTo": "Storage",
-          "schemaTo": "PROD",
+        "timeline_media_id_storage_id_fk": {
+          "name": "timeline_media_id_storage_id_fk",
+          "tableFrom": "timeline",
+          "tableTo": "storage",
+          "schemaTo": "prod",
           "columnsFrom": [
             "media_id"
           ],
@@ -2702,9 +2780,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.TypeGroups": {
-      "name": "TypeGroups",
-      "schema": "PROD",
+    "prod.type_groups": {
+      "name": "type_groups",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -2743,9 +2821,9 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "PROD.Users": {
-      "name": "Users",
-      "schema": "PROD",
+    "prod.users": {
+      "name": "users",
+      "schema": "prod",
       "columns": {
         "id": {
           "name": "id",
@@ -2854,11 +2932,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "Users_role_id_Roles_id_fk": {
-          "name": "Users_role_id_Roles_id_fk",
-          "tableFrom": "Users",
-          "tableTo": "Roles",
-          "schemaTo": "PROD",
+        "users_role_id_roles_id_fk": {
+          "name": "users_role_id_roles_id_fk",
+          "tableFrom": "users",
+          "tableTo": "roles",
+          "schemaTo": "prod",
           "columnsFrom": [
             "role_id"
           ],
@@ -2868,11 +2946,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "Users_country_id_Countries_id_fk": {
-          "name": "Users_country_id_Countries_id_fk",
-          "tableFrom": "Users",
-          "tableTo": "Countries",
-          "schemaTo": "PROD",
+        "users_country_id_countries_id_fk": {
+          "name": "users_country_id_countries_id_fk",
+          "tableFrom": "users",
+          "tableTo": "countries",
+          "schemaTo": "prod",
           "columnsFrom": [
             "country_id"
           ],
@@ -2882,11 +2960,11 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "Users_image_id_Storage_id_fk": {
-          "name": "Users_image_id_Storage_id_fk",
-          "tableFrom": "Users",
-          "tableTo": "Storage",
-          "schemaTo": "PROD",
+        "users_image_id_storage_id_fk": {
+          "name": "users_image_id_storage_id_fk",
+          "tableFrom": "users",
+          "tableTo": "storage",
+          "schemaTo": "prod",
           "columnsFrom": [
             "image_id"
           ],
@@ -2899,8 +2977,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "Users_email_unique": {
-          "name": "Users_email_unique",
+        "users_email_unique": {
+          "name": "users_email_unique",
           "nullsNotDistinct": false,
           "columns": [
             "email"
@@ -2908,9 +2986,9 @@
         }
       }
     },
-    "PROD.VerificationToken": {
-      "name": "VerificationToken",
-      "schema": "PROD",
+    "prod.verification_token": {
+      "name": "verification_token",
+      "schema": "prod",
       "columns": {
         "identifier": {
           "name": "identifier",
@@ -2934,8 +3012,8 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {
-        "VerificationToken_identifier_token_pk": {
-          "name": "VerificationToken_identifier_token_pk",
+        "verification_token_identifier_token_pk": {
+          "name": "verification_token_identifier_token_pk",
           "columns": [
             "identifier",
             "token"
@@ -4151,7 +4229,7 @@
     }
   },
   "schemas": {
-    "PROD": "PROD"
+    "prod": "prod"
   },
   "sequences": {},
   "_meta": {
