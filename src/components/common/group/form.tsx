@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { createEvent } from "@/app/actions";
+import { createFestival } from "@/app/actions";
 import { useFormState, useFormStatus } from "react-dom";
 import * as RPNInput from "react-phone-number-input";
 import {
@@ -69,7 +69,7 @@ function Submit() {
 }
 
 export default function GroupForm() {
-  const [state, formAction] = useFormState(createEvent, undefined);
+  const [state, formAction] = useFormState(createFestival, undefined);
   const [travelWithMusic, setTravelWithMusic] = useState<string>("no");
   const [groupType, setGroupType] = useState<string>("only_dance");
   const [groupAges, setGroupAges] = useState<string[]>([]);

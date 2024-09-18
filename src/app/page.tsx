@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Header } from "@/components/common/header";
 import { Linkedin, Instagram, Facebook } from "lucide-react";
-import GlobalFilter from "@/components/common/global-filter";
+import GlobalFilterPreview from "@/components/common/global-filter-preview";
 import { getAllNestedFestivals } from "@/db/queries/events";
 import CarouselHistory from "@/components/common/carousel-history";
 import { getAllCountryCastFestivals } from "@/db/queries/countries";
@@ -42,7 +42,7 @@ export default async function Home() {
             </Link>
           </div>
         </section>
-        <GlobalFilter
+        <GlobalFilterPreview
           fallbackFestivals={festivals}
           fallbackCountryCast={countryCast}
         />

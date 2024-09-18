@@ -17,12 +17,14 @@ import {
 export function DatePickerWithRange({
   className,
   onValueChange,
+  defaultDates,
 }: React.HTMLAttributes<HTMLDivElement> & {
   onValueChange: (value: DateRange | undefined) => void;
+  defaultDates?: DateRange;
 }) {
   const [date, setDate] = React.useState<DateRange | undefined>({
-    from: subDays(new Date(), 10),
-    to: addDays(new Date(), 5),
+    from: defaultDates?.from ?? undefined,
+    to: defaultDates?.to ?? undefined,
   });
 
   React.useEffect(() => {

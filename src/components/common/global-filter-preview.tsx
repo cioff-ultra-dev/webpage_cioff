@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -9,9 +8,10 @@ import useSWR, { preload } from "swr";
 import useSWRInfinite from "swr/infinite";
 import InfiniteScroll from "@/components/extension/swr-infinite-scroll";
 import fetcher, { cn } from "@/lib/utils";
-import { categories, SelectCountries, SelectFestival } from "@/db/schema";
-import { MapPin, CalendarCheck } from "lucide-react";
+import { SelectCountries, SelectFestival } from "@/db/schema";
+import { MapPin, CalendarCheck, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   APIProvider,
   useMap,
@@ -34,7 +34,6 @@ import {
   TooltipProvider,
 } from "../ui/tooltip";
 import Image from "next/image";
-import { Skeleton } from "../ui/skeleton";
 
 interface FormElements extends HTMLFormControlsCollection {
   search: HTMLInputElement;
@@ -44,47 +43,62 @@ interface SearchFormElement extends HTMLFormElement {
   readonly elements: FormElements;
 }
 
-preload("/api/filter?categories=[]&countryId=0&page=1", fetcher);
-preload("/api/filter/country", fetcher);
+// preload("/api/filter?categories=[]&countryId=0&page=1", fetcher);
+// preload("/api/filter/country", fetcher);
 
 function SkeletonList() {
   return (
     <>
-      {Array.from({ length: 6 }).map((_, index) => (
-        <div
-          key={`skeleton-list-search-${index}`}
-          className="bg-gray-50 p-4 rounded-lg flex flex-col space-y-4 w-[450px]"
-        >
-          <Skeleton className="h-64 sm:h-48 bg-gray-300 rounded-lg" />
-          <Skeleton className="h-4 w-[250px] bg-gray-300" />
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-[200px] bg-gray-300" />
-            <Skeleton className="h-6 w-[250px] bg-gray-300" />
-          </div>
+      <div className="flex items-center space-x-4 p-2 rounded-lg">
+        <div className="animate-pulse">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 rounded-lg" />
         </div>
-      ))}
+        <div className="animate-pulse w-full">
+          <div className="h-12 w-full sm:w-full sm:h-16 bg-gray-200 rounded-lg" />
+        </div>
+      </div>
+      <div className="flex items-center space-x-4 p-2 rounded-lg">
+        <div className="animate-pulse">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 rounded-lg" />
+        </div>
+        <div className="animate-pulse w-full">
+          <div className="h-12 w-full sm:w-full sm:h-16 bg-gray-200 rounded-lg" />
+        </div>
+      </div>
+      <div className="flex items-center space-x-4 p-2 rounded-lg">
+        <div className="animate-pulse">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 rounded-lg" />
+        </div>
+        <div className="animate-pulse w-full">
+          <div className="h-12 w-full sm:w-full sm:h-16 bg-gray-200 rounded-lg" />
+        </div>
+      </div>
+      <div className="flex items-center space-x-4 p-2 rounded-lg">
+        <div className="animate-pulse">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 rounded-lg" />
+        </div>
+        <div className="animate-pulse w-full">
+          <div className="h-12 w-full sm:w-full sm:h-16 bg-gray-200 rounded-lg" />
+        </div>
+      </div>
+      <div className="flex items-center space-x-4 p-2 rounded-lg">
+        <div className="animate-pulse">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 rounded-lg" />
+        </div>
+        <div className="animate-pulse w-full">
+          <div className="h-12 w-full sm:w-full sm:h-16 bg-gray-200 rounded-lg" />
+        </div>
+      </div>
     </>
   );
 }
 
-export function WrapperFilter({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
-  const [search, setSearch] = useState(
-    `search=${searchParams?.search ?? ""}&rangeDateFrom=${
-      searchParams?.rangeDateFrom ?? ""
-    }&rangeDateTo=${searchParams?.rangeDateTo ?? ""}`
-  );
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    Array.from(JSON.parse((searchParams?.categories as string) || "[]"))
-  );
+export function WrapperFilter() {
+  const [search, setSearch] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedFestival, setSelectedFestival] =
     useState<SelectFestival | null>(null);
-  const [selectedCountryId, setSelectedCountryId] = useState<number>(
-    Number(searchParams?.countryId ?? 0)
-  );
+  const [selectedCountryId, setSelectedCountryId] = useState<number>(0);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const map = useMap();
   const places = useMapsLibrary("places");
@@ -92,15 +106,12 @@ export function WrapperFilter({
     "/api/filter/country",
     fetcher
   );
-  const swr = useSWRInfinite<
+  const { data: itemList, isLoading: isLoadingItemList } = useSWR<
     { festival: SelectFestival; country: SelectCountries }[]
   >(
-    (index, _) =>
-      `api/filter?categories=${JSON.stringify(
-        selectedCategories
-      )}&countryId=${selectedCountryId}&page=${index + 1}${
-        search ? `&${search}` : ""
-      }`,
+    `api/filter?categories=${JSON.stringify(
+      selectedCategories
+    )}&countryId=${selectedCountryId}&page=1${search ? `&${search}` : ""}`,
     fetcher
   );
 
@@ -242,19 +253,8 @@ export function WrapperFilter({
               placeholder="Type to explore new places..."
               className="flex-1"
               name="search"
-              defaultValue={searchParams?.search}
             />
-            <DatePickerWithRange
-              defaultDates={{
-                from: searchParams?.rangeDateFrom
-                  ? new Date(Number(searchParams?.rangeDateFrom) * 1000)
-                  : undefined,
-                to: searchParams?.rangeDateTo
-                  ? new Date(Number(searchParams?.rangeDateTo) * 1000)
-                  : undefined,
-              }}
-              onValueChange={setDateRange}
-            />
+            <DatePickerWithRange onValueChange={setDateRange} />
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -281,9 +281,6 @@ export function WrapperFilter({
             type="multiple"
             className="justify-between overflow-x-auto p-1"
             onValueChange={(value) => setSelectedCategories(value)}
-            defaultValue={Array.from(
-              JSON.parse((searchParams?.categories as string) || "[]")
-            )}
           >
             <ToggleGroupItem value="international" className="flex gap-1">
               <GlobeIcon />
@@ -322,7 +319,7 @@ export function WrapperFilter({
       </section>
       <section className="bg-white py-4 sm:py-8">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 h-[600px]">
+          <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
             <MapHandler place={selectedPlace} />
             <div className="flex-1 bg-gray-50 p-4 rounded-lg">
               <Map
@@ -332,8 +329,7 @@ export function WrapperFilter({
                   lat: map?.getCenter()?.lat() || 0,
                   lng: map?.getCenter()?.lng() || 0,
                 }}
-                defaultZoom={2}
-                minZoom={2}
+                defaultZoom={selectedFestival ? 10 : 2}
                 gestureHandling="greedy"
                 disableDefaultUI={true}
               >
@@ -365,75 +361,83 @@ export function WrapperFilter({
                   : null}
               </Map>
             </div>
-          </div>
-        </div>
-      </section>
-      <section className="bg-white py-4 sm:py-8">
-        <div className="container mx-auto px-4">
-          <h2 className="text-xl font-bold text-black sm:text-2xl mb-5">
-            Festival Results
-          </h2>
-          <div className="grid grid-cols-3 gap-4 w-full">
-            <InfiniteScroll
-              swr={swr}
-              loadingIndicator={<SkeletonList />}
-              endingIndicator={
-                <div className="w-full flex justify-center mt-5">
-                  <Badge variant="secondary" className="text-gray-400">
-                    Not more festivals to show! 🎉
-                  </Badge>
-                </div>
-              }
-              isReachingEnd={(swr) => {
-                const lastPosition = swr.data?.at(-1);
-                return (
-                  swr.data?.at(0)?.length === 0 ||
-                  (typeof lastPosition !== "undefined" &&
-                    lastPosition.length < 10)
-                );
-              }}
-              classNameWrapper="w-full col-span-3"
-              offset={-600}
-            >
-              {(response) =>
-                response.map(({ festival, country }) => (
-                  <Link
-                    href={`/event/${festival.id}`}
-                    className="bg-gray-50 hover:bg-gray-100 hover:cursor-pointer p-4 space-y-3 rounded-lg w-full justify-self-center"
-                    target="_blank"
-                    key={festival.id}
-                  >
-                    <div className="relative w-full h-[250px]">
-                      {/* <div className="h-32 sm:h-48 bg-gray-700 rounded-lg" /> */}
-                      <Image
-                        fill
-                        src={"/placeholder.svg"}
-                        alt="Profile Festival Picture"
-                        className="rounded-lg aspect-video"
-                        blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOsbmysBwAE+gH+lB3PkwAAAABJRU5ErkJggg=="
-                      />
+            <div className="flex-1 bg-gray-50 p-4 rounded-lg">
+              <ScrollArea className="h-[400px] w -full">
+                <div className="flex flex-col gap-2">
+                  {isLoadingItemList ? (
+                    <SkeletonList />
+                  ) : (
+                    itemList?.map(({ festival, country }) => (
+                      <div
+                        key={festival.id}
+                        className={cn(
+                          "flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-200 hover:cursor-pointer",
+                          festival.id === selectedFestival?.id
+                            ? "bg-gray-200"
+                            : null
+                        )}
+                        onClick={() => handleClickSelected(festival, country)}
+                      >
+                        <div>
+                          <div className="rounded-lg">
+                            <Image
+                              width={58}
+                              height={58}
+                              src={"/placeholder.svg"}
+                              alt="Profile Festival Picture"
+                              className="rounded-lg aspect-square"
+                            />
+                          </div>
+                        </div>
+                        <div className="max-w-[440px] flex-1">
+                          <h3 className="text-black text-sm sm:text-base truncate">
+                            {festival.name}
+                          </h3>
+                          <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
+                            <CalendarCheck size={16} />
+                            <span>{format(festival.createdAt, "PP")}</span>
+                          </p>
+                          <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
+                            <MapPin size={16} />
+                            <span>{country.name}</span>
+                          </p>
+                        </div>
+                        <div className="flex-1 flex justify-end">
+                          <Link
+                            href={`/event/${festival.id}`}
+                            target="_blank"
+                            tabIndex={-1}
+                          >
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-gray-500"
+                            >
+                              <ExternalLink size={15} />
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                  {itemList?.length ? (
+                    <div className="w-full flex justify-center">
+                      <Button variant="link" size="sm" asChild>
+                        <Link
+                          href={`/search?categories=${JSON.stringify(
+                            selectedCategories
+                          )}&countryId=${selectedCountryId}&page=1${
+                            search ? `&${search}` : ""
+                          }`}
+                        >
+                          See more festivals 🎉
+                        </Link>
+                      </Button>
                     </div>
-                    <h3 className="text-black mt-2 text-sm sm:text-base">
-                      {festival.name}
-                    </h3>
-                    <p className="text-gray-700 text-xs sm:text-sm flex gap-1">
-                      <span className="flex gap-1 items-center">
-                        <CalendarCheck size={16} />
-                        <span>{format(festival.createdAt, "PP")}</span>
-                      </span>
-                      •
-                      <span className="flex gap-1 items-center">
-                        <MapPin size={16} />
-                        <span>{country.name}</span>
-                      </span>
-                    </p>
-                    <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">
-                      {festival.description}
-                    </p>
-                  </Link>
-                ))
-              }
-            </InfiniteScroll>
+                  ) : null}
+                </div>
+              </ScrollArea>
+            </div>
           </div>
         </div>
       </section>
@@ -441,36 +445,30 @@ export function WrapperFilter({
   );
 }
 
-function BaseWrapperFilter({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
+function BaseWrapperFilter() {
   return (
     <APIProvider
       apiKey={"AIzaSyBRO_oBiyzOAQbH7Jcv3ZrgOgkfNp1wJeI"}
       libraries={["marker"]}
     >
-      <WrapperFilter searchParams={searchParams} />
+      <WrapperFilter />
     </APIProvider>
   );
 }
 
-export default function GlobalFilter({
+export default function GlobalFilterPreview({
   fallbackFestivals,
   fallbackCountryCast,
-  searchParams,
 }: {
   fallbackFestivals: { festivals: SelectFestival }[];
   fallbackCountryCast: CountryCastFestivals;
-  searchParams: { [key: string]: string | string[] | undefined };
 }) {
   return (
     <SWRProvider
       fallbackCountryCast={fallbackCountryCast}
       fallbackFestivals={fallbackFestivals}
     >
-      <BaseWrapperFilter searchParams={searchParams} />;
+      <BaseWrapperFilter />;
     </SWRProvider>
   );
 }

@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { createEvent } from "@/app/actions";
+import { createFestival } from "@/app/actions";
 import { useFormState, useFormStatus } from "react-dom";
 import * as RPNInput from "react-phone-number-input";
 import {
@@ -69,7 +69,7 @@ function Submit() {
 }
 
 export default function EventForm() {
-  const [state, formAction] = useFormState(createEvent, undefined);
+  const [state, formAction] = useFormState(createFestival, undefined);
   const [selectedPlace, setSelectedPlace] =
     useState<google.maps.places.PlaceResult | null>(null);
 
@@ -93,6 +93,7 @@ export default function EventForm() {
           ref={formRef}
           action={formAction}
           onSubmit={(evt) => {
+            console.log("submit");
             evt.preventDefault();
             form.handleSubmit((data) => {
               formAction(new FormData(formRef.current!));

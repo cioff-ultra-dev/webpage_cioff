@@ -34,6 +34,7 @@ function Submit() {
 
 export default function LoginForm() {
   const [error, formAction] = useFormState(authenticate, undefined);
+
   return (
     <div className="grid w-full h-screen grid-cols-1 lg:grid-cols-2">
       <form action={formAction} className="flex items-center justify-center">

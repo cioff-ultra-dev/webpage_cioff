@@ -14,7 +14,7 @@ import React from "react";
 
 export default function CarouselHistory() {
   const plugin = React.useRef(
-    Autoplay({ delay: 2000, stopOnInteraction: true }),
+    Autoplay({ delay: 2000, stopOnInteraction: false })
   );
   const [api, setApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
@@ -60,13 +60,6 @@ export default function CarouselHistory() {
         </CarouselContent>
         <CarouselPrevious />
         <CarouselNext />
-        <CarouselContent>
-          {Array.from({ length: 5 }).map((_, index) => (
-            <CarouselItem key={index}>
-              <p>Name {index}</p>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
       </Carousel>
       <div className="py-2 text-center text-sm text-muted-foreground">
         Slide {current} of {count}

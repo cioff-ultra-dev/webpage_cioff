@@ -140,7 +140,7 @@ export const events = pgTable("events", {
 export const festivals = pgTable("festivals", {
   id: serial("id").primaryKey(),
   address: text("address"),
-  name: text("name").notNull().default(""),
+  name: text("name").notNull(),
   email: text("email"),
   url: text("url"),
   contact: text("contact"),
@@ -358,7 +358,15 @@ export const selectEventSchema = createSelectSchema(events);
 export const insertFestivalSchema = createInsertSchema(festivals, {
   name: (schema) => schema.name.min(1),
   directorName: (schema) => schema.directorName.min(1),
-  description: (schema) => schema.description.max(500),
+  description: (schema) =>
+    schema.description.refine(
+      (value) => {
+        return value.split(" ").length <= 500;
+      },
+      {
+        message: "Description can't be more than 500 words",
+      }
+    ),
   phone: (schema) =>
     schema.phone.refine(
       (value) => {

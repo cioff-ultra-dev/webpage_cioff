@@ -1,20 +1,15 @@
 "use server";
 
-import {
-  InsertEvent,
-  insertEventSchema,
-  insertFestivalSchema,
-} from "@/db/schema";
-import { revalidatePath } from "next/cache";
+import { insertFestivalSchema } from "@/db/schema";
 import { put } from "@vercel/blob";
 import { AuthError } from "next-auth";
 import { signIn } from "@/auth";
 import { redirect } from "next/navigation";
-import { newEvent, newFestival } from "@/db/queries/events";
+import { newFestival } from "@/db/queries/events";
 
 export async function authenticate(
   _prevState: string | undefined,
-  formData: FormData,
+  formData: FormData
 ) {
   formData.set("redirectTo", "/dashboard/events");
   try {
@@ -34,7 +29,7 @@ export async function authenticate(
   redirect("/dashboard");
 }
 
-export async function createEvent(prevState: unknown, formData: FormData) {
+export async function createFestival(prevState: unknown, formData: FormData) {
   const schema = insertFestivalSchema;
   const logo = formData.get("logo") as File;
   const photos = formData.getAll("photos") as Array<File>;
