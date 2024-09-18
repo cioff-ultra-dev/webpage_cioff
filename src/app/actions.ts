@@ -38,48 +38,49 @@ export async function createFestival(prevState: unknown, formData: FormData) {
   let logoUrl = null;
   let coverUrl = null;
   let photosUrl = [];
+  console.log(formData.values());
 
-  if (logo.size) {
-    logoUrl = (await put(`logos/${logo.name}`, logo, { access: "public" })).url;
-  }
+  // if (logo.size) {
+  //   logoUrl = (await put(`logos/${logo.name}`, logo, { access: "public" })).url;
+  // }
 
-  if (cover.size) {
-    coverUrl = (await put(`logos/${cover.name}`, cover, { access: "public" }))
-      .url;
-  }
+  // if (cover.size) {
+  //   coverUrl = (await put(`logos/${cover.name}`, cover, { access: "public" }))
+  //     .url;
+  // }
 
-  if (photos.length) {
-    for await (const item of photos) {
-      if (item.size) {
-        const result = (
-          await put(`logos/${item.name}`, item, { access: "public" })
-        ).url;
-        photosUrl.push(result);
-      }
-    }
-  }
+  // if (photos.length) {
+  //   for await (const item of photos) {
+  //     if (item.size) {
+  //       const result = (
+  //         await put(`logos/${item.name}`, item, { access: "public" })
+  //       ).url;
+  //       photosUrl.push(result);
+  //     }
+  //   }
+  // }
 
-  const parse = schema.safeParse({
-    name: formData.get("name"),
-    description: formData.get("description"),
-    stateMode: formData.get("stateMode"),
-    directorName: formData.get("directorName"),
-    phone: formData.get("phone"),
-    address: formData.get("mailAddress"),
-    location: formData.get("location"),
-    currentDates: formData.get("currentDates"),
-    nextDates: formData.get("nextDates"),
-    photos: photosUrl.join(","),
-    cover: coverUrl,
-    logo: logoUrl,
-    youtubeId: formData.get("youtubeId"),
-  });
+  // const parse = schema.safeParse({
+  //   name: formData.get("name"),
+  //   description: formData.get("description"),
+  //   stateMode: formData.get("stateMode"),
+  //   directorName: formData.get("directorName"),
+  //   phone: formData.get("phone"),
+  //   address: formData.get("mailAddress"),
+  //   location: formData.get("location"),
+  //   currentDates: formData.get("currentDates"),
+  //   nextDates: formData.get("nextDates"),
+  //   photos: photosUrl.join(","),
+  //   cover: coverUrl,
+  //   logo: logoUrl,
+  //   youtubeId: formData.get("youtubeId"),
+  // });
 
-  if (!parse.success) {
-    return { errors: parse.error.flatten().fieldErrors };
-  }
+  // if (!parse.success) {
+  //   return { errors: parse.error.flatten().fieldErrors };
+  // }
 
-  await newFestival(parse.data!);
+  // await newFestival(parse.data!);
 
-  redirect("/dashboard/events");
+  // redirect("/dashboard/events");
 }

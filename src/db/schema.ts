@@ -19,7 +19,7 @@ export const stateModeEnum = pgEnum("state_mode", ["offline", "online"]);
 
 /* Users Table */
 
-export const users = pgTable("users", {
+export const users = pgTable("user", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
@@ -37,7 +37,7 @@ export const users = pgTable("users", {
   image: text("image"),
   password: text("password"),
   active: boolean("active"),
-  emailVerified: timestamp("email_verified", { mode: "date" }),
+  emailVerified: timestamp("emailVerified", { mode: "date" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -47,12 +47,12 @@ export const users = pgTable("users", {
 export const accounts = pgTable(
   "account",
   {
-    userId: text("user_id")
+    userId: text("userId")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     type: text("type").$type<AdapterAccountType>().notNull(),
     provider: text("provider").notNull(),
-    providerAccountId: text("provider_account_id").notNull(),
+    providerAccountId: text("providerAccountId").notNull(),
     refresh_token: text("refresh_token"),
     access_token: text("access_token"),
     expires_at: integer("expires_at"),
@@ -71,8 +71,8 @@ export const accounts = pgTable(
 /* Session Table */
 
 export const sessions = pgTable("session", {
-  sessionToken: text("session_token").primaryKey(),
-  userId: text("user_id")
+  sessionToken: text("sessionToken").primaryKey(),
+  userId: text("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   expires: timestamp("expires", { mode: "date" }).notNull(),
@@ -103,15 +103,15 @@ export const sessionsContainer = pgTable("session_group", {
 export const authenticators = pgTable(
   "authenticator",
   {
-    credentialID: text("credential_id").notNull().unique(),
-    userId: text("user_id")
+    credentialID: text("credentialID").notNull().unique(),
+    userId: text("userId")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    providerAccountId: text("provider_account_id").notNull(),
-    credentialPublicKey: text("credential_public_key").notNull(),
+    providerAccountId: text("providerAccountId").notNull(),
+    credentialPublicKey: text("credentialPublicKey").notNull(),
     counter: integer("counter").notNull(),
-    credentialDeviceType: text("credential_device_type").notNull(),
-    credentialBackedUp: boolean("credential_backed_up").notNull(),
+    credentialDeviceType: text("credentialDeviceType").notNull(),
+    credentialBackedUp: boolean("credentialBackedUp").notNull(),
     transports: text("transports"),
   },
   (authenticator) => ({
@@ -143,7 +143,7 @@ export const festivals = pgTable("festivals", {
   name: text("name").notNull(),
   email: text("email"),
   url: text("url"),
-  contact: text("contact"),
+  contact: text("contact").notNull().default(""),
   countryId: integer("country_id"),
   urlValidated: boolean("url_validated"),
   description: text("description").notNull().default(""),
@@ -152,6 +152,12 @@ export const festivals = pgTable("festivals", {
   location: text("location"),
   currentDates: text("current_dates"),
   nextDates: text("next_dates"),
+  lat: text("lat"),
+  lng: text("lng"),
+  transportLat: text("transport_lat"),
+  transportLng: text("transport_lng"),
+  translatorLanguages: text("translator_languages"),
+  peoples: integer("peoples"),
   logo: text("logo"),
   cover: text("cover"),
   photos: text("photos"),
@@ -170,6 +176,11 @@ export const categories = pgTable("categories", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   slug: text("slug").notNull(),
+  icon: text("icon"),
+  caption: text("caption"),
+  categoryGroupId: integer("category_group_id").references(
+    () => categoryGroups.id
+  ),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -179,6 +190,16 @@ export const categories = pgTable("categories", {
 export const typeGroups = pgTable("type_groups", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  slug: text("slug"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+/* Category groups Table */
+
+export const categoryGroups = pgTable("category_groups", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
   slug: text("slug"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
@@ -302,15 +323,26 @@ export const festivalRelations = relations(festivals, ({ many, one }) => ({
   }),
 }));
 
-export const categoriesRelations = relations(categories, ({ many }) => ({
+export const categoriesRelations = relations(categories, ({ many, one }) => ({
   festivalsToCategories: many(festivalsToCategoriesTable),
+  categoryGroup: one(categoryGroups, {
+    fields: [categories.categoryGroupId],
+    references: [categoryGroups.id],
+  }),
 }));
+
+export const categoryGroupsRealtions = relations(
+  categoryGroups,
+  ({ many }) => ({
+    categories: many(categories),
+  })
+);
 
 export const countriesRelations = relations(countriesTable, ({ many }) => ({
   festivals: many(festivals),
 }));
 
-export const festivalsToGroupsRelations = relations(
+export const festivalsToCategoriesRelations = relations(
   festivalsToCategoriesTable,
   ({ one }) => ({
     festival: one(festivals, {
@@ -358,8 +390,10 @@ export const selectEventSchema = createSelectSchema(events);
 export const insertFestivalSchema = createInsertSchema(festivals, {
   name: (schema) => schema.name.min(1),
   directorName: (schema) => schema.directorName.min(1),
+  contact: (schema) => schema.contact.min(1),
+  location: (schema) => schema.location.min(1),
   description: (schema) =>
-    schema.description.refine(
+    schema.description.min(1).refine(
       (value) => {
         return value.split(" ").length <= 500;
       },
@@ -368,7 +402,7 @@ export const insertFestivalSchema = createInsertSchema(festivals, {
       }
     ),
   phone: (schema) =>
-    schema.phone.refine(
+    schema.phone.min(1).refine(
       (value) => {
         return isPossiblePhoneNumber(value || "");
       },

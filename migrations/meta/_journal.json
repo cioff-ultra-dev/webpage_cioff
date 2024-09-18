@@ -71,6 +71,34 @@
       "when": 1726441609000,
       "tag": "0009_wandering_brood",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1726661784973,
+      "tag": "0010_gifted_toxin",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1726662115124,
+      "tag": "0011_good_black_knight",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1726663882896,
+      "tag": "0012_groovy_crystal",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1726666905045,
+      "tag": "0013_classy_johnny_storm",
+      "breakpoints": true
     }
   ]
 }

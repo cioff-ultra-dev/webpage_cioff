@@ -19,15 +19,16 @@ import {
 import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 
 interface Props {
+  id?: string | null;
   onPlaceSelect: (place: google.maps.places.PlaceResult | null) => void;
 }
-
-// This is a custom built autocomplete component using the "Autocomplete Service" for predictions
-// and the "Places Service" for place details
-export const AutocompletePlaces = ({ onPlaceSelect }: Props) => {
+export const AutocompletePlaces = React.forwardRef<
+  React.ElementRef<"button">,
+  Props
+>(({ id, onPlaceSelect }, ref) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const map = useMap();
+  const map = useMap(id);
   const places = useMapsLibrary("places");
 
   // https://developers.google.com/maps/documentation/javascript/reference/places-autocomplete-service#AutocompleteSessionToken
@@ -114,6 +115,7 @@ export const AutocompletePlaces = ({ onPlaceSelect }: Props) => {
           <Button
             variant="outline"
             role="combobox"
+            ref={ref}
             aria-expanded={open}
             className="w-full justify-between overflow-hidden"
           >
@@ -155,4 +157,4 @@ export const AutocompletePlaces = ({ onPlaceSelect }: Props) => {
       </Popover>
     </div>
   );
-};
+});
