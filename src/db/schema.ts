@@ -65,7 +65,7 @@ export const accounts = pgTable(
     compoundKey: primaryKey({
       columns: [account.provider, account.providerAccountId],
     }),
-  })
+  }),
 );
 
 /* Session Table */
@@ -91,7 +91,7 @@ export const verificationTokens = pgTable(
     compositePk: primaryKey({
       columns: [verificationToken.identifier, verificationToken.token],
     }),
-  })
+  }),
 );
 
 export const sessionsContainer = pgTable("session_group", {
@@ -118,7 +118,7 @@ export const authenticators = pgTable(
     compositePK: primaryKey({
       columns: [authenticator.userId, authenticator.credentialID],
     }),
-  })
+  }),
 );
 
 /* Events Table */
@@ -179,7 +179,7 @@ export const categories = pgTable("categories", {
   icon: text("icon"),
   caption: text("caption"),
   categoryGroupId: integer("category_group_id").references(
-    () => categoryGroups.id
+    () => categoryGroups.id,
   ),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
@@ -320,7 +320,7 @@ export const festivalsToCategoriesTable = pgTable(
   },
   (t) => ({
     pk: primaryKey({ columns: [t.festivalId, t.categoryId] }),
-  })
+  }),
 );
 
 /* Festival to statuses Table */
@@ -337,7 +337,7 @@ export const festivalsToStatusesTable = pgTable(
   },
   (t) => ({
     pk: primaryKey({ columns: [t.festivalId, t.statusId] }),
-  })
+  }),
 );
 
 /* Relations */
@@ -362,7 +362,7 @@ export const categoryGroupsRealtions = relations(
   categoryGroups,
   ({ many }) => ({
     categories: many(categories),
-  })
+  }),
 );
 
 export const countriesRelations = relations(countriesTable, ({ many }) => ({
@@ -380,7 +380,7 @@ export const festivalsToCategoriesRelations = relations(
       fields: [festivalsToCategoriesTable.categoryId],
       references: [categories.id],
     }),
-  })
+  }),
 );
 
 export const groupsRelations = relations(groups, ({ one }) => ({
@@ -426,14 +426,14 @@ export const insertFestivalSchema = createInsertSchema(festivals, {
       },
       {
         message: "Description can't be more than 500 words",
-      }
+      },
     ),
   phone: (schema) =>
     schema.phone.min(1).refine(
       (value) => {
         return isPossiblePhoneNumber(value || "");
       },
-      { message: "Invalid phone number" }
+      { message: "Invalid phone number" },
     ),
 });
 

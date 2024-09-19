@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useEffect, useMemo } from "react";
+import React, { useRef, useState } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -65,7 +65,7 @@ const globalEventSchema = insertFestivalSchema.merge(
     _typeOfAccomodation: z.string().optional(),
     _typeOfFestival: z.array(z.string()).nonempty(),
     _status: z.string(),
-  })
+  }),
 );
 
 type KeyTypesFestivalSchema = keyof typeof globalEventSchema._type;
@@ -268,11 +268,11 @@ export default function EventForm({
                                 setSelectedPlace(currentPlace);
                                 form.setValue(
                                   "lat",
-                                  `${currentPlace?.geometry?.location?.lat()}`
+                                  `${currentPlace?.geometry?.location?.lat()}`,
                                 );
                                 form.setValue(
                                   "lng",
-                                  `${currentPlace?.geometry?.location?.lng()}`
+                                  `${currentPlace?.geometry?.location?.lng()}`,
                                 );
                               }}
                             />
@@ -361,7 +361,7 @@ export default function EventForm({
                                     variant="outline"
                                     className={cn(
                                       "w-full pl-3 text-left font-normal",
-                                      !fieldValue && "text-muted-foreground"
+                                      !fieldValue && "text-muted-foreground",
                                     )}
                                   >
                                     <span>Pick some dates date</span>
@@ -383,9 +383,9 @@ export default function EventForm({
                                       "currentDates",
                                       selectedItems
                                         ?.map((date) =>
-                                          Math.round(+date / 1000)
+                                          Math.round(+date / 1000),
                                         )
-                                        .join(",") || ""
+                                        .join(",") || "",
                                     );
                                     restFields.onChange(selectedItems);
                                   }}
@@ -437,7 +437,7 @@ export default function EventForm({
                                     variant={"outline"}
                                     className={cn(
                                       "w-full pl-3 text-left font-normal",
-                                      !field.value && "text-muted-foreground"
+                                      !field.value && "text-muted-foreground",
                                     )}
                                   >
                                     <span>Pick some dates</span>
@@ -452,7 +452,7 @@ export default function EventForm({
                                 <Calendar
                                   mode="multiple"
                                   fromDate={startOfYear(
-                                    addYears(new Date(), 1)
+                                    addYears(new Date(), 1),
                                   )}
                                   selected={
                                     field.value as unknown as Array<Date>
@@ -510,7 +510,7 @@ export default function EventForm({
                           control={form.control}
                           name={
                             `_${camelCase(
-                              item.slug!
+                              item.slug!,
                             )}` as KeyTypesFestivalSchema
                           }
                           render={({ field }) => (
@@ -518,7 +518,7 @@ export default function EventForm({
                               <FormLabel
                                 className={cn(
                                   !singleMapCategory[item.slug!] &&
-                                    "after:content-['*'] after:ml-0.5 after:text-red-500"
+                                    "after:content-['*'] after:ml-0.5 after:text-red-500",
                                 )}
                               >
                                 {item.title}
@@ -537,12 +537,12 @@ export default function EventForm({
                                             ...prevState,
                                             [camelCase(item.slug!)]: value,
                                           };
-                                        }
+                                        },
                                       );
                                     }}
                                     placeholder={`Select ${item.slug!.replaceAll(
                                       "-",
-                                      " "
+                                      " ",
                                     )}`}
                                   />
                                 ) : (
@@ -556,7 +556,7 @@ export default function EventForm({
                                             ...prevState,
                                             [camelCase(item.slug!)]: [value],
                                           };
-                                        }
+                                        },
                                       );
                                     }}
                                   >
@@ -564,7 +564,7 @@ export default function EventForm({
                                       <SelectValue
                                         placeholder={`Select ${item.slug!.replaceAll(
                                           "-",
-                                          " "
+                                          " ",
                                         )}`}
                                         className="text-muted-foreground"
                                       />
@@ -593,7 +593,7 @@ export default function EventForm({
                     type="hidden"
                     name="groupCategories"
                     value={JSON.stringify(
-                      Object.values(selectedGroupCategories).flat() || "[]"
+                      Object.values(selectedGroupCategories).flat() || "[]",
                     )}
                   />
                   <div>
@@ -611,11 +611,11 @@ export default function EventForm({
                                 setSelectedTransportPlace(currentPlace);
                                 form.setValue(
                                   "transportLat",
-                                  `${currentPlace?.geometry?.location?.lat()}`
+                                  `${currentPlace?.geometry?.location?.lat()}`,
                                 );
                                 form.setValue(
                                   "transportLng",
-                                  `${currentPlace?.geometry?.location?.lng()}`
+                                  `${currentPlace?.geometry?.location?.lng()}`,
                                 );
                               }}
                             />
@@ -684,7 +684,7 @@ export default function EventForm({
                                   setSelectedLanguages(values);
                                   form.setValue(
                                     "translatorLanguages",
-                                    JSON.stringify(values)
+                                    JSON.stringify(values),
                                   );
                                 }}
                               />
@@ -927,7 +927,6 @@ export default function EventForm({
                 </CardContent>
               </Card>
             </div>
-
             <Card>
               <CardHeader>
                 <CardTitle>Additional Information</CardTitle>
@@ -992,7 +991,7 @@ export default function EventForm({
                           className={cn(
                             (progress >= 50 || progress <= 99) &&
                               "text-primary",
-                            progress === 100 && "text-green-600"
+                            progress === 100 && "text-green-600",
                           )}
                         />
                       )}
