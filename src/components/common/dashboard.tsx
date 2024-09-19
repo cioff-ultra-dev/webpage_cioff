@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { SignOut } from "@/components/common/signout-button";
+import { Globe } from "lucide-react";
 
 export default function Dashboard({ children }: { children: React.ReactNode }) {
   return (
@@ -75,7 +76,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
                   className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                   prefetch={false}
                 >
-                  <PackageIcon className="h-5 w-5" />
+                  <Globe className="h-5 w-5" />
                   <span className="sr-only">National Sections</span>
                 </Link>
               </TooltipTrigger>
