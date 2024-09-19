@@ -22,7 +22,7 @@ const PAGE_SIZE = 10;
 
 export async function GET(request: NextRequest) {
   const categoriesIn: string[] = JSON.parse(
-    request.nextUrl.searchParams.get("categories") || "[]"
+    request.nextUrl.searchParams.get("categories") || "[]",
   );
   const search: string = request.nextUrl.searchParams.get("search") || "";
   const rangeDateFrom: string =
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     request.nextUrl.searchParams.get("rangeDateTo") || "";
   const page: number = Number(request.nextUrl.searchParams.get("page") || "1");
   const countryId: number = Number(
-    request.nextUrl.searchParams.get("countryId") || "0"
+    request.nextUrl.searchParams.get("countryId") || "0",
   );
 
   const filters: SQLWrapper[] = [];
@@ -41,12 +41,12 @@ export async function GET(request: NextRequest) {
     .from(festivalsToCategoriesTable)
     .innerJoin(
       festivals,
-      eq(festivalsToCategoriesTable.festivalId, festivals.id)
+      eq(festivalsToCategoriesTable.festivalId, festivals.id),
     )
     .leftJoin(countriesTable, eq(festivals.countryId, countriesTable.id))
     .leftJoin(
       categories,
-      eq(festivalsToCategoriesTable.categoryId, categories.id)
+      eq(festivalsToCategoriesTable.categoryId, categories.id),
     )
     .$dynamic();
 
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
   if (rangeDateFrom || rangeDateTo) {
     filters.push(
       gte(festivals.createdAt, new Date(Number(rangeDateFrom) * 1000)),
-      lte(festivals.createdAt, new Date(Number(rangeDateTo) * 1000))
+      lte(festivals.createdAt, new Date(Number(rangeDateTo) * 1000)),
     );
   }
 
@@ -76,8 +76,6 @@ export async function GET(request: NextRequest) {
     .groupBy(festivals.id, countriesTable.id)
     .limit(PAGE_SIZE)
     .offset((page - 1) * PAGE_SIZE);
-
-  console.log(baseQuery.toSQL());
 
   const result = await baseQuery;
 
