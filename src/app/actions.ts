@@ -9,7 +9,7 @@ import { newFestival } from "@/db/queries/events";
 
 export async function authenticate(
   _prevState: string | undefined,
-  formData: FormData
+  formData: FormData,
 ) {
   formData.set("redirectTo", "/dashboard/events");
   try {
@@ -38,7 +38,6 @@ export async function createFestival(prevState: unknown, formData: FormData) {
   let logoUrl = null;
   let coverUrl = null;
   let photosUrl = [];
-  console.log(formData.values());
 
   // if (logo.size) {
   //   logoUrl = (await put(`logos/${logo.name}`, logo, { access: "public" })).url;
