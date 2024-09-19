@@ -288,6 +288,16 @@ export const permissionsTable = pgTable("permissions", {
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
+/* Status Table */
+
+export const statusTable = pgTable("statuses", {
+  id: serial("id").primaryKey(),
+  name: text("name"),
+  slug: text("slug"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
 /* Roles to Permissions Table */
 
 export const rolesToPermissionsTable = pgTable("roles_to_permissions", {
@@ -310,6 +320,23 @@ export const festivalsToCategoriesTable = pgTable(
   },
   (t) => ({
     pk: primaryKey({ columns: [t.festivalId, t.categoryId] }),
+  })
+);
+
+/* Festival to statuses Table */
+
+export const festivalsToStatusesTable = pgTable(
+  "festivals_to_statuses",
+  {
+    festivalId: integer("festival_id").references(() => festivals.id),
+    statusId: integer("status_id").references(() => statusTable.id),
+    question: text("question"),
+    answer: text("text"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.festivalId, t.statusId] }),
   })
 );
 
@@ -466,3 +493,6 @@ export type InsertFestivalToCategories =
   typeof festivalsToCategoriesTable.$inferInsert;
 export type SelectFestivalToCategories =
   typeof festivalsToCategoriesTable.$inferSelect;
+
+export type InsertStatus = typeof statusTable.$inferInsert;
+export type SelectStatus = typeof statusTable.$inferSelect;

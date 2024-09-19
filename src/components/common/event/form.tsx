@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { FieldErrors, useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
 import { Label } from "@/components/ui/label";
 import {
@@ -33,7 +33,11 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { PhoneInput } from "@/components/ui/phone-input";
-import { insertFestivalSchema, SelectLanguages } from "@/db/schema";
+import {
+  insertFestivalSchema,
+  SelectLanguages,
+  SelectStatus,
+} from "@/db/schema";
 import { AutocompletePlaces } from "@/components/ui/autocomplete-places";
 import MapHandler from "@/components/common/map-handler";
 import {
@@ -60,6 +64,7 @@ const globalEventSchema = insertFestivalSchema.merge(
     _styleOfFestival: z.array(z.string()).nonempty(),
     _typeOfAccomodation: z.string().optional(),
     _typeOfFestival: z.array(z.string()).nonempty(),
+    _status: z.string(),
   })
 );
 
@@ -94,9 +99,11 @@ function Submit({
 export default function EventForm({
   languages,
   categoryGroups,
+  statuses,
 }: {
   categoryGroups: CategoryGroupWithCategories[];
   languages: SelectLanguages[];
+  statuses: SelectStatus[];
 }) {
   const [state, formAction] = useFormState(createFestival, undefined);
   const [selectedPlace, setSelectedPlace] =
@@ -108,7 +115,6 @@ export default function EventForm({
   >({});
   const [selectedLanguanges, setSelectedLanguages] = useState<string[]>([]);
   const [progress, setProgress] = React.useState(13);
-
   const form = useForm<z.infer<typeof globalEventSchema>>({
     resolver: zodResolver(globalEventSchema),
     defaultValues: {
@@ -120,20 +126,12 @@ export default function EventForm({
       location: "",
     },
   });
+  const statusSelected = useWatch({
+    control: form.control,
+    name: "_status",
+  });
 
-  const watchFields = form.watch([
-    "name",
-    "directorName",
-    "description",
-    "contact",
-    "location",
-    "_currentDates",
-  ]);
-  const res = watchFields.reduce((prev, current) => {
-    return current ? prev + 1 : prev;
-  }, 0);
-
-  console.log({ watchFields, res });
+  console.log({ statusSelected });
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -760,20 +758,43 @@ export default function EventForm({
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="status">Status</Label>
-                    <Select name="status">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="recognized">
-                          Recognized festival
-                        </SelectItem>
-                        <SelectItem value="partner">
-                          Partner festival
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormField
+                      control={form.control}
+                      name="_status"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                            Status
+                          </FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            name={field.name}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select status" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {statuses.map((status) => (
+                                <SelectItem
+                                  key={status.slug}
+                                  value={String(status.id)}
+                                >
+                                  {status.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+
+                          <FormDescription>
+                            This is your current festival name
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                   <div>
                     <Label htmlFor="recognizedSince">Recognized since</Label>
