@@ -53,7 +53,7 @@ function SkeletonList() {
       {Array.from({ length: 6 }).map((_, index) => (
         <div
           key={`skeleton-list-search-${index}`}
-          className="bg-gray-50 p-4 rounded-lg flex flex-col space-y-4 w-[450px]"
+          className="bg-gray-50 p-4 rounded-lg flex flex-col space-y-4 w-[410px]"
         >
           <Skeleton className="h-64 sm:h-48 bg-gray-300 rounded-lg" />
           <Skeleton className="h-4 w-[250px] bg-gray-300" />
@@ -404,7 +404,6 @@ export function WrapperFilter({
                     key={festival.id}
                   >
                     <div className="relative w-full h-[250px]">
-                      {/* <div className="h-32 sm:h-48 bg-gray-700 rounded-lg" /> */}
                       <Image
                         fill
                         src={"/placeholder.svg"}
