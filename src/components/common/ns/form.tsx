@@ -83,7 +83,7 @@ function Submit({
   );
 }
 
-export default function NSForm() {
+export default function NationalSectionForm() {
   const [state, formAction] = useFormState(createFestival, undefined);
   const [festivals, setFestivals] = useState([{ id: 1 }]);
   const [groups, setGroups] = useState([{ id: 1 }]);
@@ -118,7 +118,16 @@ export default function NSForm() {
         The fields with * are mandatory.
       </p>
       <Form {...form}>
-        <form ref={formRef}>
+        <form
+          ref={formRef}
+          action={formAction}
+          onSubmit={(evt) => {
+            evt.preventDefault();
+            form.handleSubmit((_) => {
+              console.log(formRef.current);
+            })(evt);
+          }}
+        >
           <Card className="w-full mx-auto">
             <CardHeader>
               <CardTitle>Organization Registration Form</CardTitle>

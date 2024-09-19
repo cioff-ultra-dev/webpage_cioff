@@ -1,5 +1,5 @@
-import NSForm from "@/components/common/ns/form";
+import NationalSectionForm from "@/components/common/ns/form";
 
 export default async function NewNS() {
-  return <NSForm />;
+  return <NationalSectionForm />;
 }
