@@ -30,7 +30,6 @@ export default async function run() {
         updatedId: countriesTable.id,
         name: countriesTable.name,
       });
-    console.log(result);
   }
 
   console.log("Finished 👋🏽");

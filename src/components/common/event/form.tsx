@@ -131,8 +131,6 @@ export default function EventForm({
     name: "_status",
   });
 
-  console.log({ statusSelected });
-
   const formRef = useRef<HTMLFormElement>(null);
 
   return (
