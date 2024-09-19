@@ -631,7 +631,7 @@ export const FestivalsProd = cioffSchema.table("festivals", {
   stateMode: stateModeEnum("state_mode").default("offline"),
   urlValidated: boolean("url_validated").default(false),
   directorName: text("director_name").notNull().default(""),
-  email: text("email").notNull().unique(),
+  email: text("email"),
   url: text("url"),
   contact: text("contact"),
   phone: text("phone"),
