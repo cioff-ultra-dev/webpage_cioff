@@ -1005,7 +1005,6 @@ export default function EventForm({
                     <Button variant="ghost" asChild>
                       <Link href="/dashboard/events">Cancel</Link>
                     </Button>
-                    {/* <Submit label="Save" variant="outline" /> */}
                     <Submit label="Publish" />
                   </div>
                 </CardContent>

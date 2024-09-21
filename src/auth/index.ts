@@ -15,9 +15,6 @@ import { db } from "@/db";
 import { authConfig } from "../../auth.config";
 
 declare module "next-auth" {
-  /**
-   * Returned by `auth`, `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
-   */
   interface Session {
     user: DefaultSession["user"] & UserDataAuthType;
   }
@@ -78,7 +75,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session;
     },
     jwt({ token, user }) {
-      console.log("jwt", { token, user });
       if (user) {
         token.user = user;
       }
