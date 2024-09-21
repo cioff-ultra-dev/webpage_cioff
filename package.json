@@ -10,7 +10,7 @@
     "etl": "node etl/categories.mjs"
   },
   "dependencies": {
-    "@auth/drizzle-adapter": "^1.4.2",
+    "@auth/drizzle-adapter": "^1.5.0",
     "@googlemaps/markerclusterer": "^2.5.3",
     "@hookform/resolvers": "^3.9.0",
     "@next/env": "^14.2.5",
@@ -55,7 +55,7 @@
     "libphonenumber-js": "^1.11.7",
     "lucide-react": "^0.412.0",
     "next": "14.2.5",
-    "next-auth": "5.0.0-beta.20",
+    "next-auth": "5.0.0-beta.21",
     "nodemailer": "^6.9.14",
     "react": "^18",
     "react-day-picker": "^8.10.1",

@@ -21,6 +21,19 @@ export async function getUserByEmail(
   return selectUserByP1.execute({ email });
 }
 
+export async function getUserAuth(email: SelectUser["email"]) {
+  return db.query.users.findFirst({
+    where: eq(users.email, email),
+    with: {
+      role: true,
+    },
+  });
+}
+
+export type UserDataAuthType = NonNullable<
+  Awaited<ReturnType<typeof getUserAuth>>
+>;
+
 export async function createUser(user: InsertUser) {
   return db.insert(users).values(user).returning();
 }

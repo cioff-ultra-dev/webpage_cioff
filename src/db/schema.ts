@@ -23,7 +23,7 @@ export const users = pgTable("user", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  roleId: integer("role_id"),
+  roleId: integer("role_id").references(() => rolesTable.id),
   countryId: integer("country_id"),
   title: text("title"),
   name: text("name"),
@@ -341,6 +341,13 @@ export const festivalsToStatusesTable = pgTable(
 );
 
 /* Relations */
+
+export const userRelations = relations(users, ({ one }) => ({
+  role: one(rolesTable, {
+    fields: [users.roleId],
+    references: [rolesTable.id],
+  }),
+}));
 
 export const festivalRelations = relations(festivals, ({ many, one }) => ({
   festivalsToCategories: many(festivalsToCategoriesTable),

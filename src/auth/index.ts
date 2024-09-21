@@ -1,7 +1,7 @@
-import NextAuth from "next-auth";
+import NextAuth, { type DefaultSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import { getUserByEmail } from "@/db/queries";
+import { getUserAuth, UserDataAuthType } from "@/db/queries";
 import {
   accounts,
   authenticators,
@@ -14,8 +14,28 @@ import { isSamePassword } from "@/lib/password";
 import { db } from "@/db";
 import { authConfig } from "../../auth.config";
 
+declare module "next-auth" {
+  /**
+   * Returned by `auth`, `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
+   */
+  interface Session {
+    user: DefaultSession["user"] & UserDataAuthType;
+  }
+}
+
+export type User = {
+  id: string;
+  email: string;
+  name: string;
+  emailVerified: Date;
+};
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
+  debug: true,
+  session: {
+    strategy: "jwt",
+  },
   adapter: DrizzleAdapter(db, {
     usersTable: users,
     accountsTable: accounts,
@@ -32,20 +52,37 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       async authorize(credentials) {
         const parsedCredentials = requestAuthSchema.safeParse(credentials);
 
-        if (parsedCredentials.success) {
-          const { email, password } = parsedCredentials.data;
-          const [user] = await getUserByEmail(email);
-          if (!user) return null;
-          const passwordMatch = await isSamePassword(
-            password || "",
-            user?.password || ""
-          );
+        if (!parsedCredentials.success) {
+          return null;
+        }
 
-          if (passwordMatch) return user;
+        const { email, password } = parsedCredentials.data;
+        const user = await getUserAuth(email);
+        if (!user) return null;
+        const passwordMatch = await isSamePassword(
+          password || "",
+          user?.password || "",
+        );
+
+        if (passwordMatch) {
+          return user;
         }
 
         return null;
       },
     }),
   ],
+  callbacks: {
+    session({ session, token, user }) {
+      session.user = token.user as UserDataAuthType;
+      return session;
+    },
+    jwt({ token, user }) {
+      console.log("jwt", { token, user });
+      if (user) {
+        token.user = user;
+      }
+      return token;
+    },
+  },
 });

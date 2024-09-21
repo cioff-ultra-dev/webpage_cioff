@@ -9,10 +9,13 @@ import GlobalFilterPreview from "@/components/common/global-filter-preview";
 import { getAllNestedFestivals } from "@/db/queries/events";
 import CarouselHistory from "@/components/common/carousel-history";
 import { getAllCountryCastFestivals } from "@/db/queries/countries";
+import { auth } from "@/auth";
 
 export default async function Home() {
   const festivals = await getAllNestedFestivals();
   const countryCast = await getAllCountryCastFestivals();
+  const _ = await auth();
+
   return (
     <div>
       <Header text="text-white" className="absolute left-0 right-0 top-0" />
