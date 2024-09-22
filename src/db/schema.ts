@@ -65,7 +65,7 @@ export const accounts = pgTable(
     compoundKey: primaryKey({
       columns: [account.provider, account.providerAccountId],
     }),
-  }),
+  })
 );
 
 /* Session Table */
@@ -91,7 +91,7 @@ export const verificationTokens = pgTable(
     compositePk: primaryKey({
       columns: [verificationToken.identifier, verificationToken.token],
     }),
-  }),
+  })
 );
 
 export const sessionsContainer = pgTable("session_group", {
@@ -118,7 +118,7 @@ export const authenticators = pgTable(
     compositePK: primaryKey({
       columns: [authenticator.userId, authenticator.credentialID],
     }),
-  }),
+  })
 );
 
 /* Events Table */
@@ -179,7 +179,7 @@ export const categories = pgTable("categories", {
   icon: text("icon"),
   caption: text("caption"),
   categoryGroupId: integer("category_group_id").references(
-    () => categoryGroups.id,
+    () => categoryGroups.id
   ),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
@@ -219,6 +219,7 @@ export const groups = pgTable("groups", {
   phone: text("phone"),
   address: text("address"),
   typeId: integer("type_id"),
+  countryId: integer("country_id").references(() => countriesTable.id),
   description: text("description"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
@@ -320,7 +321,7 @@ export const festivalsToCategoriesTable = pgTable(
   },
   (t) => ({
     pk: primaryKey({ columns: [t.festivalId, t.categoryId] }),
-  }),
+  })
 );
 
 /* Festival to statuses Table */
@@ -337,8 +338,55 @@ export const festivalsToStatusesTable = pgTable(
   },
   (t) => ({
     pk: primaryKey({ columns: [t.festivalId, t.statusId] }),
-  }),
+  })
 );
+
+/* Reports National Sections Table */
+
+export const reportNationalSections = pgTable("report_national_sections", {
+  id: serial("id").primaryKey(),
+  festivalSize: integer("festival_size"),
+  groupSize: integer("group_size"),
+  associationSize: integer("association_size"),
+  individualMemberSize: integer("individual_memeber_size"),
+  activeNationalCommission: boolean("active_national_commission"),
+  workDescription: text("work_description"),
+  countryId: integer("country_id").references(() => countriesTable.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+/* Activities */
+
+export const typeActivity = pgEnum("type_activity", [
+  "Conference",
+  "Workshop",
+  "Seminar",
+  "Congress",
+  "National Festival",
+]);
+
+export const modalityActivity = pgEnum("modality_activity", [
+  "In Person",
+  "Online",
+]);
+
+export const lengthActivity = pgEnum("length_activity", ["Hours", "Days"]);
+
+export const activities = pgTable("activities", {
+  id: serial("id").primaryKey(),
+  name: text("name"),
+  type: typeActivity("type"),
+  modality: modalityActivity("modality"),
+  length: lengthActivity("length"),
+  lengthSize: integer("length_size"),
+  performerSize: integer("performer_size"),
+  reportNationalSectionId: integer("report_national_section_id").references(
+    () => reportNationalSections.id
+  ),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
 
 /* Relations */
 
@@ -369,7 +417,7 @@ export const categoryGroupsRealtions = relations(
   categoryGroups,
   ({ many }) => ({
     categories: many(categories),
-  }),
+  })
 );
 
 export const countriesRelations = relations(countriesTable, ({ many }) => ({
@@ -387,7 +435,7 @@ export const festivalsToCategoriesRelations = relations(
       fields: [festivalsToCategoriesTable.categoryId],
       references: [categories.id],
     }),
-  }),
+  })
 );
 
 export const groupsRelations = relations(groups, ({ one }) => ({
@@ -433,14 +481,14 @@ export const insertFestivalSchema = createInsertSchema(festivals, {
       },
       {
         message: "Description can't be more than 500 words",
-      },
+      }
     ),
   phone: (schema) =>
     schema.phone.min(1).refine(
       (value) => {
         return isPossiblePhoneNumber(value || "");
       },
-      { message: "Invalid phone number" },
+      { message: "Invalid phone number" }
     ),
 });
 
@@ -450,6 +498,23 @@ export const insertTypeGroupSchema = createInsertSchema(typeGroups, {
   slug: (schema) =>
     schema.slug.transform((value) => (value ? slug(value) : value)),
 });
+
+export const insertReportNationalSectionsSchema = createInsertSchema(
+  reportNationalSections,
+  {
+    workDescription: (schema) =>
+      schema.workDescription.min(1).refine(
+        (value) => {
+          return value.split(" ").length <= 500;
+        },
+        {
+          message: "Description can't be more than 500 words",
+        }
+      ),
+  }
+);
+
+export const insertActivitySchema = createInsertSchema(activities);
 
 /* Infered Types */
 

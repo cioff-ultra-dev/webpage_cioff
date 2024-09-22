@@ -106,6 +106,48 @@
       "when": 1726703544940,
       "tag": "0014_nervous_taskmaster",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1726952309071,
+      "tag": "0015_easy_rawhide_kid",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1726966032046,
+      "tag": "0016_worried_scalphunter",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1726973607947,
+      "tag": "0017_real_squadron_sinister",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1726976083894,
+      "tag": "0018_colorful_northstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1727039493677,
+      "tag": "0019_slim_baron_strucker",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1727039825209,
+      "tag": "0020_superb_patch",
+      "breakpoints": true
     }
   ]
 }

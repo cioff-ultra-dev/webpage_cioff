@@ -5,22 +5,12 @@ import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
-import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button, ButtonProps } from "@/components/ui/button";
 import { createFestival } from "@/app/actions";
 import { useFormState, useFormStatus } from "react-dom";
-import * as RPNInput from "react-phone-number-input";
 import {
   Form,
   FormControl,
@@ -37,21 +27,8 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { PhoneInput } from "@/components/ui/phone-input";
 import { insertFestivalSchema } from "@/db/schema";
-import { AutocompletePlaces } from "@/components/ui/autocomplete-places";
-import MapHandler from "@/components/common/map-handler";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
 import { PlusCircle, Trash2 } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
-import { addYears, endOfYear, format, startOfYear, subYears } from "date-fns";
-import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 
 const globalEventSchema = insertFestivalSchema.merge(
@@ -112,7 +89,7 @@ export default function NationalSectionForm() {
   const formRef = useRef<HTMLFormElement>(null);
 
   return (
-    <div className="w-full p-4 md:p-6 ">
+    <div className="w-full p-4 md:p-6">
       <h1 className="text-2xl font-bold">ADD A NATIONAL SECTION</h1>
       <p className="text-sm text-muted-foreground pb-10">
         The fields with * are mandatory.

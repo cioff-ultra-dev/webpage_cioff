@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+import { SessionProvider } from "next-auth/react";
 import Dashboard from "@/components/common/dashboard";
 
 export default async function DashboardLayout({
@@ -6,7 +6,9 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const _ = await auth();
-
-  return <Dashboard>{children}</Dashboard>;
+  return (
+    <SessionProvider>
+      <Dashboard>{children}</Dashboard>
+    </SessionProvider>
+  );
 }
