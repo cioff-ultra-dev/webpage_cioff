@@ -763,9 +763,10 @@ export const NationalSectionLangProd = cioffSchema.table(
   {
     id: serial("id").primaryKey(),
     name: text("name").notNull(),
-    about: text("about").notNull(),
-    aboutYoung: text("about_young").notNull(),
+    about: text("about"),
+    aboutYoung: text("about_young"),
     nsId: integer("ns_id").references(() => NationalSectionProd.id),
+    lang: integer("lang").references(() => LanguagesProd.id),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   }
@@ -912,6 +913,27 @@ export const OwnersProd = cioffSchema.table("owners", {
   festivalId: integer("festival_id").references(() => FestivalsProd.id),
   groupId: integer("group_id").references(() => GroupsProd.id),
   nsId: integer("ns_id").references(() => NationalSectionProd.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+/* 13. Reports */
+
+export const ReportNsProd = cioffSchema.table("report_ns", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const ReportFestivalProd = cioffSchema.table("report_festival", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const ReportGroupProd = cioffSchema.table("report_group", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });

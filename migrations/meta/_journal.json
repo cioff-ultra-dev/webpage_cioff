@@ -71,6 +71,20 @@
       "when": 1726717481763,
       "tag": "0009_typical_changeling",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1727065373789,
+      "tag": "0010_calm_vanisher",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1727065646687,
+      "tag": "0011_large_lockheed",
+      "breakpoints": true
     }
   ]
 }

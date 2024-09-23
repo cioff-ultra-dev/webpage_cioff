@@ -68,6 +68,10 @@
   SELECT name, state_desc FROM sys.databases WHERE name = 'cioff';
 ```
 
+## Check tables
+
+![image](./database.png)
+
 ## Passwords
 
 Cioff2024
