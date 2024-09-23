@@ -2,13 +2,14 @@
 
 import { UserDataAuthType } from "@/db/queries";
 import { CountByCountriesResult } from "@/db/queries/reports";
+import { upload } from "@vercel/blob/client";
 import {
   insertActivitySchema,
   insertReportNationalSectionsSchema,
 } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import {
   Card,
   CardContent,
@@ -38,13 +39,12 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Link from "next/link";
-import { useFormStatus } from "react-dom";
 import { PlusCircle } from "lucide-react";
 import useSWRMutation from "swr/mutation";
 import { useRouter } from "next/navigation";
 import { customRevalidateTag } from "../revalidateTag";
 
-async function updateUser(
+async function insertReport(
   url: string,
   { arg }: { arg: z.infer<typeof formReportNationalSectionSchema> }
 ) {
@@ -111,7 +111,7 @@ export default function ReportNationalSectionForm({
 
   const { trigger, isMutating } = useSWRMutation(
     "/api/report/national-section",
-    updateUser,
+    insertReport,
     {
       onSuccess(data, key, config) {
         if (data) {
