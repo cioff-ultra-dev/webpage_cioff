@@ -5,148 +5,106 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1725601559729,
-      "tag": "0000_dashing_scarlet_spider",
+      "when": 1727114058181,
+      "tag": "0000_polite_sabra",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1725601612755,
-      "tag": "0001_square_amphibian",
+      "when": 1727114097729,
+      "tag": "0001_handy_echo",
       "breakpoints": true
     },
     {
       "idx": 2,
       "version": "7",
-      "when": 1725601668724,
-      "tag": "0002_left_smiling_tiger",
+      "when": 1727114325311,
+      "tag": "0002_soft_roxanne_simpson",
       "breakpoints": true
     },
     {
       "idx": 3,
       "version": "7",
-      "when": 1725602322419,
-      "tag": "0003_needy_star_brand",
+      "when": 1727114381563,
+      "tag": "0003_spicy_bruce_banner",
       "breakpoints": true
     },
     {
       "idx": 4,
       "version": "7",
-      "when": 1725602539771,
-      "tag": "0004_fantastic_sentinels",
+      "when": 1727114729788,
+      "tag": "0004_tan_karma",
       "breakpoints": true
     },
     {
       "idx": 5,
       "version": "7",
-      "when": 1725603224338,
-      "tag": "0005_greedy_mathemanic",
+      "when": 1727114775159,
+      "tag": "0005_sloppy_spirit",
       "breakpoints": true
     },
     {
       "idx": 6,
       "version": "7",
-      "when": 1725762754043,
-      "tag": "0006_pale_umar",
+      "when": 1727118620943,
+      "tag": "0006_clean_imperial_guard",
       "breakpoints": true
     },
     {
       "idx": 7,
       "version": "7",
-      "when": 1726058177579,
-      "tag": "0007_sour_captain_america",
+      "when": 1727118666335,
+      "tag": "0007_bright_taskmaster",
       "breakpoints": true
     },
     {
       "idx": 8,
       "version": "7",
-      "when": 1726439410264,
-      "tag": "0008_fine_songbird",
+      "when": 1727118809181,
+      "tag": "0008_wide_sleepwalker",
       "breakpoints": true
     },
     {
       "idx": 9,
       "version": "7",
-      "when": 1726441609000,
-      "tag": "0009_wandering_brood",
+      "when": 1727118818949,
+      "tag": "0009_quiet_firebrand",
       "breakpoints": true
     },
     {
       "idx": 10,
       "version": "7",
-      "when": 1726661784973,
-      "tag": "0010_gifted_toxin",
+      "when": 1727181538316,
+      "tag": "0010_strange_valeria_richards",
       "breakpoints": true
     },
     {
       "idx": 11,
       "version": "7",
-      "when": 1726662115124,
-      "tag": "0011_good_black_knight",
+      "when": 1727181591305,
+      "tag": "0011_melodic_paper_doll",
       "breakpoints": true
     },
     {
       "idx": 12,
       "version": "7",
-      "when": 1726663882896,
-      "tag": "0012_groovy_crystal",
+      "when": 1727181781959,
+      "tag": "0012_charming_morph",
       "breakpoints": true
     },
     {
       "idx": 13,
       "version": "7",
-      "when": 1726666905045,
-      "tag": "0013_classy_johnny_storm",
+      "when": 1727181842794,
+      "tag": "0013_open_proteus",
       "breakpoints": true
     },
     {
       "idx": 14,
       "version": "7",
-      "when": 1726703544940,
-      "tag": "0014_nervous_taskmaster",
-      "breakpoints": true
-    },
-    {
-      "idx": 15,
-      "version": "7",
-      "when": 1726952309071,
-      "tag": "0015_easy_rawhide_kid",
-      "breakpoints": true
-    },
-    {
-      "idx": 16,
-      "version": "7",
-      "when": 1726966032046,
-      "tag": "0016_worried_scalphunter",
-      "breakpoints": true
-    },
-    {
-      "idx": 17,
-      "version": "7",
-      "when": 1726973607947,
-      "tag": "0017_real_squadron_sinister",
-      "breakpoints": true
-    },
-    {
-      "idx": 18,
-      "version": "7",
-      "when": 1726976083894,
-      "tag": "0018_colorful_northstar",
-      "breakpoints": true
-    },
-    {
-      "idx": 19,
-      "version": "7",
-      "when": 1727039493677,
-      "tag": "0019_slim_baron_strucker",
-      "breakpoints": true
-    },
-    {
-      "idx": 20,
-      "version": "7",
-      "when": 1727039825209,
-      "tag": "0020_superb_patch",
+      "when": 1727182171984,
+      "tag": "0014_lean_power_pack",
       "breakpoints": true
     }
   ]

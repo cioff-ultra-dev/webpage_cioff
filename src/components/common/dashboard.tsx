@@ -65,7 +65,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
-                  href="/dashboard/national-section"
+                  href="/dashboard/national-sections"
                   className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                   prefetch={false}
                 >
@@ -96,10 +96,10 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
                   prefetch={false}
                 >
                   <LineChartIcon className="h-5 w-5" />
-                  <span className="sr-only">Analytics</span>
+                  <span className="sr-only">Reports</span>
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">Analytics</TooltipContent>
+              <TooltipContent side="right">Reports</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </nav>
@@ -212,10 +212,9 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuItem disabled>Settings</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem asChild className="cursor-pointer">
                 <SignOut />
               </DropdownMenuItem>
             </DropdownMenuContent>

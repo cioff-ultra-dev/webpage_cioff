@@ -3,6 +3,8 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { auth } from "@/auth";
+import { LogIn } from "lucide-react";
 
 type SVGComponentProps = React.ComponentPropsWithoutRef<"svg">;
 
@@ -49,16 +51,18 @@ function MenuIcon(props: SVGComponentProps) {
 
 export type HeaderProps = React.HTMLAttributes<HTMLElement> & { text?: string };
 
-export function Header({
+export async function Header({
   className,
   text = "text-white",
   ...props
 }: HeaderProps) {
+  const session = await auth();
+
   return (
     <header
       className={cn(
         "z-10 flex items-center justify-between px-4 py-4 sm:px-8 md:px-6",
-        className,
+        className
       )}
       {...props}
     >
@@ -80,22 +84,22 @@ export function Header({
               />
             </Link>
             <Link href="#" prefetch={false}>
-              FOLKLORIADAS
+              Folkloriada
             </Link>
             <Link href="#" prefetch={false}>
-              NEWS
+              News
             </Link>
             <Link href="/event" prefetch={false}>
-              EVENTS
+              Events
             </Link>
             <Link href="#" prefetch={false}>
-              MEMBERS
+              Members
             </Link>
             <Link href="#" prefetch={false}>
-              ABOUT
+              About
             </Link>
             <Link href="#" prefetch={false}>
-              CONTACT
+              Contact
             </Link>
           </nav>
         </SheetContent>
@@ -107,31 +111,38 @@ export function Header({
       </nav>
       <nav className="hidden lg:flex space-x-4 sm:space-x-6">
         <Link href="#" className={`${text}`} prefetch={false}>
-          FOLKLORIADAS
+          Folkloriadas
         </Link>
         <Link href="#" className={`${text}`} prefetch={false}>
-          NEWS
+          News
         </Link>
         <Link href="/event" className={`${text}`} prefetch={false}>
-          EVENTS
+          Events
         </Link>
         <Link href="#" className={`${text}`} prefetch={false}>
-          MEMBERS
+          Members
         </Link>
         <Link href="#" className={`${text}`} prefetch={false}>
-          ABOUT
+          About
         </Link>
         <Link href="#" className={`${text}`} prefetch={false}>
-          CONTACT
+          Contact
         </Link>
       </nav>
       <div className="flex items-center space-x-4">
-        <Link href="/login" className={`${text}`} prefetch>
-          LOGIN
-        </Link>
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <UserIcon className={`${text}`} />
-        </Button>
+        {session?.user ? (
+          <Button variant="link" size="icon" className="rounded-full" asChild>
+            <Link href="/dashboard/events">
+              <UserIcon className={`${text}`} />
+            </Link>
+          </Button>
+        ) : (
+          <Button variant="link" asChild className="text-white flex gap-1">
+            <Link href="/login" prefetch>
+              <LogIn size={14} /> <span>Login</span>
+            </Link>
+          </Button>
+        )}
       </div>
     </header>
   );

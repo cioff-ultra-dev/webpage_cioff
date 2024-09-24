@@ -27,9 +27,15 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { EllipsisVertical } from "lucide-react";
 import { SelectFestival } from "@/db/schema";
+import {
+  getAllNationalSections,
+  LangWithNationalSection,
+} from "@/db/queries/national-sections";
 
 export default async function DashboardPage() {
   const events: SelectFestival[] = [];
+  const nationalSections: LangWithNationalSection[] =
+    await getAllNationalSections();
   return (
     <Tabs defaultValue="all">
       <div className="flex items-center">
@@ -63,7 +69,7 @@ export default async function DashboardPage() {
           {/*     Export */}
           {/*   </span> */}
           {/* </Button> */}
-          <Link href="/dashboard/national-section/new">
+          <Link href="/dashboard/national-sections/new">
             <Button size="sm" className="h-8 gap-1">
               <CirclePlusIcon className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
@@ -82,14 +88,14 @@ export default async function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {events.length ? (
+            {nationalSections.length ? (
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead className="hidden md:table-cell">Date</TableHead>
                     <TableHead className="hidden md:table-cell">
-                      State
+                      Description
                     </TableHead>
                     <TableHead>
                       <span className="sr-only">Actions</span>
@@ -97,17 +103,17 @@ export default async function DashboardPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {events.map((item) => {
+                  {nationalSections.map((item) => {
                     return (
                       <TableRow key={item.id}>
                         <TableCell className="font-medium">
-                          {item.name}
+                          {item.langs.at(0)?.name}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
                           {format(item.createdAt, "PPP")}
                         </TableCell>
-                        <TableCell className="hidden md:table-cell capitalize">
-                          {item.stateMode}
+                        <TableCell className="hidden md:table-cell capitalize truncate">
+                          {item.langs.at(0)?.about}
                         </TableCell>
                         <TableCell>
                           <DropdownMenu>
@@ -123,14 +129,6 @@ export default async function DashboardPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem>
-                                <Link
-                                  href={`/event/${item.id}`}
-                                  target="_blank"
-                                >
-                                  Preview
-                                </Link>
-                              </DropdownMenuItem>
                               <DropdownMenuItem disabled>Edit</DropdownMenuItem>
                               <DropdownMenuItem disabled>
                                 Delete

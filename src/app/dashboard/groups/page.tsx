@@ -26,10 +26,12 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { format } from "date-fns";
 import { EllipsisVertical } from "lucide-react";
-import { SelectFestival } from "@/db/schema";
+import { SelectFestival, SelectGroup } from "@/db/schema";
+import { AllGroupType, getAllGroups } from "@/db/queries/groups";
 
 export default async function DashboardPage() {
   const events: SelectFestival[] = [];
+  const groups: AllGroupType = await getAllGroups();
   return (
     <Tabs defaultValue="all">
       <div className="flex items-center">
@@ -82,14 +84,14 @@ export default async function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {events.length ? (
+            {groups.length ? (
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead className="hidden md:table-cell">Date</TableHead>
                     <TableHead className="hidden md:table-cell">
-                      State
+                      Country
                     </TableHead>
                     <TableHead>
                       <span className="sr-only">Actions</span>
@@ -97,7 +99,7 @@ export default async function DashboardPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {events.map((item) => {
+                  {groups.map((item) => {
                     return (
                       <TableRow key={item.id}>
                         <TableCell className="font-medium">
@@ -107,7 +109,7 @@ export default async function DashboardPage() {
                           {format(item.createdAt, "PPP")}
                         </TableCell>
                         <TableCell className="hidden md:table-cell capitalize">
-                          {item.stateMode}
+                          {item.country?.name}
                         </TableCell>
                         <TableCell>
                           <DropdownMenu>
@@ -123,15 +125,27 @@ export default async function DashboardPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem>
+                              {/* <DropdownMenuItem
+                                asChild
+                                className="cursor-pointer"
+                              >
                                 <Link
                                   href={`/event/${item.id}`}
                                   target="_blank"
                                 >
                                   Preview
                                 </Link>
+                              </DropdownMenuItem> */}
+                              <DropdownMenuItem
+                                asChild
+                                className="cursor-pointer"
+                              >
+                                <Link
+                                  href={`/dashboard/groups/${item.id}/edit`}
+                                >
+                                  Edit
+                                </Link>
                               </DropdownMenuItem>
-                              <DropdownMenuItem disabled>Edit</DropdownMenuItem>
                               <DropdownMenuItem disabled>
                                 Delete
                               </DropdownMenuItem>

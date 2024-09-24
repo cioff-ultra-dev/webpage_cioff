@@ -2,14 +2,13 @@
 
 import { UserDataAuthType } from "@/db/queries";
 import { CountByCountriesResult } from "@/db/queries/reports";
-import { upload } from "@vercel/blob/client";
 import {
   insertActivitySchema,
   insertReportNationalSectionsSchema,
 } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import {
   Card,
   CardContent,
@@ -46,7 +45,7 @@ import { customRevalidateTag } from "../revalidateTag";
 
 async function insertReport(
   url: string,
-  { arg }: { arg: z.infer<typeof formReportNationalSectionSchema> }
+  { arg }: { arg: z.infer<typeof formReportNationalSectionSchema> },
 ) {
   return await fetch(url, {
     method: "POST",
@@ -61,7 +60,7 @@ export const formReportNationalSectionSchema =
   insertReportNationalSectionsSchema.merge(
     z.object({
       _activities: z.array(insertActivitySchema),
-    })
+    }),
   );
 
 function Submit({
@@ -120,11 +119,11 @@ export default function ReportNationalSectionForm({
           console.log({ data });
         }
       },
-    }
+    },
   );
 
   async function onSubmit(
-    values: z.infer<typeof formReportNationalSectionSchema>
+    values: z.infer<typeof formReportNationalSectionSchema>,
   ) {
     trigger(values);
   }
@@ -569,7 +568,7 @@ export default function ReportNationalSectionForm({
                     </Card>
                   );
                 })}
-                <Button type="button" onClick={() => append({ name: "" }, {})}>
+                <Button type="button" onClick={() => append({ name: "" })}>
                   <PlusCircle className="mr-2 h-4 w-4" /> Add Activity
                 </Button>
               </div>

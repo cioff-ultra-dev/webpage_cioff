@@ -21,3 +21,19 @@ export async function getCategoryGroupsWithCategories(): Promise<
     },
   });
 }
+
+export async function getCategoryGroupsInGroups(): Promise<
+  CategoryGroupWithCategories[]
+> {
+  return db.query.categoryGroups.findMany({
+    where: inArray(categoryGroups.slug, [
+      "type-of-festival",
+      "age-of-participants",
+      "style-of-festival",
+      "type-of-accomodation",
+    ]),
+    with: {
+      categories: true,
+    },
+  });
+}
