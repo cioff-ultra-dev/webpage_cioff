@@ -52,15 +52,15 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
-                  href="/dashboard/events"
+                  href="/dashboard/festivals"
                   className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                   prefetch={false}
                 >
                   <CalendarIcon className="h-5 w-5" />
-                  <span className="sr-only">Events</span>
+                  <span className="sr-only">Festivals</span>
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">Events</TooltipContent>
+              <TooltipContent side="right">Festivals</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -91,7 +91,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
-                  href="#"
+                  href="/dashboard/reports"
                   className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                   prefetch={false}
                 >

@@ -45,7 +45,7 @@ import { customRevalidateTag } from "../revalidateTag";
 
 async function insertReport(
   url: string,
-  { arg }: { arg: z.infer<typeof formReportNationalSectionSchema> },
+  { arg }: { arg: z.infer<typeof formReportNationalSectionSchema> }
 ) {
   return await fetch(url, {
     method: "POST",
@@ -60,7 +60,7 @@ export const formReportNationalSectionSchema =
   insertReportNationalSectionsSchema.merge(
     z.object({
       _activities: z.array(insertActivitySchema),
-    }),
+    })
   );
 
 function Submit({
@@ -114,16 +114,16 @@ export default function ReportNationalSectionForm({
     {
       onSuccess(data, key, config) {
         if (data) {
-          customRevalidateTag("/dashboard/events");
-          router.push("/dashboard/events");
+          customRevalidateTag("/dashboard/festivals");
+          router.push("/dashboard/festivals");
           console.log({ data });
         }
       },
-    },
+    }
   );
 
   async function onSubmit(
-    values: z.infer<typeof formReportNationalSectionSchema>,
+    values: z.infer<typeof formReportNationalSectionSchema>
   ) {
     trigger(values);
   }

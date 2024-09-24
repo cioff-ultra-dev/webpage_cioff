@@ -63,11 +63,11 @@ export default async function DashboardPage() {
           {/*     Export */}
           {/*   </span> */}
           {/* </Button> */}
-          <Link href="/dashboard/events/new">
+          <Link href="/dashboard/festivals/new">
             <Button size="sm" className="h-8 gap-1">
               <CirclePlusIcon className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Add Event
+                Add Festival
               </span>
             </Button>
           </Link>
@@ -76,9 +76,9 @@ export default async function DashboardPage() {
       <TabsContent value="all">
         <Card x-chunk="dashboard-06-chunk-0">
           <CardHeader>
-            <CardTitle>Events</CardTitle>
+            <CardTitle>Festivals</CardTitle>
             <CardDescription>
-              Manage your events and view their details.
+              Manage your festivals and view their details.
             </CardDescription>
           </CardHeader>
           <CardContent>

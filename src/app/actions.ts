@@ -49,7 +49,7 @@ export async function authenticate(
   _prevState: string | undefined,
   formData: FormData
 ) {
-  formData.set("redirectTo", "/dashboard/events");
+  formData.set("redirectTo", "/dashboard/festivals");
   try {
     await signIn("credentials", formData);
   } catch (error) {
@@ -119,8 +119,8 @@ export async function createFestival(prevState: unknown, formData: FormData) {
 
   await newFestival(parse.data!);
 
-  revalidatePath("/dashboard/events");
-  redirect("/dashboard/events");
+  revalidatePath("/dashboard/festivals");
+  redirect("/dashboard/festivals");
 }
 
 export async function createGroup(prevState: unknown, formData: FormData) {

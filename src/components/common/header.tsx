@@ -132,7 +132,7 @@ export async function Header({
       <div className="flex items-center space-x-4">
         {session?.user ? (
           <Button variant="link" size="icon" className="rounded-full" asChild>
-            <Link href="/dashboard/events">
+            <Link href="/dashboard/festivals">
               <UserIcon className={`${text}`} />
             </Link>
           </Button>

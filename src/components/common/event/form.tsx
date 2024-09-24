@@ -132,7 +132,7 @@ export default function EventForm({
   return (
     <APIProvider apiKey={"AIzaSyBRO_oBiyzOAQbH7Jcv3ZrgOgkfNp1wJeI"}>
       <div className="w-full p-4 md:p-6 ">
-        <h1 className="text-2xl font-bold">ADD AN EVENT</h1>
+        <h1 className="text-2xl font-bold">ADD AN FESTIVAL</h1>
         <p className="text-sm text-muted-foreground pb-6">
           The fields with * are mandatory.
         </p>
@@ -999,7 +999,7 @@ export default function EventForm({
                   </div>
                   <div className="flex gap-2">
                     <Button variant="ghost" asChild>
-                      <Link href="/dashboard/events">Cancel</Link>
+                      <Link href="/dashboard/festivals">Cancel</Link>
                     </Button>
                     <Submit label="Publish" />
                   </div>
