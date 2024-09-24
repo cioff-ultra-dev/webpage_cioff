@@ -917,23 +917,324 @@ export const OwnersProd = cioffSchema.table("owners", {
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
-/* 13. Reports */
+/* 13. Type Reports */
+
+export const ReportTypeCategoriesProd = cioffSchema.table(
+  "report_type_categories",
+  {
+    id: serial("id").primaryKey(),
+    slug: text("slug").notNull(),
+    oriented_to: text("oriented_to"),
+    subType: text("subType"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+export const ReportTypeCategoriesNsLangProd = cioffSchema.table(
+  "report_type_categories_lang",
+  {
+    id: serial("id").primaryKey(),
+    name: text("name").notNull(),
+    lang: integer("lang")
+      .references(() => LanguagesProd.id)
+      .notNull(),
+    reportTypeCategoryId: integer("report_type_category_id")
+      .references(() => ReportTypeCategoriesProd.id)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+
+/* 14. Rating Questions */
+
+export const RatingTypeProd = cioffSchema.table("rating_type", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const RatingQuestionsProd = cioffSchema.table("rating_questions", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  ratingTypeId: integer("rating_type_id").references(() => RatingTypeProd.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const RatingQuestionsLangProd = cioffSchema.table(
+  "rating_questions_lang",
+  {
+    id: serial("id").primaryKey(),
+    name: text("name"),
+    tooltip: text("tooltip"),
+    lang: integer("lang")
+      .references(() => LanguagesProd.id)
+      .notNull(),
+    ratingQuestionlId: integer("rating_question_id")
+      .references(() => RatingQuestionsProd.id)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+
+/* 15. NS Reports */
 
 export const ReportNsProd = cioffSchema.table("report_ns", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull(),
+  nsId: integer("ns_id")
+    .references(() => NationalSectionProd.id)
+    .notNull(),
+  numberFestivals: integer("number_festivals"),
+  numberGroups: integer("number_groups"),
+  numberAssociationsOrOtherOrganizations: integer(
+    "number_associations_or_other_organizations"
+  ),
+  numberIndividualMembers: integer("number_individual_members"),
+  isActivelyEngagedNc: boolean("is_actively_engaged_nc"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
+export const ReportNsLangProd = cioffSchema.table("report_ns_lang", {
+  id: serial("id").primaryKey(),
+  title: text("title"),
+  comment: text("comment"),
+  lang: integer("lang")
+    .references(() => LanguagesProd.id)
+    .notNull(),
+  reportNsId: integer("report_ns_id")
+    .references(() => ReportNsProd.id)
+    .notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const ReportNsActivitiesProd = cioffSchema.table(
+  "report_ns_activities",
+  {
+    id: serial("id").primaryKey(),
+    reportTypeCategoryId: integer("report_type_category_id")
+      .references(() => ReportTypeCategoriesProd.id)
+      .notNull(),
+    reportNsId: integer("report_ns_id")
+      .references(() => ReportNsProd.id)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+
+/* 16. Festivals Reports */
+
 export const ReportFestivalProd = cioffSchema.table("report_festival", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull(),
+  festivalId: integer("festival_id")
+    .references(() => FestivalsProd.id)
+    .notNull(),
+  amountPeople: integer("amount_people"),
+  disabledAdults: integer("any_disabled_adults"),
+  disabledYouth: integer("any_disabled_youth"),
+  disabledChildren: integer("any_disabled_children"),
+  amountPerformances: integer("amount_performances"),
+  averageCostTicket: integer("average_cost_ticket"),
+  sourceData: text("source_data"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
+export const ReportFestivalActivitiesProd = cioffSchema.table(
+  "report_festival_activities",
+  {
+    id: serial("id").primaryKey(),
+    reportTypeCategoryId: integer("report_type_category_id")
+      .references(() => ReportTypeCategoriesProd.id)
+      .notNull(),
+    reportFestivalId: integer("report_festival_id")
+      .references(() => ReportFestivalProd.id)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+
+/* 17. Groups Reports */
+
 export const ReportGroupProd = cioffSchema.table("report_group", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull(),
+  groupId: integer("group_id")
+    .references(() => GroupsProd.id)
+    .notNull(),
+  amountPersonsTravelled: integer("amount_persons_travelled"),
+  ich: text("ich"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
+
+/* 18. Festival Rating */
+
+export const RatingFestivalToGroupsProd = cioffSchema.table(
+  "rating_festival_to_groups",
+  {
+    id: serial("id").primaryKey(),
+    ratingResult: integer("rating_result").notNull(),
+    reportFestivalId: integer("report_festival_id")
+      .references(() => ReportFestivalProd.id)
+      .notNull(),
+    groupId: integer("group_id").references(() => GroupsProd.id),
+    nameNoCioffGroup: text("name_no_cioff_group"),
+    amountPersonsGroup: integer("amount_persons_group"),
+    isInvitationPerWebsite: boolean("is_invitation_per_website"),
+    isInvitationPerNs: boolean("is_invitation_per_ns"),
+    isGroupLiveMusic: boolean("is_group_live_music"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+export const RatingFestivalToGroupsAnswersProd = cioffSchema.table(
+  "rating_festival_to_groups_answers",
+  {
+    id: serial("id").primaryKey(),
+    rating: integer("rating").notNull(),
+    ratingFestivalToGroupsId: integer("rating_festival_to_groups_id")
+      .references(() => RatingFestivalToGroupsProd.id)
+      .notNull(),
+    ratingQuestionId: integer("rating_question_id")
+      .references(() => RatingQuestionsProd.id)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+export const RatingFestivalToGroupsAnswersLangProd = cioffSchema.table(
+  "rating_festival_to_groups_answers_lang",
+  {
+    id: serial("id").primaryKey(),
+    comment: text("comment"),
+    lang: integer("lang")
+      .references(() => LanguagesProd.id)
+      .notNull(),
+    ratingFestivalToGroupsAnswersId: integer(
+      "rating_festival_to_groups_answers_id"
+    )
+      .references(() => RatingFestivalToGroupsAnswersProd.id)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+export const RatingFestivalResultsLangProd = cioffSchema.table(
+  "rating_festival_results_lang",
+  {
+    id: serial("id").primaryKey(),
+    comment: text("comment"),
+    lang: integer("lang")
+      .references(() => LanguagesProd.id)
+      .notNull(),
+    ratingFestivalToGroupsId: integer("rating_festival_to_groups_id")
+      .references(() => RatingFestivalToGroupsProd.id)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+
+/* 19. Group Rating */
+
+export const RatingGroupToFestivalsProd = cioffSchema.table(
+  "rating_group_to_festivals",
+  {
+    id: serial("id").primaryKey(),
+    ratingResult: integer("rating_result").notNull(),
+    reportGroupId: integer("report_group_id")
+      .references(() => ReportGroupProd.id)
+      .notNull(),
+    festivalId: integer("festival_id").references(() => FestivalsProd.id),
+    nameNoCioffFestival: text("name_no_cioff_festival"),
+    introductionBeforePerformances: boolean("introduction_before_performances"),
+    isLogosPresent: boolean("is_logos_present"),
+    atLeast5ForeginGroups: boolean("at_least_5_foregin_groups"),
+    festivalCoverTravelCosts: boolean("festival_cover_travel_costs"),
+    refreshmentsDuringPerformances: boolean("refreshments_during_performances"),
+    financialCompensationPerMember: integer(
+      "financial_compensation_per_member"
+    ),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+export const ReportGroupTypeLocalesProd = cioffSchema.table(
+  "report_group_type_locales",
+  {
+    id: serial("id").primaryKey(),
+    reportTypeCategoryId: integer("report_type_category_id")
+      .references(() => ReportTypeCategoriesProd.id)
+      .notNull(),
+    reportGroupToFestivalsId: integer("report_group_to_festivals_id")
+      .references(() => RatingGroupToFestivalsProd.id)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+export const ReportGroupTypeLocalesSleepProd = cioffSchema.table(
+  "report_group_type_locales_sleep",
+  {
+    id: serial("id").primaryKey(),
+    reportTypeCategoryId: integer("report_type_category_id")
+      .references(() => ReportTypeCategoriesProd.id)
+      .notNull(),
+    reportGroupToFestivalsId: integer("report_group_to_festivals_id")
+      .references(() => RatingGroupToFestivalsProd.id)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+export const RatingGroupToFestivalsAnswersProd = cioffSchema.table(
+  "rating_group_to_festivals_answers",
+  {
+    id: serial("id").primaryKey(),
+    rating: integer("rating").notNull(),
+    reportGroupToFestivalsId: integer("report_group_to_festivals_id")
+      .references(() => RatingGroupToFestivalsProd.id)
+      .notNull(),
+    ratingQuestionId: integer("rating_question_id")
+      .references(() => RatingQuestionsProd.id)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+export const RatingGroupAnswersLangProd = cioffSchema.table(
+  "rating_group_to_festivals_answers_lang",
+  {
+    id: serial("id").primaryKey(),
+    comment: text("comment"),
+    lang: integer("lang")
+      .references(() => LanguagesProd.id)
+      .notNull(),
+    ratingGroupToFestivalsAnswersId: integer(
+      "rating_group_to_festivals_answers_id"
+    )
+      .references(() => RatingGroupToFestivalsAnswersProd.id)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+export const RatingGroupResultsLangProd = cioffSchema.table(
+  "rating_group_results_lang",
+  {
+    id: serial("id").primaryKey(),
+    comment: text("comment"),
+    lang: integer("lang")
+      .references(() => LanguagesProd.id)
+      .notNull(),
+    reportGroupToFestivalsId: integer("report_group_to_festivals_id")
+      .references(() => RatingGroupToFestivalsProd.id)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
