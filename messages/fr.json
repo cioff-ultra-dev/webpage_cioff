@@ -17,7 +17,20 @@
     "_ageOfParticipants": "Age of participants",
     "_styleOfFestival": "Style of festival",
     "_typeOfFestival": "Type of festival",
-    "_status": "Status"
+    "_status": "Status",
+    "festival": {
+      "name": "Nom",
+      "phone": "Phone Number",
+      "contact": "Contact",
+      "description": "Description",
+      "location": "Location",
+      "directorName": "Name of director",
+      "_currentDates": "Current datest",
+      "_ageOfParticipants": "Age of participants",
+      "_styleOfFestival": "Style of festival",
+      "_typeOfFestival": "Type of festival",
+      "_status": "Status"
+    }
   },
   "customErrors": {
     "invalid_phone_number": "Numéro de téléphone invalide"
