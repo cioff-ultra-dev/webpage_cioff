@@ -701,7 +701,9 @@ export const insertNationalSectionPositionsLangSchema = createInsertSchema(
   }
 );
 
-export const insertActivitySchema = createInsertSchema(activities);
+export const insertActivitySchema = createInsertSchema(activities, {
+  name: (schema) => schema.name.min(1),
+});
 
 /* Infered Types */
 
