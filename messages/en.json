@@ -1,0 +1,40 @@
+{
+  "home": {
+    "title": "Hello world!"
+  },
+  "locale_switch": {
+    "select": "Select language",
+    "es": "Spanish",
+    "fr": "French",
+    "en": "English"
+  },
+  "form": {
+    "name": "Name",
+    "phone": "Phone Number",
+    "contact": "Contact",
+    "description": "Description",
+    "location": "Location",
+    "directorName": "Name of director",
+    "_currentDates": "Current datest",
+    "_ageOfParticipants": "Age of participants",
+    "_styleOfFestival": "Style of festival",
+    "_typeOfFestival": "Type of festival",
+    "_status": "Status",
+    "festival": {
+      "name": "Name",
+      "phone": "Phone Number",
+      "contact": "Contact",
+      "description": "Description",
+      "location": "Location",
+      "directorName": "Name of director",
+      "_currentDates": "Current datest",
+      "_ageOfParticipants": "Age of participants",
+      "_styleOfFestival": "Style of festival",
+      "_typeOfFestival": "Type of festival",
+      "_status": "Status"
+    }
+  },
+  "customErrors": {
+    "invalid_phone_number": "Invalid phone number"
+  }
+}

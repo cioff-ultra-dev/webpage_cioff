@@ -5,6 +5,8 @@ import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { auth } from "@/auth";
 import { LogIn } from "lucide-react";
+import LocaleSwitcher from "./locale-switcher";
+import { getAllLanguages } from "@/db/queries/languages";
 
 type SVGComponentProps = React.ComponentPropsWithoutRef<"svg">;
 
@@ -57,6 +59,7 @@ export async function Header({
   ...props
 }: HeaderProps) {
   const session = await auth();
+  const locales = await getAllLanguages();
 
   return (
     <header
@@ -130,14 +133,15 @@ export async function Header({
         </Link>
       </nav>
       <div className="flex items-center space-x-4">
+        <LocaleSwitcher locales={locales} />
         {session?.user ? (
-          <Button variant="link" size="icon" className="rounded-full" asChild>
+          <Button variant="ghost" size="icon" className="rounded-full" asChild>
             <Link href="/dashboard/festivals">
               <UserIcon className={`${text}`} />
             </Link>
           </Button>
         ) : (
-          <Button variant="link" asChild className="text-white flex gap-1">
+          <Button variant="ghost" asChild className="text-white flex gap-1">
             <Link href="/login" prefetch>
               <LogIn size={14} /> <span>Login</span>
             </Link>

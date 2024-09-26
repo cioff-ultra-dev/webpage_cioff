@@ -54,6 +54,8 @@ import { Badge } from "@/components/ui/badge";
 import { CategoryGroupWithCategories } from "@/db/queries/category-group";
 import camelCase from "camelcase";
 import { MultiSelect, MultiSelectProps } from "@/components/ui/multi-select";
+import { useI18nZodErrors } from "@/hooks/use-i18n-zod-errors";
+import { useTranslations } from "next-intl";
 
 const globalEventSchema = insertFestivalSchema.merge(
   z.object({
@@ -105,7 +107,9 @@ export default function EventForm({
   languages: SelectLanguages[];
   statuses: SelectStatus[];
 }) {
+  useI18nZodErrors("festival");
   const [state, formAction] = useFormState(createFestival, undefined);
+  const t = useTranslations("form.festival");
   const [selectedPlace, setSelectedPlace] =
     useState<google.maps.places.PlaceResult | null>(null);
   const [selectedTransportPlace, setSelectedTransportPlace] =
@@ -161,7 +165,7 @@ export default function EventForm({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                            Name of the festival
+                            {t("name")}
                           </FormLabel>
                           <FormControl>
                             <Input {...field} />
@@ -181,7 +185,7 @@ export default function EventForm({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                            Name of Director
+                            {t("directorName")}
                           </FormLabel>
                           <FormControl>
                             <Input {...field} />

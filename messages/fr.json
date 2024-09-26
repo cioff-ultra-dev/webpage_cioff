@@ -1,0 +1,25 @@
+{
+  "home": {},
+  "locale_switch": {
+    "select": "Sélectionner la langue",
+    "es": "Espagnol",
+    "fr": "Français",
+    "en": "Anglais"
+  },
+  "form": {
+    "name": "Name",
+    "phone": "Phone Number",
+    "contact": "Contact",
+    "description": "Description",
+    "location": "Location",
+    "directorName": "Name of director",
+    "_currentDates": "Current datest",
+    "_ageOfParticipants": "Age of participants",
+    "_styleOfFestival": "Style of festival",
+    "_typeOfFestival": "Type of festival",
+    "_status": "Status"
+  },
+  "customErrors": {
+    "invalid_phone_number": "Numéro de téléphone invalide"
+  }
+}

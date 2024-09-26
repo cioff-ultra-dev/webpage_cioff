@@ -9,12 +9,12 @@ import GlobalFilterPreview from "@/components/common/global-filter-preview";
 import { getAllNestedFestivals } from "@/db/queries/events";
 import CarouselHistory from "@/components/common/carousel-history";
 import { getAllCountryCastFestivals } from "@/db/queries/countries";
-import { auth } from "@/auth";
+import { getTranslations } from "next-intl/server";
 
 export default async function Home() {
   const festivals = await getAllNestedFestivals();
   const countryCast = await getAllCountryCastFestivals();
-  const _ = await auth();
+  const t = await getTranslations("home");
 
   return (
     <div>
@@ -30,7 +30,7 @@ export default async function Home() {
             <source src="/hero-video.mp4" type="video/mp4" />
           </video>
           <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-center text-white">
-            <h1 className="text-6xl font-bold">Welcome to</h1>
+            <h1 className="text-6xl font-bold">{t("title")}</h1>
             <h2 className="text-8xl font-bold mt-4">CIOFF</h2>
           </div>
           <div className="absolute bottom-0 left-0 right-0 flex justify-center space-x-2 mb-4 gap-[0.1rem]">

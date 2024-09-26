@@ -1,0 +1,40 @@
+{
+  "home": {
+    "title": "Hola mundo!"
+  },
+  "locale_switch": {
+    "select": "Seleccionar idioma",
+    "es": "Español",
+    "fr": "Frances",
+    "en": "Ingles"
+  },
+  "form": {
+    "name": "Nombre",
+    "phone": "Número de teléfono",
+    "contact": "Contacto",
+    "description": "Descripcion",
+    "location": "Localizacion",
+    "directorName": "Nombre del Director",
+    "_currentDates": "Fechas actuales",
+    "_ageOfParticipants": "Edad de participantes",
+    "_styleOfFestival": "Estilo de festival",
+    "_typeOfFestival": "Tipo de festival",
+    "_status": "Estado",
+    "festival": {
+      "name": "Nombre del festival",
+      "phone": "Número de teléfono",
+      "contact": "Contacto",
+      "description": "Descripcion",
+      "location": "Localizacion",
+      "directorName": "Nombre del Director",
+      "_currentDates": "Fechas actuales",
+      "_ageOfParticipants": "Edad de participantes",
+      "_styleOfFestival": "Estilo de festival",
+      "_typeOfFestival": "Tipo de festival",
+      "_status": "Estado"
+    }
+  },
+  "customErrors": {
+    "invalid_phone_number": "Número de teléfono inválido"
+  }
+}

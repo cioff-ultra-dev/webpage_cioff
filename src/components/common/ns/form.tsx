@@ -52,6 +52,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { PhoneInput } from "@/components/ui/phone-input";
+import { useLocale } from "next-intl";
 
 const positionsSchema = insertNationalSectionPositionsSchema.merge(
   z.object({
@@ -156,6 +157,9 @@ export default function NationalSectionForm() {
   });
 
   const formRef = useRef<HTMLFormElement>(null);
+  const locale = useLocale();
+
+  console.log({ locale });
 
   const onSubmitForm: SubmitHandler<
     z.infer<typeof formNationalSectionSchema>

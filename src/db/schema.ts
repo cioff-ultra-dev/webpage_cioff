@@ -624,7 +624,7 @@ export const insertFestivalSchema = createInsertSchema(festivals, {
       (value) => {
         return isPossiblePhoneNumber(value || "");
       },
-      { message: "Invalid phone number" }
+      { params: { i18n: "invalid_phone_number" } }
     ),
 });
 
@@ -681,7 +681,7 @@ export const insertNationalSectionPositionsSchema = createInsertSchema(
         (value) => {
           return isPossiblePhoneNumber(value || "");
         },
-        { message: "Invalid phone number" }
+        { params: { i18n: "invalid_phone_number" } }
       ),
   }
 );

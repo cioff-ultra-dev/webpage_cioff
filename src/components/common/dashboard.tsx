@@ -21,8 +21,15 @@ import {
 import { SignOut } from "@/components/common/signout-button";
 import { Globe } from "lucide-react";
 import DashboardBreadcrumb from "./dashboard/breadcrumbs";
+import { getAllLanguages } from "@/db/queries/languages";
+import LocaleSwitcher from "./locale-switcher";
 
-export default function Dashboard({ children }: { children: React.ReactNode }) {
+export default async function Dashboard({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const locales = await getAllLanguages();
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
@@ -191,6 +198,9 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
               placeholder="Search events..."
               className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
             />
+          </div>
+          <div>
+            <LocaleSwitcher locales={locales} className="text-gray-500" />
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
