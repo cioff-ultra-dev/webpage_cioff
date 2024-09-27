@@ -135,13 +135,18 @@ export async function Header({
       <div className="flex items-center space-x-4">
         <LocaleSwitcher locales={locales} />
         {session?.user ? (
-          <Button variant="ghost" size="icon" className="rounded-full" asChild>
-            <Link href="/dashboard/festivals">
+          <Button
+            variant="default"
+            size="icon"
+            className="rounded-full"
+            asChild
+          >
+            <Link href="/dashboard">
               <UserIcon className={`${text}`} />
             </Link>
           </Button>
         ) : (
-          <Button variant="ghost" asChild className="text-white flex gap-1">
+          <Button variant="default" asChild className="text-white flex gap-1">
             <Link href="/login" prefetch>
               <LogIn size={14} /> <span>Login</span>
             </Link>
