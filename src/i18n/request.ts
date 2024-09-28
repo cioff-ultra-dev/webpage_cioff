@@ -2,9 +2,10 @@ import { getUserLocale } from "@/lib/locale";
 import { IntlErrorCode } from "next-intl";
 import { getRequestConfig } from "next-intl/server";
 import deepmerge from "deepmerge";
+import { defaultLocale } from "./config";
 
 export default getRequestConfig(async () => {
-  const locale = await getUserLocale();
+  const locale = (await getUserLocale()) || defaultLocale;
   const currentMessages = (await import(`../../messages/${locale}.json`))
     .default;
   const currentZodMessages = (await import(`../../messages/zod/${locale}.json`))
