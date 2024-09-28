@@ -52,6 +52,7 @@
     }
   },
   "customErrors": {
+    "file_required": "File is required",
     "invalid_phone_number": "Invalid phone number"
   }
 }

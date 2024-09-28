@@ -58,7 +58,9 @@ const positionsSchema = insertNationalSectionPositionsSchema.merge(
     _deathDate: z.string().optional(),
     _photo: z
       .any()
-      .refine((item) => item instanceof File || typeof item === "undefined"),
+      .refine((item) => item instanceof File || typeof item === "undefined", {
+        params: { i18n: "file_required" },
+      }),
   }),
 );
 
@@ -70,9 +72,12 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
     _festivals: z.array(
       inserFestivalByNSSchema.merge(
         z.object({
-          certificationFile: z.any().refine((item) => {
-            return item instanceof File || typeof item !== "undefined";
-          }, "File is required"),
+          certificationFile: z.any().refine(
+            (item) => {
+              return item instanceof File || typeof item !== "undefined";
+            },
+            { params: { i18n: "file_required" } },
+          ),
         }),
       ),
     ),
@@ -83,7 +88,7 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
             .any()
             .refine(
               (item) => item instanceof File || typeof item !== "undefined",
-              "File is required",
+              { params: { i18n: "file_required" } },
             ),
         }),
       ),

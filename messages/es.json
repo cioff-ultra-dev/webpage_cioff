@@ -49,6 +49,7 @@
     }
   },
   "customErrors": {
+    "file_required": "Archivo es requerido",
     "invalid_phone_number": "Número de teléfono inválido"
   }
 }
