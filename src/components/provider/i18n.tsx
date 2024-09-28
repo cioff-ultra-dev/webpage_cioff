@@ -2,6 +2,7 @@
 
 import { getMessageFallback } from "@/i18n/handlers";
 import { AbstractIntlMessages, NextIntlClientProvider } from "next-intl";
+import { SToaster } from "@/components/ui/sonner";
 
 export default function I18NProvider({
   children,
@@ -19,6 +20,7 @@ export default function I18NProvider({
       getMessageFallback={getMessageFallback}
     >
       {children}
+      <SToaster />
     </NextIntlClientProvider>
   );
 }

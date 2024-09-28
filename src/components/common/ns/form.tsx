@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button, ButtonProps } from "@/components/ui/button";
-import { createNationalSection } from "@/app/actions";
+import { createNationalSection, updateNationalSection } from "@/app/actions";
 import { useFormState, useFormStatus } from "react-dom";
 import {
   Form,
@@ -50,6 +50,9 @@ import { PhoneInput } from "@/components/ui/phone-input";
 import { NationalSectionDetailsType } from "@/db/queries/national-sections";
 import { useTranslations } from "next-intl";
 import { useI18nZodErrors } from "@/hooks/use-i18n-zod-errors";
+import { toast } from "sonner";
+import { customRevalidateTag } from "../revalidateTag";
+import { useRouter } from "next/navigation";
 
 const positionsSchema = insertNationalSectionPositionsSchema.merge(
   z.object({
@@ -132,22 +135,28 @@ export default function NationalSectionForm({
   const form = useForm<z.infer<typeof formNationalSectionSchema>>({
     resolver: zodResolver(formNationalSectionSchema),
     defaultValues: {
+      id: Number(id),
+      slug: currentNationalSection?.slug,
       _lang: {
         name: currentLang?.name,
         about: currentLang?.about,
         aboutYoung: currentLang?.aboutYoung,
       },
       _positions: [],
-      _festivals: [{ name: "", email: "" }],
-      _groups: [{ name: "", email: "" }],
+      _festivals: [],
+      _groups: [],
     },
   });
 
   const t = useTranslations("form.ns");
+  const router = useRouter();
 
   useEffect(() => {
     form.setValue("_lang.name", currentLang?.name!);
-  }, [currentLang?.name, form]);
+    form.setValue("_lang.about", currentLang?.about!);
+    form.setValue("_lang.aboutYoung", currentLang?.aboutYoung!);
+  }, [currentLang?.name, currentLang?.about, currentLang?.aboutYoung, form]);
+
   const { fields: positionFields, append: appendPosition } = useFieldArray({
     control: form.control,
     name: "_positions",
@@ -180,9 +189,16 @@ export default function NationalSectionForm({
 
   const onSubmitForm: SubmitHandler<
     z.infer<typeof formNationalSectionSchema>
-  > = async (data) => {
-    // call the server action
-    await createNationalSection(new FormData(formRef.current!));
+  > = async (_data) => {
+    const result = await updateNationalSection(new FormData(formRef.current!));
+    if (result.success) {
+      toast.success(result.success);
+    } else if (result.error) {
+      toast.error(result.error);
+    }
+
+    customRevalidateTag("/dashboard/national-sections");
+    router.push("/dashboard/national-sections");
   };
 
   return (
@@ -213,6 +229,42 @@ export default function NationalSectionForm({
             <CardContent className="space-y-8">
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold">Module 1: Profile</h2>
+                <FormField
+                  control={form.control}
+                  name="slug"
+                  render={({ field }) => (
+                    <FormItem className="space-y-0">
+                      <FormControl>
+                        <Input
+                          ref={field.ref}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          value={field.value}
+                          name={field.name}
+                          type="hidden"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="id"
+                  render={({ field }) => (
+                    <FormItem className="space-y-0">
+                      <FormControl>
+                        <Input
+                          ref={field.ref}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          value={field.value}
+                          name={field.name}
+                          type="hidden"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
                 <div className="grid w-full items-center gap-1.5">
                   <FormField
                     control={form.control}
@@ -254,7 +306,7 @@ export default function NationalSectionForm({
                             className="resize-none"
                             name={field.name}
                             onChange={field.onChange}
-                            defaultValue={field.value || undefined}
+                            value={field.value}
                             onBlur={field.onBlur}
                             ref={field.ref}
                           />
@@ -394,7 +446,7 @@ export default function NationalSectionForm({
                                 className="resize-none"
                                 name={field.name}
                                 onChange={field.onChange}
-                                defaultValue={field.value || undefined}
+                                value={field.value}
                                 onBlur={field.onBlur}
                                 ref={field.ref}
                               />

@@ -1,10 +1,7 @@
 {
   "home": {},
   "locale_switch": {
-    "select": "Sélectionner la langue",
-    "es": "Espagnol",
-    "fr": "Français",
-    "en": "Anglais"
+    "select": "Sélectionner la langue"
   },
   "form": {
     "name": "Name",
