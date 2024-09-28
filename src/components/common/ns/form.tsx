@@ -1,15 +1,10 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import {
-  SubmitHandler,
-  useFieldArray,
-  useForm,
-  useWatch,
-} from "react-hook-form";
+import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import * as RPNInput from "react-phone-number-input";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -52,7 +47,9 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { PhoneInput } from "@/components/ui/phone-input";
-import { useLocale } from "next-intl";
+import { NationalSectionDetailsType } from "@/db/queries/national-sections";
+import { useTranslations } from "next-intl";
+import { useI18nZodErrors } from "@/hooks/use-i18n-zod-errors";
 
 const positionsSchema = insertNationalSectionPositionsSchema.merge(
   z.object({
@@ -62,7 +59,7 @@ const positionsSchema = insertNationalSectionPositionsSchema.merge(
     _photo: z
       .any()
       .refine((item) => item instanceof File || typeof item === "undefined"),
-  })
+  }),
 );
 
 const formNationalSectionSchema = insertNationalSectionSchema.merge(
@@ -76,8 +73,8 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
           certificationFile: z.any().refine((item) => {
             return item instanceof File || typeof item !== "undefined";
           }, "File is required"),
-        })
-      )
+        }),
+      ),
     ),
     _groups: z.array(
       insertGroupByNSSchema.merge(
@@ -86,12 +83,12 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
             .any()
             .refine(
               (item) => item instanceof File || typeof item !== "undefined",
-              "File is required"
+              "File is required",
             ),
-        })
-      )
+        }),
+      ),
     ),
-  })
+  }),
 );
 
 function Submit({
@@ -116,18 +113,36 @@ function Submit({
   );
 }
 
-export default function NationalSectionForm() {
+export default function NationalSectionForm({
+  currentNationalSection,
+  currentLang,
+  id,
+}: {
+  currentNationalSection?: NationalSectionDetailsType | undefined;
+  currentLang?: NonNullable<NationalSectionDetailsType>["langs"][number];
+  id?: string;
+}) {
   // const [state, formAction] = useFormState(, null);
-
+  useI18nZodErrors("ns");
   const form = useForm<z.infer<typeof formNationalSectionSchema>>({
     resolver: zodResolver(formNationalSectionSchema),
     defaultValues: {
+      _lang: {
+        name: currentLang?.name,
+        about: currentLang?.about,
+        aboutYoung: currentLang?.aboutYoung,
+      },
       _positions: [],
       _festivals: [{ name: "", email: "" }],
       _groups: [{ name: "", email: "" }],
     },
   });
 
+  const t = useTranslations("form.ns");
+
+  useEffect(() => {
+    form.setValue("_lang.name", currentLang?.name!);
+  }, [currentLang?.name, form]);
   const { fields: positionFields, append: appendPosition } = useFieldArray({
     control: form.control,
     name: "_positions",
@@ -157,9 +172,6 @@ export default function NationalSectionForm() {
   });
 
   const formRef = useRef<HTMLFormElement>(null);
-  const locale = useLocale();
-
-  console.log({ locale });
 
   const onSubmitForm: SubmitHandler<
     z.infer<typeof formNationalSectionSchema>
@@ -170,10 +182,8 @@ export default function NationalSectionForm() {
 
   return (
     <div className="w-full p-4 md:p-6">
-      <h1 className="text-2xl font-bold">ADD A NATIONAL SECTION</h1>
-      <p className="text-sm text-muted-foreground pb-10">
-        The fields with * are mandatory.
-      </p>
+      <h1 className="text-2xl font-bold">{t("title")}</h1>
+      <p className="text-sm text-muted-foreground pb-10">{t("disclaimer")}</p>
       <Form {...form}>
         <form
           ref={formRef}
@@ -205,7 +215,7 @@ export default function NationalSectionForm() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Name of the association
+                          {t("_lang.name")}
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -356,7 +366,7 @@ export default function NationalSectionForm() {
                                 accept="image/*, application/pdf"
                                 onChange={(event) =>
                                   onChange(
-                                    event.target.files && event.target.files[0]
+                                    event.target.files && event.target.files[0],
                                   )
                                 }
                               />
@@ -500,7 +510,7 @@ export default function NationalSectionForm() {
                                   onChange={(event) =>
                                     onChange(
                                       event.target.files &&
-                                        event.target.files[0]
+                                        event.target.files[0],
                                     )
                                   }
                                 />
@@ -550,7 +560,7 @@ export default function NationalSectionForm() {
                                       variant={"outline"}
                                       className={cn(
                                         "w-full pl-3 text-left font-normal",
-                                        !field.value && "text-muted-foreground"
+                                        !field.value && "text-muted-foreground",
                                       )}
                                     >
                                       {field.value ? (
@@ -607,7 +617,7 @@ export default function NationalSectionForm() {
                                       variant={"outline"}
                                       className={cn(
                                         "w-full pl-3 text-left font-normal",
-                                        !field.value && "text-muted-foreground"
+                                        !field.value && "text-muted-foreground",
                                       )}
                                     >
                                       {field.value ? (
@@ -815,7 +825,7 @@ export default function NationalSectionForm() {
                                   onChange={(event) =>
                                     onChange(
                                       event.target.files &&
-                                        event.target.files[0]
+                                        event.target.files[0],
                                     )
                                   }
                                 />
@@ -947,7 +957,7 @@ export default function NationalSectionForm() {
                                 accept=".pdf,.doc,.docx"
                                 onChange={(event) =>
                                   onChange(
-                                    event.target.files && event.target.files[0]
+                                    event.target.files && event.target.files[0],
                                   )
                                 }
                               />

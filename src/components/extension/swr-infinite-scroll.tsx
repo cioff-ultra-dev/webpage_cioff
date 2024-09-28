@@ -3,7 +3,7 @@ import type { SWRInfiniteResponse } from "swr/infinite";
 
 interface InfiniteScrollProps<T> {
   swr: SWRInfiniteResponse<T>;
-  children?: React.ReactChild | ((item: T) => React.ReactNode);
+  children?: React.ReactNode | ((item: T) => React.ReactNode);
   loadingIndicator?: React.ReactNode;
   endingIndicator?: React.ReactNode;
   isReachingEnd: boolean | ((swr: SWRInfiniteResponse<T>) => boolean);
@@ -26,7 +26,7 @@ const useIntersection = <T extends HTMLElement>(): [boolean, Ref<T>] => {
 };
 
 const InfiniteScroll = <T,>(
-  props: InfiniteScrollProps<T>
+  props: InfiniteScrollProps<T>,
 ): React.ReactElement<InfiniteScrollProps<T>> => {
   const {
     swr,

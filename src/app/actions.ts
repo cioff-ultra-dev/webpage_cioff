@@ -7,12 +7,12 @@ import {
   insertFestivalSchema,
   InsertGroup,
   InsertNationalSectionPositions,
-  NationalSectionLangProd,
-  NationalSectionPositionsLangProd,
-  NationalSectionPositionsProd,
-  NationalSectionProd,
+  nationalSectionPositionsLang,
+  nationalSections,
+  nationalSectionsLang,
+  nationalSectionsPositions,
   rolesTable,
-  StorageProd,
+  storages,
   users,
 } from "@/db/schema";
 import { transport } from "@/lib/mailer";
@@ -36,10 +36,10 @@ export async function uploadFile(
   const blob = await put(`logos/${file.name}`, file, { access: "public" });
 
   const [result] = await tx
-    .insert(StorageProd)
+    .insert(storages)
     .values({ url: blob.url, name: blob.pathname })
     .returning({
-      id: StorageProd.id,
+      id: storages.id,
     });
 
   return result.id;
@@ -171,19 +171,19 @@ export async function createNationalSection(formData: FormData) {
     setTimeout(resolve, 2000);
   });
 
-  const nsId: number = await db.transaction(async (tx) => {
+  await db.transaction(async (tx) => {
     const [{ nationalSectionId }] = await tx
-      .insert(NationalSectionProd)
+      .insert(nationalSections)
       .values({
-        ownerId: session?.user?.id,
+        // ownerId: session?.user?.id,
         countryId: session?.user?.countryId,
       })
       .returning({
-        nationalSectionId: NationalSectionProd.id,
+        nationalSectionId: nationalSections.id,
       });
 
     await tx
-      .insert(NationalSectionLangProd)
+      .insert(nationalSectionsLang)
       .values({ name, about, aboutYoung, lang: 1, nsId: nationalSectionId });
 
     for (let index = 0; index < positionSize; index++) {
@@ -198,7 +198,7 @@ export async function createNationalSection(formData: FormData) {
       const storagePhotoId = await uploadFile(photo, tx);
 
       const [{ nsPositionsId }] = await tx
-        .insert(NationalSectionPositionsProd)
+        .insert(nationalSectionsPositions)
         .values({
           name,
           email,
@@ -206,10 +206,10 @@ export async function createNationalSection(formData: FormData) {
           photoId: storagePhotoId,
           nsId: nationalSectionId,
         })
-        .returning({ nsPositionsId: NationalSectionPositionsProd.id });
+        .returning({ nsPositionsId: nationalSectionsPositions.id });
 
       await tx
-        .insert(NationalSectionPositionsLangProd)
+        .insert(nationalSectionPositionsLang)
         .values({ nsPositionsId, shortBio });
     }
 

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { cn } from "@/lib/utils";
 import "./globals.css";
+import I18NProvider from "@/components/provider/i18n";
 
 const fontHeading = Inter({
   subsets: ["latin"],
@@ -28,16 +28,16 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const locale = await getLocale();
-
   const messages = await getMessages();
+
   return (
     <html lang={locale}>
       <body
         className={cn("antialiased", fontHeading.variable, fontBody.variable)}
       >
-        <NextIntlClientProvider messages={messages}>
+        <I18NProvider messages={messages} locale={locale}>
           {children}
-        </NextIntlClientProvider>
+        </I18NProvider>
       </body>
     </html>
   );

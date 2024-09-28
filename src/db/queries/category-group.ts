@@ -6,9 +6,7 @@ export type CategoryGroupWithCategories = typeof categoryGroups.$inferSelect & {
   categories: SelectCategory[];
 };
 
-export async function getCategoryGroupsWithCategories(): Promise<
-  CategoryGroupWithCategories[]
-> {
+export async function getCategoryGroupsWithCategories() {
   return db.query.categoryGroups.findMany({
     where: inArray(categoryGroups.slug, [
       "type-of-festival",
@@ -22,9 +20,7 @@ export async function getCategoryGroupsWithCategories(): Promise<
   });
 }
 
-export async function getCategoryGroupsInGroups(): Promise<
-  CategoryGroupWithCategories[]
-> {
+export async function getCategoryGroupsInGroups() {
   return db.query.categoryGroups.findMany({
     where: inArray(categoryGroups.slug, [
       "type-of-festival",

@@ -1,6 +1,5 @@
 import GroupForm from "@/components/common/group/form";
 import { getGroupById, GroupDetailsType } from "@/db/queries/groups";
-import { SelectGroup } from "@/db/schema";
 
 export default async function EditGroup({
   params,

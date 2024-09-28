@@ -23,6 +23,7 @@ import { Globe } from "lucide-react";
 import DashboardBreadcrumb from "./dashboard/breadcrumbs";
 import { getAllLanguages } from "@/db/queries/languages";
 import LocaleSwitcher from "./locale-switcher";
+import { getTranslations } from "next-intl/server";
 
 export default async function Dashboard({
   children,
@@ -30,6 +31,7 @@ export default async function Dashboard({
   children: React.ReactNode;
 }) {
   const locales = await getAllLanguages();
+  const t = await getTranslations("link");
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
@@ -51,10 +53,10 @@ export default async function Dashboard({
                   prefetch={false}
                 >
                   <HomeIcon className="h-5 w-5" />
-                  <span className="sr-only">Dashboard</span>
+                  <span className="sr-only">{t("dashboard")}</span>
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">Dashboard</TooltipContent>
+              <TooltipContent side="right">{t("dashboard")}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -64,10 +66,10 @@ export default async function Dashboard({
                   prefetch={false}
                 >
                   <CalendarIcon className="h-5 w-5" />
-                  <span className="sr-only">Festivals</span>
+                  <span className="sr-only">{t("festivals")}</span>
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">Festivals</TooltipContent>
+              <TooltipContent side="right">{t("festivals")}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -77,10 +79,12 @@ export default async function Dashboard({
                   prefetch={false}
                 >
                   <Globe className="h-5 w-5" />
-                  <span className="sr-only">National Sections</span>
+                  <span className="sr-only">{t("national-sections")}</span>
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">National Sections</TooltipContent>
+              <TooltipContent side="right">
+                {t("national-sections")}
+              </TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -90,10 +94,10 @@ export default async function Dashboard({
                   prefetch={false}
                 >
                   <UsersIcon className="h-5 w-5" />
-                  <span className="sr-only">Groups</span>
+                  <span className="sr-only">{t("groups")}</span>
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">Groups</TooltipContent>
+              <TooltipContent side="right">{t("groups")}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>

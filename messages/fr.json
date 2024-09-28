@@ -30,6 +30,13 @@
       "_styleOfFestival": "Style of festival",
       "_typeOfFestival": "Type of festival",
       "_status": "Status"
+    },
+    "ns": {
+      "title": "AJOUTER UNE SECTION NATIONALE",
+      "disclaimer": "Les champs avec * sont obligatoires.",
+      "_lang": {
+        "name": "Nom de l'association"
+      }
     }
   },
   "customErrors": {

@@ -18,12 +18,10 @@ export default getRequestConfig(async () => {
   return {
     locale,
     messages: { ...messages, ...zodMessages },
-    getMessageFallback(info) {
-      const path = [info.namespace, info.key]
-        .filter((part) => part != null)
-        .join(".");
+    getMessageFallback({ namespace, key, error }) {
+      const path = [namespace, key].filter((part) => part != null).join(".");
 
-      if (info.error.code === IntlErrorCode.MISSING_MESSAGE) {
+      if (error.code === IntlErrorCode.MISSING_MESSAGE) {
         return path + " is not yet translated";
       } else {
         return "Dear developer, please fix this message: " + path;

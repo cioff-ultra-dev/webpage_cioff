@@ -1,12 +1,16 @@
 import { auth } from "@/auth";
 import { db } from "@/db";
 import {
-  NationalSectionLangProd,
-  NationalSectionProd,
+  SelectLanguages,
   SelectNationalSection,
   SelectNationalSectionLang,
+  languages,
+  nationalSections,
+  nationalSectionsLang,
+  owners,
 } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { defaultLocale } from "@/i18n/config";
+import { and, eq, inArray, sql } from "drizzle-orm";
 
 export type LangWithNationalSection = SelectNationalSection & {
   langs: SelectNationalSectionLang[];
@@ -16,15 +20,85 @@ export async function getAllNationalSections(): Promise<
   LangWithNationalSection[]
 > {
   const session = await auth();
-  return db.query.NationalSectionProd.findMany({
-    where: and(
-      eq(NationalSectionProd.countryId, session?.user.countryId!),
-      eq(NationalSectionProd.ownerId, session?.user.id!)
-    ),
+  return db.query.nationalSections.findMany({
+    where: and(eq(nationalSections.countryId, session?.user.countryId!)),
     with: {
       langs: {
-        where: eq(NationalSectionLangProd.lang, 1),
+        where: eq(nationalSectionsLang.lang, 1),
       },
     },
   });
 }
+
+export async function getNationalSectionBySlug(
+  slug: SelectNationalSection["slug"],
+  currentLocale: string = defaultLocale as SelectLanguages["code"]
+) {
+  const sq = db
+    .select({ id: languages.id })
+    .from(languages)
+    .where(eq(languages.code, currentLocale as SelectLanguages["code"]));
+
+  return db.query.nationalSections.findFirst({
+    where: eq(nationalSections.slug, slug),
+    with: {
+      langs: {
+        where(fields, { eq }) {
+          return eq(fields.lang, sq);
+        },
+        with: {
+          l: true,
+        },
+      },
+    },
+  });
+}
+
+export type NationalSectionDetailsType = Awaited<
+  ReturnType<typeof getNationalSectionBySlug>
+>;
+
+export async function getAllNationalSectionsByOwner(locale: string) {
+  const session = await auth();
+  const localeValue = locale as SelectLanguages["code"];
+  const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
+
+  const pushLocales = [localeValue];
+
+  if (localeValue !== currentDefaultLocale) {
+    pushLocales.push(currentDefaultLocale);
+  }
+
+  const sq = db
+    .select({ id: languages.id })
+    .from(languages)
+    .where(inArray(languages.code, pushLocales));
+
+  return db.query.nationalSections.findMany({
+    with: {
+      owners: {
+        where(fields, { eq }) {
+          return eq(fields.userId, session?.user.id!);
+        },
+        with: {
+          ns: {
+            with: {
+              langs: {
+                where(fields, { inArray }) {
+                  return inArray(fields.lang, sq);
+                },
+                with: {
+                  l: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+export type NationalSectionByOwnerType = Awaited<
+  ReturnType<typeof getAllNationalSectionsByOwner>
+>;

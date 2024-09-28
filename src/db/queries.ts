@@ -10,13 +10,13 @@ const selectUserByP1 = db
   .prepare("selectUserByP1");
 
 export async function getUserById(
-  id: SelectUser["id"],
+  id: SelectUser["id"]
 ): Promise<Array<SelectUser>> {
   return db.select().from(users).where(eq(users.id, id));
 }
 
 export async function getUserByEmail(
-  email: SelectUser["email"],
+  email: SelectUser["email"]
 ): Promise<Array<SelectUser>> {
   return selectUserByP1.execute({ email });
 }

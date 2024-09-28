@@ -8,6 +8,13 @@
     "fr": "Frances",
     "en": "Ingles"
   },
+  "link": {
+    "dashboard": "Panel",
+    "national-sections": "Sección Nacional",
+    "festivals": "Festivales",
+    "groups": "Grupos",
+    "edit": "Editar"
+  },
   "form": {
     "name": "Nombre",
     "phone": "Número de teléfono",
@@ -32,6 +39,13 @@
       "_styleOfFestival": "Estilo de festival",
       "_typeOfFestival": "Tipo de festival",
       "_status": "Estado"
+    },
+    "ns": {
+      "title": "AGREGAR UNA SECCIÓN NACIONAL",
+      "disclaimer": "Los campos con * son obligatorios.",
+      "_lang": {
+        "name": "Nombre de la asociacion"
+      }
     }
   },
   "customErrors": {

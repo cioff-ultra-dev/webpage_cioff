@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { usePathname } from "next/navigation";
 import React, { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
 type TBreadCrumbProps = {
   homeElement?: ReactNode;
@@ -22,6 +23,7 @@ export default function DashboardBreadcrumb({
   capitalizeLinks,
 }: TBreadCrumbProps) {
   const paths = usePathname();
+  const t = useTranslations("link");
   const pathNames = paths.split("/").filter((path) => path);
 
   return (
@@ -39,18 +41,14 @@ export default function DashboardBreadcrumb({
         {pathNames.length > 0 && homeElement ? <BreadcrumbSeparator /> : null}
         {pathNames.map((link, index) => {
           let href = `/${pathNames.slice(0, index + 1).join("/")}`;
-          const labelLink = link.replaceAll("-", " ");
-          let itemLink = capitalizeLinks
-            ? labelLink[0].toUpperCase() + labelLink.slice(1, labelLink.length)
-            : labelLink;
           return (
             <React.Fragment key={index}>
               {href !== paths ? (
                 <>
                   <BreadcrumbItem>
                     <BreadcrumbLink asChild>
-                      <Link href={href} prefetch={false}>
-                        {itemLink}
+                      <Link className="capitalize" href={href} prefetch={false}>
+                        {t(link)}
                       </Link>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
@@ -60,7 +58,7 @@ export default function DashboardBreadcrumb({
                 </>
               ) : (
                 <BreadcrumbItem>
-                  <BreadcrumbPage>{itemLink}</BreadcrumbPage>
+                  <BreadcrumbPage>{t(link)}</BreadcrumbPage>
                 </BreadcrumbItem>
               )}
             </React.Fragment>

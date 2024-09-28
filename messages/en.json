@@ -8,6 +8,13 @@
     "fr": "French",
     "en": "English"
   },
+  "link": {
+    "dashboard": "Dashboard",
+    "national-sections": "National Sections",
+    "festivals": "Festivals",
+    "groups": "Groups",
+    "edit": "Edit"
+  },
   "form": {
     "name": "Name",
     "phone": "Phone Number",
@@ -32,6 +39,16 @@
       "_styleOfFestival": "Style of festival",
       "_typeOfFestival": "Type of festival",
       "_status": "Status"
+    },
+    "ns": {
+      "title": "ADD A NATIONAL SECTION",
+      "disclaimer": "The fields with * are mandatory.",
+      "_lang": {
+        "name": "Name of the association"
+      },
+      "_festivals": {
+        "name": "Name of the festival"
+      }
     }
   },
   "customErrors": {

@@ -29,13 +29,19 @@ import { EllipsisVertical } from "lucide-react";
 import { SelectFestival } from "@/db/schema";
 import {
   getAllNationalSections,
+  getAllNationalSectionsByOwner,
   LangWithNationalSection,
 } from "@/db/queries/national-sections";
+import { getFormatter, getLocale } from "next-intl/server";
+import { defaultLocale } from "@/i18n/config";
 
 export default async function DashboardPage() {
-  const events: SelectFestival[] = [];
+  const locale = await getLocale();
+  const formatter = await getFormatter();
   const nationalSections: LangWithNationalSection[] =
     await getAllNationalSections();
+  const nationalSectionsByOwners = await getAllNationalSectionsByOwner(locale);
+
   return (
     <Tabs defaultValue="all">
       <div className="flex items-center">
@@ -88,7 +94,7 @@ export default async function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {nationalSections.length ? (
+            {nationalSectionsByOwners.length ? (
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -103,17 +109,37 @@ export default async function DashboardPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {nationalSections.map((item) => {
+                  {nationalSectionsByOwners.map((item) => {
                     return (
                       <TableRow key={item.id}>
                         <TableCell className="font-medium">
-                          {item.langs.at(0)?.name}
+                          {item.owners
+                            .at(0)
+                            ?.ns?.langs.find((item) => item.l?.code === locale)
+                            ?.name ||
+                            item.owners
+                              .at(0)
+                              ?.ns?.langs.find(
+                                (item) => item.l?.code === defaultLocale
+                              )?.name}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
-                          {format(item.createdAt, "PPP")}
+                          {formatter.dateTime(item.createdAt, {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
                         </TableCell>
                         <TableCell className="hidden md:table-cell capitalize truncate">
-                          {item.langs.at(0)?.about}
+                          {item.owners
+                            .at(0)
+                            ?.ns?.langs.find((item) => item.l?.code === locale)
+                            ?.about ||
+                            item.owners
+                              .at(0)
+                              ?.ns?.langs.find(
+                                (item) => item.l?.code === defaultLocale
+                              )?.about}
                         </TableCell>
                         <TableCell>
                           <DropdownMenu>
@@ -129,7 +155,16 @@ export default async function DashboardPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem disabled>Edit</DropdownMenuItem>
+                              <DropdownMenuItem
+                                asChild
+                                className="cursor-pointer"
+                              >
+                                <Link
+                                  href={`/dashboard/national-sections/${item.slug}/edit`}
+                                >
+                                  Edit
+                                </Link>
+                              </DropdownMenuItem>
                               <DropdownMenuItem disabled>
                                 Delete
                               </DropdownMenuItem>
