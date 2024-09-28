@@ -19,8 +19,9 @@ export default auth(async (req) => {
   const currentLocale = await getUserLocale();
   const locale = getLocale(req);
   if (!currentLocale) {
-    await setUserLocale(locale as Locale);
-    console.log({ locale });
+    const response = NextResponse.redirect(req.nextUrl);
+    response.cookies.set("NEXT_LOCALE", locale);
+    return response;
   }
   return NextResponse.next();
 });
