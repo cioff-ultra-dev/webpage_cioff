@@ -29,7 +29,7 @@ export type User = {
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
-  debug: true,
+  debug: process.env.NODE_ENV !== "production",
   session: {
     strategy: "jwt",
   },

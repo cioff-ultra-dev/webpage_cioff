@@ -7,11 +7,13 @@ import {
   insertFestivalSchema,
   InsertGroup,
   InsertNationalSectionPositions,
+  InsertNationalSectionPositionsLang,
   nationalSectionPositionsLang,
   nationalSections,
   nationalSectionsLang,
   nationalSectionsPositions,
   rolesTable,
+  socialMediaLinks,
   storages,
   users,
 } from "@/db/schema";
@@ -23,14 +25,30 @@ import { redirect } from "next/navigation";
 import { newFestival } from "@/db/queries/events";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, getTableColumns, SQL, sql } from "drizzle-orm";
 import { getLocale, getTranslations } from "next-intl/server";
+import { PgTable } from "drizzle-orm/pg-core";
 
 const preparedLanguagesByCode = db.query.languages
   .findFirst({
     where: (languages, { eq }) => eq(languages.code, sql.placeholder("locale")),
   })
   .prepare("query_language_by_code");
+
+const buildConflictUpdateColumns = <
+  T extends PgTable,
+  Q extends keyof T["_"]["columns"]
+>(
+  table: T,
+  columns: Q[]
+) => {
+  const cls = getTableColumns(table);
+  return columns.reduce((acc, column) => {
+    const colName = cls[column].name;
+    acc[column] = sql.raw(`excluded.${colName}`);
+    return acc;
+  }, {} as Record<Q, SQL>);
+};
 
 export async function uploadFile(
   file: File,
@@ -164,14 +182,36 @@ export async function createGroup(prevState: unknown, formData: FormData) {
 export async function updateNationalSection(formData: FormData) {
   const session = await auth();
   const locale = await getLocale();
-  const t = await getTranslations();
+  const t = await getTranslations("notification");
 
-  const id = Number(formData.get("id"));
+  const nsId = Number(formData.get("id"));
   const name = formData.get("_lang.name") as string;
   const about = formData.get("_lang.about") as string;
   const aboutYoung = formData.get("_lang.aboutYoung") as string;
 
+  const socialId = Number(formData.get("_social.id"));
+  const facebookLink = (formData.get("_social.facebookLink") as string) || null;
+  const instagramLink =
+    (formData.get("_social.instagramLink") as string) || null;
+  const websiteLink = (formData.get("_social.websiteLink") as string) || null;
+
+  const positionSize = Number(formData.get("_positionSize"));
+  const honorarySize = Number(formData.get("_honorarySize"));
+  const festivalSize = Number(formData.get("_festivalSize"));
+  const groupSize = Number(formData.get("_groupSize"));
+
+  const positions: InsertNationalSectionPositions[] = [];
+  const positionLangs: InsertNationalSectionPositionsLang[] = [];
+
+  const honoraries: InsertNationalSectionPositions[] = [];
+  const honoraryLangs: InsertNationalSectionPositionsLang[] = [];
+
   const lang = await preparedLanguagesByCode.execute({ locale });
+  const currentNationalSection = await db.query.nationalSections.findFirst({
+    where(fields, { eq }) {
+      return eq(fields.id, nsId);
+    },
+  });
 
   if (!lang) {
     return { error: "Unrecognized locale" };
@@ -183,13 +223,174 @@ export async function updateNationalSection(formData: FormData) {
       .set({ name, about, aboutYoung })
       .where(
         and(
-          eq(nationalSectionsLang.nsId, id),
+          eq(nationalSectionsLang.nsId, nsId),
           eq(nationalSectionsLang.lang, lang.id)
         )
       );
+
+    const [currentSocialMediaLink] = await tx
+      .insert(socialMediaLinks)
+      .values({
+        id: !socialId ? undefined : socialId,
+        facebookLink,
+        instagramLink,
+        websiteLink,
+      })
+      .onConflictDoUpdate({
+        target: socialMediaLinks.id,
+        set: buildConflictUpdateColumns(socialMediaLinks, [
+          "facebookLink",
+          "instagramLink",
+          "websiteLink",
+        ]),
+      })
+      .returning({ id: socialMediaLinks.id });
+
+    if (!currentNationalSection?.socialMediaLinksId) {
+      await tx.update(nationalSections).set({
+        socialMediaLinksId: currentSocialMediaLink.id,
+      });
+    }
+
+    if (positionSize > 0) {
+      for (let index = 0; index < positionSize; index++) {
+        const id = Number(formData.get(`_positions.${index}.id`));
+        const name = formData.get(`_positions.${index}.name`) as string;
+        const email = formData.get(`_positions.${index}.email`) as string;
+        const phone = formData.get(`_positions.${index}.phone`) as string;
+        const positionLangId = Number(
+          formData.get(`_positions.${index}._lang.id`)
+        );
+        const shortBio = formData.get(
+          `_positions.${index}._lang.shortBio`
+        ) as string;
+        const photo = formData.get(`_positions.${index}._photo`) as File;
+
+        const storagePhotoId = await uploadFile(photo, tx);
+        console.log({ storagePhotoId });
+
+        positions.push({
+          id: id === 0 ? undefined : id,
+          name,
+          email,
+          phone,
+          photoId: storagePhotoId,
+          nsId: nsId,
+        });
+
+        positionLangs.push({
+          id: id === 0 ? undefined : positionLangId,
+          shortBio,
+        });
+      }
+
+      const nationalSectionsElements = await tx
+        .insert(nationalSectionsPositions)
+        .values(positions)
+        .onConflictDoUpdate({
+          target: nationalSectionsPositions.id,
+          set: buildConflictUpdateColumns(nationalSectionsPositions, [
+            "name",
+            "email",
+            "phone",
+          ]),
+        })
+        .returning({ id: nationalSectionsPositions.id });
+
+      const outputNS = nationalSectionsElements.map((item, index) => ({
+        id: positionLangs.at(index)?.id,
+        nsPositionsId: item.id,
+        shortBio: positionLangs.at(index)?.shortBio!,
+        lang: lang.id,
+      }));
+
+      await tx
+        .insert(nationalSectionPositionsLang)
+        .values(outputNS)
+        .onConflictDoUpdate({
+          target: nationalSectionPositionsLang.id,
+          set: buildConflictUpdateColumns(nationalSectionPositionsLang, [
+            "shortBio",
+          ]),
+        });
+    }
+
+    if (honorarySize > 0) {
+      for (let index = 0; index < honorarySize; index++) {
+        const id = Number(formData.get(`_honoraries.${index}.id`));
+        const name = formData.get(`_honoraries.${index}.name`) as string;
+        console.log({ name });
+        const email = formData.get(`_honoraries.${index}.email`) as string;
+        const phone = formData.get(`_honoraries.${index}.phone`) as string;
+        const positionLangId = Number(
+          formData.get(`_honoraries.${index}._lang.id`)
+        );
+        const shortBio = formData.get(
+          `_honoraries.${index}._lang.shortBio`
+        ) as string;
+        const photo = formData.get(`_honoraries.${index}._photo`) as File;
+        const birthDate = formData.get(
+          `_honoraries.${index}._birthDate`
+        ) as string;
+        const deathDate = formData.get(
+          `_honoraries.${index}._deathDate`
+        ) as string;
+
+        const storagePhotoId = await uploadFile(photo, tx);
+
+        honoraries.push({
+          id: id === 0 ? undefined : id,
+          name,
+          email: email || "",
+          phone: phone || "",
+          isHonorable: true,
+          photoId: storagePhotoId,
+          nsId: nsId,
+          birthDate: birthDate ? new Date(birthDate) : undefined,
+          deadDate: deathDate ? new Date(deathDate) : undefined,
+        });
+
+        honoraryLangs.push({
+          id: id === 0 ? undefined : positionLangId,
+          shortBio,
+        });
+      }
+
+      const nationalSectionsElements = await tx
+        .insert(nationalSectionsPositions)
+        .values(honoraries)
+        .onConflictDoUpdate({
+          target: nationalSectionsPositions.id,
+          set: buildConflictUpdateColumns(nationalSectionsPositions, [
+            "name",
+            "email",
+            "phone",
+            "birthDate",
+            "deadDate",
+          ]),
+        })
+        .returning({ id: nationalSectionsPositions.id });
+
+      const outputNS = nationalSectionsElements.map((item, index) => ({
+        id: honoraryLangs.at(index)?.id,
+        nsPositionsId: item.id,
+        shortBio: honoraryLangs.at(index)?.shortBio!,
+        lang: lang.id,
+      }));
+
+      await tx
+        .insert(nationalSectionPositionsLang)
+        .values(outputNS)
+        .onConflictDoUpdate({
+          target: nationalSectionPositionsLang.id,
+          set: buildConflictUpdateColumns(nationalSectionPositionsLang, [
+            "shortBio",
+          ]),
+        });
+    }
   });
 
-  return { success: "Saved Successfully" };
+  return { success: t("success") };
 }
 
 export async function createNationalSection(formData: FormData) {

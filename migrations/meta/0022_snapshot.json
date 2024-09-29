@@ -1,6 +1,6 @@
 {
-  "id": "f5b0141c-26b3-4134-8e26-29147953c153",
-  "prevId": "77f8f2a7-3e33-44b4-a100-40c3886b611b",
+  "id": "7dcfb5f7-e3d4-4242-9891-e514288c10aa",
+  "prevId": "3b6c6ac8-6fd5-4b9d-b18d-6847dd4bb3fc",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1400,19 +1400,21 @@
           "name": "email",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "birth_date": {
           "name": "birth_date",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "dead_date": {
           "name": "dead_date",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "is_honorable": {
           "name": "is_honorable",
@@ -1818,6 +1820,53 @@
           "type": "serial",
           "primaryKey": true,
           "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.social_media_links": {
+      "name": "social_media_links",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "link": {
+          "name": "link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},

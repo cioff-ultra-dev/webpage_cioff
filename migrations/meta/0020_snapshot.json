@@ -1,6 +1,6 @@
 {
-  "id": "f5b0141c-26b3-4134-8e26-29147953c153",
-  "prevId": "77f8f2a7-3e33-44b4-a100-40c3886b611b",
+  "id": "9189dc89-8cf8-4c45-a836-b0da6bbd0264",
+  "prevId": "70864ce3-323b-445c-b4dc-55075802ee57",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1818,6 +1818,53 @@
           "type": "serial",
           "primaryKey": true,
           "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.social_media_links": {
+      "name": "social_media_links",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "link": {
+          "name": "link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},

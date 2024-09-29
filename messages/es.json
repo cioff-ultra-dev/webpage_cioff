@@ -5,6 +5,9 @@
   "locale_switch": {
     "select": "Seleccionar idioma"
   },
+  "notification": {
+    "success": "Guardado Exitosamente"
+  },
   "link": {
     "dashboard": "Panel",
     "national-sections": "Sección Nacional",

@@ -1,0 +1,1 @@
+ALTER TABLE "national_section_positions" ALTER COLUMN "email" DROP NOT NULL;

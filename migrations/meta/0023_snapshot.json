@@ -1,6 +1,6 @@
 {
-  "id": "f5b0141c-26b3-4134-8e26-29147953c153",
-  "prevId": "77f8f2a7-3e33-44b4-a100-40c3886b611b",
+  "id": "bfb42a4d-fe38-4ff1-890e-ebdaed2df9b2",
+  "prevId": "7dcfb5f7-e3d4-4242-9891-e514288c10aa",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1237,6 +1237,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "socia_media_links_id": {
+          "name": "socia_media_links_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_by": {
           "name": "created_by",
           "type": "text",
@@ -1270,6 +1276,15 @@
           "tableFrom": "national_section",
           "tableTo": "countries",
           "columnsFrom": ["country_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "national_section_socia_media_links_id_social_media_links_id_fk": {
+          "name": "national_section_socia_media_links_id_social_media_links_id_fk",
+          "tableFrom": "national_section",
+          "tableTo": "social_media_links",
+          "columnsFrom": ["socia_media_links_id"],
           "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -1400,19 +1415,21 @@
           "name": "email",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "birth_date": {
           "name": "birth_date",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "dead_date": {
           "name": "dead_date",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "is_honorable": {
           "name": "is_honorable",
@@ -1476,6 +1493,63 @@
           "columns": ["email"]
         }
       }
+    },
+    "public.other_social_media_links": {
+      "name": "other_social_media_links",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "link": {
+          "name": "link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "social_media_link_id": {
+          "name": "social_media_link_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "other_social_media_links_social_media_link_id_social_media_links_id_fk": {
+          "name": "other_social_media_links_social_media_link_id_social_media_links_id_fk",
+          "tableFrom": "other_social_media_links",
+          "tableTo": "social_media_links",
+          "columnsFrom": ["social_media_link_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
     },
     "public.owners": {
       "name": "owners",
@@ -1818,6 +1892,53 @@
           "type": "serial",
           "primaryKey": true,
           "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.social_media_links": {
+      "name": "social_media_links",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "facebook_link": {
+          "name": "facebook_link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "instagram_link": {
+          "name": "instagram_link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "website_link": {
+          "name": "website_link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},

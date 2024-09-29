@@ -42,6 +42,19 @@ export async function getNationalSectionBySlug(
   return db.query.nationalSections.findFirst({
     where: eq(nationalSections.slug, slug),
     with: {
+      positions: {
+        with: {
+          langs: {
+            where(fields, { eq }) {
+              return eq(fields.lang, sq);
+            },
+            with: {
+              l: true,
+            },
+          },
+        },
+      },
+      social: true,
       langs: {
         where(fields, { eq }) {
           return eq(fields.lang, sq);

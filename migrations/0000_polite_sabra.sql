@@ -180,18 +180,6 @@ CREATE TABLE IF NOT EXISTS "docs" (
 	"updated_at" timestamp
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "events" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"state_mode" "state_mode" DEFAULT 'offline',
-	"title" text NOT NULL,
-	"description" text NOT NULL,
-	"logo" text,
-	"url" text,
-	"approved" boolean,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "festivals" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"country_id" integer,

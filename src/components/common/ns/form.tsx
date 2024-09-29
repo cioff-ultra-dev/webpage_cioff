@@ -35,6 +35,7 @@ import {
   insertNationalSectionPositionsLangSchema,
   insertNationalSectionPositionsSchema,
   insertNationalSectionSchema,
+  insertSocialMediaLinkSchema,
 } from "@/db/schema";
 import { CalendarIcon, PlusCircle, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
@@ -64,14 +65,32 @@ const positionsSchema = insertNationalSectionPositionsSchema.merge(
       .refine((item) => item instanceof File || typeof item === "undefined", {
         params: { i18n: "file_required" },
       }),
-  }),
+  })
 );
+
+const honorariesSchema = insertNationalSectionPositionsSchema
+  .merge(
+    z.object({
+      _lang: insertNationalSectionPositionsLangSchema,
+      _birthDate: z.string().optional(),
+      _deathDate: z.string().optional(),
+      _photo: z
+        .any()
+        .refine((item) => item instanceof File || typeof item === "undefined", {
+          params: { i18n: "file_required" },
+        }),
+    })
+  )
+  .extend({
+    email: z.string().optional(),
+    phone: z.string().optional(),
+  });
 
 const formNationalSectionSchema = insertNationalSectionSchema.merge(
   z.object({
     _lang: inserNationalSectionLangSchema,
     _positions: z.array(positionsSchema),
-    _honoraries: z.array(positionsSchema),
+    _honoraries: z.array(honorariesSchema),
     _festivals: z.array(
       inserFestivalByNSSchema.merge(
         z.object({
@@ -79,11 +98,12 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
             (item) => {
               return item instanceof File || typeof item !== "undefined";
             },
-            { params: { i18n: "file_required" } },
+            { params: { i18n: "file_required" } }
           ),
-        }),
-      ),
+        })
+      )
     ),
+    _social: insertSocialMediaLinkSchema,
     _groups: z.array(
       insertGroupByNSSchema.merge(
         z.object({
@@ -91,12 +111,12 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
             .any()
             .refine(
               (item) => item instanceof File || typeof item !== "undefined",
-              { params: { i18n: "file_required" } },
+              { params: { i18n: "file_required" } }
             ),
-        }),
-      ),
+        })
+      )
     ),
-  }),
+  })
 );
 
 function Submit({
@@ -142,20 +162,83 @@ export default function NationalSectionForm({
         about: currentLang?.about,
         aboutYoung: currentLang?.aboutYoung,
       },
-      _positions: [],
+      _social: currentNationalSection?.social || {},
+      _positions:
+        currentNationalSection?.positions
+          ?.filter((position) => !position.isHonorable)
+          .map((position) => {
+            return {
+              ...position,
+              _lang: {
+                id: position?.langs?.at(0)?.id ?? 0,
+                shortBio: position.langs.at(0)?.shortBio,
+              },
+            };
+          }) ?? [],
+      _honoraries:
+        currentNationalSection?.positions
+          ?.filter((position) => position.isHonorable)
+          .map((position) => {
+            return {
+              ...position,
+              email: position.email || "",
+              _birthDate: position.birthDate
+                ? position.birthDate.toUTCString()
+                : "",
+              _deathDate: position.deadDate
+                ? position.deadDate.toUTCString()
+                : "",
+              _lang: {
+                id: position?.langs?.at(0)?.id ?? 0,
+                shortBio: position.langs.at(0)?.shortBio,
+              },
+            };
+          }) ?? [],
       _festivals: [],
       _groups: [],
     },
   });
 
   const t = useTranslations("form.ns");
-  const router = useRouter();
 
   useEffect(() => {
-    form.setValue("_lang.name", currentLang?.name!);
-    form.setValue("_lang.about", currentLang?.about!);
-    form.setValue("_lang.aboutYoung", currentLang?.aboutYoung!);
-  }, [currentLang?.name, currentLang?.about, currentLang?.aboutYoung, form]);
+    console.log({ about: currentLang?.about });
+
+    form.setValue("_lang.name", currentLang?.name || "");
+    form.setValue("_lang.about", currentLang?.about || "");
+    form.setValue("_lang.aboutYoung", currentLang?.aboutYoung || "");
+
+    currentNationalSection?.positions
+      .filter((position) => !position.isHonorable)
+      .forEach((position, index) => {
+        form.setValue(
+          `_positions.${index}._lang.shortBio`,
+          position.langs.at(0)?.shortBio || ""
+        );
+        form.setValue(
+          `_positions.${index}._lang.id`,
+          position.langs.at(0)?.id ?? 0
+        );
+      });
+    currentNationalSection?.positions
+      .filter((position) => position.isHonorable)
+      .forEach((position, index) => {
+        form.setValue(
+          `_honoraries.${index}._lang.shortBio`,
+          position.langs.at(0)?.shortBio || ""
+        );
+        form.setValue(
+          `_honoraries.${index}._lang.id`,
+          position.langs.at(0)?.id ?? 0
+        );
+      });
+  }, [
+    currentLang?.name,
+    currentLang?.about,
+    currentLang?.aboutYoung,
+    currentNationalSection?.positions,
+    form,
+  ]);
 
   const { fields: positionFields, append: appendPosition } = useFieldArray({
     control: form.control,
@@ -187,6 +270,8 @@ export default function NationalSectionForm({
 
   const formRef = useRef<HTMLFormElement>(null);
 
+  console.log(currentNationalSection);
+
   const onSubmitForm: SubmitHandler<
     z.infer<typeof formNationalSectionSchema>
   > = async (_data) => {
@@ -197,8 +282,8 @@ export default function NationalSectionForm({
       toast.error(result.error);
     }
 
-    customRevalidateTag("/dashboard/national-sections");
-    router.push("/dashboard/national-sections");
+    // customRevalidateTag("/dashboard/national-sections");
+    // router.push("/dashboard/national-sections");
   };
 
   return (
@@ -206,19 +291,7 @@ export default function NationalSectionForm({
       <h1 className="text-2xl font-bold">{t("title")}</h1>
       <p className="text-sm text-muted-foreground pb-10">{t("disclaimer")}</p>
       <Form {...form}>
-        <form
-          ref={formRef}
-          onSubmit={form.handleSubmit(onSubmitForm)}
-          // action={formAction}
-          // onSubmit={(evt) => {
-          //   evt.preventDefault();
-          //   form.handleSubmit((_) => {
-          //     startTransaction(() =>
-          //       formAction(new FormData(formRef.current!))
-          //     );
-          //   })(evt);
-          // }}
-        >
+        <form ref={formRef} onSubmit={form.handleSubmit(onSubmitForm)}>
           <Card className="w-full mx-auto">
             <CardHeader>
               <CardTitle>Organization Registration Form</CardTitle>
@@ -325,6 +398,20 @@ export default function NationalSectionForm({
                 return (
                   <div key={field.id} className="space-y-4 border-t pt-4">
                     <h3 className="font-medium">Position {positionIndex}</h3>
+                    <FormField
+                      control={form.control}
+                      name={`_positions.${index}.id`}
+                      render={({ field }) => (
+                        <FormControl>
+                          <Input
+                            ref={field.ref}
+                            value={field.value}
+                            name={field.name}
+                            type="hidden"
+                          />
+                        </FormControl>
+                      )}
+                    />
                     <div className="grid w-full items-center gap-1.5">
                       <FormField
                         control={form.control}
@@ -367,9 +454,7 @@ export default function NationalSectionForm({
                                 ref={field.ref}
                                 onChange={field.onChange}
                                 onBlur={field.onBlur}
-                                value={
-                                  field.value === "" ? undefined : field.value
-                                }
+                                value={field.value || ""}
                                 name={field.name}
                               />
                             </FormControl>
@@ -423,7 +508,7 @@ export default function NationalSectionForm({
                                 accept="image/*, application/pdf"
                                 onChange={(event) =>
                                   onChange(
-                                    event.target.files && event.target.files[0],
+                                    event.target.files && event.target.files[0]
                                   )
                                 }
                               />
@@ -436,6 +521,22 @@ export default function NationalSectionForm({
                     <div className="grid w-full items-center gap-1.5">
                       <FormField
                         control={form.control}
+                        name={`_positions.${index}._lang.id`}
+                        render={({ field }) => (
+                          <FormControl>
+                            <Input
+                              name={field.name}
+                              onChange={field.onChange}
+                              value={field.value}
+                              onBlur={field.onBlur}
+                              ref={field.ref}
+                              type="hidden"
+                            />
+                          </FormControl>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
                         name={`_positions.${index}._lang.shortBio`}
                         render={({ field }) => (
                           <FormItem>
@@ -446,7 +547,7 @@ export default function NationalSectionForm({
                                 className="resize-none"
                                 name={field.name}
                                 onChange={field.onChange}
-                                value={field.value}
+                                value={field.value || undefined}
                                 onBlur={field.onBlur}
                                 ref={field.ref}
                               />
@@ -499,7 +600,7 @@ export default function NationalSectionForm({
                             placeholder="Enter details about youth commission"
                             className="resize-none"
                             onChange={field.onChange}
-                            defaultValue={field.value || undefined}
+                            value={field.value}
                             onBlur={field.onBlur}
                             ref={field.ref}
                             name={field.name}
@@ -523,6 +624,20 @@ export default function NationalSectionForm({
                   return (
                     <div key={field.id} className="space-y-4  pt-4">
                       <h3 className="font-medium">Honorary {positionIndex}</h3>
+                      <FormField
+                        control={form.control}
+                        name={`_honoraries.${index}.id`}
+                        render={({ field }) => (
+                          <FormControl>
+                            <Input
+                              ref={field.ref}
+                              value={field.value}
+                              name={field.name}
+                              type="hidden"
+                            />
+                          </FormControl>
+                        )}
+                      />
                       <div className="grid w-full items-center gap-1.5">
                         <FormField
                           control={form.control}
@@ -567,7 +682,7 @@ export default function NationalSectionForm({
                                   onChange={(event) =>
                                     onChange(
                                       event.target.files &&
-                                        event.target.files[0],
+                                        event.target.files[0]
                                     )
                                   }
                                 />
@@ -578,6 +693,22 @@ export default function NationalSectionForm({
                         />
                       </div>
                       <div className="grid w-full items-center gap-1.5">
+                        <FormField
+                          control={form.control}
+                          name={`_honoraries.${index}._lang.id`}
+                          render={({ field }) => (
+                            <FormControl>
+                              <Input
+                                name={field.name}
+                                onChange={field.onChange}
+                                value={field.value}
+                                onBlur={field.onBlur}
+                                ref={field.ref}
+                                type="hidden"
+                              />
+                            </FormControl>
+                          )}
+                        />
                         <FormField
                           control={form.control}
                           name={`_honoraries.${index}._lang.shortBio`}
@@ -617,7 +748,7 @@ export default function NationalSectionForm({
                                       variant={"outline"}
                                       className={cn(
                                         "w-full pl-3 text-left font-normal",
-                                        !field.value && "text-muted-foreground",
+                                        !field.value && "text-muted-foreground"
                                       )}
                                     >
                                       {field.value ? (
@@ -635,6 +766,10 @@ export default function NationalSectionForm({
                                 >
                                   <Calendar
                                     mode="single"
+                                    captionLayout="dropdown"
+                                    fromYear={1900}
+                                    toYear={new Date().getFullYear()}
+                                    defaultMonth={new Date(2024, 6)}
                                     selected={
                                       field.value
                                         ? new Date(field.value)
@@ -674,7 +809,7 @@ export default function NationalSectionForm({
                                       variant={"outline"}
                                       className={cn(
                                         "w-full pl-3 text-left font-normal",
-                                        !field.value && "text-muted-foreground",
+                                        !field.value && "text-muted-foreground"
                                       )}
                                     >
                                       {field.value ? (
@@ -692,6 +827,10 @@ export default function NationalSectionForm({
                                 >
                                   <Calendar
                                     mode="single"
+                                    captionLayout="dropdown"
+                                    fromYear={1900}
+                                    toYear={new Date().getFullYear()}
+                                    defaultMonth={new Date(2024, 6)}
                                     selected={
                                       field.value
                                         ? new Date(field.value)
@@ -717,9 +856,6 @@ export default function NationalSectionForm({
                           )}
                         />
                       </div>
-                      <Button variant="outline" disabled>
-                        See contact information
-                      </Button>
                     </div>
                   );
                 })}
@@ -746,28 +882,86 @@ export default function NationalSectionForm({
               </div>
               <div className="space-y-4 border-t pt-4">
                 <h2 className="text-lg font-semibold">Social media</h2>
+                <FormField
+                  control={form.control}
+                  name="_social.id"
+                  render={({ field }) => (
+                    <FormControl>
+                      <Input
+                        ref={field.ref}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        value={field.value}
+                        name={field.name}
+                        type="hidden"
+                      />
+                    </FormControl>
+                  )}
+                />
                 <div className="grid w-full items-center gap-1.5">
-                  <Label htmlFor="facebook">Facebook</Label>
-                  <Input
-                    id="facebook"
-                    name="social.facebook"
-                    placeholder="Enter Facebook URL"
+                  <FormField
+                    control={form.control}
+                    name="_social.facebookLink"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Facebook</FormLabel>
+                        <FormControl>
+                          <Input
+                            ref={field.ref}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            value={field.value || ""}
+                            name={field.name}
+                          />
+                        </FormControl>
+                        <FormDescription>Enter Facebook URL</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
                 <div className="grid w-full items-center gap-1.5">
-                  <Label htmlFor="instagram">Instagram</Label>
-                  <Input
-                    id="instagram"
-                    name="social.instagram"
-                    placeholder="Enter Instagram URL"
+                  <FormField
+                    control={form.control}
+                    name="_social.instagramLink"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Instagram</FormLabel>
+                        <FormControl>
+                          <Input
+                            ref={field.ref}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            value={field.value || ""}
+                            name={field.name}
+                          />
+                        </FormControl>
+                        <FormDescription>Enter Instagram URL</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
                 <div className="grid w-full items-center gap-1.5">
-                  <Label htmlFor="website">Website</Label>
-                  <Input
-                    id="website"
-                    name="social.website"
-                    placeholder="Enter Website URL"
+                  <FormField
+                    control={form.control}
+                    name="_social.websiteLink"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Website</FormLabel>
+                        <FormControl>
+                          <Input
+                            ref={field.ref}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            value={field.value || ""}
+                            name={field.name}
+                          />
+                        </FormControl>
+                        <FormDescription>Enter Website URL</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
               </div>
@@ -882,7 +1076,7 @@ export default function NationalSectionForm({
                                   onChange={(event) =>
                                     onChange(
                                       event.target.files &&
-                                        event.target.files[0],
+                                        event.target.files[0]
                                     )
                                   }
                                 />
@@ -1014,7 +1208,7 @@ export default function NationalSectionForm({
                                 accept=".pdf,.doc,.docx"
                                 onChange={(event) =>
                                   onChange(
-                                    event.target.files && event.target.files[0],
+                                    event.target.files && event.target.files[0]
                                   )
                                 }
                               />

@@ -8,6 +8,9 @@
     "fr": "Français",
     "en": "English"
   },
+  "notification": {
+    "success": "Saved Successfully"
+  },
   "link": {
     "dashboard": "Dashboard",
     "national-sections": "National Sections",
@@ -46,9 +49,21 @@
       "_lang": {
         "name": "Name of the association"
       },
-      "_festivals": {
-        "name": "Name of the festival"
-      }
+      "_festivals": [
+        {
+          "name": "Name of the festival"
+        }
+      ],
+      "_positions": [
+        {
+          "name": "Name",
+          "email": "Email Address",
+          "phone": "Phone Number (country code)",
+          "_lang": {
+            "shortBio": "Short Bio"
+          }
+        }
+      ]
     }
   },
   "customErrors": {
