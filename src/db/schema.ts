@@ -515,15 +515,15 @@ export const UsersProd = cioffSchema.table("users", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
-export const AccountsProd = cioffSchema.table(
+export const AccountsProd = pgTable(
   "account",
   {
-    userId: integer("user_id").references(() => UsersProd.id, {
-      onDelete: "cascade",
-    }),
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
     type: text("type").$type<AdapterAccountType>().notNull(),
     provider: text("provider").notNull(),
-    providerAccountId: text("provider_account_id").notNull(),
+    providerAccountId: text("providerAccountId").notNull(),
     refresh_token: text("refresh_token"),
     access_token: text("access_token"),
     expires_at: integer("expires_at"),
@@ -538,15 +538,15 @@ export const AccountsProd = cioffSchema.table(
     }),
   })
 );
-export const SessionsProd = cioffSchema.table("session", {
-  sessionToken: text("session_token").primaryKey(),
-  userId: integer("user_id").references(() => UsersProd.id, {
-    onDelete: "cascade",
-  }),
+export const SessionsProd = pgTable("session", {
+  sessionToken: text("sessionToken").primaryKey(),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   expires: timestamp("expires", { mode: "date" }).notNull(),
 });
-export const VerificationTokenProd = cioffSchema.table(
-  "verification_token",
+export const VerificationTokenProd = pgTable(
+  "verificationToken",
   {
     identifier: text("identifier").notNull(),
     token: text("token").notNull(),
@@ -558,23 +558,26 @@ export const VerificationTokenProd = cioffSchema.table(
     }),
   })
 );
-export const AuthenticatorProd = cioffSchema.table(
+export const SessionsContainerProd = pgTable("session_group", {
+  id: serial("id").primaryKey(),
+});
+export const AuthenticatorProd = pgTable(
   "authenticator",
   {
-    credentialID: text("credential_id").notNull().unique(),
-    userId: integer("user_id").references(() => UsersProd.id, {
-      onDelete: "cascade",
-    }),
-    providerAccountId: text("provider_account_id").notNull(),
-    credentialPublicKey: text("credential_public_key").notNull(),
+    credentialID: text("credentialID").notNull().unique(),
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    providerAccountId: text("providerAccountId").notNull(),
+    credentialPublicKey: text("credentialPublicKey").notNull(),
     counter: integer("counter").notNull(),
-    credentialDeviceType: text("credential_device_type").notNull(),
-    credentialBackedUp: boolean("credential_backed_up").notNull(),
+    credentialDeviceType: text("credentialDeviceType").notNull(),
+    credentialBackedUp: boolean("credentialBackedUp").notNull(),
     transports: text("transports"),
   },
   (authenticator) => ({
     compositePK: primaryKey({
-      columns: [authenticator.credentialID],
+      columns: [authenticator.userId, authenticator.credentialID],
     }),
   })
 );
