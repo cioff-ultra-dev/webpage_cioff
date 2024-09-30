@@ -104,23 +104,19 @@ export async function getAllFestivalsByOwner(locale: string) {
     .from(languages)
     .where(inArray(languages.code, pushLocales));
 
-  return db.query.festivals.findMany({
+  return db.query.owners.findMany({
+    where(fields, { eq }) {
+      return eq(fields.userId, session?.user.id!);
+    },
     with: {
-      owners: {
-        where(fields, { eq }) {
-          return eq(fields.userId, session?.user.id!);
-        },
+      festival: {
         with: {
-          festival: {
+          langs: {
+            where(fields, { inArray }) {
+              return inArray(fields.lang, sq);
+            },
             with: {
-              langs: {
-                where(fields, { inArray }) {
-                  return inArray(fields.lang, sq);
-                },
-                with: {
-                  l: true,
-                },
-              },
+              l: true,
             },
           },
         },

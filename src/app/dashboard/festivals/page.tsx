@@ -19,7 +19,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -32,7 +31,9 @@ import { defaultLocale } from "@/i18n/config";
 export default async function DashboardPage() {
   const locale = await getLocale();
   const formatter = await getFormatter();
-  const festivals = await getAllFestivalsByOwner(locale);
+  const festivals = (await getAllFestivalsByOwner(locale))
+    .filter((item) => item.festival)
+    .map((item) => item.festival);
   return (
     <Tabs defaultValue="all">
       <div className="flex items-center">
@@ -102,28 +103,25 @@ export default async function DashboardPage() {
                 <TableBody>
                   {festivals.map((item) => {
                     return (
-                      <TableRow key={item.id}>
+                      <TableRow key={item?.id}>
                         <TableCell className="font-medium">
-                          {item.owners
-                            .at(0)
-                            ?.festival?.langs.find(
-                              (item) => item.l?.code === locale
-                            )?.name ||
-                            item.owners
-                              .at(0)
-                              ?.festival?.langs.find(
-                                (item) => item.l?.code === defaultLocale
-                              )?.name}
+                          {item?.langs.find((item) => item.l?.code === locale)
+                            ?.name ||
+                            item?.langs.find(
+                              (item) => item.l?.code === defaultLocale
+                            )?.name}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
-                          {formatter.dateTime(item.createdAt, {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
+                          {item?.createdAt
+                            ? formatter.dateTime(item?.createdAt, {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })
+                            : null}
                         </TableCell>
                         <TableCell className="hidden md:table-cell capitalize">
-                          {item.stateMode}
+                          {item?.stateMode}
                         </TableCell>
                         <TableCell>
                           <DropdownMenu>
@@ -141,7 +139,7 @@ export default async function DashboardPage() {
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
                               <DropdownMenuItem>
                                 <Link
-                                  href={`/event/${item.id}`}
+                                  href={`/event/${item?.id}`}
                                   target="_blank"
                                 >
                                   Preview
