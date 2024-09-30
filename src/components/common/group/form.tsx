@@ -278,7 +278,7 @@ export default function GroupForm({
                     placeholder="Filled automatically from the list provided by NS"
                     readOnly
                     name="groupName"
-                    defaultValue={currentGroup?.name}
+                    // defaultValue={currentGroup?.name}
                   />
                 </div>
                 <div className="space-y-2">
@@ -306,9 +306,9 @@ export default function GroupForm({
                     placeholder="Write a short description of your main achievements, studies, etc - Max 500 words"
                     className="min-h-[100px]"
                     name="generalDirectorProfile"
-                    defaultValue={
-                      currentGroup?.generalDirectorProfile ?? undefined
-                    }
+                    // defaultValue={
+                    //   currentGroup?.generalDirectorProfile ?? undefined
+                    // }
                   />
                 </div>
                 <div className="space-y-2">

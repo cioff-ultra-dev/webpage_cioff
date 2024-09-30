@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -23,15 +23,19 @@ import {
 } from "@/components/ui/form";
 import {
   Card,
-  CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
+  CardContent,
 } from "@/components/ui/card";
 import {
   inserFestivalByNSSchema,
   inserNationalSectionLangSchema,
+  insertEventLangSchema,
+  insertEventSchema,
+  insertFestivalLangSchema,
   insertGroupByNSSchema,
+  insertGroupLangSchema,
   insertNationalSectionPositionsLangSchema,
   insertNationalSectionPositionsSchema,
   insertNationalSectionSchema,
@@ -52,8 +56,9 @@ import { NationalSectionDetailsType } from "@/db/queries/national-sections";
 import { useTranslations } from "next-intl";
 import { useI18nZodErrors } from "@/hooks/use-i18n-zod-errors";
 import { toast } from "sonner";
-import { customRevalidateTag } from "../revalidateTag";
+import { customRevalidatePath, customRevalidateTag } from "../revalidateTag";
 import { useRouter } from "next/navigation";
+import { DatePickerWithRange } from "@/components/ui/datepicker-with-range";
 
 const positionsSchema = insertNationalSectionPositionsSchema.merge(
   z.object({
@@ -91,9 +96,22 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
     _lang: inserNationalSectionLangSchema,
     _positions: z.array(positionsSchema),
     _honoraries: z.array(honorariesSchema),
+    _events: z.array(
+      insertEventSchema.extend({
+        _startDate: z.string().datetime().optional(),
+        _endDate: z.string().datetime().optional(),
+        _rangeDate: z.object({
+          from: z.string(),
+          to: z.string().optional(),
+        }),
+        _lang: insertEventLangSchema,
+      })
+    ),
     _festivals: z.array(
       inserFestivalByNSSchema.merge(
         z.object({
+          ownerId: z.number().optional(),
+          _lang: insertFestivalLangSchema.pick({ name: true, id: true }),
           certificationFile: z.any().refine(
             (item) => {
               return item instanceof File || typeof item !== "undefined";
@@ -107,6 +125,8 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
     _groups: z.array(
       insertGroupByNSSchema.merge(
         z.object({
+          ownerId: z.number().optional(),
+          _lang: insertGroupLangSchema.pick({ name: true, id: true }),
           certificationFile: z
             .any()
             .refine(
@@ -145,10 +165,12 @@ export default function NationalSectionForm({
   currentNationalSection,
   currentLang,
   id,
+  slug,
 }: {
   currentNationalSection?: NationalSectionDetailsType | undefined;
   currentLang?: NonNullable<NationalSectionDetailsType>["langs"][number];
   id?: string;
+  slug?: string;
 }) {
   // const [state, formAction] = useFormState(, null);
   useI18nZodErrors("ns");
@@ -163,6 +185,20 @@ export default function NationalSectionForm({
         aboutYoung: currentLang?.aboutYoung,
       },
       _social: currentNationalSection?.social || {},
+      _events: currentNationalSection?.otherEvents.map((event) => {
+        return {
+          ...event,
+          _rangeDate: {
+            from: event.startDate?.toUTCString() ?? "",
+            to: event.endDate?.toUTCString() ?? "",
+          },
+          _lang: {
+            id: event.langs.at(0)?.id ?? 0,
+            name: event.langs.at(0)?.name || "",
+            description: event.langs.at(0)?.description || "",
+          },
+        };
+      }),
       _positions:
         currentNationalSection?.positions
           ?.filter((position) => !position.isHonorable)
@@ -194,16 +230,41 @@ export default function NationalSectionForm({
               },
             };
           }) ?? [],
-      _festivals: [],
-      _groups: [],
+      _festivals: currentNationalSection?.festivals.map((festival) => {
+        return {
+          ...festival,
+          email: festival.owners.at(0)?.user?.email ?? "",
+          certificationFile: new File(["foo"], "foo.txt", {
+            type: "application/pdf",
+          }),
+          ownerId: festival.owners.at(0)?.id ?? 0,
+          _lang: {
+            id: festival.langs.at(0)?.id ?? 0,
+            name: festival.langs.at(0)?.name ?? "",
+          },
+        };
+      }),
+      _groups: currentNationalSection?.groups.map((group) => {
+        return {
+          ...group,
+          email: group.owners.at(0)?.user?.email ?? "",
+          certificationFile: new File(["foo"], "foo.txt", {
+            type: "application/pdf",
+          }),
+          ownerId: group.owners.at(0)?.id ?? 0,
+          _lang: {
+            id: group.langs.at(0)?.id ?? 0,
+            name: group.langs.at(0)?.name ?? "",
+          },
+        };
+      }),
     },
   });
 
   const t = useTranslations("form.ns");
+  const router = useRouter();
 
   useEffect(() => {
-    console.log({ about: currentLang?.about });
-
     form.setValue("_lang.name", currentLang?.name || "");
     form.setValue("_lang.about", currentLang?.about || "");
     form.setValue("_lang.aboutYoung", currentLang?.aboutYoung || "");
@@ -251,6 +312,15 @@ export default function NationalSectionForm({
   });
 
   const {
+    fields: eventFields,
+    append: appendEvent,
+    remove: removeEvent,
+  } = useFieldArray({
+    control: form.control,
+    name: "_events",
+  });
+
+  const {
     fields: festivalFields,
     append: appendFestival,
     remove: removeFestival,
@@ -270,8 +340,6 @@ export default function NationalSectionForm({
 
   const formRef = useRef<HTMLFormElement>(null);
 
-  console.log(currentNationalSection);
-
   const onSubmitForm: SubmitHandler<
     z.infer<typeof formNationalSectionSchema>
   > = async (_data) => {
@@ -282,8 +350,12 @@ export default function NationalSectionForm({
       toast.error(result.error);
     }
 
-    // customRevalidateTag("/dashboard/national-sections");
-    // router.push("/dashboard/national-sections");
+    customRevalidatePath(`/dashboard/national-sections/${slug}/edit`);
+    customRevalidatePath("/dashboard/national-sections");
+
+    if (result.success) {
+      router.push("/dashboard/national-sections");
+    }
   };
 
   return (
@@ -967,24 +1039,192 @@ export default function NationalSectionForm({
               </div>
               <div className="space-y-4 border-t pt-4">
                 <h2 className="text-lg font-semibold">Other events</h2>
-                <div className="grid w-full items-center gap-1.5">
-                  <Label htmlFor="other-events">Name of the event</Label>
-                  <Input
-                    disabled
-                    id="other-events"
-                    placeholder="Enter event name"
-                  />
-                </div>
-                <div className="grid w-full items-center gap-1.5">
-                  <Label htmlFor="event-description">Short description</Label>
-                  <Textarea
-                    id="event-description"
-                    placeholder="Max 400 words"
-                    disabled
-                  />
-                </div>
+                {eventFields.map((field, index) => (
+                  <Card
+                    key={field.id}
+                    className="grid w-full items-center pt-6 gap-1.5"
+                  >
+                    <FormField
+                      control={form.control}
+                      name={`_events.${index}.id`}
+                      render={({ field }) => (
+                        <FormControl>
+                          <Input
+                            ref={field.ref}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            value={field.value}
+                            name={field.name}
+                            type="hidden"
+                          />
+                        </FormControl>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`_events.${index}._lang.id`}
+                      render={({ field }) => (
+                        <FormControl>
+                          <Input
+                            ref={field.ref}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            value={field.value}
+                            name={field.name}
+                            type="hidden"
+                          />
+                        </FormControl>
+                      )}
+                    />
+                    <CardContent className=" flex items-center flex-col gap-5">
+                      <div className="grid w-full items-center gap-1.5">
+                        <FormField
+                          control={form.control}
+                          name={`_events.${index}._lang.name`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                                Name of the event
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  ref={field.ref}
+                                  onChange={field.onChange}
+                                  onBlur={field.onBlur}
+                                  value={field.value ?? ""}
+                                  name={field.name}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Enter your current event name
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="grid w-full items-center gap-1.5">
+                        <FormField
+                          control={form.control}
+                          name={`_events.${index}._lang.description`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Short Description</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  className="resize-none"
+                                  name={field.name}
+                                  onChange={field.onChange}
+                                  defaultValue={field.value ?? ""}
+                                  onBlur={field.onBlur}
+                                  ref={field.ref}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                You can use max. 200 words for this input
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="grid w-full items-center gap-1.5">
+                        <FormField
+                          control={form.control}
+                          name={`_events.${index}._rangeDate`}
+                          render={({ field: { value, onChange } }) => (
+                            <FormItem>
+                              <FormLabel>Dates</FormLabel>
+                              <FormControl>
+                                <>
+                                  <DatePickerWithRange
+                                    className="w-full"
+                                    buttonClassName="w-full"
+                                    defaultDates={{
+                                      from: form.getValues(
+                                        `_events.${index}._rangeDate.from`
+                                      )
+                                        ? new Date(
+                                            form.getValues(
+                                              `_events.${index}._rangeDate.from`
+                                            )
+                                          )
+                                        : undefined,
+                                      to:
+                                        form.getValues(
+                                          `_events.${index}._rangeDate.to`
+                                        ) &&
+                                        form.getValues(
+                                          `_events.${index}._rangeDate.from`
+                                        ) !==
+                                          form.getValues(
+                                            `_events.${index}._rangeDate.to`
+                                          )
+                                          ? new Date(
+                                              form.getValues(
+                                                `_events.${index}._rangeDate.to`
+                                              )!
+                                            )
+                                          : undefined,
+                                    }}
+                                    onValueChange={(rangeValue) => {
+                                      onChange({
+                                        from: rangeValue?.from?.toUTCString(),
+                                        to: rangeValue?.to?.toUTCString() ?? "",
+                                      });
+                                    }}
+                                  />
+                                  <input
+                                    type="hidden"
+                                    name={`_events.${index}._rangeDate.from`}
+                                    value={value.from}
+                                  />
+                                  <input
+                                    type="hidden"
+                                    name={`_events.${index}._rangeDate.to`}
+                                    value={value.to}
+                                  />
+                                </>
+                              </FormControl>
+                              {form?.getFieldState(
+                                `_events.${index}._rangeDate.from`
+                              ).error?.message ? (
+                                <p
+                                  className={cn(
+                                    "text-sm font-medium text-destructive"
+                                  )}
+                                >
+                                  {
+                                    form?.getFieldState(
+                                      `_events.${index}._rangeDate.from`
+                                    ).error?.message
+                                  }
+                                </p>
+                              ) : null}
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+                <Button
+                  type="button"
+                  onClick={(_) =>
+                    appendEvent({
+                      _rangeDate: { from: "" },
+                      _lang: { name: "", description: "" },
+                    })
+                  }
+                >
+                  <PlusCircle className="mr-2 h-4 w-4" /> Add Event
+                </Button>
+                <input
+                  type="hidden"
+                  name="_eventSize"
+                  value={eventFields.length}
+                />
               </div>
-
               <div className="space-y-4 border-t pt-4">
                 <h2 className="text-lg font-semibold">Module 2: Members</h2>
                 <p className="text-sm text-muted-foreground">
@@ -1002,10 +1242,58 @@ export default function NationalSectionForm({
                       key={field.id}
                       className="space-y-4 p-4 border rounded-md"
                     >
+                      <FormField
+                        control={form.control}
+                        name={`_festivals.${index}.id`}
+                        render={({ field }) => (
+                          <FormControl>
+                            <Input
+                              ref={field.ref}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              value={field.value}
+                              name={field.name}
+                              type="hidden"
+                            />
+                          </FormControl>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`_festivals.${index}._lang.id`}
+                        render={({ field }) => (
+                          <FormControl>
+                            <Input
+                              ref={field.ref}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              value={field.value}
+                              name={field.name}
+                              type="hidden"
+                            />
+                          </FormControl>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`_festivals.${index}.ownerId`}
+                        render={({ field }) => (
+                          <FormControl>
+                            <Input
+                              ref={field.ref}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              value={field.value}
+                              name={field.name}
+                              type="hidden"
+                            />
+                          </FormControl>
+                        )}
+                      />
                       <div className="grid w-full items-center gap-1.5">
                         <FormField
                           control={form.control}
-                          name={`_festivals.${index}.name`}
+                          name={`_festivals.${index}._lang.name`}
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
@@ -1097,7 +1385,7 @@ export default function NationalSectionForm({
                           </Label>
                         </div>
                       </div>
-                      {festivalFields.length > 1 && (
+                      {/* {festivalFields.length > 1 && (
                         <Button
                           variant="destructive"
                           size="sm"
@@ -1105,7 +1393,7 @@ export default function NationalSectionForm({
                         >
                           <Trash2 className="mr-2 h-4 w-4" /> Remove Festival
                         </Button>
-                      )}
+                      )} */}
                     </div>
                   );
                 })}
@@ -1113,9 +1401,9 @@ export default function NationalSectionForm({
                   type="button"
                   onClick={() =>
                     appendFestival({
-                      name: "",
                       email: "",
                       certificationFile: null,
+                      _lang: { name: "" },
                     })
                   }
                   className="mt-2"
@@ -1130,123 +1418,173 @@ export default function NationalSectionForm({
               </div>
               <div className="space-y-4 border-t pt-4">
                 <h2 className="text-lg font-semibold">Groups</h2>
-                {groupFields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="space-y-4 p-4 border rounded-md"
-                  >
-                    <div className="grid w-full items-center gap-1.5">
+                {groupFields.map((field, index) => {
+                  return (
+                    <div
+                      key={field.id}
+                      className="space-y-4 p-4 border rounded-md"
+                    >
                       <FormField
                         control={form.control}
-                        name={`_groups.${index}.name`}
+                        name={`_groups.${index}.id`}
                         render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                              Name of the group
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                ref={field.ref}
-                                onChange={field.onChange}
-                                onBlur={field.onBlur}
-                                value={
-                                  field.value === "" ? undefined : field.value
-                                }
-                                name={field.name}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Enter your group name
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
+                          <FormControl>
+                            <Input
+                              ref={field.ref}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              value={field.value}
+                              name={field.name}
+                              type="hidden"
+                            />
+                          </FormControl>
                         )}
                       />
-                    </div>
-                    <div className="grid w-full items-center gap-1.5">
                       <FormField
                         control={form.control}
-                        name={`_groups.${index}.email`}
+                        name={`_groups.${index}._lang.id`}
                         render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                              Email address
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                ref={field.ref}
-                                onChange={field.onChange}
-                                onBlur={field.onBlur}
-                                value={field.value || undefined}
-                                name={field.name}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Enter your email address
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
+                          <FormControl>
+                            <Input
+                              ref={field.ref}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              value={field.value}
+                              name={field.name}
+                              type="hidden"
+                            />
+                          </FormControl>
                         )}
                       />
-                    </div>
-                    <div className="grid w-full items-center gap-1.5">
                       <FormField
                         control={form.control}
-                        name={`_groups.${index}.certificationFile`}
-                        render={({
-                          field: { value, onChange, ...fieldProps },
-                        }) => (
-                          <FormItem>
-                            <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                              Upload certification of membership
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                {...fieldProps}
-                                placeholder="Picture"
-                                type="file"
-                                accept=".pdf,.doc,.docx"
-                                onChange={(event) =>
-                                  onChange(
-                                    event.target.files && event.target.files[0]
-                                  )
-                                }
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Link to a PDF or word document
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
+                        name={`_groups.${index}.ownerId`}
+                        render={({ field }) => (
+                          <FormControl>
+                            <Input
+                              ref={field.ref}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              value={field.value}
+                              name={field.name}
+                              type="hidden"
+                            />
+                          </FormControl>
                         )}
                       />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <Switch id={`festival-turn-${field.id}`} disabled />
-                        <Label htmlFor={`festival-turn-${field.id}`}>
-                          Turn off profile
-                        </Label>
+                      <div className="grid w-full items-center gap-1.5">
+                        <FormField
+                          control={form.control}
+                          name={`_groups.${index}._lang.name`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                                Name of the group
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  ref={field.ref}
+                                  onChange={field.onChange}
+                                  onBlur={field.onBlur}
+                                  value={
+                                    field.value === "" ? undefined : field.value
+                                  }
+                                  name={field.name}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Enter your current group name
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </div>
+                      <div className="grid w-full items-center gap-1.5">
+                        <FormField
+                          control={form.control}
+                          name={`_groups.${index}.email`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                                Email address
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  ref={field.ref}
+                                  onChange={field.onChange}
+                                  onBlur={field.onBlur}
+                                  value={field.value || ""}
+                                  name={field.name}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Enter your email address
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="grid w-full items-center gap-1.5">
+                        <FormField
+                          control={form.control}
+                          name={`_groups.${index}.certificationFile`}
+                          render={({
+                            field: { value, onChange, ...fieldProps },
+                          }) => (
+                            <FormItem>
+                              <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                                Upload certification of membership
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...fieldProps}
+                                  placeholder="Picture"
+                                  type="file"
+                                  accept=".pdf,.doc,.docx"
+                                  onChange={(event) =>
+                                    onChange(
+                                      event.target.files &&
+                                        event.target.files[0]
+                                    )
+                                  }
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Link to a PDF or word document
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Switch id={`festival-turn-${field.id}`} disabled />
+                          <Label htmlFor={`festival-turn-${field.id}`}>
+                            Turn off profile
+                          </Label>
+                        </div>
+                      </div>
+                      {/* {groupFields.length > 1 && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => removeGroup(index)}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" /> Remove Group
+                        </Button>
+                      )} */}
                     </div>
-                    {festivalFields.length > 1 && (
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => removeGroup(index)}
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" /> Remove Group
-                      </Button>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
                 <Button
                   type="button"
                   onClick={() =>
                     appendGroup({
-                      name: "",
-                      email: "",
                       certificationFile: null,
+                      _lang: { name: "" },
                     })
                   }
                   className="mt-2"

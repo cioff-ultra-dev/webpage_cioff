@@ -35,6 +35,7 @@ import {
 } from "../ui/tooltip";
 import Image from "next/image";
 import { Skeleton } from "../ui/skeleton";
+import { BuildFilterType } from "@/app/api/filter/route";
 
 interface FormElements extends HTMLFormControlsCollection {
   search: HTMLInputElement;
@@ -92,9 +93,7 @@ export function WrapperFilter({
     "/api/filter/country",
     fetcher
   );
-  const swr = useSWRInfinite<
-    { festival: SelectFestival; country: SelectCountries }[]
-  >(
+  const swr = useSWRInfinite<BuildFilterType>(
     (index, _) =>
       `api/filter?categories=${JSON.stringify(
         selectedCategories
@@ -206,29 +205,29 @@ export function WrapperFilter({
     );
   }
 
-  async function handleClickSelected(
-    festival: SelectFestival,
-    country: SelectCountries
-  ) {
-    if (festival.id === selectedFestival?.id) {
-      if (!places) return;
-      setSelectedFestival(null);
-      setSelectedPlace(null);
-      return;
-    }
+  // async function handleClickSelected(
+  //   festival: SelectFestival,
+  //   country: SelectCountries
+  // ) {
+  //   if (festival.id === selectedFestival?.id) {
+  //     if (!places) return;
+  //     setSelectedFestival(null);
+  //     setSelectedPlace(null);
+  //     return;
+  //   }
 
-    if (!festival?.address && !festival?.location) return;
+  //   if (!festival?.address && !festival?.location) return;
 
-    const possiblePredicctionAddress = `${
-      festival?.address || festival?.location || ""
-    } ${country.name}`;
+  //   const possiblePredicctionAddress = `${
+  //     festival?.address || festival?.location || ""
+  //   } ${country.name}`;
 
-    const predictions = await fetchPredictions(possiblePredicctionAddress);
+  //   const predictions = await fetchPredictions(possiblePredicctionAddress);
 
-    handleSuggestion(predictions?.at(0)?.place_id || "");
+  //   handleSuggestion(predictions?.at(0)?.place_id || "");
 
-    setSelectedFestival(festival);
-  }
+  //   setSelectedFestival(festival);
+  // }
 
   return (
     <>
@@ -396,7 +395,7 @@ export function WrapperFilter({
               offset={-600}
             >
               {(response) =>
-                response.map(({ festival, country }) => (
+                response.map(({ festival, country, langs }) => (
                   <Link
                     href={`/event/${festival.id}`}
                     className="bg-gray-50 hover:bg-gray-100 hover:cursor-pointer p-4 space-y-3 rounded-lg w-full justify-self-center"
@@ -413,7 +412,8 @@ export function WrapperFilter({
                       />
                     </div>
                     <h3 className="text-black mt-2 text-sm sm:text-base">
-                      {festival.name}
+                      {langs.find((item) => item.lang === 1)?.name ||
+                        langs.find((item) => item.lang === 1)?.name}
                     </h3>
                     <p className="text-gray-700 text-xs sm:text-sm flex gap-1">
                       <span className="flex gap-1 items-center">
@@ -423,11 +423,12 @@ export function WrapperFilter({
                       •
                       <span className="flex gap-1 items-center">
                         <MapPin size={16} />
-                        <span>{country.name}</span>
+                        <span>{country?.name}</span>
                       </span>
                     </p>
                     <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">
-                      {festival.description}
+                      {langs.find((item) => item.lang === 1)?.description ||
+                        langs.find((item) => item.lang === 1)?.description}
                     </p>
                   </Link>
                 ))

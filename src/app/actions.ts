@@ -1,8 +1,14 @@
 "use server";
 
 import {
+  events,
+  eventsLang,
   festivals,
+  festivalsLang,
   groups,
+  groupsLang,
+  InsertEvent,
+  InsertEventLang,
   InsertFestival,
   insertFestivalSchema,
   InsertGroup,
@@ -12,6 +18,7 @@ import {
   nationalSections,
   nationalSectionsLang,
   nationalSectionsPositions,
+  owners,
   rolesTable,
   socialMediaLinks,
   storages,
@@ -167,10 +174,8 @@ export async function createGroup(prevState: unknown, formData: FormData) {
       .update(groups)
       .set({
         generalDirectorName,
-        generalDirectorProfile,
         directorPhotoStorageId,
         artisticDirectorName,
-        artisticDirectorProfile,
       })
       .where(eq(groups.id, id));
   });
@@ -198,6 +203,7 @@ export async function updateNationalSection(formData: FormData) {
   const positionSize = Number(formData.get("_positionSize"));
   const honorarySize = Number(formData.get("_honorarySize"));
   const festivalSize = Number(formData.get("_festivalSize"));
+  const eventSize = Number(formData.get("_eventSize"));
   const groupSize = Number(formData.get("_groupSize"));
 
   const positions: InsertNationalSectionPositions[] = [];
@@ -205,6 +211,9 @@ export async function updateNationalSection(formData: FormData) {
 
   const honoraries: InsertNationalSectionPositions[] = [];
   const honoraryLangs: InsertNationalSectionPositionsLang[] = [];
+
+  const otherEvents: InsertEvent[] = [];
+  const otherEventLangs: InsertEventLang[] = [];
 
   const lang = await preparedLanguagesByCode.execute({ locale });
   const currentNationalSection = await db.query.nationalSections.findFirst({
@@ -247,9 +256,12 @@ export async function updateNationalSection(formData: FormData) {
       .returning({ id: socialMediaLinks.id });
 
     if (!currentNationalSection?.socialMediaLinksId) {
-      await tx.update(nationalSections).set({
-        socialMediaLinksId: currentSocialMediaLink.id,
-      });
+      await tx
+        .update(nationalSections)
+        .set({
+          socialMediaLinksId: currentSocialMediaLink.id,
+        })
+        .where(eq(nationalSections.id, nsId));
     }
 
     if (positionSize > 0) {
@@ -388,6 +400,245 @@ export async function updateNationalSection(formData: FormData) {
           ]),
         });
     }
+
+    if (eventSize > 0) {
+      for (let index = 0; index < eventSize; index++) {
+        const id = Number(formData.get(`_events.${index}.id`));
+        const name = formData.get(`_events.${index}._lang.name`) as string;
+        const description = formData.get(
+          `_events.${index}._lang.description`
+        ) as string;
+        const eventLangId = Number(formData.get(`_events.${index}._lang.id`));
+        const fromDate = formData.get(
+          `_events.${index}._rangeDate.from`
+        ) as string;
+        const toDate = formData.get(`_events.${index}._rangeDate.to`) as string;
+
+        otherEvents.push({
+          id: id === 0 ? undefined : id,
+          nsId,
+          startDate: fromDate ? new Date(fromDate) : undefined,
+          endDate: toDate ? new Date(toDate) : new Date(fromDate),
+        });
+
+        otherEventLangs.push({
+          id: eventLangId === 0 ? undefined : eventLangId,
+          name,
+          description,
+        });
+      }
+
+      const otherEventsElements = await tx
+        .insert(events)
+        .values(otherEvents)
+        .onConflictDoUpdate({
+          target: events.id,
+          set: buildConflictUpdateColumns(events, ["startDate", "endDate"]),
+        })
+        .returning({ id: events.id });
+
+      const outputEvents = otherEventsElements.map((item, index) => ({
+        id: otherEventLangs.at(index)?.id,
+        eventId: item.id,
+        name: otherEventLangs.at(index)?.name!,
+        description: otherEventLangs.at(index)?.description!,
+        lang: lang.id,
+      }));
+
+      console.log(otherEventLangs, outputEvents);
+
+      await tx
+        .insert(eventsLang)
+        .values(outputEvents)
+        .onConflictDoUpdate({
+          target: eventsLang.id,
+          set: buildConflictUpdateColumns(eventsLang, ["name", "description"]),
+        });
+    }
+
+    if (festivalSize > 0) {
+      for (let index = 0; index < festivalSize; index++) {
+        const id = Number(formData.get(`_festivals.${index}.id`));
+        const name = formData.get(`_festivals.${index}._lang.name`) as string;
+        const email = formData.get(`_festivals.${index}.email`) as string;
+        const festivalLangId = Number(
+          formData.get(`_festivals.${index}._lang.id`)
+        );
+        const ownerId = Number(formData.get(`_festivals.${index}.ownerId`));
+        const certificationFile = formData.get(
+          `_festivals.${index}.certificationFile`
+        ) as File;
+
+        const storageCertificationFileId = await uploadFile(
+          certificationFile,
+          tx
+        );
+
+        const role = await tx.query.rolesTable.findFirst({
+          where: eq(rolesTable.name, "Festivals"),
+        });
+
+        const [user] = await tx
+          .insert(users)
+          .values({
+            email,
+            roleId: role?.id,
+            countryId: currentNationalSection?.countryId,
+          })
+          .onConflictDoUpdate({
+            target: users.email,
+            set: buildConflictUpdateColumns(users, ["email", "countryId"]),
+          })
+          .returning();
+
+        if (user.email && !user.isCreationNotified && !user.emailVerified) {
+          await transport.sendMail({
+            from: process.env.GMAIL_USER,
+            to: [user.email],
+            subject: `[REQUEST] - Verification your festival called ${name}`,
+            text: "You need to verify your account on the platform the ",
+          });
+
+          await tx
+            .update(users)
+            .set({ isCreationNotified: true })
+            .where(eq(users.id, user.id));
+        }
+
+        const [currentFestival] = await tx
+          .insert(festivals)
+          .values({
+            id: id === 0 ? undefined : id,
+            certificationMemberId: storageCertificationFileId,
+            nsId,
+            countryId: currentNationalSection?.countryId,
+          })
+          .onConflictDoUpdate({
+            target: festivals.id,
+            set: buildConflictUpdateColumns(festivals, [
+              "certificationMemberId",
+              "countryId",
+            ]),
+          })
+          .returning();
+
+        await tx
+          .insert(festivalsLang)
+          .values({
+            id: festivalLangId === 0 ? undefined : festivalLangId,
+            name,
+            festivalId: currentFestival.id,
+            lang: lang.id,
+          })
+          .onConflictDoUpdate({
+            target: festivalsLang.id,
+            set: buildConflictUpdateColumns(festivalsLang, ["name"]),
+          });
+
+        await tx
+          .insert(owners)
+          .values({
+            id: ownerId === 0 ? undefined : ownerId,
+            userId: user.id,
+            festivalId: currentFestival.id,
+          })
+          .onConflictDoUpdate({
+            target: owners.id,
+            set: buildConflictUpdateColumns(owners, ["userId"]),
+          });
+      }
+    }
+
+    if (groupSize > 0) {
+      for (let index = 0; index < groupSize; index++) {
+        const id = Number(formData.get(`_groups.${index}.id`));
+        const name = formData.get(`_groups.${index}._lang.name`) as string;
+        const email = formData.get(`_groups.${index}.email`) as string;
+        const groupLangId = Number(formData.get(`_groups.${index}._lang.id`));
+        const ownerId = Number(formData.get(`_groups.${index}.ownerId`));
+        const certificationFile = formData.get(
+          `_groups.${index}.certificationFile`
+        ) as File;
+
+        const storageCertificationFileId = await uploadFile(
+          certificationFile,
+          tx
+        );
+
+        const role = await tx.query.rolesTable.findFirst({
+          where: eq(rolesTable.name, "Groups"),
+        });
+
+        const [user] = await tx
+          .insert(users)
+          .values({
+            email,
+            roleId: role?.id,
+            countryId: currentNationalSection?.countryId,
+          })
+          .onConflictDoUpdate({
+            target: users.email,
+            set: buildConflictUpdateColumns(users, ["email", "countryId"]),
+          })
+          .returning();
+
+        if (user.email && !user.isCreationNotified && !user.emailVerified) {
+          await transport.sendMail({
+            from: process.env.GMAIL_USER,
+            to: [user.email],
+            subject: `[REQUEST] - Verification your group called ${name}`,
+            text: "You need to verify your account on the platform the ",
+          });
+
+          await tx
+            .update(users)
+            .set({ isCreationNotified: true })
+            .where(eq(users.id, user.id));
+        }
+
+        const [currentGroup] = await tx
+          .insert(groups)
+          .values({
+            id: id === 0 ? undefined : id,
+            certificationMemberId: storageCertificationFileId,
+            nsId,
+            countryId: currentNationalSection?.countryId,
+          })
+          .onConflictDoUpdate({
+            target: groups.id,
+            set: buildConflictUpdateColumns(groups, [
+              "certificationMemberId",
+              "countryId",
+            ]),
+          })
+          .returning();
+
+        await tx
+          .insert(groupsLang)
+          .values({
+            id: groupLangId === 0 ? undefined : groupLangId,
+            name,
+            groupId: currentGroup.id,
+            lang: lang.id,
+          })
+          .onConflictDoUpdate({
+            target: groupsLang.id,
+            set: buildConflictUpdateColumns(groupsLang, ["name"]),
+          });
+
+        await tx
+          .insert(owners)
+          .values({
+            id: ownerId === 0 ? undefined : ownerId,
+            userId: user.id,
+            groupId: currentGroup.id,
+          })
+          .onConflictDoUpdate({
+            target: owners.id,
+            set: buildConflictUpdateColumns(owners, ["userId"]),
+          });
+      }
+    }
   });
 
   return { success: t("success") };
@@ -406,144 +657,97 @@ export async function createNationalSection(formData: FormData) {
   const festivalsItems: InsertFestival[] = [];
   const groupsItems: InsertGroup[] = [];
 
-  // await db.transaction(async (tx) => {
-  //   const [{ nationalSectionId }] = await tx
-  //     .insert(nationalSections)
-  //     .values({
-  //       // ownerId: session?.user?.id,
-  //       countryId: session?.user?.countryId,
-  //     })
-  //     .returning({
-  //       nationalSectionId: nationalSections.id,
-  //     });
+  await db.transaction(async (tx) => {
+    for (let index = 0; index < festivalSize; index++) {
+      const name = formData.get(`_festivals.${index}.name`) as string;
+      const email = formData.get(`_festivals.${index}.email`) as string;
+      const certificationFile = formData.get(
+        `_festivals.${index}.certificationFile`
+      ) as File;
 
-  //   await tx
-  //     .insert(nationalSectionsLang)
-  //     .values({ name, about, aboutYoung, lang: 1, nsId: nationalSectionId });
+      const storageCertificationFileId = await uploadFile(
+        certificationFile,
+        tx
+      );
 
-  //   for (let index = 0; index < positionSize; index++) {
-  //     const name = formData.get(`_positions.${index}.name`) as string;
-  //     const email = formData.get(`_positions.${index}.email`) as string;
-  //     const phone = formData.get(`_positions.${index}.phone`) as string;
-  //     const shortBio = formData.get(
-  //       `_positions.${index}._lang.shortBio`,
-  //     ) as string;
-  //     const photo = formData.get(`_festivals.${index}._photo`) as File;
+      const role = await tx.query.rolesTable.findFirst({
+        where: eq(rolesTable.name, "Festivals"),
+      });
 
-  //     const storagePhotoId = await uploadFile(photo, tx);
+      const [user] = await tx
+        .insert(users)
+        .values({
+          email,
+          roleId: role?.id || null,
+          countryId: session?.user?.countryId,
+        })
+        .onConflictDoUpdate({
+          target: users.email,
+          set: { email },
+        })
+        .returning();
 
-  //     const [{ nsPositionsId }] = await tx
-  //       .insert(nationalSectionsPositions)
-  //       .values({
-  //         name,
-  //         email,
-  //         phone,
-  //         photoId: storagePhotoId,
-  //         nsId: nationalSectionId,
-  //       })
-  //       .returning({ nsPositionsId: nationalSectionsPositions.id });
+      if (email) {
+        await transport.sendMail({
+          from: process.env.GMAIL_USER,
+          to: [email],
+          subject: `Request Verification your festival called ${name}`,
+          text: "You need to verify your account on the platform the ",
+        });
+      }
 
-  //     await tx
-  //       .insert(nationalSectionPositionsLang)
-  //       .values({ nsPositionsId, shortBio });
-  //   }
+      festivalsItems.push({
+        certificationMemberId: storageCertificationFileId,
+      });
+    }
 
-  //   for (let index = 0; index < festivalSize; index++) {
-  //     const name = formData.get(`_festivals.${index}.name`) as string;
-  //     const email = formData.get(`_festivals.${index}.email`) as string;
-  //     const certificationFile = formData.get(
-  //       `_festivals.${index}.certificationFile`,
-  //     ) as File;
+    for (let index = 0; index < groupSize; index++) {
+      const name = formData.get(`_groups.${index}.name`) as string;
+      const email = formData.get(`_groups.${index}.email`) as string;
+      const certificationFile = formData.get(
+        `_groups.${index}.certificationFile`
+      ) as File;
 
-  //     const storageCertificationFileId = await uploadFile(
-  //       certificationFile,
-  //       tx,
-  //     );
+      const storageCertificationFileId = await uploadFile(
+        certificationFile,
+        tx
+      );
 
-  //     const role = await tx.query.rolesTable.findFirst({
-  //       where: eq(rolesTable.name, "Festivals"),
-  //     });
+      const role = await tx.query.rolesTable.findFirst({
+        where: eq(rolesTable.name, "Groups"),
+      });
 
-  //     const [user] = await tx
-  //       .insert(users)
-  //       .values({
-  //         email,
-  //         roleId: role?.id || null,
-  //         countryId: session?.user?.countryId,
-  //       })
-  //       .onConflictDoUpdate({
-  //         target: users.email,
-  //         set: { email },
-  //       })
-  //       .returning();
+      const [user] = await tx
+        .insert(users)
+        .values({
+          email,
+          roleId: role?.id || null,
+          countryId: session?.user?.countryId,
+        })
+        .onConflictDoUpdate({
+          target: users.email,
+          set: { email },
+        })
+        .returning();
 
-  //     if (email) {
-  //       await transport.sendMail({
-  //         from: process.env.GMAIL_USER,
-  //         to: [email],
-  //         subject: `Request Verification your festival called ${name}`,
-  //         text: "You need to verify your account on the platform the ",
-  //       });
-  //     }
+      if (email) {
+        await transport.sendMail({
+          from: process.env.GMAIL_USER,
+          to: [email],
+          subject: `Request Verification your festival called ${name}`,
+          text: "You need to verify your account on the platform",
+        });
+      }
 
-  //     festivalsItems.push({
-  //       name,
-  //       certificationMemberId: storageCertificationFileId,
-  //       ownerId: user.id,
-  //     });
-  //   }
+      groupsItems.push({
+        certificationMemberId: storageCertificationFileId,
+        countryId: session?.user?.countryId,
+      });
+    }
 
-  //   for (let index = 0; index < groupSize; index++) {
-  //     const name = formData.get(`_groups.${index}.name`) as string;
-  //     const email = formData.get(`_groups.${index}.email`) as string;
-  //     const certificationFile = formData.get(
-  //       `_groups.${index}.certificationFile`,
-  //     ) as File;
-
-  //     const storageCertificationFileId = await uploadFile(
-  //       certificationFile,
-  //       tx,
-  //     );
-
-  //     const role = await tx.query.rolesTable.findFirst({
-  //       where: eq(rolesTable.name, "Groups"),
-  //     });
-
-  //     const [user] = await tx
-  //       .insert(users)
-  //       .values({
-  //         email,
-  //         roleId: role?.id || null,
-  //         countryId: session?.user?.countryId,
-  //       })
-  //       .onConflictDoUpdate({
-  //         target: users.email,
-  //         set: { email },
-  //       })
-  //       .returning();
-
-  //     if (email) {
-  //       await transport.sendMail({
-  //         from: process.env.GMAIL_USER,
-  //         to: [email],
-  //         subject: `Request Verification your festival called ${name}`,
-  //         text: "You need to verify your account on the platform",
-  //       });
-  //     }
-
-  //     groupsItems.push({
-  //       name,
-  //       certificationMemberId: storageCertificationFileId,
-  //       ownerId: user.id,
-  //       countryId: session?.user?.countryId,
-  //     });
-  //   }
-
-  //   await tx.insert(festivals).values(festivalsItems);
-  //   await tx.insert(groups).values(groupsItems);
-
-  //   return nationalSectionId;
-  // });
+    await tx.insert(festivals).values(festivalsItems);
+    await tx.insert(groups).values(groupsItems);
+  });
 
   revalidatePath("/dashboard/national-sections");
   redirect("/dashboard/national-sections");

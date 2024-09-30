@@ -34,6 +34,7 @@ import {
   TooltipProvider,
 } from "../ui/tooltip";
 import Image from "next/image";
+import { BuildFilterType } from "@/app/api/filter/route";
 
 interface FormElements extends HTMLFormControlsCollection {
   search: HTMLInputElement;
@@ -42,9 +43,6 @@ interface FormElements extends HTMLFormControlsCollection {
 interface SearchFormElement extends HTMLFormElement {
   readonly elements: FormElements;
 }
-
-// preload("/api/filter?categories=[]&countryId=0&page=1", fetcher);
-// preload("/api/filter/country", fetcher);
 
 function SkeletonList() {
   return (
@@ -106,14 +104,13 @@ export function WrapperFilter() {
     "/api/filter/country",
     fetcher
   );
-  const { data: itemList, isLoading: isLoadingItemList } = useSWR<
-    { festival: SelectFestival; country: SelectCountries }[]
-  >(
-    `api/filter?categories=${JSON.stringify(
-      selectedCategories
-    )}&countryId=${selectedCountryId}&page=1${search ? `&${search}` : ""}`,
-    fetcher
-  );
+  const { data: itemList, isLoading: isLoadingItemList } =
+    useSWR<BuildFilterType>(
+      `api/filter?categories=${JSON.stringify(
+        selectedCategories
+      )}&countryId=${selectedCountryId}&page=1${search ? `&${search}` : ""}`,
+      fetcher
+    );
 
   const countryMapClusters = useMemo(() => {
     return (
@@ -218,8 +215,9 @@ export function WrapperFilter() {
   }
 
   async function handleClickSelected(
-    festival: SelectFestival,
-    country: SelectCountries
+    festival: BuildFilterType[number]["festival"],
+    country: BuildFilterType[number]["country"],
+    langs: BuildFilterType[number]["langs"]
   ) {
     if (festival.id === selectedFestival?.id) {
       if (!places) return;
@@ -228,11 +226,11 @@ export function WrapperFilter() {
       return;
     }
 
-    if (!festival?.address && !festival?.location) return;
+    if (!langs.at(0) && !festival?.location) return;
 
     const possiblePredicctionAddress = `${
-      festival?.address || festival?.location || ""
-    } ${country.name}`;
+      langs.at(0)?.address || festival?.location || ""
+    } ${country?.name}`;
 
     const predictions = await fetchPredictions(possiblePredicctionAddress);
 
@@ -367,7 +365,7 @@ export function WrapperFilter() {
                   {isLoadingItemList ? (
                     <SkeletonList />
                   ) : (
-                    itemList?.map(({ festival, country }) => (
+                    itemList?.map(({ festival, country, langs }) => (
                       <div
                         key={festival.id}
                         className={cn(
@@ -376,7 +374,9 @@ export function WrapperFilter() {
                             ? "bg-gray-200"
                             : null
                         )}
-                        onClick={() => handleClickSelected(festival, country)}
+                        onClick={() =>
+                          handleClickSelected(festival, country, langs)
+                        }
                       >
                         <div>
                           <div className="rounded-lg">
@@ -391,7 +391,8 @@ export function WrapperFilter() {
                         </div>
                         <div className="max-w-[440px] flex-1">
                           <h3 className="text-black text-sm sm:text-base truncate">
-                            {festival.name}
+                            {langs.find((item) => item.lang === 1)?.name ||
+                              langs.find((item) => item.lang === 1)?.name}
                           </h3>
                           <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
                             <CalendarCheck size={16} />
@@ -399,7 +400,7 @@ export function WrapperFilter() {
                           </p>
                           <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
                             <MapPin size={16} />
-                            <span>{country.name}</span>
+                            <span>{country?.name}</span>
                           </p>
                         </div>
                         <div className="flex-1 flex justify-end">

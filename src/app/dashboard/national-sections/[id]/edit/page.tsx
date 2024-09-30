@@ -20,6 +20,7 @@ export default async function EditNationalSection({
       currentLang={currentLang}
       currentNationalSection={ns}
       id={`${ns?.id}`}
+      slug={params.id}
     />
   );
 }

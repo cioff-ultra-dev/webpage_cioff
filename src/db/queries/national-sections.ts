@@ -54,7 +54,63 @@ export async function getNationalSectionBySlug(
           },
         },
       },
+      festivals: {
+        with: {
+          owners: {
+            with: {
+              user: {
+                columns: {
+                  id: true,
+                  email: true,
+                },
+              },
+            },
+          },
+          langs: {
+            where(fields, { eq }) {
+              return eq(fields.lang, sq);
+            },
+            with: {
+              l: true,
+            },
+          },
+        },
+      },
+      groups: {
+        with: {
+          owners: {
+            with: {
+              user: {
+                columns: {
+                  id: true,
+                  email: true,
+                },
+              },
+            },
+          },
+          langs: {
+            where(fields, { eq }) {
+              return eq(fields.lang, sq);
+            },
+            with: {
+              l: true,
+            },
+          },
+        },
+      },
       social: true,
+      otherEvents: {
+        with: {
+          langs: {
+            where(fields, { eq }) {
+              return eq(fields.lang, sq);
+            },
+            with: {
+              l: true,
+            },
+          },
+        },
+      },
       langs: {
         where(fields, { eq }) {
           return eq(fields.lang, sq);

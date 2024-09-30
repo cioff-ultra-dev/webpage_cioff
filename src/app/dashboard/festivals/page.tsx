@@ -24,12 +24,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { getAllFestivals } from "@/db/queries/events";
-import { format } from "date-fns";
+import { getAllFestivalsByOwner } from "@/db/queries/events";
 import { EllipsisVertical } from "lucide-react";
+import { getFormatter, getLocale } from "next-intl/server";
+import { defaultLocale } from "@/i18n/config";
 
 export default async function DashboardPage() {
-  const events = await getAllFestivals();
+  const locale = await getLocale();
+  const formatter = await getFormatter();
+  const festivals = await getAllFestivalsByOwner(locale);
   return (
     <Tabs defaultValue="all">
       <div className="flex items-center">
@@ -82,57 +85,87 @@ export default async function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead className="hidden md:table-cell">Date</TableHead>
-                  <TableHead className="hidden md:table-cell">State</TableHead>
-                  <TableHead>
-                    <span className="sr-only">Actions</span>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {events.map((item) => {
-                  return (
-                    <TableRow key={item.id}>
-                      <TableCell className="font-medium">{item.name}</TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {format(item.createdAt, "PPP")}
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell capitalize">
-                        {item.stateMode}
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              aria-haspopup="true"
-                              size="icon"
-                              variant="ghost"
-                            >
-                              <EllipsisVertical className="h-4 w-4" />
-                              <span className="sr-only">Toggle menu</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem>
-                              <Link href={`/event/${item.id}`} target="_blank">
-                                Preview
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem disabled>Edit</DropdownMenuItem>
-                            <DropdownMenuItem disabled>Delete</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+            {festivals.length ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead className="hidden md:table-cell">Date</TableHead>
+                    <TableHead className="hidden md:table-cell">
+                      State
+                    </TableHead>
+                    <TableHead>
+                      <span className="sr-only">Actions</span>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {festivals.map((item) => {
+                    return (
+                      <TableRow key={item.id}>
+                        <TableCell className="font-medium">
+                          {item.owners
+                            .at(0)
+                            ?.festival?.langs.find(
+                              (item) => item.l?.code === locale
+                            )?.name ||
+                            item.owners
+                              .at(0)
+                              ?.festival?.langs.find(
+                                (item) => item.l?.code === defaultLocale
+                              )?.name}
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          {formatter.dateTime(item.createdAt, {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell capitalize">
+                          {item.stateMode}
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                aria-haspopup="true"
+                                size="icon"
+                                variant="ghost"
+                              >
+                                <EllipsisVertical className="h-4 w-4" />
+                                <span className="sr-only">Toggle menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuItem>
+                                <Link
+                                  href={`/event/${item.id}`}
+                                  target="_blank"
+                                >
+                                  Preview
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem disabled>Edit</DropdownMenuItem>
+                              <DropdownMenuItem disabled>
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="w-full flex justify-center">
+                <span className="text-muted-foreground text-sm">
+                  Not found festivals...
+                </span>
+              </div>
+            )}
           </CardContent>
         </Card>
       </TabsContent>

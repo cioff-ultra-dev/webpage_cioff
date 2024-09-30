@@ -27,11 +27,19 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { EllipsisVertical } from "lucide-react";
 import { SelectFestival, SelectGroup } from "@/db/schema";
-import { AllGroupType, getAllGroups } from "@/db/queries/groups";
+import {
+  AllGroupType,
+  getAllGroups,
+  getAllGroupsByOwner,
+} from "@/db/queries/groups";
+import { getFormatter, getLocale } from "next-intl/server";
+import { defaultLocale } from "@/i18n/config";
 
 export default async function DashboardPage() {
-  const events: SelectFestival[] = [];
-  const groups: AllGroupType = await getAllGroups();
+  const locale = await getLocale();
+  const formatter = await getFormatter();
+  const groups = await getAllGroupsByOwner(locale);
+
   return (
     <Tabs defaultValue="all">
       <div className="flex items-center">
@@ -103,7 +111,16 @@ export default async function DashboardPage() {
                     return (
                       <TableRow key={item.id}>
                         <TableCell className="font-medium">
-                          {item.name}
+                          {item.owners
+                            .at(0)
+                            ?.group?.langs.find(
+                              (item) => item.l?.code === locale
+                            )?.name ||
+                            item.owners
+                              .at(0)
+                              ?.group?.langs.find(
+                                (item) => item.l?.code === defaultLocale
+                              )?.name}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
                           {format(item.createdAt, "PPP")}

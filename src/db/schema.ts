@@ -4,7 +4,6 @@ import {
   boolean,
   integer,
   pgEnum,
-  pgSchema,
   pgTable,
   primaryKey,
   serial,
@@ -49,6 +48,7 @@ export const users = pgTable(
     password: text("password"),
     active: boolean("active").default(false),
     emailVerified: timestamp("emailVerified", { mode: "date" }),
+    isCreationNotified: boolean("is_creation_notified").default(false),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   },
@@ -136,6 +136,8 @@ export const authenticators = pgTable(
   })
 );
 
+/* Storage Table */
+
 export const storages = pgTable("storages", {
   id: serial("id").primaryKey(),
   url: text("url").notNull(),
@@ -165,7 +167,7 @@ export const eventsLang = pgTable("events_lang", {
   name: text("name"),
   description: text("description"),
   lang: integer("lang").references(() => languages.id),
-  nsId: integer("event_id").references(() => events.id),
+  eventId: integer("event_id").references(() => events.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -174,15 +176,10 @@ export const eventsLang = pgTable("events_lang", {
 
 export const festivals = pgTable("festivals", {
   id: serial("id").primaryKey(),
-  address: text("address"),
-  name: text("name").notNull(),
   email: text("email"),
-  ownerId: text("owner_id").references(() => users.id),
   url: text("url"),
   contact: text("contact").notNull().default(""),
-  countryId: integer("country_id"),
   urlValidated: boolean("url_validated"),
-  description: text("description").notNull().default(""),
   phone: text("phone"),
   stateMode: stateModeEnum("state_mode").default("offline"),
   location: text("location"),
@@ -200,11 +197,23 @@ export const festivals = pgTable("festivals", {
   youtubeId: text("youtube_id"),
   directorName: text("director_name").notNull().default(""),
   categories: text("categories"),
-  lang: integer("lang"),
   publish: boolean("publish"),
+  countryId: integer("country_id").references(() => countriesTable.id),
+  nsId: integer("ns_id").references(() => nationalSections.id),
   certificationMemberId: integer("certification_member_id").references(
     () => storages.id
   ),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const festivalsLang = pgTable("festivals_lang", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().default(""),
+  description: text("description").notNull().default(""),
+  address: text("address"),
+  lang: integer("lang").references(() => languages.id),
+  festivalId: integer("festival_id").references(() => festivals.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -248,26 +257,34 @@ export const categoryGroups = pgTable("category_groups", {
 
 export const groups = pgTable("groups", {
   id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  ownerId: text("owner_id").references(() => users.id),
   generalDirectorName: text("general_director_name"),
-  generalDirectorProfile: text("general_director_profile"),
   generalDirectorPhoto: text("general_director_photo"),
   directorPhotoStorageId: integer("director_photo_storage_id").references(
     () => storages.id
   ),
   artisticDirectorName: text("artistic_director_name"),
-  artisticDirectorProfile: text("artistic_director_profile"),
   artisticDirectorPhoto: text("artistic_director_photo"),
   phone: text("phone"),
   email: text("email"),
-  address: text("address"),
   typeId: integer("type_id"),
+  nsId: integer("ns_id").references(() => nationalSections.id),
   countryId: integer("country_id").references(() => countriesTable.id),
-  description: text("description"),
   certificationMemberId: integer("certification_member_id").references(
     () => storages.id
   ),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const groupsLang = pgTable("groups_lang", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull().default(""),
+  address: text("address"),
+  generalDirectorProfile: text("general_director_profile"),
+  artisticDirectorProfile: text("artistic_director_profile"),
+  lang: integer("lang").references(() => languages.id),
+  groupId: integer("group_id").references(() => groups.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -534,7 +551,7 @@ export const socialMediaLinks = pgTable("social_media_links", {
 });
 
 export const otherSociaMediaLinks = pgTable("other_social_media_links", {
-  id: serial("id"),
+  id: serial("id").primaryKey(),
   name: text("name"),
   link: text("link"),
   socialMediaLinkId: integer("social_media_link_id").references(
@@ -558,6 +575,23 @@ export const festivalRelations = relations(festivals, ({ many, one }) => ({
   country: one(countriesTable, {
     fields: [festivals.countryId],
     references: [countriesTable.id],
+  }),
+  ns: one(nationalSections, {
+    fields: [festivals.nsId],
+    references: [nationalSections.id],
+  }),
+  langs: many(festivalsLang),
+  owners: many(owners),
+}));
+
+export const festivalLangRelations = relations(festivalsLang, ({ one }) => ({
+  festival: one(festivals, {
+    fields: [festivalsLang.festivalId],
+    references: [festivals.id],
+  }),
+  l: one(languages, {
+    fields: [festivalsLang.lang],
+    references: [languages.id],
   }),
 }));
 
@@ -594,7 +628,7 @@ export const festivalsToCategoriesRelations = relations(
   })
 );
 
-export const groupsRelations = relations(groups, ({ one }) => ({
+export const groupsRelations = relations(groups, ({ one, many }) => ({
   type: one(typeGroups, {
     fields: [groups.typeId],
     references: [typeGroups.id],
@@ -606,6 +640,23 @@ export const groupsRelations = relations(groups, ({ one }) => ({
   directorPhoto: one(storages, {
     fields: [groups.directorPhotoStorageId],
     references: [storages.id],
+  }),
+  ns: one(nationalSections, {
+    fields: [groups.nsId],
+    references: [nationalSections.id],
+  }),
+  langs: many(groupsLang),
+  owners: many(owners),
+}));
+
+export const groupLangRelations = relations(groupsLang, ({ one }) => ({
+  group: one(groups, {
+    fields: [groupsLang.groupId],
+    references: [groups.id],
+  }),
+  l: one(languages, {
+    fields: [groupsLang.lang],
+    references: [languages.id],
   }),
 }));
 
@@ -623,6 +674,9 @@ export const nationalSectionRelations = relations(
       fields: [nationalSections.socialMediaLinksId],
       references: [socialMediaLinks.id],
     }),
+    festivals: many(festivals),
+    groups: many(groups),
+    otherEvents: many(events),
   })
 );
 
@@ -691,6 +745,35 @@ export const socialMediaLinkRelations = relations(
   })
 );
 
+export const otherSocialMediaLinkRelations = relations(
+  otherSociaMediaLinks,
+  ({ one }) => ({
+    mainSocial: one(socialMediaLinks, {
+      fields: [otherSociaMediaLinks.socialMediaLinkId],
+      references: [socialMediaLinks.id],
+    }),
+  })
+);
+
+export const eventRelations = relations(events, ({ one, many }) => ({
+  ns: one(nationalSections, {
+    fields: [events.nsId],
+    references: [nationalSections.id],
+  }),
+  langs: many(eventsLang),
+}));
+
+export const eventLangRelations = relations(eventsLang, ({ one }) => ({
+  event: one(events, {
+    fields: [eventsLang.eventId],
+    references: [events.id],
+  }),
+  l: one(languages, {
+    fields: [eventsLang.lang],
+    references: [languages.id],
+  }),
+}));
+
 /* Schema */
 
 export const inserUserSchema = createInsertSchema(users, {
@@ -709,21 +792,24 @@ export const insertEventSchema = createInsertSchema(events);
 
 export const selectEventSchema = createSelectSchema(events);
 
-export const insertFestivalSchema = createInsertSchema(festivals, {
+export const insertEventLangSchema = createInsertSchema(eventsLang, {
   name: (schema) => schema.name.min(1),
+  description: (schema) =>
+    schema.description.min(1).refine(
+      (value) => {
+        return value.split(" ").length <= 200;
+      },
+      {
+        message: "Description can't be more than 200 words",
+      }
+    ),
+});
+
+export const insertFestivalSchema = createInsertSchema(festivals, {
   email: (schema) => schema.email.min(1).email(),
   directorName: (schema) => schema.directorName.min(1),
   contact: (schema) => schema.contact.min(1),
   location: (schema) => schema.location.min(1),
-  description: (schema) =>
-    schema.description.min(1).refine(
-      (value) => {
-        return value.split(" ").length <= 500;
-      },
-      {
-        message: "Description can't be more than 500 words",
-      }
-    ),
   phone: (schema) =>
     schema.phone.min(1).refine(
       (value) => {
@@ -733,19 +819,35 @@ export const insertFestivalSchema = createInsertSchema(festivals, {
     ),
 });
 
+export const insertFestivalLangSchema = createInsertSchema(festivalsLang, {
+  name: (schema) => schema.name.min(1),
+  description: (schema) =>
+    schema.description.min(1).refine(
+      (value) => {
+        return value.split(" ").length <= 500;
+      },
+      {
+        message: "Description can't be more than 500 words",
+      }
+    ),
+});
+
 export const inserFestivalByNSSchema = insertFestivalSchema.pick({
-  name: true,
+  id: true,
   email: true,
 });
 
 export const insertGroupSchema = createInsertSchema(groups, {
-  name: (schema) => schema.name.min(1),
   email: (schema) => schema.email.min(1).email(),
 });
 
 export const insertGroupByNSSchema = insertGroupSchema.pick({
-  name: true,
+  id: true,
   email: true,
+});
+
+export const insertGroupLangSchema = createInsertSchema(groupsLang, {
+  name: (schema) => schema.name.min(1),
 });
 
 export const selectFestivalSchema = createSelectSchema(festivals);
@@ -831,11 +933,17 @@ export type SelectUser = typeof users.$inferSelect;
 export type InsertEvent = typeof events.$inferInsert;
 export type SelectEvent = typeof events.$inferSelect;
 
+export type InsertEventLang = typeof eventsLang.$inferInsert;
+export type SelectEventLang = typeof eventsLang.$inferSelect;
+
 export type InsertCategory = typeof categories.$inferInsert;
 export type SelectCategory = typeof categories.$inferSelect;
 
 export type InsertFestival = typeof festivals.$inferInsert;
 export type SelectFestival = typeof festivals.$inferSelect;
+
+export type InsertFestivalLang = typeof festivalsLang.$inferInsert;
+export type SelectFestivalLang = typeof festivalsLang.$inferSelect;
 
 export type InsertGroup = typeof groups.$inferInsert;
 export type SelectGroup = typeof groups.$inferSelect;

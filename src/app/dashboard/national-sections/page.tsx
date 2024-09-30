@@ -38,9 +38,7 @@ import { defaultLocale } from "@/i18n/config";
 export default async function DashboardPage() {
   const locale = await getLocale();
   const formatter = await getFormatter();
-  const nationalSections: LangWithNationalSection[] =
-    await getAllNationalSections();
-  const nationalSectionsByOwners = await getAllNationalSectionsByOwner(locale);
+  const nationalSections = await getAllNationalSectionsByOwner(locale);
 
   return (
     <Tabs defaultValue="all">
@@ -94,7 +92,7 @@ export default async function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {nationalSectionsByOwners.length ? (
+            {nationalSections.length ? (
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -109,7 +107,7 @@ export default async function DashboardPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {nationalSectionsByOwners.map((item) => {
+                  {nationalSections.map((item) => {
                     return (
                       <TableRow key={item.id}>
                         <TableCell className="font-medium">

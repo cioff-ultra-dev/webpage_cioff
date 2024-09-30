@@ -4,6 +4,7 @@ import { getRequestConfig } from "next-intl/server";
 import deepmerge from "deepmerge";
 import { defaultLocale } from "./config";
 
+// @ts-expect-error
 export default getRequestConfig(async () => {
   const locale = (await getUserLocale()) || defaultLocale;
   const currentMessages = (await import(`../../messages/${locale}.json`))

@@ -8,7 +8,7 @@ export function generateHashPassword(rawPassword: string): Promise<string> {
 
 export function isSamePassword(
   rawPassword: string,
-  hashedPassword: string,
+  hashedPassword: string
 ): Promise<boolean> {
   return bcrypt.compare(rawPassword, hashedPassword);
 }

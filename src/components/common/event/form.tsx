@@ -123,7 +123,6 @@ export default function EventForm({
     resolver: zodResolver(globalEventSchema),
     defaultValues: {
       _nextDates: [],
-      description: "",
       directorName: "",
       contact: "",
       phone: "",
@@ -159,7 +158,7 @@ export default function EventForm({
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <FormField
+                    {/* <FormField
                       control={form.control}
                       name="name"
                       render={({ field }) => (
@@ -176,7 +175,7 @@ export default function EventForm({
                           <FormMessage />
                         </FormItem>
                       )}
-                    />
+                    /> */}
                   </div>
                   <div>
                     <FormField
@@ -319,7 +318,7 @@ export default function EventForm({
                     </div>
                   </div>
                   <div>
-                    <FormField
+                    {/* <FormField
                       control={form.control}
                       name="description"
                       render={({ field }) => (
@@ -340,7 +339,7 @@ export default function EventForm({
                           <FormMessage />
                         </FormItem>
                       )}
-                    />
+                    /> */}
                   </div>
                   <div>
                     <FormField

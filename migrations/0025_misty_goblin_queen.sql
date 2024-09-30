@@ -1,0 +1,1 @@
+ALTER TABLE "other_social_media_links" ADD PRIMARY KEY ("id");
