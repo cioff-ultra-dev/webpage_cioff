@@ -1,1 +1,0 @@
-ALTER TABLE "social_media_links" ADD COLUMN "slug" text;

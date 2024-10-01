@@ -14,7 +14,6 @@ import {
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import type { AdapterAccountType } from "next-auth/adapters";
 import { isPossiblePhoneNumber } from "libphonenumber-js";
-import slug from "slug";
 
 // Custom SQL Function
 export function lower(email: AnyPgColumn): SQL {
@@ -177,7 +176,7 @@ export const eventsLang = pgTable("events_lang", {
 
 export const festivals = pgTable("festivals", {
   id: serial("id").primaryKey(),
-  slug: text("slug").notNull().default(""),
+  slug: text("slug").default(""),
   email: text("email"),
   url: text("url"),
   contact: text("contact").notNull().default(""),
@@ -202,8 +201,8 @@ export const festivals = pgTable("festivals", {
   certificationMemberId: integer("certification_member_id").references(
     () => storages.id
   ),
-  createdBy: integer("created_by").references(() => users.id),
-  updatedBy: integer("updated_by").references(() => users.id),
+  createdBy: text("created_by").references(() => users.id),
+  updatedBy: text("updated_by").references(() => users.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -288,8 +287,8 @@ export const groups = pgTable("groups", {
   certificationMemberId: integer("certification_member_id").references(
     () => storages.id
   ),
-  createdBy: integer("created_by").references(() => users.id),
-  updatedBy: integer("updated_by").references(() => users.id),
+  createdBy: text("created_by").references(() => users.id),
+  updatedBy: text("updated_by").references(() => users.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -930,8 +929,8 @@ export const announcements = pgTable("announcements", {
   subject: text("subject").notNull(),
   description: text("description").notNull(),
   categoryNames: text("category_names").notNull(),
-  createdBy: integer("created_by").references(() => users.id),
-  updatedBy: integer("updated_by").references(() => users.id),
+  createdBy: text("created_by").references(() => users.id),
+  updatedBy: text("updated_by").references(() => users.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -953,8 +952,8 @@ export const SubPagesProd = pgTable("sub_pages", {
   isNews: boolean("is_news").default(false),
   originalDate: timestamp("original_date", { mode: "date" }).notNull(),
   published: boolean("published").default(false),
-  createdBy: integer("created_by").references(() => users.id),
-  updatedBy: integer("updated_by").references(() => users.id),
+  createdBy: text("created_by").references(() => users.id),
+  updatedBy: text("updated_by").references(() => users.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });

@@ -1,1 +1,0 @@
-ALTER TABLE "national_section" ADD COLUMN "slug" text NOT NULL;
