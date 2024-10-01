@@ -333,7 +333,7 @@ export const docsTable = pgTable("docs", {
 
 export const countries = pgTable("countries", {
   id: serial("id").primaryKey(),
-  name: text("name"),
+  slug: text("slug"),
   nativeLang: integer("native_lang").references(() => languages.id),
   lat: text("lat"),
   lng: text("lng"),
