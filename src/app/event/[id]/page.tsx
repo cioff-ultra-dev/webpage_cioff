@@ -27,12 +27,12 @@ export default async function EventDetail({
       <Header className="border-b" text="text-black" />
       <main className="flex flex-col flex-1 gap-4 md:gap-8 bg-gray-50">
         <div className="relative w-full h-[400px]">
-          <CoverImageEvent cover={festival?.cover || ""} />
+          <CoverImageEvent cover={String(festival?.coverId) || ""} />
           <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent">
             <div className="flex items-center gap-2">
               <Avatar>
                 <AvatarImage
-                  src={festival?.logo || "/placeholder-user.jpg"}
+                  src={String(festival?.logoId) || "/placeholder-user.jpg"}
                   alt="Logo"
                 />
                 <AvatarFallback>
@@ -141,13 +141,13 @@ export default async function EventDetail({
                     <CardTitle>Festival Date</CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-wrap gap-2">
-                    {festival?.currentDates?.split(",").map((item) => {
+                    {/* {festival?.currentDates?.split(",").map((item) => {
                       return (
                         <Badge key={item}>
                           {format(new Date(Number(item) * 1000), "PPP")}
                         </Badge>
                       );
-                    })}
+                    })} */}
                   </CardContent>
                 </Card>
                 <Card className="col-span-1">

@@ -1,5 +1,4 @@
 import { getUserLocale } from "@/lib/locale";
-import { IntlErrorCode } from "next-intl";
 import { getRequestConfig } from "next-intl/server";
 import deepmerge from "deepmerge";
 import { defaultLocale } from "./config";

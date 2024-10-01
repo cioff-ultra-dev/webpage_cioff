@@ -1,9 +1,9 @@
 import {
   categories,
-  countriesTable,
+  countries,
   festivals,
   festivalsLang,
-  festivalsToCategoriesTable,
+  festivalToCategories,
   SelectCountries,
   SelectFestival,
   SelectFestivalLang,
@@ -39,20 +39,14 @@ async function buildFilter(request: NextRequest) {
   const baseQuery = db
     .select({
       festival: festivals,
-      country: countriesTable,
+      country: countries,
       lang: festivalsLang,
     })
-    .from(festivalsToCategoriesTable)
-    .innerJoin(
-      festivals,
-      eq(festivalsToCategoriesTable.festivalId, festivals.id)
-    )
+    .from(festivalToCategories)
+    .innerJoin(festivals, eq(festivalToCategories.festivalId, festivals.id))
     .leftJoin(festivalsLang, eq(festivals.id, festivalsLang.festivalId))
-    .leftJoin(countriesTable, eq(festivals.countryId, countriesTable.id))
-    .leftJoin(
-      categories,
-      eq(festivalsToCategoriesTable.categoryId, categories.id)
-    )
+    .leftJoin(countries, eq(festivals.countryId, countries.id))
+    .leftJoin(categories, eq(festivalToCategories.categoryId, categories.id))
     .$dynamic();
 
   // filters.push(eq(festivals.publish, true));
@@ -82,7 +76,7 @@ async function buildFilter(request: NextRequest) {
 
   baseQuery
     .where(and(...filters))
-    .groupBy(festivals.id, countriesTable.id, festivalsLang.id)
+    .groupBy(festivals.id, countries.id, festivalsLang.id)
     .limit(PAGE_SIZE)
     .offset((page - 1) * PAGE_SIZE);
 

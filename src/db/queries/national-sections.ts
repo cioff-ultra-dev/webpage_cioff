@@ -7,7 +7,6 @@ import {
   languages,
   nationalSections,
   nationalSectionsLang,
-  owners,
 } from "@/db/schema";
 import { defaultLocale } from "@/i18n/config";
 import { and, eq, inArray, sql } from "drizzle-orm";

@@ -126,6 +126,7 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
       insertGroupByNSSchema.merge(
         z.object({
           ownerId: z.number().optional(),
+          email: z.string().email(),
           _lang: insertGroupLangSchema.pick({ name: true, id: true }),
           certificationFile: z
             .any()
@@ -1584,6 +1585,7 @@ export default function NationalSectionForm({
                   onClick={() =>
                     appendGroup({
                       certificationFile: null,
+                      email: "",
                       _lang: { name: "" },
                     })
                   }

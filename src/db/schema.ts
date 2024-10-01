@@ -33,8 +33,8 @@ export const users = pgTable(
     id: text("id")
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
-    roleId: integer("role_id").references(() => rolesTable.id),
-    countryId: integer("country_id"),
+    roleId: integer("role_id").references(() => roles.id),
+    countryId: integer("country_id").references(() => countries.id),
     title: text("title"),
     name: text("name"),
     firstname: text("firstname"),
@@ -48,6 +48,7 @@ export const users = pgTable(
     password: text("password"),
     active: boolean("active").default(false),
     emailVerified: timestamp("emailVerified", { mode: "date" }),
+    photoId: integer("image_id").references(() => storages.id),
     isCreationNotified: boolean("is_creation_notified").default(false),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
@@ -176,6 +177,7 @@ export const eventsLang = pgTable("events_lang", {
 
 export const festivals = pgTable("festivals", {
   id: serial("id").primaryKey(),
+  slug: text("slug").notNull().default(""),
   email: text("email"),
   url: text("url"),
   contact: text("contact").notNull().default(""),
@@ -183,26 +185,25 @@ export const festivals = pgTable("festivals", {
   phone: text("phone"),
   stateMode: stateModeEnum("state_mode").default("offline"),
   location: text("location"),
-  currentDates: text("current_dates"),
-  nextDates: text("next_dates"),
   lat: text("lat"),
   lng: text("lng"),
   transportLat: text("transport_lat"),
   transportLng: text("transport_lng"),
   translatorLanguages: text("translator_languages"),
   peoples: integer("peoples"),
-  logo: text("logo"),
-  cover: text("cover"),
-  photos: text("photos"),
   youtubeId: text("youtube_id"),
   directorName: text("director_name").notNull().default(""),
   categories: text("categories"),
-  publish: boolean("publish"),
-  countryId: integer("country_id").references(() => countriesTable.id),
+  published: boolean("publish"),
+  countryId: integer("country_id").references(() => countries.id),
   nsId: integer("ns_id").references(() => nationalSections.id),
+  logoId: integer("logo_id").references(() => storages.id),
+  coverId: integer("cover_id").references(() => storages.id),
   certificationMemberId: integer("certification_member_id").references(
     () => storages.id
   ),
+  createdBy: integer("created_by").references(() => users.id),
+  updatedBy: integer("updated_by").references(() => users.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -218,6 +219,16 @@ export const festivalsLang = pgTable("festivals_lang", {
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
+/* Festival Photos */
+
+export const festivalPhotos = pgTable("festival_photos", {
+  id: serial("id").primaryKey(),
+  festivalId: integer("festival_id").references(() => festivals.id),
+  photoId: integer("photo_id").references(() => storages.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
 /* Categories Table */
 
 export const categories = pgTable("categories", {
@@ -225,7 +236,6 @@ export const categories = pgTable("categories", {
   name: text("name").notNull(),
   slug: text("slug").notNull(),
   icon: text("icon"),
-  caption: text("caption"),
   categoryGroupId: integer("category_group_id").references(
     () => categoryGroups.id
   ),
@@ -233,12 +243,12 @@ export const categories = pgTable("categories", {
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
-/* Type groups Table */
-
-export const typeGroups = pgTable("type_groups", {
+export const categoriesLang = pgTable("categories_lang", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  slug: text("slug"),
+  caption: text("caption"),
+  lang: integer("lang").references(() => languages.id),
+  categoryId: integer("category_id").references(() => categories.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -259,19 +269,27 @@ export const groups = pgTable("groups", {
   id: serial("id").primaryKey(),
   generalDirectorName: text("general_director_name"),
   generalDirectorPhoto: text("general_director_photo"),
-  directorPhotoStorageId: integer("director_photo_storage_id").references(
-    () => storages.id
-  ),
   artisticDirectorName: text("artistic_director_name"),
   artisticDirectorPhoto: text("artistic_director_photo"),
+  musicalDirectorName: text("musical_director_name"),
+  musicalDirectorPhoto: text("musical_director_photo"),
   phone: text("phone"),
-  email: text("email"),
-  typeId: integer("type_id"),
+  generalDirectorPhotoId: integer("general_director_photo_id").references(
+    () => storages.id
+  ),
+  artisticDirectorPhotoId: integer("artistic_director_photo_id").references(
+    () => storages.id
+  ),
+  musicalDirectorPhotoId: integer("musical_director_photo_id").references(
+    () => storages.id
+  ),
   nsId: integer("ns_id").references(() => nationalSections.id),
-  countryId: integer("country_id").references(() => countriesTable.id),
+  countryId: integer("country_id").references(() => countries.id),
   certificationMemberId: integer("certification_member_id").references(
     () => storages.id
   ),
+  createdBy: integer("created_by").references(() => users.id),
+  updatedBy: integer("updated_by").references(() => users.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -283,7 +301,18 @@ export const groupsLang = pgTable("groups_lang", {
   address: text("address"),
   generalDirectorProfile: text("general_director_profile"),
   artisticDirectorProfile: text("artistic_director_profile"),
+  musicalDirectorProfile: text("musical_director_profile"),
   lang: integer("lang").references(() => languages.id),
+  groupId: integer("group_id").references(() => groups.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+/* Events to Groups */
+
+export const eventsToGroups = pgTable("events_to_groups", {
+  id: serial("id").primaryKey(),
+  eventId: integer("event_id").references(() => events.id),
   groupId: integer("group_id").references(() => groups.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
@@ -302,12 +331,21 @@ export const docsTable = pgTable("docs", {
 
 /* Countries Table */
 
-export const countriesTable = pgTable("countries", {
+export const countries = pgTable("countries", {
   id: serial("id").primaryKey(),
   name: text("name"),
-  lang: integer("lang"),
+  nativeLang: integer("native_lang").references(() => languages.id),
   lat: text("lat"),
   lng: text("lng"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const countriesLang = pgTable("countries_lang", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  lang: integer("lang").references(() => languages.id),
+  countryId: integer("country_id").references(() => countries.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -335,7 +373,7 @@ export const languages = pgTable("languages", {
 
 /* Roles Table */
 
-export const rolesTable = pgTable("roles", {
+export const roles = pgTable("roles", {
   id: serial("id").primaryKey(),
   name: text("name"),
   active: boolean("active"),
@@ -345,7 +383,7 @@ export const rolesTable = pgTable("roles", {
 
 /* Permissions Table */
 
-export const permissionsTable = pgTable("permissions", {
+export const permissions = pgTable("permissions", {
   id: serial("id").primaryKey(),
   name: text("name"),
   active: boolean("active"),
@@ -355,7 +393,7 @@ export const permissionsTable = pgTable("permissions", {
 
 /* Status Table */
 
-export const statusTable = pgTable("statuses", {
+export const statuses = pgTable("statuses", {
   id: serial("id").primaryKey(),
   name: text("name"),
   slug: text("slug"),
@@ -365,18 +403,18 @@ export const statusTable = pgTable("statuses", {
 
 /* Roles to Permissions Table */
 
-export const rolesToPermissionsTable = pgTable("roles_to_permissions", {
+export const rolesToPermissions = pgTable("roles_to_permissions", {
   id: serial("id").primaryKey(),
-  roleId: integer("role_id"),
-  permissionId: integer("permission_id"),
+  roleId: integer("role_id").references(() => roles.id),
+  permissionId: integer("permission_id").references(() => permissions.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
 /* Festival to categories Table */
 
-export const festivalsToCategoriesTable = pgTable(
-  "festivals_to_categories",
+export const festivalToCategories = pgTable(
+  "festival_to_categories",
   {
     festivalId: integer("festival_id").references(() => festivals.id),
     categoryId: integer("category_id").references(() => categories.id),
@@ -390,11 +428,11 @@ export const festivalsToCategoriesTable = pgTable(
 
 /* Festival to statuses Table */
 
-export const festivalsToStatusesTable = pgTable(
+export const festivalsToStatuses = pgTable(
   "festivals_to_statuses",
   {
     festivalId: integer("festival_id").references(() => festivals.id),
-    statusId: integer("status_id").references(() => statusTable.id),
+    statusId: integer("status_id").references(() => statuses.id),
     question: text("question"),
     answer: text("text"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -407,8 +445,8 @@ export const festivalsToStatusesTable = pgTable(
 
 /* Groups to categories Table */
 
-export const groupsToCategoriesTable = pgTable(
-  "groups_to_categories",
+export const groupToCategories = pgTable(
+  "group_to_categories",
   {
     groupId: integer("festival_id").references(() => groups.id),
     categoryId: integer("category_id").references(() => categories.id),
@@ -420,18 +458,13 @@ export const groupsToCategoriesTable = pgTable(
   })
 );
 
-/* National Section Module:
-National Section
-National Section Lang
-National Section Positions
-National Section Positions Lang
-*/
+/* National Sections */
 
 export const nationalSections = pgTable("national_section", {
   id: serial("id").primaryKey(),
   published: boolean("published").default(false),
   slug: text("slug").notNull(),
-  countryId: integer("country_id").references(() => countriesTable.id),
+  countryId: integer("country_id").references(() => countries.id),
   socialMediaLinksId: integer("socia_media_links_id").references(
     () => socialMediaLinks.id
   ),
@@ -480,49 +513,318 @@ export const nationalSectionPositionsLang = pgTable(
   }
 );
 
-/* Reports National Sections Table */
+/* 13. Type Reports */
 
-export const reportNationalSections = pgTable("report_national_sections", {
+export const reportTypeCategories = pgTable("report_type_categories", {
   id: serial("id").primaryKey(),
-  festivalSize: integer("festival_size"),
-  groupSize: integer("group_size"),
-  associationSize: integer("association_size"),
-  individualMemberSize: integer("individual_memeber_size"),
-  activeNationalCommission: boolean("active_national_commission"),
-  workDescription: text("work_description"),
-  countryId: integer("country_id").references(() => countriesTable.id),
+  slug: text("slug").notNull(),
+  oriented_to: text("oriented_to"),
+  subType: text("subType"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
-/* Activities */
+export const reportTypeCategoriesNsLang = pgTable(
+  "report_type_categories_lang",
+  {
+    id: serial("id").primaryKey(),
+    name: text("name").notNull(),
+    lang: integer("lang")
+      .references(() => languages.id)
+      .notNull(),
+    reportTypeCategoryId: integer("report_type_category_id")
+      .references(() => reportTypeCategories.id)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
 
-export const typeActivity = pgEnum("type_activity", [
-  "Conference",
-  "Workshop",
-  "Seminar",
-  "Congress",
-  "National Festival",
-]);
+/* 14. Rating Questions */
 
-export const modalityActivity = pgEnum("modality_activity", [
-  "In Person",
-  "Online",
-]);
+export const ratingType = pgTable("rating_type", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
 
-export const lengthActivity = pgEnum("length_activity", ["Hours", "Days"]);
+export const ratingQuestions = pgTable("rating_questions", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  ratingTypeId: integer("rating_type_id").references(() => ratingType.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
 
-export const activities = pgTable("activities", {
+export const ratingQuestionsLang = pgTable("rating_questions_lang", {
   id: serial("id").primaryKey(),
   name: text("name"),
-  type: typeActivity("type"),
-  modality: modalityActivity("modality"),
-  length: lengthActivity("length"),
-  lengthSize: integer("length_size"),
-  performerSize: integer("performer_size"),
-  reportNationalSectionId: integer("report_national_section_id").references(
-    () => reportNationalSections.id
+  tooltip: text("tooltip"),
+  lang: integer("lang")
+    .references(() => languages.id)
+    .notNull(),
+  ratingQuestionlId: integer("rating_question_id")
+    .references(() => ratingQuestions.id)
+    .notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+/* Reports National Sections Table */
+
+export const reportNationalSections = pgTable("report_ns", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  festivalSize: integer("festival_size"),
+  groupSize: integer("group_size"),
+  associationSize: integer("association_size"),
+  individualMemberSize: integer("individual_memeber_size"),
+  numberFestivals: integer("number_festivals"),
+  numberGroups: integer("number_groups"),
+  numberAssociationsOrOtherOrganizations: integer(
+    "number_associations_or_other_organizations"
   ),
+  numberIndividualMembers: integer("number_individual_members"),
+  isActivelyEngagedNc: boolean("is_actively_engaged_nc"),
+  activeNationalCommission: boolean("active_national_commission"),
+  workDescription: text("work_description"),
+  countryId: integer("country_id").references(() => countries.id),
+  nsId: integer("ns_id")
+    .references(() => nationalSections.id)
+    .notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const reportNationalSectionsLang = pgTable("report_ns_lang", {
+  id: serial("id").primaryKey(),
+  title: text("title"),
+  comment: text("comment"),
+  lang: integer("lang")
+    .references(() => languages.id)
+    .notNull(),
+  reportNsId: integer("report_ns_id")
+    .references(() => reportNationalSections.id)
+    .notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const reportNationalSectionActivities = pgTable("report_ns_activities", {
+  id: serial("id").primaryKey(),
+  reportTypeCategoryId: integer("report_type_category_id")
+    .references(() => reportTypeCategories.id)
+    .notNull(),
+  reportNsId: integer("report_ns_id")
+    .references(() => reportNationalSections.id)
+    .notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+/* Festivals Reports */
+
+export const reportFestival = pgTable("report_festival", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  festivalId: integer("festival_id")
+    .references(() => festivals.id)
+    .notNull(),
+  amountPeople: integer("amount_people"),
+  disabledAdults: integer("any_disabled_adults"),
+  disabledYouth: integer("any_disabled_youth"),
+  disabledChildren: integer("any_disabled_children"),
+  amountPerformances: integer("amount_performances"),
+  averageCostTicket: integer("average_cost_ticket"),
+  sourceData: text("source_data"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const reportFestivalActivities = pgTable("report_festival_activities", {
+  id: serial("id").primaryKey(),
+  reportTypeCategoryId: integer("report_type_category_id")
+    .references(() => reportTypeCategories.id)
+    .notNull(),
+  reportFestivalId: integer("report_festival_id")
+    .references(() => reportFestival.id)
+    .notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+/* Festival Rating */
+
+export const ratingFestivalToGroups = pgTable("rating_festival_to_groups", {
+  id: serial("id").primaryKey(),
+  ratingResult: integer("rating_result").notNull(),
+  reportFestivalId: integer("report_festival_id")
+    .references(() => reportFestival.id)
+    .notNull(),
+  groupId: integer("group_id").references(() => groups.id),
+  nameNoCioffGroup: text("name_no_cioff_group"),
+  amountPersonsGroup: integer("amount_persons_group"),
+  isInvitationPerWebsite: boolean("is_invitation_per_website"),
+  isInvitationPerNs: boolean("is_invitation_per_ns"),
+  isGroupLiveMusic: boolean("is_group_live_music"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const ratingFestivalToGroupsAnswers = pgTable(
+  "rating_festival_to_groups_answers",
+  {
+    id: serial("id").primaryKey(),
+    rating: integer("rating").notNull(),
+    ratingFestivalToGroupsId: integer("rating_festival_to_groups_id")
+      .references(() => ratingFestivalToGroups.id)
+      .notNull(),
+    ratingQuestionId: integer("rating_question_id")
+      .references(() => ratingQuestions.id)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+
+export const ratingFestivalToGroupsAnswersLang = pgTable(
+  "rating_festival_to_groups_answers_lang",
+  {
+    id: serial("id").primaryKey(),
+    comment: text("comment"),
+    lang: integer("lang")
+      .references(() => languages.id)
+      .notNull(),
+    ratingFestivalToGroupsAnswersId: integer(
+      "rating_festival_to_groups_answers_id"
+    )
+      .references(() => ratingFestivalToGroupsAnswers.id)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+
+export const ratingFestivalResultsLangProd = pgTable(
+  "rating_festival_results_lang",
+  {
+    id: serial("id").primaryKey(),
+    comment: text("comment"),
+    lang: integer("lang")
+      .references(() => languages.id)
+      .notNull(),
+    ratingFestivalToGroupsId: integer("rating_festival_to_groups_id")
+      .references(() => ratingFestivalToGroups.id)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+
+/* Groups Reports */
+
+export const ReportGroupProd = pgTable("report_group", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  groupId: integer("group_id")
+    .references(() => groups.id)
+    .notNull(),
+  amountPersonsTravelled: integer("amount_persons_travelled"),
+  ich: text("ich"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+/* 19. Group Rating */
+
+export const ratingGroupToFestivals = pgTable("rating_group_to_festivals", {
+  id: serial("id").primaryKey(),
+  ratingResult: integer("rating_result").notNull(),
+  reportGroupId: integer("report_group_id")
+    .references(() => ReportGroupProd.id)
+    .notNull(),
+  festivalId: integer("festival_id").references(() => festivals.id),
+  nameNoCioffFestival: text("name_no_cioff_festival"),
+  introductionBeforePerformances: boolean("introduction_before_performances"),
+  isLogosPresent: boolean("is_logos_present"),
+  atLeast5ForeginGroups: boolean("at_least_5_foregin_groups"),
+  festivalCoverTravelCosts: boolean("festival_cover_travel_costs"),
+  refreshmentsDuringPerformances: boolean("refreshments_during_performances"),
+  financialCompensationPerMember: integer("financial_compensation_per_member"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const reportGroupTypeLocales = pgTable("report_group_type_locales", {
+  id: serial("id").primaryKey(),
+  reportTypeCategoryId: integer("report_type_category_id")
+    .references(() => reportTypeCategories.id)
+    .notNull(),
+  reportGroupToFestivalsId: integer("report_group_to_festivals_id")
+    .references(() => ratingGroupToFestivals.id)
+    .notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const reportGroupTypeLocalesSleep = pgTable(
+  "report_group_type_locales_sleep",
+  {
+    id: serial("id").primaryKey(),
+    reportTypeCategoryId: integer("report_type_category_id")
+      .references(() => reportTypeCategories.id)
+      .notNull(),
+    reportGroupToFestivalsId: integer("report_group_to_festivals_id")
+      .references(() => ratingGroupToFestivals.id)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+export const ratingGroupToFestivalsAnswers = pgTable(
+  "rating_group_to_festivals_answers",
+  {
+    id: serial("id").primaryKey(),
+    rating: integer("rating").notNull(),
+    reportGroupToFestivalsId: integer("report_group_to_festivals_id")
+      .references(() => ratingGroupToFestivals.id)
+      .notNull(),
+    ratingQuestionId: integer("rating_question_id")
+      .references(() => ratingQuestions.id)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+
+export const ratingGroupAnswersLang = pgTable(
+  "rating_group_to_festivals_answers_lang",
+  {
+    id: serial("id").primaryKey(),
+    comment: text("comment"),
+    lang: integer("lang")
+      .references(() => languages.id)
+      .notNull(),
+    ratingGroupToFestivalsAnswersId: integer(
+      "rating_group_to_festivals_answers_id"
+    )
+      .references(() => ratingGroupToFestivalsAnswers.id)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  }
+);
+
+export const ratingGroupResultsLang = pgTable("rating_group_results_lang", {
+  id: serial("id").primaryKey(),
+  comment: text("comment"),
+  lang: integer("lang")
+    .references(() => languages.id)
+    .notNull(),
+  reportGroupToFestivalsId: integer("report_group_to_festivals_id")
+    .references(() => languages.id)
+    .notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -561,20 +863,158 @@ export const otherSociaMediaLinks = pgTable("other_social_media_links", {
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
+/*
+8. TIMELINE
+Timeline
+Timeline Lang
+
+9. WEBSITE MODULE
+Design
+Menu
+Menu Lang
+
+10. Announcements
+Announcements
+Announcements files
+*/
+
+export const timeline = pgTable("timeline", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  videoId: text("video_id"),
+  mediaId: integer("media_id").references(() => storages.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const timelineLang = pgTable("timeline_lang", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  lang: integer("lang").references(() => languages.id),
+  timelineId: integer("timeline_id").references(() => timeline.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const design = pgTable("design", {
+  id: serial("id").primaryKey(),
+  bannerMediaId: integer("banner_media_id")
+    .references(() => storages.id)
+    .notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const menu = pgTable("menu", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  order: integer("order"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const menuLang = pgTable("menu_lang", {
+  id: serial("id").primaryKey(),
+  name: text("name"),
+  lang: integer("lang").references(() => languages.id),
+  menuId: integer("menu_id").references(() => menu.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const announcements = pgTable("announcements", {
+  id: serial("id").primaryKey(),
+  to: text("to").notNull(),
+  from: text("from").notNull(),
+  subject: text("subject").notNull(),
+  description: text("description").notNull(),
+  categoryNames: text("category_names").notNull(),
+  createdBy: integer("created_by").references(() => users.id),
+  updatedBy: integer("updated_by").references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const announcementsFiles = pgTable("announcements_files", {
+  id: serial("id").primaryKey(),
+  announcementId: integer("announcement_id").references(() => announcements.id),
+  mediaId: integer("media_id").references(() => storages.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+/* Subpages */
+
+export const SubPagesProd = pgTable("sub_pages", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  url: text("url").notNull(),
+  isNews: boolean("is_news").default(false),
+  originalDate: timestamp("original_date", { mode: "date" }).notNull(),
+  published: boolean("published").default(false),
+  createdBy: integer("created_by").references(() => users.id),
+  updatedBy: integer("updated_by").references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const SubPagesTextsLangProd = pgTable("sub_pages_texts_lang", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  lang: integer("lang").references(() => languages.id),
+  subPageId: integer("subpage_id").references(() => SubPagesProd.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+/* Activities */
+
+export const typeActivity = pgEnum("type_activity", [
+  "Conference",
+  "Workshop",
+  "Seminar",
+  "Congress",
+  "National Festival",
+]);
+
+export const modalityActivity = pgEnum("modality_activity", [
+  "In Person",
+  "Online",
+]);
+
+export const lengthActivity = pgEnum("length_activity", ["Hours", "Days"]);
+
+export const activities = pgTable("activities", {
+  id: serial("id").primaryKey(),
+  name: text("name"),
+  type: typeActivity("type"),
+  modality: modalityActivity("modality"),
+  length: lengthActivity("length"),
+  lengthSize: integer("length_size"),
+  performerSize: integer("performer_size"),
+  reportNationalSectionId: integer("report_national_section_id").references(
+    () => reportNationalSections.id
+  ),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
 /* Relations */
 
 export const userRelations = relations(users, ({ one }) => ({
-  role: one(rolesTable, {
+  role: one(roles, {
     fields: [users.roleId],
-    references: [rolesTable.id],
+    references: [roles.id],
   }),
 }));
 
 export const festivalRelations = relations(festivals, ({ many, one }) => ({
-  festivalsToCategories: many(festivalsToCategoriesTable),
-  country: one(countriesTable, {
+  festivalsToCategories: many(festivalToCategories),
+  country: one(countries, {
     fields: [festivals.countryId],
-    references: [countriesTable.id],
+    references: [countries.id],
   }),
   ns: one(nationalSections, {
     fields: [festivals.nsId],
@@ -596,7 +1036,7 @@ export const festivalLangRelations = relations(festivalsLang, ({ one }) => ({
 }));
 
 export const categoriesRelations = relations(categories, ({ many, one }) => ({
-  festivalsToCategories: many(festivalsToCategoriesTable),
+  festivalsToCategories: many(festivalToCategories),
   categoryGroup: one(categoryGroups, {
     fields: [categories.categoryGroupId],
     references: [categoryGroups.id],
@@ -610,35 +1050,31 @@ export const categoryGroupsRealtions = relations(
   })
 );
 
-export const countriesRelations = relations(countriesTable, ({ many }) => ({
+export const countriesRelations = relations(countries, ({ many }) => ({
   festivals: many(festivals),
 }));
 
 export const festivalsToCategoriesRelations = relations(
-  festivalsToCategoriesTable,
+  festivalToCategories,
   ({ one }) => ({
     festival: one(festivals, {
-      fields: [festivalsToCategoriesTable.festivalId],
+      fields: [festivalToCategories.festivalId],
       references: [festivals.id],
     }),
     category: one(categories, {
-      fields: [festivalsToCategoriesTable.categoryId],
+      fields: [festivalToCategories.categoryId],
       references: [categories.id],
     }),
   })
 );
 
 export const groupsRelations = relations(groups, ({ one, many }) => ({
-  type: one(typeGroups, {
-    fields: [groups.typeId],
-    references: [typeGroups.id],
-  }),
-  country: one(countriesTable, {
+  country: one(countries, {
     fields: [groups.countryId],
-    references: [countriesTable.id],
+    references: [countries.id],
   }),
   directorPhoto: one(storages, {
-    fields: [groups.directorPhotoStorageId],
+    fields: [groups.generalDirectorPhotoId],
     references: [storages.id],
   }),
   ns: one(nationalSections, {
@@ -658,10 +1094,6 @@ export const groupLangRelations = relations(groupsLang, ({ one }) => ({
     fields: [groupsLang.lang],
     references: [languages.id],
   }),
-}));
-
-export const typeGroupsRelations = relations(typeGroups, ({ many }) => ({
-  groups: many(groups),
 }));
 
 export const nationalSectionRelations = relations(
@@ -837,13 +1269,10 @@ export const inserFestivalByNSSchema = insertFestivalSchema.pick({
   email: true,
 });
 
-export const insertGroupSchema = createInsertSchema(groups, {
-  email: (schema) => schema.email.min(1).email(),
-});
+export const insertGroupSchema = createInsertSchema(groups);
 
 export const insertGroupByNSSchema = insertGroupSchema.pick({
   id: true,
-  email: true,
 });
 
 export const insertGroupLangSchema = createInsertSchema(groupsLang, {
@@ -851,11 +1280,6 @@ export const insertGroupLangSchema = createInsertSchema(groupsLang, {
 });
 
 export const selectFestivalSchema = createSelectSchema(festivals);
-
-export const insertTypeGroupSchema = createInsertSchema(typeGroups, {
-  slug: (schema) =>
-    schema.slug.transform((value) => (value ? slug(value) : value)),
-});
 
 export const insertReportNationalSectionsSchema = createInsertSchema(
   reportNationalSections,
@@ -948,14 +1372,11 @@ export type SelectFestivalLang = typeof festivalsLang.$inferSelect;
 export type InsertGroup = typeof groups.$inferInsert;
 export type SelectGroup = typeof groups.$inferSelect;
 
-export type InsertTypeGroup = typeof typeGroups.$inferInsert;
-export type SelectTypeGroup = typeof typeGroups.$inferSelect;
-
 export type InsertDocs = typeof docsTable.$inferInsert;
 export type SelectDocs = typeof docsTable.$inferSelect;
 
-export type InsertCountries = typeof countriesTable.$inferInsert;
-export type SelectCountries = typeof countriesTable.$inferSelect;
+export type InsertCountries = typeof countries.$inferInsert;
+export type SelectCountries = typeof countries.$inferSelect;
 
 export type InsertCountriesLangIndex =
   typeof countriesLangIndexTable.$inferInsert;
@@ -965,24 +1386,22 @@ export type SelectCountriesLangIndex =
 export type InsertLanguages = typeof languages.$inferInsert;
 export type SelectLanguages = typeof languages.$inferSelect;
 
-export type InsertRoles = typeof rolesTable.$inferInsert;
-export type SelectRoles = typeof rolesTable.$inferSelect;
+export type InsertRoles = typeof roles.$inferInsert;
+export type SelectRoles = typeof roles.$inferSelect;
 
-export type InsertPermissions = typeof permissionsTable.$inferInsert;
-export type SelectPermissions = typeof permissionsTable.$inferSelect;
+export type InsertPermissions = typeof permissions.$inferInsert;
+export type SelectPermissions = typeof permissions.$inferSelect;
 
-export type InsertRolesToPermissions =
-  typeof rolesToPermissionsTable.$inferInsert;
-export type SelectRolesToPermissions =
-  typeof rolesToPermissionsTable.$inferSelect;
+export type InsertRolesToPermissions = typeof rolesToPermissions.$inferInsert;
+export type SelectRolesToPermissions = typeof rolesToPermissions.$inferSelect;
 
 export type InsertFestivalToCategories =
-  typeof festivalsToCategoriesTable.$inferInsert;
+  typeof festivalToCategories.$inferInsert;
 export type SelectFestivalToCategories =
-  typeof festivalsToCategoriesTable.$inferSelect;
+  typeof festivalToCategories.$inferSelect;
 
-export type InsertStatus = typeof statusTable.$inferInsert;
-export type SelectStatus = typeof statusTable.$inferSelect;
+export type InsertStatus = typeof statuses.$inferInsert;
+export type SelectStatus = typeof statuses.$inferSelect;
 
 export type InsertNationalSection = typeof nationalSections.$inferInsert;
 export type SelectNationalSection = typeof nationalSections.$inferSelect;

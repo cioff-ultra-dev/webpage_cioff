@@ -19,7 +19,7 @@ import {
   nationalSectionsLang,
   nationalSectionsPositions,
   owners,
-  rolesTable,
+  roles,
   socialMediaLinks,
   storages,
   users,
@@ -168,13 +168,13 @@ export async function createGroup(prevState: unknown, formData: FormData) {
   const directorPhoto = formData.get("directorPhoto") as File;
 
   await db.transaction(async (tx) => {
-    const directorPhotoStorageId = await uploadFile(directorPhoto, tx);
+    const generalDirectorPhotoId = await uploadFile(directorPhoto, tx);
 
     await tx
       .update(groups)
       .set({
         generalDirectorName,
-        directorPhotoStorageId,
+        generalDirectorPhotoId,
         artisticDirectorName,
       })
       .where(eq(groups.id, id));
@@ -474,8 +474,8 @@ export async function updateNationalSection(formData: FormData) {
           tx
         );
 
-        const role = await tx.query.rolesTable.findFirst({
-          where: eq(rolesTable.name, "Festivals"),
+        const role = await tx.query.roles.findFirst({
+          where: eq(roles.name, "Festivals"),
         });
 
         const [user] = await tx
@@ -565,8 +565,8 @@ export async function updateNationalSection(formData: FormData) {
           tx
         );
 
-        const role = await tx.query.rolesTable.findFirst({
-          where: eq(rolesTable.name, "Groups"),
+        const role = await tx.query.roles.findFirst({
+          where: eq(roles.name, "Groups"),
         });
 
         const [user] = await tx
@@ -670,8 +670,8 @@ export async function createNationalSection(formData: FormData) {
         tx
       );
 
-      const role = await tx.query.rolesTable.findFirst({
-        where: eq(rolesTable.name, "Festivals"),
+      const role = await tx.query.roles.findFirst({
+        where: eq(roles.name, "Festivals"),
       });
 
       const [user] = await tx
@@ -713,8 +713,8 @@ export async function createNationalSection(formData: FormData) {
         tx
       );
 
-      const role = await tx.query.rolesTable.findFirst({
-        where: eq(rolesTable.name, "Groups"),
+      const role = await tx.query.roles.findFirst({
+        where: eq(roles.name, "Groups"),
       });
 
       const [user] = await tx

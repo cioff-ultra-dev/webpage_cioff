@@ -1,28 +1,14 @@
 import { auth } from "@/auth";
 import { db } from "@/db";
 import {
+  categories,
   groups,
-  InsertTypeGroup,
   languages,
   SelectGroup,
   SelectLanguages,
-  typeGroups,
 } from "@/db/schema";
 import { defaultLocale } from "@/i18n/config";
 import { eq, inArray } from "drizzle-orm";
-
-const _queryAllPrepared = db
-  .select()
-  .from(typeGroups)
-  .prepare("statement_all_type_groups");
-
-export async function getAllTypeGroups() {
-  return _queryAllPrepared.execute();
-}
-
-export async function createTypeGroup(type: InsertTypeGroup) {
-  return db.insert(typeGroups).values(type).returning();
-}
 
 export async function getAllGroups() {
   return db.query.groups.findMany({

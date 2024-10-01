@@ -5,7 +5,7 @@ import {
   festivals,
   InsertFestival,
   SelectFestival,
-  festivalsToCategoriesTable,
+  festivalToCategories,
   categories,
   SelectLanguages,
   languages,
@@ -73,15 +73,9 @@ export async function getAllNestedFestivals() {
     .select({
       festivals: festivals,
     })
-    .from(festivalsToCategoriesTable)
-    .innerJoin(
-      festivals,
-      eq(festivalsToCategoriesTable.festivalId, festivals.id)
-    )
-    .leftJoin(
-      categories,
-      eq(festivalsToCategoriesTable.categoryId, categories.id)
-    )
+    .from(festivalToCategories)
+    .innerJoin(festivals, eq(festivalToCategories.festivalId, festivals.id))
+    .leftJoin(categories, eq(festivalToCategories.categoryId, categories.id))
     .groupBy(festivals.id)
     .limit(10);
 

@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { countriesTable, festivals } from "@/db/schema";
+import { countries, festivals } from "@/db/schema";
 import { and, count, eq, isNotNull } from "drizzle-orm";
 
 export type CountryCastFestivals = {
@@ -13,15 +13,15 @@ export type CountryCastFestivals = {
 export async function getAllCountryCastFestivals(): Promise<CountryCastFestivals> {
   return db
     .select({
-      id: countriesTable.id,
-      country: countriesTable.name,
-      lat: countriesTable.lat,
-      lng: countriesTable.lng,
+      id: countries.id,
+      country: countries.name,
+      lat: countries.lat,
+      lng: countries.lng,
       festivalsCount: count(festivals.id),
     })
-    .from(countriesTable)
-    .leftJoin(festivals, eq(countriesTable.id, festivals.countryId))
-    .where(and(isNotNull(festivals.countryId), eq(festivals.publish, true)))
-    .groupBy(countriesTable.id)
-    .orderBy(countriesTable.name);
+    .from(countries)
+    .leftJoin(festivals, eq(countries.id, festivals.countryId))
+    .where(and(isNotNull(festivals.countryId), eq(festivals.published, true)))
+    .groupBy(countries.id)
+    .orderBy(countries.name);
 }

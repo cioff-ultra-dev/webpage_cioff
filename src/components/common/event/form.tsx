@@ -378,14 +378,14 @@ export default function EventForm({
                                     fieldValue as unknown as Array<Date>
                                   }
                                   onSelect={(selectedItems) => {
-                                    form.setValue(
-                                      "currentDates",
-                                      selectedItems
-                                        ?.map((date) =>
-                                          Math.round(+date / 1000)
-                                        )
-                                        .join(",") || ""
-                                    );
+                                    // form.setValue(
+                                    //   "currentDates",
+                                    //   selectedItems
+                                    //     ?.map((date) =>
+                                    //       Math.round(+date / 1000)
+                                    //     )
+                                    //     .join(",") || ""
+                                    // );
                                     restFields.onChange(selectedItems);
                                   }}
                                   disabled={(date) =>
@@ -501,7 +501,7 @@ export default function EventForm({
                       item.categories.map((category) => ({
                         label: category.name,
                         value: String(category.id),
-                        caption: category.caption || "",
+                        caption: "",
                       }));
                     return (
                       <div key={`${item.id}-${item.slug}`}>
