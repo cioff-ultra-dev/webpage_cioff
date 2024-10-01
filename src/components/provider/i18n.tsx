@@ -1,6 +1,6 @@
 "use client";
 
-import { getMessageFallback } from "@/i18n/handlers";
+import { getMessageFallback, onError } from "@/i18n/handlers";
 import { AbstractIntlMessages, NextIntlClientProvider } from "next-intl";
 import { SToaster } from "@/components/ui/sonner";
 
@@ -18,6 +18,7 @@ export default function I18NProvider({
       locale={locale}
       messages={messages}
       getMessageFallback={getMessageFallback}
+      onError={onError}
     >
       {children}
       <SToaster />

@@ -44,7 +44,8 @@
       "title": "AGREGAR UNA SECCIÓN NACIONAL",
       "disclaimer": "Los campos con * son obligatorios.",
       "_lang": {
-        "name": "Nombre de la asociacion"
+        "name": "Nombre de la asociacion",
+        "about": "Acerca de"
       }
     }
   },

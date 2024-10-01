@@ -3,6 +3,7 @@ import { IntlErrorCode } from "next-intl";
 import { getRequestConfig } from "next-intl/server";
 import deepmerge from "deepmerge";
 import { defaultLocale } from "./config";
+import { getMessageFallback, onError } from "./handlers";
 
 // @ts-expect-error
 export default getRequestConfig(async () => {
@@ -20,14 +21,7 @@ export default getRequestConfig(async () => {
   return {
     locale,
     messages: { ...messages, ...zodMessages },
-    getMessageFallback({ namespace, key, error }) {
-      const path = [namespace, key].filter((part) => part != null).join(".");
-
-      if (error.code === IntlErrorCode.MISSING_MESSAGE) {
-        return path + " is not yet translated";
-      } else {
-        return "Dear developer, please fix this message: " + path;
-      }
-    },
+    getMessageFallback,
+    onError,
   };
 });

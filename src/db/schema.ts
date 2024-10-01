@@ -774,7 +774,7 @@ export const eventLangRelations = relations(eventsLang, ({ one }) => ({
   }),
 }));
 
-/* Schema */
+/* Schema Zod  */
 
 export const inserUserSchema = createInsertSchema(users, {
   email: (schema) => schema.email.email(),
