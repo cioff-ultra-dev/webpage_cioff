@@ -24,16 +24,19 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getAllFestivalsByOwner } from "@/db/queries/events";
-import { EllipsisVertical } from "lucide-react";
+import { EllipsisVertical, Send } from "lucide-react";
 import { getFormatter, getLocale } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
+import { auth } from "@/auth";
 
 export default async function DashboardPage() {
+  const session = await auth();
   const locale = await getLocale();
   const formatter = await getFormatter();
   const festivals = (await getAllFestivalsByOwner(locale))
     .filter((item) => item.festival)
     .map((item) => item.festival);
+
   return (
     <Tabs defaultValue="all">
       <div className="flex items-center">
@@ -67,14 +70,26 @@ export default async function DashboardPage() {
           {/*     Export */}
           {/*   </span> */}
           {/* </Button> */}
-          <Link href="/dashboard/festivals/new">
-            <Button size="sm" className="h-8 gap-1">
-              <CirclePlusIcon className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Add Festival
-              </span>
-            </Button>
-          </Link>
+          <div className="flex gap-3">
+            {session?.user.role?.name === "National Sections" ? (
+              <Link href="/dashboard/festivals/invitation">
+                <Button size="sm" variant="secondary" className="h-8 gap-1">
+                  <Send className="h-3.5 w-3.5" />
+                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                    Generate Festival Invitation
+                  </span>
+                </Button>
+              </Link>
+            ) : null}
+            <Link href="/dashboard/festivals/new">
+              <Button size="sm" variant="default" className="h-8 gap-1">
+                <CirclePlusIcon className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Add Festival
+                </span>
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
       <TabsContent value="all">
@@ -108,7 +123,7 @@ export default async function DashboardPage() {
                           {item?.langs.find((item) => item.l?.code === locale)
                             ?.name ||
                             item?.langs.find(
-                              (item) => item.l?.code === defaultLocale
+                              (item) => item.l?.code === defaultLocale,
                             )?.name}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">

@@ -1,6 +1,7 @@
 "use server";
 
 import {
+  emailTemplates,
   events,
   eventsLang,
   festivals,
@@ -35,6 +36,10 @@ import { db } from "@/db";
 import { and, eq, getTableColumns, SQL, sql } from "drizzle-orm";
 import { getLocale, getTranslations } from "next-intl/server";
 import { PgTable } from "drizzle-orm/pg-core";
+import { replaceTags } from "@codejamboree/replace-tags";
+import generator from "generate-password-ts";
+import { generateHashPassword } from "@/lib/password";
+import { headers } from "next/headers";
 
 const preparedLanguagesByCode = db.query.languages
   .findFirst({
@@ -44,22 +49,25 @@ const preparedLanguagesByCode = db.query.languages
 
 const buildConflictUpdateColumns = <
   T extends PgTable,
-  Q extends keyof T["_"]["columns"]
+  Q extends keyof T["_"]["columns"],
 >(
   table: T,
-  columns: Q[]
+  columns: Q[],
 ) => {
   const cls = getTableColumns(table);
-  return columns.reduce((acc, column) => {
-    const colName = cls[column].name;
-    acc[column] = sql.raw(`excluded.${colName}`);
-    return acc;
-  }, {} as Record<Q, SQL>);
+  return columns.reduce(
+    (acc, column) => {
+      const colName = cls[column].name;
+      acc[column] = sql.raw(`excluded.${colName}`);
+      return acc;
+    },
+    {} as Record<Q, SQL>,
+  );
 };
 
 export async function uploadFile(
   file: File,
-  tx: Parameters<Parameters<typeof db.transaction>[0]>[0]
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
 ) {
   if (!file || file?.size === 0) {
     return undefined;
@@ -79,7 +87,7 @@ export async function uploadFile(
 
 export async function authenticate(
   _prevState: string | undefined,
-  formData: FormData
+  formData: FormData,
 ) {
   formData.set("redirectTo", "/dashboard/festivals");
   try {
@@ -159,11 +167,11 @@ export async function createGroup(prevState: unknown, formData: FormData) {
   const id = Number(formData.get("_id"));
   const generalDirectorName = formData.get("generalDirectorName") as string;
   const generalDirectorProfile = formData.get(
-    "generalDirectorProfile"
+    "generalDirectorProfile",
   ) as string;
   const artisticDirectorName = formData.get("artisticDirectorName") as string;
   const artisticDirectorProfile = formData.get(
-    "artisticDirectorProfile"
+    "artisticDirectorProfile",
   ) as string;
   const directorPhoto = formData.get("directorPhoto") as File;
 
@@ -201,16 +209,12 @@ export async function updateNationalSection(formData: FormData) {
   const websiteLink = (formData.get("_social.websiteLink") as string) || null;
 
   const positionSize = Number(formData.get("_positionSize"));
-  const honorarySize = Number(formData.get("_honorarySize"));
   const festivalSize = Number(formData.get("_festivalSize"));
   const eventSize = Number(formData.get("_eventSize"));
   const groupSize = Number(formData.get("_groupSize"));
 
   const positions: InsertNationalSectionPositions[] = [];
   const positionLangs: InsertNationalSectionPositionsLang[] = [];
-
-  const honoraries: InsertNationalSectionPositions[] = [];
-  const honoraryLangs: InsertNationalSectionPositionsLang[] = [];
 
   const otherEvents: InsertEvent[] = [];
   const otherEventLangs: InsertEventLang[] = [];
@@ -233,8 +237,8 @@ export async function updateNationalSection(formData: FormData) {
       .where(
         and(
           eq(nationalSectionsLang.nsId, nsId),
-          eq(nationalSectionsLang.lang, lang.id)
-        )
+          eq(nationalSectionsLang.lang, lang.id),
+        ),
       );
 
     const [currentSocialMediaLink] = await tx
@@ -271,15 +275,22 @@ export async function updateNationalSection(formData: FormData) {
         const email = formData.get(`_positions.${index}.email`) as string;
         const phone = formData.get(`_positions.${index}.phone`) as string;
         const positionLangId = Number(
-          formData.get(`_positions.${index}._lang.id`)
+          formData.get(`_positions.${index}._lang.id`),
         );
         const shortBio = formData.get(
-          `_positions.${index}._lang.shortBio`
+          `_positions.${index}._lang.shortBio`,
         ) as string;
         const photo = formData.get(`_positions.${index}._photo`) as File;
+        const isHonorable =
+          (formData.get(`_positions.${index}._isHonorable`) as string) === "on";
+        const birthDate = formData.get(
+          `_positions.${index}._birthDate`,
+        ) as string;
+        const deathDate = formData.get(
+          `_positions.${index}._deathDate`,
+        ) as string;
 
         const storagePhotoId = await uploadFile(photo, tx);
-        console.log({ storagePhotoId });
 
         positions.push({
           id: id === 0 ? undefined : id,
@@ -288,6 +299,9 @@ export async function updateNationalSection(formData: FormData) {
           phone,
           photoId: storagePhotoId,
           nsId: nsId,
+          isHonorable,
+          birthDate: birthDate ? new Date(birthDate) : undefined,
+          deadDate: deathDate ? new Date(deathDate) : undefined,
         });
 
         positionLangs.push({
@@ -305,6 +319,10 @@ export async function updateNationalSection(formData: FormData) {
             "name",
             "email",
             "phone",
+            "photoId",
+            "isHonorable",
+            "birthDate",
+            "deadDate",
           ]),
         })
         .returning({ id: nationalSectionsPositions.id });
@@ -327,90 +345,16 @@ export async function updateNationalSection(formData: FormData) {
         });
     }
 
-    if (honorarySize > 0) {
-      for (let index = 0; index < honorarySize; index++) {
-        const id = Number(formData.get(`_honoraries.${index}.id`));
-        const name = formData.get(`_honoraries.${index}.name`) as string;
-        console.log({ name });
-        const email = formData.get(`_honoraries.${index}.email`) as string;
-        const phone = formData.get(`_honoraries.${index}.phone`) as string;
-        const positionLangId = Number(
-          formData.get(`_honoraries.${index}._lang.id`)
-        );
-        const shortBio = formData.get(
-          `_honoraries.${index}._lang.shortBio`
-        ) as string;
-        const photo = formData.get(`_honoraries.${index}._photo`) as File;
-        const birthDate = formData.get(
-          `_honoraries.${index}._birthDate`
-        ) as string;
-        const deathDate = formData.get(
-          `_honoraries.${index}._deathDate`
-        ) as string;
-
-        const storagePhotoId = await uploadFile(photo, tx);
-
-        honoraries.push({
-          id: id === 0 ? undefined : id,
-          name,
-          email: email || "",
-          phone: phone || "",
-          isHonorable: true,
-          photoId: storagePhotoId,
-          nsId: nsId,
-          birthDate: birthDate ? new Date(birthDate) : undefined,
-          deadDate: deathDate ? new Date(deathDate) : undefined,
-        });
-
-        honoraryLangs.push({
-          id: id === 0 ? undefined : positionLangId,
-          shortBio,
-        });
-      }
-
-      const nationalSectionsElements = await tx
-        .insert(nationalSectionsPositions)
-        .values(honoraries)
-        .onConflictDoUpdate({
-          target: nationalSectionsPositions.id,
-          set: buildConflictUpdateColumns(nationalSectionsPositions, [
-            "name",
-            "email",
-            "phone",
-            "birthDate",
-            "deadDate",
-          ]),
-        })
-        .returning({ id: nationalSectionsPositions.id });
-
-      const outputNS = nationalSectionsElements.map((item, index) => ({
-        id: honoraryLangs.at(index)?.id,
-        nsPositionsId: item.id,
-        shortBio: honoraryLangs.at(index)?.shortBio!,
-        lang: lang.id,
-      }));
-
-      await tx
-        .insert(nationalSectionPositionsLang)
-        .values(outputNS)
-        .onConflictDoUpdate({
-          target: nationalSectionPositionsLang.id,
-          set: buildConflictUpdateColumns(nationalSectionPositionsLang, [
-            "shortBio",
-          ]),
-        });
-    }
-
     if (eventSize > 0) {
       for (let index = 0; index < eventSize; index++) {
         const id = Number(formData.get(`_events.${index}.id`));
         const name = formData.get(`_events.${index}._lang.name`) as string;
         const description = formData.get(
-          `_events.${index}._lang.description`
+          `_events.${index}._lang.description`,
         ) as string;
         const eventLangId = Number(formData.get(`_events.${index}._lang.id`));
         const fromDate = formData.get(
-          `_events.${index}._rangeDate.from`
+          `_events.${index}._rangeDate.from`,
         ) as string;
         const toDate = formData.get(`_events.${index}._rangeDate.to`) as string;
 
@@ -462,16 +406,16 @@ export async function updateNationalSection(formData: FormData) {
         const name = formData.get(`_festivals.${index}._lang.name`) as string;
         const email = formData.get(`_festivals.${index}.email`) as string;
         const festivalLangId = Number(
-          formData.get(`_festivals.${index}._lang.id`)
+          formData.get(`_festivals.${index}._lang.id`),
         );
         const ownerId = Number(formData.get(`_festivals.${index}.ownerId`));
         const certificationFile = formData.get(
-          `_festivals.${index}.certificationFile`
+          `_festivals.${index}.certificationFile`,
         ) as File;
 
         const storageCertificationFileId = await uploadFile(
           certificationFile,
-          tx
+          tx,
         );
 
         const role = await tx.query.roles.findFirst({
@@ -557,12 +501,12 @@ export async function updateNationalSection(formData: FormData) {
         const groupLangId = Number(formData.get(`_groups.${index}._lang.id`));
         const ownerId = Number(formData.get(`_groups.${index}.ownerId`));
         const certificationFile = formData.get(
-          `_groups.${index}.certificationFile`
+          `_groups.${index}.certificationFile`,
         ) as File;
 
         const storageCertificationFileId = await uploadFile(
           certificationFile,
-          tx
+          tx,
         );
 
         const role = await tx.query.roles.findFirst({
@@ -662,12 +606,12 @@ export async function createNationalSection(formData: FormData) {
       const name = formData.get(`_festivals.${index}.name`) as string;
       const email = formData.get(`_festivals.${index}.email`) as string;
       const certificationFile = formData.get(
-        `_festivals.${index}.certificationFile`
+        `_festivals.${index}.certificationFile`,
       ) as File;
 
       const storageCertificationFileId = await uploadFile(
         certificationFile,
-        tx
+        tx,
       );
 
       const role = await tx.query.roles.findFirst({
@@ -705,12 +649,12 @@ export async function createNationalSection(formData: FormData) {
       const name = formData.get(`_groups.${index}.name`) as string;
       const email = formData.get(`_groups.${index}.email`) as string;
       const certificationFile = formData.get(
-        `_groups.${index}.certificationFile`
+        `_groups.${index}.certificationFile`,
       ) as File;
 
       const storageCertificationFileId = await uploadFile(
         certificationFile,
-        tx
+        tx,
       );
 
       const role = await tx.query.roles.findFirst({
@@ -751,4 +695,111 @@ export async function createNationalSection(formData: FormData) {
 
   revalidatePath("/dashboard/national-sections");
   redirect("/dashboard/national-sections");
+}
+
+export async function generateFestival(formData: FormData) {
+  const locale = await getLocale();
+  const headerList = headers();
+  const session = await auth();
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+  const nsId = Number(formData.get("_nsId"));
+
+  const t = await getTranslations("notification");
+  const lang = await preparedLanguagesByCode.execute({ locale });
+  const currentNationalSection = await db.query.nationalSections.findFirst({
+    where(fields, { eq }) {
+      return eq(fields.id, nsId);
+    },
+  });
+
+  try {
+    await db.transaction(async (tx) => {
+      const role = await tx.query.roles.findFirst({
+        where: eq(roles.name, "Festivals"),
+      });
+
+      const password = generator.generate({ length: 10, numbers: true });
+      const hashedPassword = await generateHashPassword(password);
+
+      const [user] = await tx
+        .insert(users)
+        .values({
+          email,
+          password: hashedPassword,
+          roleId: role?.id,
+          countryId: currentNationalSection?.countryId,
+        })
+        .returning();
+
+      if (user.email && !user.isCreationNotified && !user.emailVerified) {
+        const [emailTemplate] = await db
+          .select()
+          .from(emailTemplates)
+          .where(eq(emailTemplates.lang, lang?.id!));
+
+        const message = replaceTags(emailTemplate.template, {
+          name: name,
+          password: password,
+          url: `<a href="${process.env.HOSTNAME_URL}/login">Login on CIOFF</a>`,
+        });
+
+        await transport.sendMail({
+          from: process.env.GMAIL_USER,
+          to: [user.email],
+          subject: `Festival User Invitation - CIOFF`,
+          html: message,
+        });
+
+        await tx
+          .update(users)
+          .set({ isCreationNotified: true })
+          .where(eq(users.id, user.id));
+      }
+
+      const [currentFestival] = await tx
+        .insert(festivals)
+        .values({
+          nsId,
+          countryId: currentNationalSection?.countryId,
+        })
+        .returning();
+
+      await tx.insert(festivalsLang).values({
+        name,
+        festivalId: currentFestival.id,
+        lang: lang?.id,
+      });
+
+      const ownerList: (typeof owners.$inferInsert)[] = [
+        { userId: user.id, festivalId: currentFestival.id },
+      ];
+
+      if (session?.user.role?.name === "National Sections") {
+        ownerList.push({
+          userId: session.user.id,
+          festivalId: currentFestival.id,
+        });
+      }
+
+      await tx
+        .insert(owners)
+        .values(ownerList)
+        .onConflictDoUpdate({
+          target: owners.id,
+          set: buildConflictUpdateColumns(owners, ["userId"]),
+        });
+    });
+  } catch (err) {
+    const e = err as { constraint: string };
+
+    if (e.constraint === "emailUniqueIndex") {
+      return { error: t("email_exist") };
+    }
+
+    const er = err as Error;
+    return { error: er.message };
+  }
+
+  return { success: t("success"), error: null };
 }

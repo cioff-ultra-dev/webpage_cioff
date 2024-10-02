@@ -1,12 +1,6 @@
 import { auth } from "@/auth";
 import { db } from "@/db";
-import {
-  categories,
-  groups,
-  languages,
-  SelectGroup,
-  SelectLanguages,
-} from "@/db/schema";
+import { groups, languages, SelectGroup, SelectLanguages } from "@/db/schema";
 import { defaultLocale } from "@/i18n/config";
 import { eq, inArray } from "drizzle-orm";
 

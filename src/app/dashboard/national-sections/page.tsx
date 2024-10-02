@@ -38,7 +38,9 @@ import { defaultLocale } from "@/i18n/config";
 export default async function DashboardPage() {
   const locale = await getLocale();
   const formatter = await getFormatter();
-  const nationalSections = await getAllNationalSectionsByOwner(locale);
+  const nationalSections = (await getAllNationalSectionsByOwner(locale))
+    .filter((item) => item.ns)
+    .map((item) => item.ns);
 
   return (
     <Tabs defaultValue="all">
@@ -109,35 +111,29 @@ export default async function DashboardPage() {
                 <TableBody>
                   {nationalSections.map((item) => {
                     return (
-                      <TableRow key={item.id}>
+                      <TableRow key={item?.id}>
                         <TableCell className="font-medium">
-                          {item.owners
-                            .at(0)
-                            ?.ns?.langs.find((item) => item.l?.code === locale)
+                          {item?.langs.find((item) => item.l?.code === locale)
                             ?.name ||
-                            item.owners
-                              .at(0)
-                              ?.ns?.langs.find(
-                                (item) => item.l?.code === defaultLocale
-                              )?.name}
+                            item?.langs.find(
+                              (item) => item.l?.code === defaultLocale,
+                            )?.name}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
-                          {formatter.dateTime(item.createdAt, {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
+                          {item?.createdAt
+                            ? formatter.dateTime(item?.createdAt, {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })
+                            : null}
                         </TableCell>
                         <TableCell className="hidden md:table-cell capitalize truncate">
-                          {item.owners
-                            .at(0)
-                            ?.ns?.langs.find((item) => item.l?.code === locale)
+                          {item?.langs.find((item) => item.l?.code === locale)
                             ?.about ||
-                            item.owners
-                              .at(0)
-                              ?.ns?.langs.find(
-                                (item) => item.l?.code === defaultLocale
-                              )?.about}
+                            item?.langs.find(
+                              (item) => item.l?.code === defaultLocale,
+                            )?.about}
                         </TableCell>
                         <TableCell>
                           <DropdownMenu>
@@ -158,7 +154,7 @@ export default async function DashboardPage() {
                                 className="cursor-pointer"
                               >
                                 <Link
-                                  href={`/dashboard/national-sections/${item.slug}/edit`}
+                                  href={`/dashboard/national-sections/${item?.slug}/edit`}
                                 >
                                   Edit
                                 </Link>

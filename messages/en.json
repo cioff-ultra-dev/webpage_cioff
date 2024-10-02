@@ -9,7 +9,8 @@
     "en": "English"
   },
   "notification": {
-    "success": "Saved Successfully"
+    "success": "Saved Successfully",
+    "email_exist": "Email already exist"
   },
   "link": {
     "dashboard": "Dashboard",

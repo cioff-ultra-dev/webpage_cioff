@@ -31,7 +31,7 @@ export async function getAllNationalSections(): Promise<
 
 export async function getNationalSectionBySlug(
   slug: SelectNationalSection["slug"],
-  currentLocale: string = defaultLocale as SelectLanguages["code"]
+  currentLocale: string = defaultLocale as SelectLanguages["code"],
 ) {
   const sq = db
     .select({ id: languages.id })
@@ -126,6 +126,20 @@ export type NationalSectionDetailsType = Awaited<
   ReturnType<typeof getNationalSectionBySlug>
 >;
 
+export async function getCurrentNationalSection(
+  countryId: SelectNationalSection["countryId"],
+) {
+  return db.query.nationalSections.findFirst({
+    where(fields, { eq }) {
+      return eq(fields.countryId, countryId!);
+    },
+  });
+}
+
+export type CurrentNationalSectionType = Awaited<
+  ReturnType<typeof getCurrentNationalSection>
+>;
+
 export async function getAllNationalSectionsByOwner(locale: string) {
   const session = await auth();
   const localeValue = locale as SelectLanguages["code"];
@@ -142,29 +156,49 @@ export async function getAllNationalSectionsByOwner(locale: string) {
     .from(languages)
     .where(inArray(languages.code, pushLocales));
 
-  return db.query.nationalSections.findMany({
+  return db.query.owners.findMany({
+    where(fields, { eq }) {
+      return eq(fields.userId, session?.user.id!);
+    },
     with: {
-      owners: {
-        where(fields, { eq }) {
-          return eq(fields.userId, session?.user.id!);
-        },
+      ns: {
         with: {
-          ns: {
+          langs: {
+            where(fields, { inArray }) {
+              return inArray(fields.lang, sq);
+            },
             with: {
-              langs: {
-                where(fields, { inArray }) {
-                  return inArray(fields.lang, sq);
-                },
-                with: {
-                  l: true,
-                },
-              },
+              l: true,
             },
           },
         },
       },
     },
   });
+
+  // return db.query.nationalSections.findMany({
+  //   with: {
+  //     owners: {
+  //       where(fields, { eq }) {
+  //         return eq(fields.userId, session?.user.id!);
+  //       },
+  //       with: {
+  //         ns: {
+  //           with: {
+  //             langs: {
+  //               where(fields, { inArray }) {
+  //                 return inArray(fields.lang, sq);
+  //               },
+  //               with: {
+  //                 l: true,
+  //               },
+  //             },
+  //           },
+  //         },
+  //       },
+  //     },
+  //   },
+  // });
 }
 
 export type NationalSectionByOwnerType = Awaited<

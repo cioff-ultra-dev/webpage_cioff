@@ -13,7 +13,6 @@ import {
   useWatch,
 } from "react-hook-form";
 import * as RPNInput from "react-phone-number-input";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button, ButtonProps } from "@/components/ui/button";
@@ -76,7 +75,8 @@ const positionsSchema = insertNationalSectionPositionsSchema.merge(
       .refine((item) => item instanceof File || typeof item === "undefined", {
         params: { i18n: "file_required" },
       }),
-  })
+    _isHonorable: z.boolean().default(false),
+  }),
 );
 
 const honorariesSchema = insertNationalSectionPositionsSchema
@@ -90,7 +90,7 @@ const honorariesSchema = insertNationalSectionPositionsSchema
         .refine((item) => item instanceof File || typeof item === "undefined", {
           params: { i18n: "file_required" },
         }),
-    })
+    }),
   )
   .extend({
     email: z.string().optional(),
@@ -101,8 +101,7 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
   z.object({
     _lang: inserNationalSectionLangSchema,
     _positions: z.array(positionsSchema),
-    _positionsSize: z.array(z.any()).min(3).max(11),
-    _honoraries: z.array(honorariesSchema),
+    _positionsSize: z.array(z.any()).min(1).max(11),
     _events: z.array(
       insertEventSchema.extend({
         _startDate: z.string().datetime().optional(),
@@ -112,21 +111,15 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
           to: z.string().optional(),
         }),
         _lang: insertEventLangSchema,
-      })
+      }),
     ),
     _festivals: z.array(
       inserFestivalByNSSchema.merge(
         z.object({
           ownerId: z.number().optional(),
           _lang: insertFestivalLangSchema.pick({ name: true, id: true }),
-          certificationFile: z.any().refine(
-            (item) => {
-              return item instanceof File || typeof item !== "undefined";
-            },
-            { params: { i18n: "file_required" } }
-          ),
-        })
-      )
+        }),
+      ),
     ),
     _social: insertSocialMediaLinkSchema,
     _groups: z.array(
@@ -135,16 +128,10 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
           ownerId: z.number().optional(),
           email: z.string().email(),
           _lang: insertGroupLangSchema.pick({ name: true, id: true }),
-          certificationFile: z
-            .any()
-            .refine(
-              (item) => item instanceof File || typeof item !== "undefined",
-              { params: { i18n: "file_required" } }
-            ),
-        })
-      )
+        }),
+      ),
     ),
-  })
+  }),
 );
 
 function Submit({
@@ -187,7 +174,7 @@ function PositionSizeWatched({
   }, [positionSize, form]);
 
   if (!form.getFieldState("_positionsSize").error) {
-    return;
+    return null;
   }
 
   return (
@@ -237,25 +224,10 @@ export default function NationalSectionForm({
         };
       }),
       _positions: currentNationalSection?.positions.length
-        ? currentNationalSection?.positions
-            ?.filter((position) => !position.isHonorable)
-            .map((position) => {
-              return {
-                ...position,
-                _lang: {
-                  id: position?.langs?.at(0)?.id ?? 0,
-                  shortBio: position.langs.at(0)?.shortBio,
-                },
-              };
-            })
-        : [{}],
-      _honoraries:
-        currentNationalSection?.positions
-          ?.filter((position) => position.isHonorable)
-          .map((position) => {
+        ? currentNationalSection?.positions.map((position) => {
             return {
               ...position,
-              email: position.email || "",
+              _isHonorable: Boolean(position.isHonorable),
               _birthDate: position.birthDate
                 ? position.birthDate.toUTCString()
                 : "",
@@ -267,7 +239,8 @@ export default function NationalSectionForm({
                 shortBio: position.langs.at(0)?.shortBio,
               },
             };
-          }) ?? [],
+          })
+        : [{}],
       _festivals: currentNationalSection?.festivals.map((festival) => {
         return {
           ...festival,
@@ -312,23 +285,11 @@ export default function NationalSectionForm({
       .forEach((position, index) => {
         form.setValue(
           `_positions.${index}._lang.shortBio`,
-          position.langs.at(0)?.shortBio || ""
+          position.langs.at(0)?.shortBio || "",
         );
         form.setValue(
           `_positions.${index}._lang.id`,
-          position.langs.at(0)?.id ?? 0
-        );
-      });
-    currentNationalSection?.positions
-      .filter((position) => position.isHonorable)
-      .forEach((position, index) => {
-        form.setValue(
-          `_honoraries.${index}._lang.shortBio`,
-          position.langs.at(0)?.shortBio || ""
-        );
-        form.setValue(
-          `_honoraries.${index}._lang.id`,
-          position.langs.at(0)?.id ?? 0
+          position.langs.at(0)?.id ?? 0,
         );
       });
   }, [
@@ -344,16 +305,7 @@ export default function NationalSectionForm({
     name: "_positions",
   });
 
-  const { fields: honoraryFields, append: appendHonorary } = useFieldArray({
-    control: form.control,
-    name: "_honoraries",
-  });
-
-  const {
-    fields: eventFields,
-    append: appendEvent,
-    remove: removeEvent,
-  } = useFieldArray({
+  const { fields: eventFields, append: appendEvent } = useFieldArray({
     control: form.control,
     name: "_events",
   });
@@ -395,6 +347,13 @@ export default function NationalSectionForm({
       router.push("/dashboard/national-sections");
     }
   };
+
+  const outputPositions = useWatch({
+    control: form.control,
+    name: "_positions",
+  });
+
+  console.log(form.formState.errors);
 
   return (
     <div className="w-full p-4 md:p-6">
@@ -624,7 +583,7 @@ export default function NationalSectionForm({
                                   onChange={(event) =>
                                     onChange(
                                       event.target.files &&
-                                        event.target.files[0]
+                                        event.target.files[0],
                                     )
                                   }
                                 />
@@ -676,6 +635,159 @@ export default function NationalSectionForm({
                           )}
                         />
                       </div>
+                      <div className="grid w-full items-center gap-1.5">
+                        <FormField
+                          control={form.control}
+                          name={`_positions.${index}._isHonorable`}
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                              <div className="space-y-0.5">
+                                <FormLabel>Honorary Member</FormLabel>
+                                <FormDescription>
+                                  This is a member that has works with honors on
+                                  this National Section
+                                </FormDescription>
+                              </div>
+                              <FormControl>
+                                <Switch
+                                  name={field.name}
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      {outputPositions.at(index)?._isHonorable ? (
+                        <>
+                          <div className="grid w-full items-center gap-1.5">
+                            <FormField
+                              control={form.control}
+                              name={`_positions.${index}._birthDate`}
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                  <FormLabel>Date of birth</FormLabel>
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <FormControl>
+                                        <Button
+                                          variant={"outline"}
+                                          className={cn(
+                                            "w-full pl-3 text-left font-normal",
+                                            !field.value &&
+                                              "text-muted-foreground",
+                                          )}
+                                        >
+                                          {field.value ? (
+                                            format(field.value, "PPP")
+                                          ) : (
+                                            <span>Pick a date</span>
+                                          )}
+                                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                      </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent
+                                      className="w-auto p-0"
+                                      align="start"
+                                    >
+                                      <Calendar
+                                        mode="single"
+                                        captionLayout="dropdown"
+                                        fromYear={1900}
+                                        toYear={new Date().getFullYear()}
+                                        defaultMonth={new Date(2024, 6)}
+                                        selected={
+                                          field.value
+                                            ? new Date(field.value)
+                                            : undefined
+                                        }
+                                        onSelect={(value) =>
+                                          field.onChange(value?.toUTCString())
+                                        }
+                                        disabled={(date: Date) =>
+                                          date > new Date() ||
+                                          date < new Date("1900-01-01")
+                                        }
+                                      />
+                                    </PopoverContent>
+                                  </Popover>
+                                  <FormMessage />
+                                  <input
+                                    type="hidden"
+                                    name={`_positions.${index}._birthDate`}
+                                    value={field.value}
+                                  />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <div className="grid w-full items-center gap-1.5">
+                            <FormField
+                              control={form.control}
+                              name={`_positions.${index}._deathDate`}
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                  <FormLabel>Date of death</FormLabel>
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <FormControl>
+                                        <Button
+                                          variant={"outline"}
+                                          className={cn(
+                                            "w-full pl-3 text-left font-normal",
+                                            !field.value &&
+                                              "text-muted-foreground",
+                                          )}
+                                        >
+                                          {field.value ? (
+                                            format(field.value, "PPP")
+                                          ) : (
+                                            <span>Pick a date</span>
+                                          )}
+                                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                      </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent
+                                      className="w-auto p-0"
+                                      align="start"
+                                    >
+                                      <Calendar
+                                        mode="single"
+                                        captionLayout="dropdown"
+                                        fromYear={1900}
+                                        toYear={new Date().getFullYear()}
+                                        defaultMonth={new Date(2024, 6)}
+                                        selected={
+                                          field.value
+                                            ? new Date(field.value)
+                                            : undefined
+                                        }
+                                        onSelect={(value) =>
+                                          field.onChange(value?.toUTCString())
+                                        }
+                                        disabled={(date: Date) =>
+                                          date > new Date() ||
+                                          date < new Date("1900-01-01")
+                                        }
+                                      />
+                                    </PopoverContent>
+                                  </Popover>
+                                  <FormMessage />
+                                  <input
+                                    type="hidden"
+                                    name={`_positions.${index}._deathDate`}
+                                    value={field.value}
+                                  />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </>
+                      ) : null}
+
                       <Button variant="outline" disabled>
                         See contact information
                       </Button>
@@ -691,6 +803,7 @@ export default function NationalSectionForm({
                       phone: "",
                       email: "",
                       _photo: undefined,
+                      _isHonorable: false,
                       _lang: { shortBio: "" },
                     })
                   }
@@ -733,271 +846,6 @@ export default function NationalSectionForm({
                   />
                 </div>
               </div>
-              {/* <div className="space-y-4 border-t pt-4">
-                <h2 className="text-lg font-semibold">
-                  CIOFF International Honorary Members
-                </h2>
-                {honoraryFields.map((field, index) => {
-                  const positionIndex = index + 1;
-                  return (
-                    <div key={field.id} className="space-y-4  pt-4">
-                      <h3 className="font-medium">Honorary {positionIndex}</h3>
-                      <FormField
-                        control={form.control}
-                        name={`_honoraries.${index}.id`}
-                        render={({ field }) => (
-                          <FormControl>
-                            <Input
-                              ref={field.ref}
-                              value={field.value}
-                              name={field.name}
-                              type="hidden"
-                            />
-                          </FormControl>
-                        )}
-                      />
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_honoraries.${index}.name`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Name</FormLabel>
-                              <FormControl>
-                                <Input
-                                  ref={field.ref}
-                                  onChange={field.onChange}
-                                  onBlur={field.onBlur}
-                                  value={
-                                    field.value === "" ? undefined : field.value
-                                  }
-                                  name={field.name}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Enter your current name
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_honoraries.${index}._photo`}
-                          render={({
-                            field: { value, onChange, ...fieldProps },
-                          }) => (
-                            <FormItem>
-                              <FormLabel>Picture</FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...fieldProps}
-                                  placeholder="Picture"
-                                  type="file"
-                                  accept="image/*, application/pdf"
-                                  onChange={(event) =>
-                                    onChange(
-                                      event.target.files &&
-                                        event.target.files[0]
-                                    )
-                                  }
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_honoraries.${index}._lang.id`}
-                          render={({ field }) => (
-                            <FormControl>
-                              <Input
-                                name={field.name}
-                                onChange={field.onChange}
-                                value={field.value}
-                                onBlur={field.onBlur}
-                                ref={field.ref}
-                                type="hidden"
-                              />
-                            </FormControl>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`_honoraries.${index}._lang.shortBio`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Short Bio</FormLabel>
-                              <FormControl>
-                                <Textarea
-                                  placeholder="Tell us a bit about you"
-                                  className="resize-none"
-                                  name={field.name}
-                                  onChange={field.onChange}
-                                  defaultValue={field.value || undefined}
-                                  onBlur={field.onBlur}
-                                  ref={field.ref}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                You can use max. 200 words for this input
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_honoraries.${index}._birthDate`}
-                          render={({ field }) => (
-                            <FormItem className="flex flex-col">
-                              <FormLabel>Date of birth</FormLabel>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <FormControl>
-                                    <Button
-                                      variant={"outline"}
-                                      className={cn(
-                                        "w-full pl-3 text-left font-normal",
-                                        !field.value && "text-muted-foreground"
-                                      )}
-                                    >
-                                      {field.value ? (
-                                        format(field.value, "PPP")
-                                      ) : (
-                                        <span>Pick a date</span>
-                                      )}
-                                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                    </Button>
-                                  </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent
-                                  className="w-auto p-0"
-                                  align="start"
-                                >
-                                  <Calendar
-                                    mode="single"
-                                    captionLayout="dropdown"
-                                    fromYear={1900}
-                                    toYear={new Date().getFullYear()}
-                                    defaultMonth={new Date(2024, 6)}
-                                    selected={
-                                      field.value
-                                        ? new Date(field.value)
-                                        : undefined
-                                    }
-                                    onSelect={(value) =>
-                                      field.onChange(value?.toUTCString())
-                                    }
-                                    disabled={(date: Date) =>
-                                      date > new Date() ||
-                                      date < new Date("1900-01-01")
-                                    }
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                              <FormMessage />
-                              <input
-                                type="hidden"
-                                name={`_honoraries.${index}._birthDate`}
-                                value={field.value}
-                              />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_honoraries.${index}._deathDate`}
-                          render={({ field }) => (
-                            <FormItem className="flex flex-col">
-                              <FormLabel>Date of death</FormLabel>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <FormControl>
-                                    <Button
-                                      variant={"outline"}
-                                      className={cn(
-                                        "w-full pl-3 text-left font-normal",
-                                        !field.value && "text-muted-foreground"
-                                      )}
-                                    >
-                                      {field.value ? (
-                                        format(field.value, "PPP")
-                                      ) : (
-                                        <span>Pick a date</span>
-                                      )}
-                                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                    </Button>
-                                  </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent
-                                  className="w-auto p-0"
-                                  align="start"
-                                >
-                                  <Calendar
-                                    mode="single"
-                                    captionLayout="dropdown"
-                                    fromYear={1900}
-                                    toYear={new Date().getFullYear()}
-                                    defaultMonth={new Date(2024, 6)}
-                                    selected={
-                                      field.value
-                                        ? new Date(field.value)
-                                        : undefined
-                                    }
-                                    onSelect={(value) =>
-                                      field.onChange(value?.toUTCString())
-                                    }
-                                    disabled={(date: Date) =>
-                                      date > new Date() ||
-                                      date < new Date("1900-01-01")
-                                    }
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                              <FormMessage />
-                              <input
-                                type="hidden"
-                                name={`_honoraries.${index}._deathDate`}
-                                value={field.value}
-                              />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-                <Button
-                  type="button"
-                  onClick={(_) =>
-                    appendHonorary({
-                      name: "",
-                      phone: "",
-                      email: "",
-                      isHonorable: true,
-                      _photo: undefined,
-                      _lang: { shortBio: "" },
-                    })
-                  }
-                >
-                  <PlusCircle className="mr-2 h-4 w-4" /> Add Honorary Member
-                </Button>
-                <input
-                  type="hidden"
-                  name="_honorarySize"
-                  value={honoraryFields.length}
-                />
-              </div> */}
               <div className="space-y-4 border-t pt-4">
                 <h2 className="text-lg font-semibold">Social media</h2>
                 <FormField
@@ -1188,28 +1036,28 @@ export default function NationalSectionForm({
                                     buttonClassName="w-full"
                                     defaultDates={{
                                       from: form.getValues(
-                                        `_events.${index}._rangeDate.from`
+                                        `_events.${index}._rangeDate.from`,
                                       )
                                         ? new Date(
                                             form.getValues(
-                                              `_events.${index}._rangeDate.from`
-                                            )
+                                              `_events.${index}._rangeDate.from`,
+                                            ),
                                           )
                                         : undefined,
                                       to:
                                         form.getValues(
-                                          `_events.${index}._rangeDate.to`
+                                          `_events.${index}._rangeDate.to`,
                                         ) &&
                                         form.getValues(
-                                          `_events.${index}._rangeDate.from`
+                                          `_events.${index}._rangeDate.from`,
                                         ) !==
                                           form.getValues(
-                                            `_events.${index}._rangeDate.to`
+                                            `_events.${index}._rangeDate.to`,
                                           )
                                           ? new Date(
                                               form.getValues(
-                                                `_events.${index}._rangeDate.to`
-                                              )!
+                                                `_events.${index}._rangeDate.to`,
+                                              )!,
                                             )
                                           : undefined,
                                     }}
@@ -1233,16 +1081,16 @@ export default function NationalSectionForm({
                                 </>
                               </FormControl>
                               {form?.getFieldState(
-                                `_events.${index}._rangeDate.from`
+                                `_events.${index}._rangeDate.from`,
                               ).error?.message ? (
                                 <p
                                   className={cn(
-                                    "text-sm font-medium text-destructive"
+                                    "text-sm font-medium text-destructive",
                                   )}
                                 >
                                   {
                                     form?.getFieldState(
-                                      `_events.${index}._rangeDate.from`
+                                      `_events.${index}._rangeDate.from`,
                                     ).error?.message
                                   }
                                 </p>
@@ -1390,47 +1238,6 @@ export default function NationalSectionForm({
                           )}
                         />
                       </div>
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_festivals.${index}.certificationFile`}
-                          render={({
-                            field: { value, onChange, ...fieldProps },
-                          }) => (
-                            <FormItem>
-                              <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                                Upload certification of membership
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...fieldProps}
-                                  placeholder="Picture"
-                                  type="file"
-                                  accept=".pdf,.doc,.docx"
-                                  onChange={(event) =>
-                                    onChange(
-                                      event.target.files &&
-                                        event.target.files[0]
-                                    )
-                                  }
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Link to a PDF or word document
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <Switch id={`festival-turn-${field.id}`} disabled />
-                          <Label htmlFor={`festival-turn-${field.id}`}>
-                            Turn off profile
-                          </Label>
-                        </div>
-                      </div>
                       {/* {festivalFields.length > 1 && (
                         <Button
                           variant="destructive"
@@ -1448,7 +1255,6 @@ export default function NationalSectionForm({
                   onClick={() =>
                     appendFestival({
                       email: "",
-                      certificationFile: null,
                       _lang: { name: "" },
                     })
                   }
@@ -1572,47 +1378,6 @@ export default function NationalSectionForm({
                           )}
                         />
                       </div>
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_groups.${index}.certificationFile`}
-                          render={({
-                            field: { value, onChange, ...fieldProps },
-                          }) => (
-                            <FormItem>
-                              <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                                Upload certification of membership
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...fieldProps}
-                                  placeholder="Picture"
-                                  type="file"
-                                  accept=".pdf,.doc,.docx"
-                                  onChange={(event) =>
-                                    onChange(
-                                      event.target.files &&
-                                        event.target.files[0]
-                                    )
-                                  }
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Link to a PDF or word document
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <Switch id={`festival-turn-${field.id}`} disabled />
-                          <Label htmlFor={`festival-turn-${field.id}`}>
-                            Turn off profile
-                          </Label>
-                        </div>
-                      </div>
                       {/* {groupFields.length > 1 && (
                         <Button
                           variant="destructive"
@@ -1629,7 +1394,6 @@ export default function NationalSectionForm({
                   type="button"
                   onClick={() =>
                     appendGroup({
-                      certificationFile: null,
                       email: "",
                       _lang: { name: "" },
                     })
