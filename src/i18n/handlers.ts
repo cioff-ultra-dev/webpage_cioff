@@ -24,6 +24,6 @@ export function getMessageFallback({
   if (error.code === IntlErrorCode.MISSING_MESSAGE) {
     return key;
   } else {
-    return "Dear developer, please fix this message: " + path;
+    return error.code + " Dear developer, please fix this message: " + path;
   }
 }

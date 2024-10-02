@@ -4,14 +4,20 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import {
+  Control,
+  SubmitHandler,
+  useFieldArray,
+  useForm,
+  UseFormReturn,
+  useWatch,
+} from "react-hook-form";
 import * as RPNInput from "react-phone-number-input";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button, ButtonProps } from "@/components/ui/button";
-import { createNationalSection, updateNationalSection } from "@/app/actions";
-import { useFormState, useFormStatus } from "react-dom";
+import { updateNationalSection } from "@/app/actions";
 import {
   Form,
   FormControl,
@@ -95,6 +101,7 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
   z.object({
     _lang: inserNationalSectionLangSchema,
     _positions: z.array(positionsSchema),
+    _positionsSize: z.array(z.any()).min(3).max(11),
     _honoraries: z.array(honorariesSchema),
     _events: z.array(
       insertEventSchema.extend({
@@ -162,6 +169,34 @@ function Submit({
   );
 }
 
+function PositionSizeWatched({
+  form,
+}: {
+  form: UseFormReturn<z.infer<typeof formNationalSectionSchema>>;
+}) {
+  const positions = useWatch({
+    control: form.control,
+    name: "_positions",
+    defaultValue: [],
+  });
+
+  const positionSize = positions.length;
+
+  useEffect(() => {
+    form.setValue("_positionsSize", Array.from({ length: positionSize }));
+  }, [positionSize, form]);
+
+  if (!form.getFieldState("_positionsSize").error) {
+    return;
+  }
+
+  return (
+    <p className={cn("text-sm font-medium text-destructive")}>
+      {form.getFieldState("_positionsSize").error?.message}
+    </p>
+  );
+}
+
 export default function NationalSectionForm({
   currentNationalSection,
   currentLang,
@@ -175,6 +210,7 @@ export default function NationalSectionForm({
 }) {
   // const [state, formAction] = useFormState(, null);
   useI18nZodErrors("ns");
+
   const form = useForm<z.infer<typeof formNationalSectionSchema>>({
     resolver: zodResolver(formNationalSectionSchema),
     defaultValues: {
@@ -200,18 +236,19 @@ export default function NationalSectionForm({
           },
         };
       }),
-      _positions:
-        currentNationalSection?.positions
-          ?.filter((position) => !position.isHonorable)
-          .map((position) => {
-            return {
-              ...position,
-              _lang: {
-                id: position?.langs?.at(0)?.id ?? 0,
-                shortBio: position.langs.at(0)?.shortBio,
-              },
-            };
-          }) ?? [],
+      _positions: currentNationalSection?.positions.length
+        ? currentNationalSection?.positions
+            ?.filter((position) => !position.isHonorable)
+            .map((position) => {
+              return {
+                ...position,
+                _lang: {
+                  id: position?.langs?.at(0)?.id ?? 0,
+                  shortBio: position.langs.at(0)?.shortBio,
+                },
+              };
+            })
+        : [{}],
       _honoraries:
         currentNationalSection?.positions
           ?.filter((position) => position.isHonorable)
@@ -466,198 +503,206 @@ export default function NationalSectionForm({
                   />
                 </div>
               </div>
-              {positionFields.map((field, index) => {
-                const positionIndex = index + 1;
-                return (
-                  <div key={field.id} className="space-y-4 border-t pt-4">
-                    <h3 className="font-medium">Position {positionIndex}</h3>
-                    <FormField
-                      control={form.control}
-                      name={`_positions.${index}.id`}
-                      render={({ field }) => (
-                        <FormControl>
-                          <Input
-                            ref={field.ref}
-                            value={field.value}
-                            name={field.name}
-                            type="hidden"
-                          />
-                        </FormControl>
-                      )}
-                    />
-                    <div className="grid w-full items-center gap-1.5">
+              <div className="space-y-4 border-t pt-4">
+                <h2 className="text-lg font-semibold">Positions</h2>
+                {positionFields.map((field, index) => {
+                  const positionIndex = index + 1;
+                  return (
+                    <div
+                      key={field.id}
+                      className="space-y-4 border-b pt-4 pb-4"
+                    >
+                      <h3 className="font-medium">Position {positionIndex}</h3>
                       <FormField
                         control={form.control}
-                        name={`_positions.${index}.name`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                              Name
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                ref={field.ref}
-                                onChange={field.onChange}
-                                onBlur={field.onBlur}
-                                value={
-                                  field.value === "" ? undefined : field.value
-                                }
-                                name={field.name}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Enter your current name
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="grid w-full items-center gap-1.5">
-                      <FormField
-                        control={form.control}
-                        name={`_positions.${index}.email`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                              Email Address
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                ref={field.ref}
-                                onChange={field.onChange}
-                                onBlur={field.onBlur}
-                                value={field.value || ""}
-                                name={field.name}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Enter your current email address
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="grid w-full items-center gap-1.5">
-                      <FormField
-                        control={form.control}
-                        name={`_positions.${index}.phone`}
-                        render={({ field: { value, ...fieldRest } }) => (
-                          <FormItem>
-                            <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                              Phone Number (country code)
-                            </FormLabel>
-                            <FormControl>
-                              <PhoneInput
-                                value={value as RPNInput.Value}
-                                id="phone"
-                                international
-                                {...fieldRest}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Enter a phone number
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="grid w-full items-center gap-1.5">
-                      <FormField
-                        control={form.control}
-                        name={`_positions.${index}._photo`}
-                        render={({
-                          field: { value, onChange, ...fieldProps },
-                        }) => (
-                          <FormItem>
-                            <FormLabel>Picture</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...fieldProps}
-                                placeholder="Picture"
-                                type="file"
-                                accept="image/*, application/pdf"
-                                onChange={(event) =>
-                                  onChange(
-                                    event.target.files && event.target.files[0]
-                                  )
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="grid w-full items-center gap-1.5">
-                      <FormField
-                        control={form.control}
-                        name={`_positions.${index}._lang.id`}
+                        name={`_positions.${index}.id`}
                         render={({ field }) => (
                           <FormControl>
                             <Input
-                              name={field.name}
-                              onChange={field.onChange}
-                              value={field.value}
-                              onBlur={field.onBlur}
                               ref={field.ref}
+                              value={field.value}
+                              name={field.name}
                               type="hidden"
                             />
                           </FormControl>
                         )}
                       />
-                      <FormField
-                        control={form.control}
-                        name={`_positions.${index}._lang.shortBio`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Short Bio</FormLabel>
+                      <div className="grid w-full items-center gap-1.5">
+                        <FormField
+                          control={form.control}
+                          name={`_positions.${index}.name`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                                Name
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  ref={field.ref}
+                                  onChange={field.onChange}
+                                  onBlur={field.onBlur}
+                                  value={
+                                    field.value === "" ? undefined : field.value
+                                  }
+                                  name={field.name}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Enter your current name
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="grid w-full items-center gap-1.5">
+                        <FormField
+                          control={form.control}
+                          name={`_positions.${index}.email`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                                Email Address
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  ref={field.ref}
+                                  onChange={field.onChange}
+                                  onBlur={field.onBlur}
+                                  value={field.value || ""}
+                                  name={field.name}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Enter your current email address
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="grid w-full items-center gap-1.5">
+                        <FormField
+                          control={form.control}
+                          name={`_positions.${index}.phone`}
+                          render={({ field: { value, ...fieldRest } }) => (
+                            <FormItem>
+                              <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                                Phone Number (country code)
+                              </FormLabel>
+                              <FormControl>
+                                <PhoneInput
+                                  value={value as RPNInput.Value}
+                                  id="phone"
+                                  international
+                                  {...fieldRest}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Enter a phone number
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="grid w-full items-center gap-1.5">
+                        <FormField
+                          control={form.control}
+                          name={`_positions.${index}._photo`}
+                          render={({
+                            field: { value, onChange, ...fieldProps },
+                          }) => (
+                            <FormItem>
+                              <FormLabel>Picture</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...fieldProps}
+                                  placeholder="Picture"
+                                  type="file"
+                                  accept="image/*, application/pdf"
+                                  onChange={(event) =>
+                                    onChange(
+                                      event.target.files &&
+                                        event.target.files[0]
+                                    )
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="grid w-full items-center gap-1.5">
+                        <FormField
+                          control={form.control}
+                          name={`_positions.${index}._lang.id`}
+                          render={({ field }) => (
                             <FormControl>
-                              <Textarea
-                                placeholder="Tell us a bit about you"
-                                className="resize-none"
+                              <Input
                                 name={field.name}
                                 onChange={field.onChange}
-                                value={field.value || undefined}
+                                value={field.value}
                                 onBlur={field.onBlur}
                                 ref={field.ref}
+                                type="hidden"
                               />
                             </FormControl>
-                            <FormDescription>
-                              You can use max. 200 words for this input
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`_positions.${index}._lang.shortBio`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Short Bio</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Tell us a bit about you"
+                                  className="resize-none"
+                                  name={field.name}
+                                  onChange={field.onChange}
+                                  value={field.value || undefined}
+                                  onBlur={field.onBlur}
+                                  ref={field.ref}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                You can use max. 200 words for this input
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <Button variant="outline" disabled>
+                        See contact information
+                      </Button>
                     </div>
-                    <Button variant="outline" disabled>
-                      See contact information
-                    </Button>
-                  </div>
-                );
-              })}
-              <Button
-                type="button"
-                onClick={(_) =>
-                  appendPosition({
-                    name: "",
-                    phone: "",
-                    email: "",
-                    _photo: undefined,
-                    _lang: { shortBio: "" },
-                  })
-                }
-              >
-                <PlusCircle className="mr-2 h-4 w-4" /> Add New Position
-              </Button>
-              <input
-                type="hidden"
-                name="_positionSize"
-                value={positionFields.length}
-              />
+                  );
+                })}
+                <PositionSizeWatched form={form} />
+                <Button
+                  type="button"
+                  onClick={(_) =>
+                    appendPosition({
+                      name: "",
+                      phone: "",
+                      email: "",
+                      _photo: undefined,
+                      _lang: { shortBio: "" },
+                    })
+                  }
+                >
+                  <PlusCircle className="mr-2 h-4 w-4" /> Add New Position
+                </Button>
+                <input
+                  type="hidden"
+                  name="_positionSize"
+                  value={positionFields.length}
+                />
+              </div>
               <div className="space-y-4 border-t pt-4">
                 <h2 className="text-lg font-semibold after:content-['*'] after:ml-0.5 after:text-red-500">
                   About Youth Commission
@@ -688,7 +733,7 @@ export default function NationalSectionForm({
                   />
                 </div>
               </div>
-              <div className="space-y-4 border-t pt-4">
+              {/* <div className="space-y-4 border-t pt-4">
                 <h2 className="text-lg font-semibold">
                   CIOFF International Honorary Members
                 </h2>
@@ -952,7 +997,7 @@ export default function NationalSectionForm({
                   name="_honorarySize"
                   value={honoraryFields.length}
                 />
-              </div>
+              </div> */}
               <div className="space-y-4 border-t pt-4">
                 <h2 className="text-lg font-semibold">Social media</h2>
                 <FormField

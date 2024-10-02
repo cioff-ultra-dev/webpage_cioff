@@ -54,6 +54,7 @@
           "name": "Name of the festival"
         }
       ],
+      "_positionsSize": "Position list",
       "_positions": [
         {
           "name": "Name",
