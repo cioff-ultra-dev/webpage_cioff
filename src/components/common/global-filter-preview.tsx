@@ -102,14 +102,14 @@ export function WrapperFilter() {
   const places = useMapsLibrary("places");
   const { data: countryCast } = useSWR<CountryCastFestivals>(
     "/api/filter/country",
-    fetcher
+    fetcher,
   );
   const { data: itemList, isLoading: isLoadingItemList } =
     useSWR<BuildFilterType>(
       `api/filter?categories=${JSON.stringify(
-        selectedCategories
+        selectedCategories,
       )}&countryId=${selectedCountryId}&page=1${search ? `&${search}` : ""}`,
-      fetcher
+      fetcher,
     );
 
   const countryMapClusters = useMemo(() => {
@@ -175,7 +175,7 @@ export function WrapperFilter() {
       setPredictionResults(response.predictions);
       return response.predictions;
     },
-    [autocompleteService, sessionToken]
+    [autocompleteService, sessionToken],
   );
 
   const handleSuggestion = useCallback(
@@ -189,7 +189,7 @@ export function WrapperFilter() {
       };
 
       const detailsRequestCallback = (
-        placeDetails: google.maps.places.PlaceResult | null
+        placeDetails: google.maps.places.PlaceResult | null,
       ) => {
         setPredictionResults([]);
         setSelectedPlace(placeDetails);
@@ -198,7 +198,7 @@ export function WrapperFilter() {
 
       placesService?.getDetails(detailRequestOptions, detailsRequestCallback);
     },
-    [places, placesService, sessionToken]
+    [places, placesService, sessionToken],
   );
 
   async function handleSubmit(event: React.FormEvent<SearchFormElement>) {
@@ -210,14 +210,14 @@ export function WrapperFilter() {
         dateRange?.from ? Math.floor(dateRange!.from!.getTime() / 1000) : ""
       }&rangeDateTo=${
         dateRange?.to ? Math.floor(dateRange!.to!.getTime() / 1000) : ""
-      }`
+      }`,
     );
   }
 
   async function handleClickSelected(
     festival: BuildFilterType[number]["festival"],
     country: BuildFilterType[number]["country"],
-    langs: BuildFilterType[number]["langs"]
+    langs: BuildFilterType[number]["langs"],
   ) {
     if (festival.id === selectedFestival?.id) {
       if (!places) return;
@@ -230,7 +230,7 @@ export function WrapperFilter() {
 
     const possiblePredicctionAddress = `${
       langs.at(0)?.address || festival?.location || ""
-    } ${country?.name}`;
+    } ${country?.id}`;
 
     const predictions = await fetchPredictions(possiblePredicctionAddress);
 
@@ -349,7 +349,7 @@ export function WrapperFilter() {
                         <div
                           className={cn(
                             "w-5 h-5 bg-red-300 flex justify-center items-center rounded-full p-3",
-                            item.id === selectedCountryId && "bg-red-400"
+                            item.id === selectedCountryId && "bg-red-400",
                           )}
                         >
                           <span>{item.count}</span>
@@ -372,7 +372,7 @@ export function WrapperFilter() {
                           "flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-200 hover:cursor-pointer",
                           festival.id === selectedFestival?.id
                             ? "bg-gray-200"
-                            : null
+                            : null,
                         )}
                         onClick={() =>
                           handleClickSelected(festival, country, langs)
@@ -400,7 +400,7 @@ export function WrapperFilter() {
                           </p>
                           <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
                             <MapPin size={16} />
-                            <span>{country?.name}</span>
+                            <span>{country?.id}</span>
                           </p>
                         </div>
                         <div className="flex-1 flex justify-end">
@@ -426,7 +426,7 @@ export function WrapperFilter() {
                       <Button variant="link" size="sm" asChild>
                         <Link
                           href={`/search?categories=${JSON.stringify(
-                            selectedCategories
+                            selectedCategories,
                           )}&countryId=${selectedCountryId}&page=1${
                             search ? `&${search}` : ""
                           }`}

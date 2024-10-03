@@ -76,31 +76,31 @@ export function WrapperFilter({
   const [search, setSearch] = useState(
     `search=${searchParams?.search ?? ""}&rangeDateFrom=${
       searchParams?.rangeDateFrom ?? ""
-    }&rangeDateTo=${searchParams?.rangeDateTo ?? ""}`
+    }&rangeDateTo=${searchParams?.rangeDateTo ?? ""}`,
   );
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    Array.from(JSON.parse((searchParams?.categories as string) || "[]"))
+    Array.from(JSON.parse((searchParams?.categories as string) || "[]")),
   );
   const [selectedFestival, setSelectedFestival] =
     useState<SelectFestival | null>(null);
   const [selectedCountryId, setSelectedCountryId] = useState<number>(
-    Number(searchParams?.countryId ?? 0)
+    Number(searchParams?.countryId ?? 0),
   );
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const map = useMap();
   const places = useMapsLibrary("places");
   const { data: countryCast } = useSWR<CountryCastFestivals>(
     "/api/filter/country",
-    fetcher
+    fetcher,
   );
   const swr = useSWRInfinite<BuildFilterType>(
     (index, _) =>
       `api/filter?categories=${JSON.stringify(
-        selectedCategories
+        selectedCategories,
       )}&countryId=${selectedCountryId}&page=${index + 1}${
         search ? `&${search}` : ""
       }`,
-    fetcher
+    fetcher,
   );
 
   const countryMapClusters = useMemo(() => {
@@ -166,7 +166,7 @@ export function WrapperFilter({
       setPredictionResults(response.predictions);
       return response.predictions;
     },
-    [autocompleteService, sessionToken]
+    [autocompleteService, sessionToken],
   );
 
   const handleSuggestion = useCallback(
@@ -180,7 +180,7 @@ export function WrapperFilter({
       };
 
       const detailsRequestCallback = (
-        placeDetails: google.maps.places.PlaceResult | null
+        placeDetails: google.maps.places.PlaceResult | null,
       ) => {
         setPredictionResults([]);
         setSelectedPlace(placeDetails);
@@ -189,7 +189,7 @@ export function WrapperFilter({
 
       placesService?.getDetails(detailRequestOptions, detailsRequestCallback);
     },
-    [places, placesService, sessionToken]
+    [places, placesService, sessionToken],
   );
 
   async function handleSubmit(event: React.FormEvent<SearchFormElement>) {
@@ -201,7 +201,7 @@ export function WrapperFilter({
         dateRange?.from ? Math.floor(dateRange!.from!.getTime() / 1000) : ""
       }&rangeDateTo=${
         dateRange?.to ? Math.floor(dateRange!.to!.getTime() / 1000) : ""
-      }`
+      }`,
     );
   }
 
@@ -281,7 +281,7 @@ export function WrapperFilter({
             className="justify-between overflow-x-auto p-1"
             onValueChange={(value) => setSelectedCategories(value)}
             defaultValue={Array.from(
-              JSON.parse((searchParams?.categories as string) || "[]")
+              JSON.parse((searchParams?.categories as string) || "[]"),
             )}
           >
             <ToggleGroupItem value="international" className="flex gap-1">
@@ -354,7 +354,7 @@ export function WrapperFilter({
                         <div
                           className={cn(
                             "w-5 h-5 bg-red-300 flex justify-center items-center rounded-full p-3",
-                            item.id === selectedCountryId && "bg-red-400"
+                            item.id === selectedCountryId && "bg-red-400",
                           )}
                         >
                           <span>{item.count}</span>
@@ -423,7 +423,7 @@ export function WrapperFilter({
                       •
                       <span className="flex gap-1 items-center">
                         <MapPin size={16} />
-                        <span>{country?.name}</span>
+                        <span>{country?.id}</span>
                       </span>
                     </p>
                     <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">
