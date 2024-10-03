@@ -336,7 +336,7 @@ export const subgroupsLang = pgTable("subgroups_lang", {
 export const subgroupToCategories = pgTable(
   "subgroup_to_categories",
   {
-    subgroupId: integer("group_id").references(() => subgroups.id),
+    subgroupId: integer("subgroup_id").references(() => subgroups.id),
     categoryId: integer("category_id").references(() => categories.id),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
