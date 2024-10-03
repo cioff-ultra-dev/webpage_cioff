@@ -34,6 +34,11 @@
       "_lang": {
         "name": "Nom de l'association"
       }
+    },
+    "group": {
+      "_lang": {
+        "name": "Nom du groupe"
+      } 
     }
   },
   "customErrors": {

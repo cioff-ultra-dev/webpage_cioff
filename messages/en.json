@@ -75,6 +75,11 @@
     },
     "profile": {
       "password_match": "Password does not match"
+    },
+    "group": {
+      "_lang": {
+        "name": "Name of the group"
+      } 
     }
   },
   "customErrors": {

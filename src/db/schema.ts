@@ -1044,12 +1044,20 @@ export const festivalLangRelations = relations(festivalsLang, ({ one }) => ({
   }),
 }));
 
+export const categoriesLangRelations = relations(categoriesLang, ({ one }) => ({
+  category: one(categories, {
+    fields: [categoriesLang.categoryId],
+    references: [categories.id],
+  }),
+}));
+
 export const categoriesRelations = relations(categories, ({ many, one }) => ({
   festivalsToCategories: many(festivalToCategories),
   categoryGroup: one(categoryGroups, {
     fields: [categories.categoryGroupId],
     references: [categoryGroups.id],
   }),
+  langs: many(categoriesLang)
 }));
 
 export const categoryGroupsRealtions = relations(
