@@ -74,7 +74,10 @@
       ]
     },
     "profile": {
-      "password_match": "Password does not match"
+      "password_match": "Password does not match",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password"
     }
   },
   "customErrors": {
