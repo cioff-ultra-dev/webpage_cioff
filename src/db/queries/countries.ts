@@ -14,7 +14,7 @@ export async function getAllCountryCastFestivals(): Promise<CountryCastFestivals
   return db
     .select({
       id: countries.id,
-      country: countries.name,
+      country: countries.slug,
       lat: countries.lat,
       lng: countries.lng,
       festivalsCount: count(festivals.id),
@@ -23,5 +23,5 @@ export async function getAllCountryCastFestivals(): Promise<CountryCastFestivals
     .leftJoin(festivals, eq(countries.id, festivals.countryId))
     .where(and(isNotNull(festivals.countryId), eq(festivals.published, true)))
     .groupBy(countries.id)
-    .orderBy(countries.name);
+    .orderBy(countries.slug);
 }

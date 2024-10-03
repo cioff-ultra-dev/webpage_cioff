@@ -11,7 +11,7 @@ export default async function run() {
     "src",
     "scripts",
     "exports",
-    "countries.csv"
+    "countries.csv",
   );
   const parser = fs.createReadStream(currentPath).pipe(parse({}));
 
@@ -21,14 +21,14 @@ export default async function run() {
       .set({ lat, lng })
       .where(
         and(
-          eq(countries.name, name),
+          eq(countries.slug, name),
           isNull(countries.lat),
-          isNull(countries.lng)
-        )
+          isNull(countries.lng),
+        ),
       )
       .returning({
         updatedId: countries.id,
-        name: countries.name,
+        name: countries.slug,
       });
   }
 
