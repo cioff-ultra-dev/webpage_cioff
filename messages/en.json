@@ -71,10 +71,14 @@
           }
         }
       ]
+    },
+    "profile": {
+      "password_match": "Password does not match"
     }
   },
   "customErrors": {
     "file_required": "File is required",
-    "invalid_phone_number": "Invalid phone number"
+    "invalid_phone_number": "Invalid phone number",
+    "password_match": "Password does not match"
   }
 }

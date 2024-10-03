@@ -25,7 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { format } from "date-fns";
-import { EllipsisVertical } from "lucide-react";
+import { EllipsisVertical, Send } from "lucide-react";
 import { SelectFestival, SelectGroup } from "@/db/schema";
 import {
   AllGroupType,
@@ -34,8 +34,10 @@ import {
 } from "@/db/queries/groups";
 import { getFormatter, getLocale } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
+import { auth } from "@/auth";
 
 export default async function DashboardPage() {
+  const session = await auth();
   const locale = await getLocale();
   const formatter = await getFormatter();
   const groups = await getAllGroupsByOwner(locale);
@@ -73,14 +75,26 @@ export default async function DashboardPage() {
           {/*     Export */}
           {/*   </span> */}
           {/* </Button> */}
-          <Link href="/dashboard/groups/new">
-            <Button size="sm" className="h-8 gap-1">
-              <CirclePlusIcon className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Add Group
-              </span>
-            </Button>
-          </Link>
+          <div className="flex gap-3">
+            {session?.user.role?.name === "National Sections" ? (
+              <Link href="/dashboard/groups/invitation">
+                <Button size="sm" variant="secondary" className="h-8 gap-1">
+                  <Send className="h-3.5 w-3.5" />
+                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                    Generate Group Invitation
+                  </span>
+                </Button>
+              </Link>
+            ) : null}
+            <Link href="/dashboard/groups/new">
+              <Button size="sm" className="h-8 gap-1">
+                <CirclePlusIcon className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Add Group
+                </span>
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
       <TabsContent value="all">
@@ -114,19 +128,19 @@ export default async function DashboardPage() {
                           {item.owners
                             .at(0)
                             ?.group?.langs.find(
-                              (item) => item.l?.code === locale
+                              (item) => item.l?.code === locale,
                             )?.name ||
                             item.owners
                               .at(0)
                               ?.group?.langs.find(
-                                (item) => item.l?.code === defaultLocale
+                                (item) => item.l?.code === defaultLocale,
                               )?.name}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
                           {format(item.createdAt, "PPP")}
                         </TableCell>
                         <TableCell className="hidden md:table-cell capitalize">
-                          {item.country?.name}
+                          {item.country?.id}
                         </TableCell>
                         <TableCell>
                           <DropdownMenu>

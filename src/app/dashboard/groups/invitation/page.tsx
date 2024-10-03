@@ -1,9 +1,9 @@
 import { auth } from "@/auth";
-import GenerateInvitationFestivalForm from "@/components/common/event/generate-invitation-form";
+import GenerateInvitationGroupForm from "@/components/common/group/generate-invitation-form";
 import { getCurrentNationalSection } from "@/db/queries/national-sections";
 import { redirect } from "next/navigation";
 
-export default async function GenerateFestivalPage() {
+export default async function GenerateGroupPage() {
   const session = await auth();
 
   if (!session) {
@@ -15,7 +15,7 @@ export default async function GenerateFestivalPage() {
   );
 
   return (
-    <GenerateInvitationFestivalForm
+    <GenerateInvitationGroupForm
       currentNationalSection={currentNationalSection}
     />
   );

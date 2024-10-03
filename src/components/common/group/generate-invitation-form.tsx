@@ -1,6 +1,6 @@
 "use client";
 
-import { generateFestival } from "@/app/actions";
+import { generateFestival, generateGroup } from "@/app/actions";
 import { Button, ButtonProps } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -51,7 +51,7 @@ const invitationFormSchema = z.object({
   email: z.string().email(),
 });
 
-export default function GenerateInvitaitonFestivalForm({
+export default function GenerateInvitationGroupForm({
   currentNationalSection,
 }: {
   currentNationalSection: CurrentNationalSectionType;
@@ -69,7 +69,7 @@ export default function GenerateInvitaitonFestivalForm({
   const onSubmitForm: SubmitHandler<
     z.infer<typeof invitationFormSchema>
   > = async (_) => {
-    const result = await generateFestival(new FormData(formRef.current!));
+    const result = await generateGroup(new FormData(formRef.current!));
     if (result.success) {
       toast.success(result.success);
     } else if (result.error) {
@@ -85,7 +85,7 @@ export default function GenerateInvitaitonFestivalForm({
 
   return (
     <div className="w-full p-4 md:p-6">
-      <h1 className="text-2xl font-bold">GENERATE FESTIVAL INVITATION</h1>
+      <h1 className="text-2xl font-bold">GENERATE GROUP INVITATION</h1>
       <p className="text-sm text-muted-foreground pb-10">
         The fields with * are mandatory.
       </p>
@@ -93,7 +93,7 @@ export default function GenerateInvitaitonFestivalForm({
         <form ref={formRef} onSubmit={form.handleSubmit(onSubmitForm)}>
           <Card className="w-full mx-auto">
             <CardHeader>
-              <CardTitle>New Festival</CardTitle>
+              <CardTitle>New Group</CardTitle>
             </CardHeader>
             <FormField
               control={form.control}
@@ -130,9 +130,7 @@ export default function GenerateInvitaitonFestivalForm({
                           name={field.name}
                         />
                       </FormControl>
-                      <FormDescription>
-                        Enter name of the festival
-                      </FormDescription>
+                      <FormDescription>Enter name of the group</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -157,7 +155,7 @@ export default function GenerateInvitaitonFestivalForm({
                         />
                       </FormControl>
                       <FormDescription>
-                        Enter email address related to the festival
+                        Enter email address related to the group
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -171,7 +169,7 @@ export default function GenerateInvitaitonFestivalForm({
               <CardContent className="flex-row items-center p-4 flex w-full justify-end">
                 <div className="flex gap-2">
                   <Button variant="ghost" asChild>
-                    <Link href="/dashboard/festivals">Cancel</Link>
+                    <Link href="/dashboard/groups">Cancel</Link>
                   </Button>
                   <Submit
                     label="Save"

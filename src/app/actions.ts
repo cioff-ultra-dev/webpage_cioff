@@ -38,7 +38,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { PgTable } from "drizzle-orm/pg-core";
 import { replaceTags } from "@codejamboree/replace-tags";
 import generator from "generate-password-ts";
-import { generateHashPassword } from "@/lib/password";
+import { generateHashPassword, isSamePassword } from "@/lib/password";
 import { headers } from "next/headers";
 
 const preparedLanguagesByCode = db.query.languages
@@ -741,13 +741,15 @@ export async function generateFestival(formData: FormData) {
         const message = replaceTags(emailTemplate.template, {
           name: name,
           password: password,
-          url: `<a href="${process.env.HOSTNAME_URL}/login">Login on CIOFF</a>`,
+          url: `<a target="_blank" href="${process.env.HOSTNAME_URL}/login">${t(
+            "email.login_to",
+          )}</a>`,
         });
 
         await transport.sendMail({
           from: process.env.GMAIL_USER,
           to: [user.email],
-          subject: `Festival User Invitation - CIOFF`,
+          subject: t("email.festival_invitation_subject"),
           html: message,
         });
 
@@ -790,6 +792,205 @@ export async function generateFestival(formData: FormData) {
           set: buildConflictUpdateColumns(owners, ["userId"]),
         });
     });
+  } catch (err) {
+    const e = err as { constraint: string };
+
+    if (e.constraint === "emailUniqueIndex") {
+      return { error: t("email_exist") };
+    }
+
+    const er = err as Error;
+    return { error: er.message };
+  }
+
+  return { success: t("success"), error: null };
+}
+
+export async function generateGroup(formData: FormData) {
+  const locale = await getLocale();
+  const session = await auth();
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+  const nsId = Number(formData.get("_nsId"));
+
+  const t = await getTranslations("notification");
+  const lang = await preparedLanguagesByCode.execute({ locale });
+  const currentNationalSection = await db.query.nationalSections.findFirst({
+    where(fields, { eq }) {
+      return eq(fields.id, nsId);
+    },
+  });
+
+  try {
+    await db.transaction(async (tx) => {
+      const role = await tx.query.roles.findFirst({
+        where: eq(roles.name, "Groups"),
+      });
+
+      const password = generator.generate({ length: 10, numbers: true });
+      const hashedPassword = await generateHashPassword(password);
+
+      const [user] = await tx
+        .insert(users)
+        .values({
+          email,
+          password: hashedPassword,
+          roleId: role?.id,
+          countryId: currentNationalSection?.countryId,
+        })
+        .returning();
+
+      if (user.email && !user.isCreationNotified && !user.emailVerified) {
+        const [emailTemplate] = await db
+          .select()
+          .from(emailTemplates)
+          .where(eq(emailTemplates.lang, lang?.id!));
+
+        const message = replaceTags(emailTemplate.template, {
+          name: name,
+          password: password,
+          url: `<a target="_blank" href="${process.env.HOSTNAME_URL}/login">${t(
+            "email.login_to",
+          )}</a>`,
+        });
+
+        await transport.sendMail({
+          from: process.env.GMAIL_USER,
+          to: [user.email],
+          subject: t("email.festival_invitation_subject"),
+          html: message,
+        });
+
+        await tx
+          .update(users)
+          .set({ isCreationNotified: true })
+          .where(eq(users.id, user.id));
+      }
+
+      const [currentGroup] = await tx
+        .insert(groups)
+        .values({
+          nsId,
+          countryId: currentNationalSection?.countryId,
+        })
+        .returning();
+
+      await tx.insert(groupsLang).values({
+        name,
+        groupId: currentGroup.id,
+        lang: lang?.id,
+      });
+
+      const ownerList: (typeof owners.$inferInsert)[] = [
+        { userId: user.id, groupId: currentGroup.id },
+      ];
+
+      if (session?.user.role?.name === "National Sections") {
+        ownerList.push({
+          userId: session.user.id,
+          groupId: currentGroup.id,
+        });
+      }
+
+      await tx
+        .insert(owners)
+        .values(ownerList)
+        .onConflictDoUpdate({
+          target: owners.id,
+          set: buildConflictUpdateColumns(owners, ["userId"]),
+        });
+    });
+  } catch (err) {
+    const e = err as { constraint: string };
+
+    if (e.constraint === "emailUniqueIndex") {
+      return { error: t("email_exist") };
+    }
+
+    const er = err as Error;
+    return { error: er.message };
+  }
+
+  return { success: t("success"), error: null };
+}
+
+export async function updateAccountFields(formData: FormData) {
+  const session = await auth();
+  const firstName = formData.get("firstname") as string;
+  const lastName = formData.get("lastname") as string;
+  const email = formData.get("email") as string;
+  console.log({ firstName, lastName, email, id: session?.user.id });
+
+  const t = await getTranslations("notification");
+
+  try {
+    await db.transaction(async (tx) => {
+      await tx
+        .update(users)
+        .set({
+          firstname: firstName,
+          lastname: lastName,
+          email,
+        })
+        .where(eq(users.id, session?.user?.id!));
+    });
+  } catch (err) {
+    const e = err as { constraint: string };
+
+    if (e.constraint === "emailUniqueIndex") {
+      return { error: t("email_exist") };
+    }
+
+    const er = err as Error;
+    return { error: er.message };
+  }
+
+  return { success: t("success"), error: null };
+}
+
+export async function updatePasswordFields(formData: FormData) {
+  const session = await auth();
+  const currentPassword = formData.get("currentPassword") as string;
+  const newPassword = formData.get("newPassword") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  const t = await getTranslations("notification");
+  const hashedPassword = await generateHashPassword(confirmPassword);
+
+  console.log({ currentPassword, newPassword, confirmPassword });
+
+  try {
+    const result = await db.transaction(async (tx) => {
+      const currentUser = await tx.query.users.findFirst({
+        where(fields, { eq }) {
+          return eq(fields.id, session?.user.id!);
+        },
+      });
+
+      if (!currentUser) {
+        tx.rollback();
+      }
+
+      const isMatchPassword = await isSamePassword(
+        currentPassword,
+        currentUser?.password!,
+      );
+
+      if (!isMatchPassword) {
+        return { error: "Your current password isn't correct" };
+      }
+
+      await tx
+        .update(users)
+        .set({
+          password: hashedPassword,
+        })
+        .where(eq(users.id, session?.user?.id!));
+    });
+
+    if (result?.error) {
+      return { error: result.error };
+    }
   } catch (err) {
     const e = err as { constraint: string };
 
