@@ -10,7 +10,12 @@
   },
   "notification": {
     "success": "Saved Successfully",
-    "email_exist": "Email already exist"
+    "email_exist": "Email already exist",
+    "email": {
+      "festival_invitation_subject": "Festivals User Invitation - CIOFF",
+      "group_invitation_subject": "Groups User Invitation - CIOFF",
+      "login_to": "Log in to CIOFF"
+    }
   },
   "link": {
     "dashboard": "Dashboard",

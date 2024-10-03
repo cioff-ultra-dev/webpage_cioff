@@ -448,7 +448,7 @@ export const festivalsToStatuses = pgTable(
 export const groupToCategories = pgTable(
   "group_to_categories",
   {
-    groupId: integer("festival_id").references(() => groups.id),
+    groupId: integer("group_id").references(() => groups.id),
     categoryId: integer("category_id").references(() => categories.id),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
@@ -1225,6 +1225,12 @@ export const selectUserSchema = createSelectSchema(users);
 export const requestAuthSchema = inserUserSchema.pick({
   email: true,
   password: true,
+});
+
+export const accountFieldsSchema = inserUserSchema.pick({
+  firstname: true,
+  lastname: true,
+  email: true,
 });
 
 export const insertEventSchema = createInsertSchema(events);
