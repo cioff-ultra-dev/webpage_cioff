@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
 import { Label } from "@/components/ui/label";
 import {
@@ -95,6 +95,7 @@ const globalGroupSchema = insertGroupSchema.extend({
     from: z.string(),
     to: z.string().optional(),
   }),
+  _specificRegion: z.string(),
 });
 
 interface FilePreviewProps {
@@ -240,7 +241,6 @@ export default function GroupForm({
   groupStyles: GroupStyleType;
 }) {
   useI18nZodErrors("group");
-  console.log(typeOfGroups, "typeOfGroups");
 
   // const [state, formAction] = useFormState(createGroup, undefined);
   const [groupType, setGroupType] = useState<string>("only_dance");
@@ -259,6 +259,8 @@ export default function GroupForm({
   );
 
   const t = useTranslations("form.group");
+
+  
 
   useEffect(() => {
     if (directorPhotoUrl.current) {
@@ -308,6 +310,14 @@ export default function GroupForm({
         artisticDirectorProfile: "",
       },
     },
+  });
+
+  const {
+    fields: subGroupFields,
+    append: appendSubGroupEvent,
+  } = useFieldArray({
+    control: form.control,
+    name: "_events",
   });
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -635,15 +645,13 @@ export default function GroupForm({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Mail Address</Label>
-                  <Input id="email" type="email" name="email" />
-                  {/* <FormField
+                  <FormField
                     control={form.control}
-                    name={"email"}
+                    name="_lang.address"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Email Address
+                          Mail Address
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -654,13 +662,10 @@ export default function GroupForm({
                             name={field.name}
                           />
                         </FormControl>
-                        <FormDescription>
-                          Enter your current email address
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
-                  /> */}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -829,15 +834,6 @@ export default function GroupForm({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>
-                    Do you have another contact person for your other group?
-                  </Label>
-                  <div className="space-y-2">
-                    <Input placeholder="Name" />
-                    <Input placeholder="Phone + Mail" />
-                  </div>
-                </div>
-                <div className="space-y-2">
                   <FormField
                     control={form.control}
                     name="_styleOfGroup"
@@ -961,29 +957,9 @@ export default function GroupForm({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="specificRegion">
-                        Any specific region?
-                      </Label>
-                      <Select>
-                        <SelectTrigger id="specificRegion">
-                          <SelectValue placeholder="Select a region" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="europe">Europe</SelectItem>
-                          <SelectItem value="asia">Asia</SelectItem>
-                          <SelectItem value="africa">Africa</SelectItem>
-                          <SelectItem value="northAmerica">
-                            North America
-                          </SelectItem>
-                          <SelectItem value="southAmerica">
-                            South America
-                          </SelectItem>
-                          <SelectItem value="oceania">Oceania</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {/* <FormField
+                      <FormField
                         control={form.control}
-                        name="specificRegion"
+                        name="_specificRegion"
                         render={({ field }) => {
                           return (
                             <FormItem>
@@ -996,27 +972,29 @@ export default function GroupForm({
                               >
                                 <FormControl>
                                   <SelectTrigger className="font-medium data-[placeholder]:text-muted-foreground">
-                                    <SelectValue placeholder="Select a verified peoples" />
+                                    <SelectValue placeholder="Select a region" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  {Array.from({ length: 40 }).map(
-                                    (_, index) => (
-                                      <SelectItem
-                                        key={`peoples-${index}`}
-                                        value={String(index + 1)}
-                                      >
-                                        {index + 1}
-                                      </SelectItem>
-                                    )
-                                  )}
+                                  <SelectItem value="europe">Europe</SelectItem>
+                                  <SelectItem value="asia">Asia</SelectItem>
+                                  <SelectItem value="africa">Africa</SelectItem>
+                                  <SelectItem value="northAmerica">
+                                    North America
+                                  </SelectItem>
+                                  <SelectItem value="southAmerica">
+                                    South America
+                                  </SelectItem>
+                                  <SelectItem value="oceania">
+                                    Oceania
+                                  </SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormMessage />
                             </FormItem>
                           );
                         }}
-                      /> */}
+                      />
                     </div>
                   </>
                 )}
