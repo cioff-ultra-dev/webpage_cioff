@@ -226,7 +226,6 @@ export default async function Dashboard({
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem disabled>Settings</DropdownMenuItem>
               <DropdownMenuItem asChild className="cursor-pointer">
                 <Link href="/dashboard/settings">Profile </Link>
               </DropdownMenuItem>
