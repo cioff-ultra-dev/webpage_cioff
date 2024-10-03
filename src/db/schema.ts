@@ -273,6 +273,8 @@ export const groups = pgTable("groups", {
   artisticDirectorPhoto: text("artistic_director_photo"),
   musicalDirectorName: text("musical_director_name"),
   musicalDirectorPhoto: text("musical_director_photo"),
+  isAbleTravelLiveMusic: boolean("is_able_travel_live_music").default(false),
+  membersNumber: integer("members_number"),
   phone: text("phone"),
   generalDirectorPhotoId: integer("general_director_photo_id").references(
     () => storages.id,
@@ -1282,7 +1284,10 @@ export const inserFestivalByNSSchema = insertFestivalSchema.pick({
   email: true,
 });
 
-export const insertGroupSchema = createInsertSchema(groups);
+export const insertGroupSchema = createInsertSchema(groups, {
+  generalDirectorName: schema => schema.generalDirectorName.min(1),
+  artisticDirectorName: schema => schema.generalDirectorName.min(1),
+});
 
 export const insertGroupByNSSchema = insertGroupSchema.pick({
   id: true,
@@ -1290,6 +1295,8 @@ export const insertGroupByNSSchema = insertGroupSchema.pick({
 
 export const insertGroupLangSchema = createInsertSchema(groupsLang, {
   name: (schema) => schema.name.min(1),
+  generalDirectorProfile: (schema) => schema.name.min(1),
+  artisticDirectorProfile: (schema) => schema.name.min(1),
 });
 
 export const selectFestivalSchema = createSelectSchema(festivals);

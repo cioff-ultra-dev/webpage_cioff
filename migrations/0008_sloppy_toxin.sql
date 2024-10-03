@@ -1,0 +1,1 @@
+ALTER TABLE "groups" ADD COLUMN "is_able_travel_live_music" boolean DEFAULT false;
