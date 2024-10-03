@@ -22,7 +22,8 @@
     "national-sections": "National Sections",
     "festivals": "Festivals",
     "groups": "Groups",
-    "edit": "Edit"
+    "edit": "Edit",
+    "settings": "Settings"
   },
   "form": {
     "name": "Name",
