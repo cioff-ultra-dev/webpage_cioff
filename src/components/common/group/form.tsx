@@ -44,6 +44,8 @@ import {
   insertFestivalSchema,
   insertGroupLangSchema,
   insertGroupSchema,
+  insertSubGroupLangSchema,
+  insertSubGroupSchema,
   SelectGroup,
 } from "@/db/schema";
 import { AutocompletePlaces } from "@/components/ui/autocomplete-places";
@@ -96,6 +98,11 @@ const globalGroupSchema = insertGroupSchema.extend({
     to: z.string().optional(),
   }),
   _specificRegion: z.string(),
+  _subgroups: z.array(
+    insertSubGroupSchema.extend({
+      _lang: insertSubGroupLangSchema,
+    })
+  ),
 });
 
 interface FilePreviewProps {
@@ -260,8 +267,6 @@ export default function GroupForm({
 
   const t = useTranslations("form.group");
 
-  
-
   useEffect(() => {
     if (directorPhotoUrl.current) {
       urlToFile(directorPhotoUrl.current).then((response) => {
@@ -312,13 +317,12 @@ export default function GroupForm({
     },
   });
 
-  const {
-    fields: subGroupFields,
-    append: appendSubGroupEvent,
-  } = useFieldArray({
-    control: form.control,
-    name: "_events",
-  });
+  const { fields: subGroupFields, append: appendSubGroupEvent } = useFieldArray(
+    {
+      control: form.control,
+      name: "_subgroups",
+    }
+  );
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -875,6 +879,162 @@ export default function GroupForm({
                     value={JSON.stringify(selectedStyleOfGroup) || "[]"}
                   />
                 </div>
+
+                <div className="space-y-4 border-t pt-4">
+                  <h2 className="text-lg font-semibold">Sub Groups</h2>
+                  {subGroupFields.map((field, index) => (
+                    <Card
+                      key={field.id}
+                      className="grid w-full items-center pt-6 gap-1.5"
+                    >
+                      <FormField
+                        control={form.control}
+                        name={`_subgroups.${index}.id`}
+                        render={({ field }) => (
+                          <FormControl>
+                            <Input
+                              ref={field.ref}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              value={field.value}
+                              name={field.name}
+                              type="hidden"
+                            />
+                          </FormControl>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`_subgroups.${index}._lang.id`}
+                        render={({ field }) => (
+                          <FormControl>
+                            <Input
+                              ref={field.ref}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              value={field.value}
+                              name={field.name}
+                              type="hidden"
+                            />
+                          </FormControl>
+                        )}
+                      />
+                      <CardContent className=" flex items-center flex-col gap-5">
+                        <div className="grid w-full items-center gap-1.5">
+                          <FormField
+                            control={form.control}
+                            name={`_subgroups.${index}._lang.name`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                                  Name of the sub group
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    ref={field.ref}
+                                    onChange={field.onChange}
+                                    onBlur={field.onBlur}
+                                    value={field.value ?? ""}
+                                    name={field.name}
+                                  />
+                                </FormControl>
+                                <FormDescription>
+                                  Enter your current sub group name
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <div className="grid w-full items-center gap-1.5">
+                          <FormField
+                            control={form.control}
+                            name={`_subgroups.${index}.membersNumber`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                                  Number of members
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    ref={field.ref}
+                                    type="number"
+                                    max="40"
+                                    onChange={field.onChange}
+                                    onBlur={field.onBlur}
+                                    value={field.value || ""}
+                                    name={field.name}
+                                  />
+                                </FormControl>
+                                <FormDescription>
+                                  Write number of members
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <div className="grid w-full items-center gap-1.5">
+                          <FormField
+                            control={form.control}
+                            name="_groupAge"
+                            render={({ field }) => {
+                              const options: MultiSelectProps["options"] =
+                                ageGroups.map((type) => {
+                                  const label = type.langs?.[0]?.name;
+                                  return {
+                                    label: label,
+                                    value: String(type.id),
+                                    caption: "",
+                                  };
+                                });
+
+                              return (
+                                <FormItem>
+                                  <FormLabel>Group age</FormLabel>
+                                  <FormControl>
+                                    <MultiSelect
+                                      ref={field.ref}
+                                      options={options}
+                                      onValueChange={(values) => {
+                                        setSelectedGroupAge(values);
+                                        form.setValue(
+                                          "_groupAge",
+                                          JSON.stringify(values)
+                                        );
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              );
+                            }}
+                          />
+                          <input
+                            type="hidden"
+                            name="_groupAge"
+                            value={JSON.stringify(selectedGroupAge) || "[]"}
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  <Button
+                    type="button"
+                    onClick={(_) =>
+                      appendSubGroupEvent({
+                        _lang: {},
+                      })
+                    }
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add Event
+                  </Button>
+                  {/* <input
+                    type="hidden"
+                    name="_eventSize"
+                    value={eventFields.length}
+                  /> */}
+                </div>
               </CardContent>
             </Card>
 
@@ -995,6 +1155,7 @@ export default function GroupForm({
                           );
                         }}
                       />
+                      ˇ{" "}
                     </div>
                   </>
                 )}

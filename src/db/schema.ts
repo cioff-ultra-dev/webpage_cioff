@@ -304,6 +304,42 @@ export const groups = pgTable("groups", {
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
+/* Subgroups Table  */
+
+export const subgroups = pgTable("subgroups", {
+  id: serial("id").primaryKey(),
+  membersNumber: integer("members_number"),
+  contactName: text("contact_name"),
+  contactPhone: text("contact_phone"),
+  groupId: integer("group_id").references(() => groups.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const subgroupsLang = pgTable("subgroups_lang", {
+  id: serial("id").primaryKey(),
+  name: text("name"),
+  contactAddress: text("contact_address"),
+  subgroupId: integer("subgroup_id").references(() => subgroups.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+/* Subgroup to Categories */
+
+export const subgroupToCategories = pgTable(
+  "subgroup_to_categories",
+  {
+    subgroupId: integer("subgroup_id").references(() => subgroups.id),
+    categoryId: integer("category_id").references(() => categories.id),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.subgroupId, t.categoryId] }),
+  }),
+);
+
 /* Group Photos */
 
 export const groupPhotos = pgTable("group_photos", {
@@ -1394,6 +1430,10 @@ export const insertSocialMediaLinkSchema = createInsertSchema(
     websiteLink: (schema) => schema.websiteLink.url(),
   }
 );
+
+export const insertSubGroupSchema = createInsertSchema(subgroups);
+
+export const insertSubGroupLangSchema = createInsertSchema(subgroupsLang);
 
 /* Infered Types */
 
