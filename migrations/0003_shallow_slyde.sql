@@ -1,0 +1,1 @@
+ALTER TABLE "festivals_lang" ALTER COLUMN "description" DROP NOT NULL;
