@@ -2,7 +2,10 @@ import { db } from "@/db";
 import { categoryGroups, SelectCategory } from "@/db/schema";
 import { inArray } from "drizzle-orm";
 
-export type CategoryGroupWithCategories = typeof categoryGroups.$inferSelect & {
+export type CategoryGroupWithCategories = {
+  name: string;
+  slug: string;
+  title: string;
   categories: SelectCategory[];
 };
 

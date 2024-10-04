@@ -3,7 +3,7 @@
 import * as React from "react";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { addDays, format, subDays } from "date-fns";
-import { DateRange } from "react-day-picker";
+import { DateRange, Matcher } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -14,15 +14,21 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+export type DateRangeProps = DateRange;
+
 export function DatePickerWithRange({
   className,
   onValueChange,
   defaultDates,
   buttonClassName,
+  fromDate,
+  disabled,
 }: React.HTMLAttributes<HTMLDivElement> & {
   onValueChange: (value: DateRange | undefined) => void;
   defaultDates?: DateRange;
   buttonClassName?: string;
+  fromDate?: Date | undefined;
+  disabled?: Matcher;
 }) {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: defaultDates?.from ?? undefined,
@@ -69,6 +75,8 @@ export function DatePickerWithRange({
             selected={date}
             onSelect={setDate}
             numberOfMonths={2}
+            fromDate={fromDate}
+            disabled={disabled}
           />
         </PopoverContent>
       </Popover>

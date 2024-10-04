@@ -4,7 +4,12 @@ import React, { useRef, useState } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import {
+  SubmitHandler,
+  useFieldArray,
+  useForm,
+  useWatch,
+} from "react-hook-form";
 import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
 import { Label } from "@/components/ui/label";
 import {
@@ -18,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button, type ButtonProps } from "@/components/ui/button";
-import { createFestival } from "@/app/actions";
+import { createFestival, updateFestival } from "@/app/actions";
 import { useFormState, useFormStatus } from "react-dom";
 import * as RPNInput from "react-phone-number-input";
 import {
@@ -34,6 +39,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { PhoneInput } from "@/components/ui/phone-input";
 import {
+  insertFestivalLangSchema,
   insertFestivalSchema,
   SelectLanguages,
   SelectStatus,
@@ -46,29 +52,71 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { Calendar as CalendarIcon, CircleCheck } from "lucide-react";
+import {
+  Calendar as CalendarIcon,
+  CircleCheck,
+  PlusCircle,
+} from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Progress } from "@/components/ui/progress";
-import { addYears, endOfYear, format, startOfYear } from "date-fns";
+import {
+  addYears,
+  endOfYear,
+  format,
+  isSameYear,
+  isThisYear,
+  startOfYear,
+} from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { CategoryGroupWithCategories } from "@/db/queries/category-group";
 import camelCase from "camelcase";
 import { MultiSelect, MultiSelectProps } from "@/components/ui/multi-select";
 import { useI18nZodErrors } from "@/hooks/use-i18n-zod-errors";
 import { useTranslations } from "next-intl";
+import { FestivalBySlugType } from "@/db/queries/events";
+import { toast } from "sonner";
+import {
+  DatePickerWithRange,
+  DateRangeProps,
+} from "@/components/ui/datepicker-with-range";
 
-const globalEventSchema = insertFestivalSchema.merge(
-  z.object({
-    _currentDates: z.array(z.date()).nonempty(),
-    _nextDates: z.array(z.date()),
-    _transportLocation: z.string().optional(),
-    _ageOfParticipants: z.array(z.string()).nonempty(),
-    _styleOfFestival: z.array(z.string()).nonempty(),
-    _typeOfAccomodation: z.string().optional(),
-    _typeOfFestival: z.array(z.string()).nonempty(),
-    _status: z.string(),
-  })
-);
+const dateRangeSchema = z.object({
+  id: z.string().optional(),
+  from: z.string(),
+  to: z.string().optional(),
+});
+
+const globalEventSchema = insertFestivalSchema
+  .merge(
+    z.object({
+      _currentDates: z
+        .array(z.object({ _rangeDate: dateRangeSchema }))
+        .nonempty(),
+      _nextDates: z.array(z.object({ _rangeDate: dateRangeSchema })),
+      _transportLocation: z.string().optional(),
+      _ageOfParticipants: z.array(z.string()).nonempty(),
+      _styleOfFestival: z.array(z.string()).nonempty(),
+      _typeOfAccomodation: z.string().optional(),
+      _typeOfFestival: z.array(z.string()).nonempty(),
+      _status: z.string(),
+      _email: z.string().email(),
+      _lang: insertFestivalLangSchema,
+      _accomodationPhoto: z.any().optional(),
+    })
+  )
+  .refine(
+    (data) => {
+      return !data._typeOfAccomodation || data._accomodationPhoto;
+    },
+    {
+      path: ["_accomodationPhoto"],
+      params: { i18n: "file_required" },
+    }
+  );
+
+function removeDuplicates(data: string[]) {
+  return Array.from(new Set(Array.from(data)));
+}
 
 type KeyTypesFestivalSchema = keyof typeof globalEventSchema._type;
 
@@ -79,17 +127,17 @@ const singleMapCategory: Record<string, boolean> = {
 function Submit({
   label = "Save",
   variant = "default",
+  isLoading = false,
 }: {
   label: string;
   variant?: ButtonProps["variant"];
+  isLoading?: boolean;
 }) {
-  const status = useFormStatus();
-
   return (
     <Button
       type="submit"
-      aria-disabled={status.pending}
-      disabled={status.pending}
+      aria-disabled={isLoading}
+      disabled={isLoading}
       className="space-y-0"
       variant={variant}
     >
@@ -102,14 +150,26 @@ export default function EventForm({
   languages,
   categoryGroups,
   statuses,
+  currentFestival,
+  currentOwner,
+  currentLang,
+  id,
+  currentCategoriesSelected,
+  slug,
 }: {
   categoryGroups: CategoryGroupWithCategories[];
   languages: SelectLanguages[];
   statuses: SelectStatus[];
+  currentFestival?: FestivalBySlugType | undefined;
+  currentLang?: NonNullable<FestivalBySlugType>["langs"][number];
+  currentOwner?: NonNullable<FestivalBySlugType>["owners"][number];
+  currentCategoriesSelected?: string[];
+  id?: string;
+  slug?: string;
 }) {
   useI18nZodErrors("festival");
-  const [state, formAction] = useFormState(createFestival, undefined);
   const t = useTranslations("form.festival");
+
   const [selectedPlace, setSelectedPlace] =
     useState<google.maps.places.PlaceResult | null>(null);
   const [selectedTransportPlace, setSelectedTransportPlace] =
@@ -122,15 +182,96 @@ export default function EventForm({
   const form = useForm<z.infer<typeof globalEventSchema>>({
     resolver: zodResolver(globalEventSchema),
     defaultValues: {
-      _nextDates: [],
-      directorName: "",
-      contact: "",
-      phone: "",
-      location: "",
+      id: id ? Number(id) : 0,
+      _nextDates:
+        currentFestival?.events
+          ?.filter((event) =>
+            isSameYear(event.startDate!, addYears(new Date(), 1))
+          )
+          .map((event) => {
+            return {
+              _rangeDate: {
+                id: event.id ? String(event.id) : "0",
+                from: event.startDate?.toUTCString() ?? "",
+                to: event.endDate?.toUTCString() ?? "",
+              },
+            };
+          }) || [],
+      directorName: currentFestival?.directorName ?? "",
+      _currentDates:
+        currentFestival?.events
+          ?.filter((event) => isThisYear(event.startDate!))
+          .map((event) => {
+            return {
+              _rangeDate: {
+                id: event.id ? String(event.id) : "0",
+                from: event.startDate?.toUTCString() ?? "",
+                to: event.endDate?.toUTCString() ?? "",
+              },
+            };
+          }) || [],
+      contact: "__ad",
+      peoples: currentFestival?.peoples ?? 0,
+      phone: currentFestival?.phone ?? "",
+      location: currentFestival?.location ?? "",
+      lat: currentFestival?.lat ?? "",
+      lng: currentFestival?.lng ?? "",
+      translatorLanguages: currentFestival?.translatorLanguages ?? "",
+      _ageOfParticipants: currentCategoriesSelected,
+      _styleOfFestival: currentCategoriesSelected,
+      _typeOfAccomodation:
+        currentCategoriesSelected?.find((item) => {
+          return categoryGroups
+            .find((group) => group.slug === "type-of-accomodation")
+            ?.categories.some((category) => item === String(category.id));
+        }) ?? "",
+      _typeOfFestival: currentCategoriesSelected,
+      _status: currentFestival?.status?.id
+        ? String(currentFestival?.status.id)
+        : undefined,
+      _email: currentOwner?.user?.email,
+      _lang: {
+        id: currentLang?.id ?? 0,
+        name: currentLang?.name,
+        otherTranslatorLanguage: currentLang?.otherTranslatorLanguage,
+      },
     },
   });
 
+  console.log({ currentFestival });
+
   const formRef = useRef<HTMLFormElement>(null);
+
+  const onSubmitForm: SubmitHandler<z.infer<typeof globalEventSchema>> = async (
+    _data
+  ) => {
+    const result = await updateFestival(new FormData(formRef.current!));
+    if (result.success) {
+      toast.success(result.success);
+    } else if (result.error) {
+      toast.error(result.error);
+    }
+
+    // customRevalidatePath(`/dashboard/national-sections/${slug}/edit`);
+    // customRevalidatePath("/dashboard/national-sections");
+
+    // if (result.success) {
+    // router.push("/dashboard/national-sections");
+    // }
+  };
+
+  const { fields: currentDateFields, append: appendCurrentDates } =
+    useFieldArray({
+      control: form.control,
+      name: "_currentDates",
+    });
+
+  const { fields: nextDateFields, append: appendNextDates } = useFieldArray({
+    control: form.control,
+    name: "_nextDates",
+  });
+
+  console.log(currentFestival);
 
   return (
     <APIProvider apiKey={"AIzaSyBRO_oBiyzOAQbH7Jcv3ZrgOgkfNp1wJeI"}>
@@ -142,15 +283,45 @@ export default function EventForm({
         <Form {...form}>
           <form
             ref={formRef}
-            action={formAction}
-            onSubmit={(evt) => {
-              evt.preventDefault();
-              form.handleSubmit((data) => {
-                formAction(new FormData(formRef.current!));
-              })(evt);
-            }}
+            onSubmit={form.handleSubmit(onSubmitForm)}
             className="space-y-6"
           >
+            <FormField
+              control={form.control}
+              name="id"
+              render={({ field }) => (
+                <FormItem className="space-y-0">
+                  <FormControl>
+                    <Input
+                      ref={field.ref}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      value={field.value}
+                      name={field.name}
+                      type="hidden"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="_lang.id"
+              render={({ field }) => (
+                <FormItem className="space-y-0">
+                  <FormControl>
+                    <Input
+                      ref={field.ref}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      value={field.value}
+                      name={field.name}
+                      type="hidden"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
@@ -158,9 +329,9 @@ export default function EventForm({
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    {/* <FormField
+                    <FormField
                       control={form.control}
-                      name="name"
+                      name="_lang.name"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
@@ -175,7 +346,7 @@ export default function EventForm({
                           <FormMessage />
                         </FormItem>
                       )}
-                    /> */}
+                    />
                   </div>
                   <div>
                     <FormField
@@ -236,15 +407,18 @@ export default function EventForm({
                   <div>
                     <FormField
                       control={form.control}
-                      name="contact"
+                      name="_email"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                            Mail Address
+                            Email Address
                           </FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input {...field} readOnly disabled />
                           </FormControl>
+                          <FormDescription>
+                            Current user owner of this festival
+                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -263,7 +437,9 @@ export default function EventForm({
                             <AutocompletePlaces
                               id="location_festival"
                               {...field}
+                              defaultPlace={field.value!}
                               onPlaceSelect={(currentPlace) => {
+                                field.onChange(currentPlace?.formatted_address);
                                 setSelectedPlace(currentPlace);
                                 form.setValue(
                                   "lat",
@@ -293,20 +469,41 @@ export default function EventForm({
                       name="lng"
                       value={form.getValues().lng || ""}
                     />
+                    <input
+                      type="hidden"
+                      name="location"
+                      value={form.getValues().location || ""}
+                    />
                     <div className="rounded-xl py-4">
                       <Map
                         id="location_festival"
                         className="w-full h-[400px]"
-                        defaultZoom={3}
-                        defaultCenter={{ lat: 0, lng: 0 }}
+                        defaultZoom={currentFestival?.lat ? 8 : 3}
+                        defaultCenter={
+                          currentFestival?.lat
+                            ? {
+                                lat: Number(currentFestival.lat),
+                                lng: Number(currentFestival.lng),
+                              }
+                            : { lat: 0, lng: 0 }
+                        }
                         gestureHandling={"greedy"}
                         disableDefaultUI={true}
                       >
-                        {selectedPlace ? (
+                        {selectedPlace ||
+                        (form.getValues().lat && form.getValues().lng) ? (
                           <Marker
                             position={{
-                              lat: selectedPlace.geometry?.location?.lat()!,
-                              lng: selectedPlace.geometry?.location?.lng()!,
+                              lat:
+                                selectedPlace?.geometry?.location?.lat()! ??
+                                form.getValues().lat
+                                  ? Number(form.getValues().lat)
+                                  : 0,
+                              lng:
+                                selectedPlace?.geometry?.location?.lng()! ??
+                                form.getValues().lng
+                                  ? Number(form.getValues().lng)
+                                  : 0,
                             }}
                           />
                         ) : null}
@@ -314,6 +511,7 @@ export default function EventForm({
                       <MapHandler
                         id="location_festival"
                         place={selectedPlace}
+                        defaultZoom={currentFestival?.lat ? 8 : 3}
                       />
                     </div>
                   </div>
@@ -341,152 +539,248 @@ export default function EventForm({
                       )}
                     /> */}
                   </div>
-                  <div>
-                    <FormField
-                      control={form.control}
-                      name="_currentDates"
-                      render={({
-                        field: { value: fieldValue, ...restFields },
-                      }) => {
-                        return (
-                          <FormItem className="flex flex-col">
-                            <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                              Dates for current year
-                            </FormLabel>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <FormControl {...restFields}>
-                                  <Button
-                                    variant="outline"
-                                    className={cn(
-                                      "w-full pl-3 text-left font-normal",
-                                      !fieldValue && "text-muted-foreground"
-                                    )}
-                                  >
-                                    <span>Pick some dates date</span>
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                  </Button>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent
-                                className="w-auto p-0"
-                                align="start"
-                              >
-                                <Calendar
-                                  mode="multiple"
-                                  selected={
-                                    fieldValue as unknown as Array<Date>
-                                  }
-                                  onSelect={(selectedItems) => {
-                                    // form.setValue(
-                                    //   "currentDates",
-                                    //   selectedItems
-                                    //     ?.map((date) =>
-                                    //       Math.round(+date / 1000)
-                                    //     )
-                                    //     .join(",") || ""
-                                    // );
-                                    restFields.onChange(selectedItems);
-                                  }}
-                                  disabled={(date) =>
-                                    date < new Date() ||
-                                    date >= startOfYear(addYears(new Date(), 1))
-                                  }
-                                  initialFocus
+                  <div className="border-b pb-4">
+                    <h2 className="text-lg font-semibold">Current Dates</h2>
+                    {currentDateFields.map((field, index) => {
+                      const positionIndex = index + 1;
+                      return (
+                        <div key={field.id} className="space-y-4 border-t pb-4">
+                          <FormField
+                            control={form.control}
+                            name={`_currentDates.${index}._rangeDate.id`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <Input
+                                  ref={field.ref}
+                                  value={field.value}
+                                  name={field.name}
+                                  type="hidden"
                                 />
-                              </PopoverContent>
-                            </Popover>
-                            <FormDescription>
-                              Your dates scheduled for this year
-                            </FormDescription>
-                            <FormMessage />
-                            <div className="flex gap-2 flex-wrap">
-                              {fieldValue?.map((date) => {
-                                return (
-                                  <Badge key={Math.round(+date / 1000)}>
-                                    {format(date, "PPP")}
-                                  </Badge>
-                                );
-                              })}
-                            </div>
-                            <input
-                              type="hidden"
-                              name="currentDates"
-                              value={fieldValue
-                                ?.map((date) => Math.round(+date / 1000))
-                                .join(",")}
+                              </FormControl>
+                            )}
+                          />
+                          <div className="grid w-full items-center gap-1.5">
+                            <FormField
+                              control={form.control}
+                              name={`_currentDates.${index}._rangeDate`}
+                              render={({ field: { value, onChange } }) => (
+                                <FormItem>
+                                  <FormLabel>Agenda {positionIndex}</FormLabel>
+                                  <FormControl>
+                                    <>
+                                      <DatePickerWithRange
+                                        className="w-full"
+                                        buttonClassName="w-full"
+                                        defaultDates={{
+                                          from: form.getValues(
+                                            `_currentDates.${index}._rangeDate.from`
+                                          )
+                                            ? new Date(
+                                                form.getValues(
+                                                  `_currentDates.${index}._rangeDate.from`
+                                                )
+                                              )
+                                            : undefined,
+                                          to:
+                                            form.getValues(
+                                              `_currentDates.${index}._rangeDate.to`
+                                            ) &&
+                                            form.getValues(
+                                              `_currentDates.${index}._rangeDate.from`
+                                            ) !==
+                                              form.getValues(
+                                                `_currentDates.${index}._rangeDate.to`
+                                              )
+                                              ? new Date(
+                                                  form.getValues(
+                                                    `_currentDates.${index}._rangeDate.to`
+                                                  )!
+                                                )
+                                              : undefined,
+                                        }}
+                                        onValueChange={(rangeValue) => {
+                                          onChange({
+                                            from: rangeValue?.from?.toUTCString(),
+                                            to:
+                                              rangeValue?.to?.toUTCString() ??
+                                              "",
+                                          });
+                                        }}
+                                      />
+                                      <input
+                                        type="hidden"
+                                        name={`_currentDates.${index}._rangeDate.from`}
+                                        value={value.from}
+                                      />
+                                      <input
+                                        type="hidden"
+                                        name={`_currentDates.${index}._rangeDate.to`}
+                                        value={value.to}
+                                      />
+                                    </>
+                                  </FormControl>
+                                  {form?.getFieldState(
+                                    `_currentDates.${index}._rangeDate.from`
+                                  ).error?.message ? (
+                                    <p
+                                      className={cn(
+                                        "text-sm font-medium text-destructive"
+                                      )}
+                                    >
+                                      {
+                                        form?.getFieldState(
+                                          `_currentDates.${index}._rangeDate.from`
+                                        ).error?.message
+                                      }
+                                    </p>
+                                  ) : null}
+                                </FormItem>
+                              )}
                             />
-                          </FormItem>
-                        );
-                      }}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() =>
+                        appendCurrentDates({ _rangeDate: { from: "" } })
+                      }
+                      className="mt-2"
+                    >
+                      <PlusCircle className="mr-2 h-4 w-4" /> Add Current Date
+                    </Button>
+                    <input
+                      type="hidden"
+                      name="_currentDateSize"
+                      value={currentDateFields.length}
                     />
                   </div>
-                  <div>
-                    <FormField
-                      control={form.control}
-                      name="_nextDates"
-                      render={({ field }) => {
-                        return (
-                          <FormItem className="flex flex-col">
-                            <FormLabel>Dates for the next years</FormLabel>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button
-                                    variant={"outline"}
-                                    className={cn(
-                                      "w-full pl-3 text-left font-normal",
-                                      !field.value && "text-muted-foreground"
-                                    )}
-                                  >
-                                    <span>Pick some dates</span>
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                  </Button>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent
-                                className="w-auto p-0"
-                                align="start"
-                              >
-                                <Calendar
-                                  mode="multiple"
-                                  fromDate={startOfYear(
-                                    addYears(new Date(), 1)
-                                  )}
-                                  selected={
-                                    field.value as unknown as Array<Date>
-                                  }
-                                  onSelect={field.onChange}
-                                  disabled={(date) =>
-                                    date < endOfYear(new Date())
-                                  }
-                                  initialFocus
+                  <div className="border-b pb-4">
+                    <h2 className="text-lg font-semibold">Next Dates</h2>
+                    {nextDateFields.map((field, index) => {
+                      const positionIndex = index + 1;
+                      return (
+                        <div key={field.id} className="space-y-4 border-t pb-4">
+                          <FormField
+                            control={form.control}
+                            name={`_nextDates.${index}._rangeDate.id`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <Input
+                                  ref={field.ref}
+                                  value={field.value}
+                                  name={field.name}
+                                  type="hidden"
                                 />
-                              </PopoverContent>
-                            </Popover>
-                            <FormDescription>
-                              Your dates scheduled for the next years
-                            </FormDescription>
-                            <FormMessage />
-                            <div className="flex gap-2 flex-wrap">
-                              {field.value?.map((date) => {
-                                return (
-                                  <Badge key={Math.round(+date / 1000)}>
-                                    {format(date, "PPP")}
-                                  </Badge>
-                                );
-                              })}
-                            </div>
-                            <input
-                              type="hidden"
-                              name="nextDates"
-                              value={field.value
-                                ?.map((date) => Math.round(+date / 1000))
-                                .join(",")}
+                              </FormControl>
+                            )}
+                          />
+                          <div className="grid w-full items-center gap-1.5">
+                            <FormField
+                              control={form.control}
+                              name={`_nextDates.${index}._rangeDate`}
+                              render={({ field: { value, onChange } }) => (
+                                <FormItem>
+                                  <FormLabel>
+                                    Next Agenda {positionIndex}
+                                  </FormLabel>
+                                  <FormControl>
+                                    <>
+                                      <DatePickerWithRange
+                                        className="w-full"
+                                        buttonClassName="w-full"
+                                        defaultDates={{
+                                          from: form.getValues(
+                                            `_nextDates.${index}._rangeDate.from`
+                                          )
+                                            ? new Date(
+                                                form.getValues(
+                                                  `_nextDates.${index}._rangeDate.from`
+                                                )
+                                              )
+                                            : undefined,
+                                          to:
+                                            form.getValues(
+                                              `_nextDates.${index}._rangeDate.to`
+                                            ) &&
+                                            form.getValues(
+                                              `_nextDates.${index}._rangeDate.from`
+                                            ) !==
+                                              form.getValues(
+                                                `_nextDates.${index}._rangeDate.to`
+                                              )
+                                              ? new Date(
+                                                  form.getValues(
+                                                    `_nextDates.${index}._rangeDate.to`
+                                                  )!
+                                                )
+                                              : undefined,
+                                        }}
+                                        onValueChange={(rangeValue) => {
+                                          onChange({
+                                            from: rangeValue?.from?.toUTCString(),
+                                            to:
+                                              rangeValue?.to?.toUTCString() ??
+                                              "",
+                                          });
+                                        }}
+                                        fromDate={startOfYear(
+                                          addYears(new Date(), 1)
+                                        )}
+                                        disabled={(date) => {
+                                          return date < endOfYear(new Date());
+                                        }}
+                                      />
+                                      <input
+                                        type="hidden"
+                                        name={`_nextDates.${index}._rangeDate.from`}
+                                        value={value.from}
+                                      />
+                                      <input
+                                        type="hidden"
+                                        name={`_nextDates.${index}._rangeDate.to`}
+                                        value={value.to}
+                                      />
+                                    </>
+                                  </FormControl>
+                                  {form?.getFieldState(
+                                    `_nextDates.${index}._rangeDate.from`
+                                  ).error?.message ? (
+                                    <p
+                                      className={cn(
+                                        "text-sm font-medium text-destructive"
+                                      )}
+                                    >
+                                      {
+                                        form?.getFieldState(
+                                          `_nextDates.${index}._rangeDate.from`
+                                        ).error?.message
+                                      }
+                                    </p>
+                                  ) : null}
+                                </FormItem>
+                              )}
                             />
-                          </FormItem>
-                        );
-                      }}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() =>
+                        appendNextDates({ _rangeDate: { from: "" } })
+                      }
+                      className="mt-2"
+                    >
+                      <PlusCircle className="mr-2 h-4 w-4" /> Add Next Date
+                    </Button>
+                    <input
+                      type="hidden"
+                      name="_nextDateSize"
+                      value={nextDateFields.length}
                     />
                   </div>
                 </CardContent>
@@ -504,7 +798,7 @@ export default function EventForm({
                         caption: "",
                       }));
                     return (
-                      <div key={`${item.id}-${item.slug}`}>
+                      <div key={`${item.categories.length}-${item.slug}`}>
                         <FormField
                           control={form.control}
                           name={
@@ -528,6 +822,13 @@ export default function EventForm({
                                     options={options}
                                     ref={field.ref}
                                     value={field.value as string[]}
+                                    defaultValue={(
+                                      field.value as string[]
+                                    ).filter((item) =>
+                                      options.find(
+                                        (option) => option.value === item
+                                      )
+                                    )}
                                     onValueChange={(value) => {
                                       field.onChange(value);
                                       setSelectedGroupCategories(
@@ -547,6 +848,7 @@ export default function EventForm({
                                 ) : (
                                   <Select
                                     name={`_${camelCase(item.slug!)}`}
+                                    defaultValue={field.value}
                                     onValueChange={(value) => {
                                       field.onChange(value);
                                       setSelectedGroupCategories(
@@ -592,9 +894,47 @@ export default function EventForm({
                     type="hidden"
                     name="groupCategories"
                     value={JSON.stringify(
-                      Object.values(selectedGroupCategories).flat() || "[]"
+                      [
+                        ...removeDuplicates([
+                          form.getValues("_typeOfAccomodation") ?? "",
+                          ...form.getValues("_typeOfFestival"),
+                          ...form.getValues("_styleOfFestival"),
+                          ...form.getValues("_ageOfParticipants"),
+                        ]),
+                      ]
+                        .flat()
+                        .filter(Boolean) || "[]"
                     )}
                   />
+                  {form.getValues("_typeOfAccomodation") ? (
+                    <div className="pl-5 border-l">
+                      <FormField
+                        control={form.control}
+                        name="_accomodationPhoto"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Upload a picture</FormLabel>
+                            <FormControl>
+                              <Input
+                                onChange={(event) => {
+                                  field.onChange(
+                                    event.target.files && event.target.files[0]
+                                  );
+                                }}
+                                accept="image/*"
+                                ref={field.ref}
+                                type="file"
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Only available for users
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  ) : null}
                   <div>
                     <FormField
                       control={form.control}
@@ -679,11 +1019,12 @@ export default function EventForm({
                             <FormControl>
                               <MultiSelect
                                 options={options}
+                                defaultValue={field.value?.split(",")}
                                 onValueChange={(values) => {
                                   setSelectedLanguages(values);
                                   form.setValue(
                                     "translatorLanguages",
-                                    JSON.stringify(values)
+                                    values?.join(",")
                                   );
                                 }}
                               />
@@ -699,7 +1040,27 @@ export default function EventForm({
                     <input
                       type="hidden"
                       name="translatorLanguages"
-                      value={JSON.stringify(selectedLanguanges) || "[]"}
+                      value={form.getValues("translatorLanguages")!}
+                    />
+                  </div>
+                  <div>
+                    <FormField
+                      control={form.control}
+                      name="_lang.otherTranslatorLanguage"
+                      render={({ field: { value, ...restFields } }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Other language your translator know to speak
+                          </FormLabel>
+                          <FormControl>
+                            <Input {...restFields} value={value ?? ""} />
+                          </FormControl>
+                          <FormDescription>
+                            Include another language that support
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
                   </div>
                   <div>
@@ -712,37 +1073,22 @@ export default function EventForm({
                             <FormLabel>
                               How many persons do you accept per delegation?
                             </FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={
-                                field.value ? `${field.value}` : undefined
+                            <Input
+                              ref={field.ref}
+                              onChange={(event) => {
+                                field.onChange(Number(event.target.value));
+                              }}
+                              onBlur={field.onBlur}
+                              value={
+                                field.value ? String(field.value) : undefined
                               }
-                            >
-                              <FormControl>
-                                <SelectTrigger className="font-medium data-[placeholder]:text-muted-foreground">
-                                  <SelectValue placeholder="Select a verified peoples" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {Array.from({ length: 40 }).map((_, index) => (
-                                  <SelectItem
-                                    key={`peoples-${index}`}
-                                    value={String(index + 1)}
-                                  >
-                                    {index + 1}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                              name={field.name}
+                              type="number"
+                            />
                             <FormMessage />
                           </FormItem>
                         );
                       }}
-                    />
-                    <input
-                      type="hidden"
-                      name="translatorLanguages"
-                      value={JSON.stringify(selectedLanguanges) || "[]"}
                     />
                   </div>
                 </CardContent>
@@ -793,85 +1139,101 @@ export default function EventForm({
                       )}
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="recognizedSince">Recognized since</Label>
-                    <Input
-                      id="recognizedSince"
-                      name="recognizedSince"
-                      placeholder="e.g., 2014 - 2024"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="financialCompensation">
-                      Financial compensation
-                    </Label>
-                    <Input
-                      id="financialCompensation"
-                      name="financialCompensation"
-                      placeholder="If ticked: How much?"
-                    />
-                  </div>
-                  <div>
-                    <Label>Components</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="liveMusicRequired"
-                          name="components"
-                          value="liveMusicRequired"
-                        />
-                        <Label htmlFor="liveMusicRequired">
-                          Live music required
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="traditionalTrade"
-                          name="components"
-                          value="traditionalTrade"
-                        />
-                        <Label htmlFor="traditionalTrade">
-                          Traditional trade
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="traditionalFood"
-                          name="components"
-                          value="traditionalFood"
-                        />
-                        <Label htmlFor="traditionalFood">
-                          Traditional food
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="exhibitions"
-                          name="components"
-                          value="exhibitions"
-                        />
-                        <Label htmlFor="exhibitions">Exhibitions</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="traditionalGames"
-                          name="components"
-                          value="traditionalGames"
-                        />
-                        <Label htmlFor="traditionalGames">
-                          Traditional games
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="workshops"
-                          name="components"
-                          value="workshops"
-                        />
-                        <Label htmlFor="workshops">Workshops</Label>
-                      </div>
-                    </div>
-                  </div>
+                  {form.getValues("_status") &&
+                  statuses.some(
+                    (status) =>
+                      String(status.id) === form.getValues("_status") &&
+                      status.slug === "recognized-festival"
+                  ) ? (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Recognition</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <Label htmlFor="recognizedSince">
+                            Recognized since
+                          </Label>
+                          <Input
+                            id="recognizedSince"
+                            name="recognizedSince"
+                            placeholder="e.g., 2014 - 2024"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="financialCompensation">
+                            Financial compensation
+                          </Label>
+                          <Input
+                            id="financialCompensation"
+                            name="financialCompensation"
+                            placeholder="If ticked: How much?"
+                          />
+                        </div>
+                        <div>
+                          <Label>Components</Label>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                id="liveMusicRequired"
+                                name="components"
+                                value="liveMusicRequired"
+                              />
+                              <Label htmlFor="liveMusicRequired">
+                                Live music required
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                id="traditionalTrade"
+                                name="components"
+                                value="traditionalTrade"
+                              />
+                              <Label htmlFor="traditionalTrade">
+                                Traditional trade
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                id="traditionalFood"
+                                name="components"
+                                value="traditionalFood"
+                              />
+                              <Label htmlFor="traditionalFood">
+                                Traditional food
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                id="exhibitions"
+                                name="components"
+                                value="exhibitions"
+                              />
+                              <Label htmlFor="exhibitions">Exhibitions</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                id="traditionalGames"
+                                name="components"
+                                value="traditionalGames"
+                              />
+                              <Label htmlFor="traditionalGames">
+                                Traditional games
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                id="workshops"
+                                name="components"
+                                value="workshops"
+                              />
+                              <Label htmlFor="workshops">Workshops</Label>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ) : null}
                 </CardContent>
               </Card>
               <Card>
@@ -1004,7 +1366,10 @@ export default function EventForm({
                     <Button variant="ghost" asChild>
                       <Link href="/dashboard/festivals">Cancel</Link>
                     </Button>
-                    <Submit label="Publish" />
+                    <Submit
+                      label="Publish"
+                      isLoading={form.formState.isSubmitting}
+                    />
                   </div>
                 </CardContent>
               </Card>

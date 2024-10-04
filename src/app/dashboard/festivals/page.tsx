@@ -156,11 +156,19 @@ export default async function DashboardPage() {
                                 <Link
                                   href={`/event/${item?.id}`}
                                   target="_blank"
+                                  className="cursor-pointer"
                                 >
                                   Preview
                                 </Link>
                               </DropdownMenuItem>
-                              <DropdownMenuItem disabled>Edit</DropdownMenuItem>
+                              <DropdownMenuItem asChild>
+                                <Link
+                                  href={`/dashboard/festivals/${item?.slug}/edit`}
+                                  className="cursor-pointer"
+                                >
+                                  Edit
+                                </Link>
+                              </DropdownMenuItem>
                               <DropdownMenuItem disabled>
                                 Delete
                               </DropdownMenuItem>

@@ -85,6 +85,20 @@
       "when": 1727929503475,
       "tag": "0011_rare_glorian",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1727990087896,
+      "tag": "0012_old_hardball",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1727994085557,
+      "tag": "0013_true_cannonball",
+      "breakpoints": true
     }
   ]
 }

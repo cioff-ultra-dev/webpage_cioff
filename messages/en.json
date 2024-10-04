@@ -38,6 +38,12 @@
     "_typeOfFestival": "Type of festival",
     "_status": "Status",
     "festival": {
+      "tag": {
+        "typeOfFestival": "Type of Festival",
+        "ageOfParticipants": "Age of Participants",
+        "styleOfFestival": "Style of Festival",
+        "typeOfAccomodation": "Type of Accomodation"
+      },
       "name": "Name",
       "phone": "Phone Number",
       "contact": "Contact",

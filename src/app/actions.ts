@@ -1,11 +1,13 @@
 "use server";
 
 import {
+  categories,
   emailTemplates,
   events,
   eventsLang,
   festivals,
   festivalsLang,
+  festivalToCategories,
   groups,
   groupsLang,
   InsertEvent,
@@ -39,7 +41,7 @@ import { PgTable } from "drizzle-orm/pg-core";
 import { replaceTags } from "@codejamboree/replace-tags";
 import generator from "generate-password-ts";
 import { generateHashPassword, isSamePassword } from "@/lib/password";
-import { headers } from "next/headers";
+import slug from "slug";
 
 const preparedLanguagesByCode = db.query.languages
   .findFirst({
@@ -49,25 +51,22 @@ const preparedLanguagesByCode = db.query.languages
 
 const buildConflictUpdateColumns = <
   T extends PgTable,
-  Q extends keyof T["_"]["columns"],
+  Q extends keyof T["_"]["columns"]
 >(
   table: T,
-  columns: Q[],
+  columns: Q[]
 ) => {
   const cls = getTableColumns(table);
-  return columns.reduce(
-    (acc, column) => {
-      const colName = cls[column].name;
-      acc[column] = sql.raw(`excluded.${colName}`);
-      return acc;
-    },
-    {} as Record<Q, SQL>,
-  );
+  return columns.reduce((acc, column) => {
+    const colName = cls[column].name;
+    acc[column] = sql.raw(`excluded.${colName}`);
+    return acc;
+  }, {} as Record<Q, SQL>);
 };
 
 export async function uploadFile(
   file: File,
-  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0]
 ) {
   if (!file || file?.size === 0) {
     return undefined;
@@ -87,7 +86,7 @@ export async function uploadFile(
 
 export async function authenticate(
   _prevState: string | undefined,
-  formData: FormData,
+  formData: FormData
 ) {
   formData.set("redirectTo", "/dashboard/festivals");
   try {
@@ -167,11 +166,11 @@ export async function createGroup(prevState: unknown, formData: FormData) {
   const id = Number(formData.get("_id"));
   const generalDirectorName = formData.get("generalDirectorName") as string;
   const generalDirectorProfile = formData.get(
-    "generalDirectorProfile",
+    "generalDirectorProfile"
   ) as string;
   const artisticDirectorName = formData.get("artisticDirectorName") as string;
   const artisticDirectorProfile = formData.get(
-    "artisticDirectorProfile",
+    "artisticDirectorProfile"
   ) as string;
   const directorPhoto = formData.get("directorPhoto") as File;
 
@@ -237,8 +236,8 @@ export async function updateNationalSection(formData: FormData) {
       .where(
         and(
           eq(nationalSectionsLang.nsId, nsId),
-          eq(nationalSectionsLang.lang, lang.id),
-        ),
+          eq(nationalSectionsLang.lang, lang.id)
+        )
       );
 
     const [currentSocialMediaLink] = await tx
@@ -275,19 +274,19 @@ export async function updateNationalSection(formData: FormData) {
         const email = formData.get(`_positions.${index}.email`) as string;
         const phone = formData.get(`_positions.${index}.phone`) as string;
         const positionLangId = Number(
-          formData.get(`_positions.${index}._lang.id`),
+          formData.get(`_positions.${index}._lang.id`)
         );
         const shortBio = formData.get(
-          `_positions.${index}._lang.shortBio`,
+          `_positions.${index}._lang.shortBio`
         ) as string;
         const photo = formData.get(`_positions.${index}._photo`) as File;
         const isHonorable =
           (formData.get(`_positions.${index}._isHonorable`) as string) === "on";
         const birthDate = formData.get(
-          `_positions.${index}._birthDate`,
+          `_positions.${index}._birthDate`
         ) as string;
         const deathDate = formData.get(
-          `_positions.${index}._deathDate`,
+          `_positions.${index}._deathDate`
         ) as string;
 
         const storagePhotoId = await uploadFile(photo, tx);
@@ -350,11 +349,11 @@ export async function updateNationalSection(formData: FormData) {
         const id = Number(formData.get(`_events.${index}.id`));
         const name = formData.get(`_events.${index}._lang.name`) as string;
         const description = formData.get(
-          `_events.${index}._lang.description`,
+          `_events.${index}._lang.description`
         ) as string;
         const eventLangId = Number(formData.get(`_events.${index}._lang.id`));
         const fromDate = formData.get(
-          `_events.${index}._rangeDate.from`,
+          `_events.${index}._rangeDate.from`
         ) as string;
         const toDate = formData.get(`_events.${index}._rangeDate.to`) as string;
 
@@ -406,16 +405,16 @@ export async function updateNationalSection(formData: FormData) {
         const name = formData.get(`_festivals.${index}._lang.name`) as string;
         const email = formData.get(`_festivals.${index}.email`) as string;
         const festivalLangId = Number(
-          formData.get(`_festivals.${index}._lang.id`),
+          formData.get(`_festivals.${index}._lang.id`)
         );
         const ownerId = Number(formData.get(`_festivals.${index}.ownerId`));
         const certificationFile = formData.get(
-          `_festivals.${index}.certificationFile`,
+          `_festivals.${index}.certificationFile`
         ) as File;
 
         const storageCertificationFileId = await uploadFile(
           certificationFile,
-          tx,
+          tx
         );
 
         const role = await tx.query.roles.findFirst({
@@ -456,6 +455,7 @@ export async function updateNationalSection(formData: FormData) {
             certificationMemberId: storageCertificationFileId,
             nsId,
             countryId: currentNationalSection?.countryId,
+            slug: slug(name),
           })
           .onConflictDoUpdate({
             target: festivals.id,
@@ -501,12 +501,12 @@ export async function updateNationalSection(formData: FormData) {
         const groupLangId = Number(formData.get(`_groups.${index}._lang.id`));
         const ownerId = Number(formData.get(`_groups.${index}.ownerId`));
         const certificationFile = formData.get(
-          `_groups.${index}.certificationFile`,
+          `_groups.${index}.certificationFile`
         ) as File;
 
         const storageCertificationFileId = await uploadFile(
           certificationFile,
-          tx,
+          tx
         );
 
         const role = await tx.query.roles.findFirst({
@@ -606,12 +606,12 @@ export async function createNationalSection(formData: FormData) {
       const name = formData.get(`_festivals.${index}.name`) as string;
       const email = formData.get(`_festivals.${index}.email`) as string;
       const certificationFile = formData.get(
-        `_festivals.${index}.certificationFile`,
+        `_festivals.${index}.certificationFile`
       ) as File;
 
       const storageCertificationFileId = await uploadFile(
         certificationFile,
-        tx,
+        tx
       );
 
       const role = await tx.query.roles.findFirst({
@@ -649,12 +649,12 @@ export async function createNationalSection(formData: FormData) {
       const name = formData.get(`_groups.${index}.name`) as string;
       const email = formData.get(`_groups.${index}.email`) as string;
       const certificationFile = formData.get(
-        `_groups.${index}.certificationFile`,
+        `_groups.${index}.certificationFile`
       ) as File;
 
       const storageCertificationFileId = await uploadFile(
         certificationFile,
-        tx,
+        tx
       );
 
       const role = await tx.query.roles.findFirst({
@@ -699,7 +699,6 @@ export async function createNationalSection(formData: FormData) {
 
 export async function generateFestival(formData: FormData) {
   const locale = await getLocale();
-  const headerList = headers();
   const session = await auth();
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
@@ -732,6 +731,21 @@ export async function generateFestival(formData: FormData) {
         })
         .returning();
 
+      const [currentFestival] = await tx
+        .insert(festivals)
+        .values({
+          nsId,
+          countryId: currentNationalSection?.countryId,
+          slug: slug(name),
+        })
+        .returning();
+
+      await tx.insert(festivalsLang).values({
+        name,
+        festivalId: currentFestival.id,
+        lang: lang?.id,
+      });
+
       if (user.email && !user.isCreationNotified && !user.emailVerified) {
         const [emailTemplate] = await db
           .select()
@@ -742,7 +756,7 @@ export async function generateFestival(formData: FormData) {
           name: name,
           password: password,
           url: `<a target="_blank" href="${process.env.HOSTNAME_URL}/login">${t(
-            "email.login_to",
+            "email.login_to"
           )}</a>`,
         });
 
@@ -758,20 +772,6 @@ export async function generateFestival(formData: FormData) {
           .set({ isCreationNotified: true })
           .where(eq(users.id, user.id));
       }
-
-      const [currentFestival] = await tx
-        .insert(festivals)
-        .values({
-          nsId,
-          countryId: currentNationalSection?.countryId,
-        })
-        .returning();
-
-      await tx.insert(festivalsLang).values({
-        name,
-        festivalId: currentFestival.id,
-        lang: lang?.id,
-      });
 
       const ownerList: (typeof owners.$inferInsert)[] = [
         { userId: user.id, festivalId: currentFestival.id },
@@ -850,7 +850,7 @@ export async function generateGroup(formData: FormData) {
           name: name,
           password: password,
           url: `<a target="_blank" href="${process.env.HOSTNAME_URL}/login">${t(
-            "email.login_to",
+            "email.login_to"
           )}</a>`,
         });
 
@@ -919,7 +919,6 @@ export async function updateAccountFields(formData: FormData) {
   const firstName = formData.get("firstname") as string;
   const lastName = formData.get("lastname") as string;
   const email = formData.get("email") as string;
-  console.log({ firstName, lastName, email, id: session?.user.id });
 
   const t = await getTranslations("notification");
 
@@ -957,8 +956,6 @@ export async function updatePasswordFields(formData: FormData) {
   const t = await getTranslations("notification");
   const hashedPassword = await generateHashPassword(confirmPassword);
 
-  console.log({ currentPassword, newPassword, confirmPassword });
-
   try {
     const result = await db.transaction(async (tx) => {
       const currentUser = await tx.query.users.findFirst({
@@ -973,7 +970,7 @@ export async function updatePasswordFields(formData: FormData) {
 
       const isMatchPassword = await isSamePassword(
         currentPassword,
-        currentUser?.password!,
+        currentUser?.password!
       );
 
       if (!isMatchPassword) {
@@ -1001,6 +998,147 @@ export async function updatePasswordFields(formData: FormData) {
     const er = err as Error;
     return { error: er.message };
   }
+
+  return { success: t("success"), error: null };
+}
+
+export async function updateFestival(formData: FormData) {
+  const locale = await getLocale();
+  const id = Number(formData.get("id"));
+  const langId = Number(formData.get("_lang.id"));
+  const name = formData.get("_lang.name") as string;
+  const directorName = formData.get("directorName") as string;
+  const phone = formData.get("phone") as string;
+  const location = formData.get("location") as string;
+  const lat = formData.get("lat") as string;
+  const lng = formData.get("lng") as string;
+  const translatorLanguages = formData.get("translatorLanguages") as string;
+  const peoples = Number(formData.get("peoples"));
+  const statusId = Number((formData.get("_status") as string) ?? "") || null;
+  const otherTranslatorLanguage = formData.get(
+    "_lang.otherTranslatorLanguage"
+  ) as string;
+  const groupCategories = JSON.parse(
+    (formData.get("groupCategories") as string) || ""
+  ) as string[];
+
+  const currentDateSize = Number(formData.get("_currentDateSize"));
+  const nextDateSize = Number(formData.get("_nextDateSize"));
+
+  const currentDates: InsertEvent[] = [];
+
+  const lang = await preparedLanguagesByCode.execute({ locale });
+  const t = await getTranslations("notification");
+
+  await db.transaction(async (tx) => {
+    const [currentFestival] = await tx
+      .insert(festivals)
+      .values({
+        id: id === 0 ? undefined : id,
+        directorName,
+        phone,
+        location,
+        translatorLanguages,
+        peoples,
+        statusId,
+        lat,
+        lng,
+      })
+      .onConflictDoUpdate({
+        target: festivals.id,
+        set: buildConflictUpdateColumns(festivals, [
+          "directorName",
+          "phone",
+          "location",
+          "lat",
+          "lng",
+          "translatorLanguages",
+          "peoples",
+          "statusId",
+        ]),
+      })
+      .returning();
+
+    await tx
+      .insert(festivalsLang)
+      .values({
+        id: langId === 0 ? undefined : langId,
+        name,
+        otherTranslatorLanguage,
+        festivalId: currentFestival.id,
+        lang: lang?.id,
+      })
+      .onConflictDoUpdate({
+        target: festivalsLang.id,
+        set: buildConflictUpdateColumns(festivalsLang, [
+          "name",
+          "otherTranslatorLanguage",
+        ]),
+      });
+
+    if (currentDateSize > 0) {
+      for (let index = 0; index < currentDateSize; index++) {
+        const id = Number(formData.get(`_currentDates.${index}._rangeDate.id`));
+        const fromDate = formData.get(
+          `_currentDates.${index}._rangeDate.from`
+        ) as string;
+        const toDate = formData.get(
+          `_currentDates.${index}._rangeDate.to`
+        ) as string;
+
+        currentDates.push({
+          id: id === 0 ? undefined : id,
+          festivalId: currentFestival.id,
+          startDate: fromDate ? new Date(fromDate) : undefined,
+          endDate: toDate ? new Date(toDate) : new Date(fromDate),
+        });
+      }
+    }
+
+    if (nextDateSize > 0) {
+      for (let index = 0; index < currentDateSize; index++) {
+        const id = Number(formData.get(`_nextDates.${index}._rangeDate.id`));
+        const fromDate = formData.get(
+          `_nextDates.${index}._rangeDate.from`
+        ) as string;
+        const toDate = formData.get(
+          `_nextDates.${index}._rangeDate.to`
+        ) as string;
+
+        currentDates.push({
+          id: id === 0 ? undefined : id,
+          festivalId: currentFestival.id,
+          startDate: fromDate ? new Date(fromDate) : undefined,
+          endDate: toDate ? new Date(toDate) : new Date(fromDate),
+        });
+      }
+    }
+
+    console.log(currentDates);
+
+    if (currentDates.length) {
+      await tx
+        .insert(events)
+        .values(currentDates)
+        .onConflictDoUpdate({
+          target: events.id,
+          set: buildConflictUpdateColumns(events, ["startDate", "endDate"]),
+        });
+    }
+
+    if (groupCategories.length) {
+      await tx
+        .delete(festivalToCategories)
+        .where(eq(festivalToCategories.festivalId, currentFestival.id));
+
+      await tx.insert(festivalToCategories).values(
+        groupCategories.map((categoryId) => ({
+          categoryId: Number(categoryId),
+          festivalId: currentFestival.id,
+        }))
+      );
+    }
+  });
 
   return { success: t("success"), error: null };
 }

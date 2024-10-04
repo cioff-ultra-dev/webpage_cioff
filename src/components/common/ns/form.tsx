@@ -112,12 +112,13 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
         z.object({
           ownerId: z.number().optional(),
           _lang: insertFestivalLangSchema.pick({ name: true, id: true }),
-          certificationFile: z.any().refine(
-            (item) => {
-              return item instanceof File || typeof item !== "undefined";
-            },
-            { params: { i18n: "file_required" } }
-          ),
+          certificationFile: z.any(),
+          // certificationFile: z.any().refine(
+          //   (item) => {
+          //     return item instanceof File || typeof item !== "undefined";
+          //   },
+          //   { params: { i18n: "file_required" } }
+          // ),
         })
       )
     ),
@@ -128,12 +129,13 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
           ownerId: z.number().optional(),
           email: z.string().email(),
           _lang: insertGroupLangSchema.pick({ name: true, id: true }),
-          certificationFile: z
-            .any()
-            .refine(
-              (item) => item instanceof File || typeof item !== "undefined",
-              { params: { i18n: "file_required" } }
-            ),
+          certificationFile: z.any(),
+          // certificationFile: z
+          //   .any()
+          //   .refine(
+          //     (item) => item instanceof File || typeof item !== "undefined",
+          //     { params: { i18n: "file_required" } }
+          //   ),
         })
       )
     ),
@@ -1345,7 +1347,7 @@ export default function NationalSectionForm({
                           )}
                         />
                       </div>
-                      <div className="grid w-full items-center gap-1.5">
+                      {/* <div className="grid w-full items-center gap-1.5">
                         <FormField
                           control={form.control}
                           name={`_festivals.${index}.certificationFile`}
@@ -1385,7 +1387,7 @@ export default function NationalSectionForm({
                             Turn off profile
                           </Label>
                         </div>
-                      </div>
+                      </div> */}
                       {/* {festivalFields.length > 1 && (
                         <Button
                           variant="destructive"
@@ -1527,7 +1529,7 @@ export default function NationalSectionForm({
                           )}
                         />
                       </div>
-                      <div className="grid w-full items-center gap-1.5">
+                      {/* <div className="grid w-full items-center gap-1.5">
                         <FormField
                           control={form.control}
                           name={`_groups.${index}.certificationFile`}
@@ -1567,7 +1569,7 @@ export default function NationalSectionForm({
                             Turn off profile
                           </Label>
                         </div>
-                      </div>
+                      </div> */}
                       {/* {groupFields.length > 1 && (
                         <Button
                           variant="destructive"
