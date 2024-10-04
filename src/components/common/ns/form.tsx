@@ -63,6 +63,7 @@ import { DatePickerWithRange } from "@/components/ui/datepicker-with-range";
 const positionsSchema = insertNationalSectionPositionsSchema.merge(
   z.object({
     _lang: insertNationalSectionPositionsLangSchema,
+    _isHonorable: z.boolean().optional(),
     _birthDate: z.string().optional(),
     _deathDate: z.string().optional(),
     _photo: z
@@ -73,29 +74,10 @@ const positionsSchema = insertNationalSectionPositionsSchema.merge(
   })
 );
 
-const honorariesSchema = insertNationalSectionPositionsSchema
-  .merge(
-    z.object({
-      _lang: insertNationalSectionPositionsLangSchema,
-      _birthDate: z.string().optional(),
-      _deathDate: z.string().optional(),
-      _photo: z
-        .any()
-        .refine((item) => item instanceof File || typeof item === "undefined", {
-          params: { i18n: "file_required" },
-        }),
-    })
-  )
-  .extend({
-    email: z.string().optional(),
-    phone: z.string().optional(),
-  });
-
 const formNationalSectionSchema = insertNationalSectionSchema.merge(
   z.object({
     _lang: inserNationalSectionLangSchema,
     _positions: z.array(positionsSchema),
-    _honoraries: z.array(honorariesSchema),
     _events: z.array(
       insertEventSchema.extend({
         _startDate: z.string().datetime().optional(),
@@ -203,36 +185,22 @@ export default function NationalSectionForm({
         };
       }),
       _positions:
-        currentNationalSection?.positions
-          ?.filter((position) => !position.isHonorable)
-          .map((position) => {
-            return {
-              ...position,
-              _lang: {
-                id: position?.langs?.at(0)?.id ?? 0,
-                shortBio: position.langs.at(0)?.shortBio,
-              },
-            };
-          }) ?? [],
-      _honoraries:
-        currentNationalSection?.positions
-          ?.filter((position) => position.isHonorable)
-          .map((position) => {
-            return {
-              ...position,
-              email: position.email || "",
-              _birthDate: position.birthDate
-                ? position.birthDate.toUTCString()
-                : "",
-              _deathDate: position.deadDate
-                ? position.deadDate.toUTCString()
-                : "",
-              _lang: {
-                id: position?.langs?.at(0)?.id ?? 0,
-                shortBio: position.langs.at(0)?.shortBio,
-              },
-            };
-          }) ?? [],
+        currentNationalSection?.positions.map((position) => {
+          return {
+            ...position,
+            _isHonorable: position.isHonorable ?? false,
+            _birthDate: position.birthDate
+              ? position.birthDate.toUTCString()
+              : "",
+            _deathDate: position.deadDate
+              ? position.deadDate.toUTCString()
+              : "",
+            _lang: {
+              id: position?.langs?.at(0)?.id ?? 0,
+              shortBio: position.langs.at(0)?.shortBio,
+            },
+          };
+        }) ?? [],
       _festivals: currentNationalSection?.festivals.map((festival) => {
         return {
           ...festival,
@@ -272,30 +240,16 @@ export default function NationalSectionForm({
     form.setValue("_lang.about", currentLang?.about || "");
     form.setValue("_lang.aboutYoung", currentLang?.aboutYoung || "");
 
-    currentNationalSection?.positions
-      .filter((position) => !position.isHonorable)
-      .forEach((position, index) => {
-        form.setValue(
-          `_positions.${index}._lang.shortBio`,
-          position.langs.at(0)?.shortBio || ""
-        );
-        form.setValue(
-          `_positions.${index}._lang.id`,
-          position.langs.at(0)?.id ?? 0
-        );
-      });
-    currentNationalSection?.positions
-      .filter((position) => position.isHonorable)
-      .forEach((position, index) => {
-        form.setValue(
-          `_honoraries.${index}._lang.shortBio`,
-          position.langs.at(0)?.shortBio || ""
-        );
-        form.setValue(
-          `_honoraries.${index}._lang.id`,
-          position.langs.at(0)?.id ?? 0
-        );
-      });
+    currentNationalSection?.positions.forEach((position, index) => {
+      form.setValue(
+        `_positions.${index}._lang.shortBio`,
+        position.langs.at(0)?.shortBio || ""
+      );
+      form.setValue(
+        `_positions.${index}._lang.id`,
+        position.langs.at(0)?.id ?? 0
+      );
+    });
   }, [
     currentLang?.name,
     currentLang?.about,
@@ -307,11 +261,6 @@ export default function NationalSectionForm({
   const { fields: positionFields, append: appendPosition } = useFieldArray({
     control: form.control,
     name: "_positions",
-  });
-
-  const { fields: honoraryFields, append: appendHonorary } = useFieldArray({
-    control: form.control,
-    name: "_honoraries",
   });
 
   const {
@@ -634,10 +583,157 @@ export default function NationalSectionForm({
                           </FormItem>
                         )}
                       />
+                      <FormField
+                        control={form.control}
+                        name={`_positions.${index}._isHonorable`}
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                            <div className="space-y-0.5">
+                              <FormLabel>Honorary Member</FormLabel>
+                              <FormDescription>
+                                Receive honorary members for this national
+                                section
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                defaultChecked={field.value}
+                                onCheckedChange={field.onChange}
+                                name={field.name}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      {form.getValues(`_positions.${index}._isHonorable`) ? (
+                        <div className="pl-5 border-l">
+                          <FormField
+                            control={form.control}
+                            name={`_positions.${index}._birthDate`}
+                            render={({ field }) => (
+                              <FormItem className="flex flex-col">
+                                <FormLabel>Date of birth</FormLabel>
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <FormControl>
+                                      <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                          "w-full pl-3 text-left font-normal",
+                                          !field.value &&
+                                            "text-muted-foreground"
+                                        )}
+                                      >
+                                        {field.value ? (
+                                          format(field.value, "PPP")
+                                        ) : (
+                                          <span>Pick a date</span>
+                                        )}
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                      </Button>
+                                    </FormControl>
+                                  </PopoverTrigger>
+                                  <PopoverContent
+                                    className="w-auto p-0"
+                                    align="start"
+                                  >
+                                    <Calendar
+                                      mode="single"
+                                      captionLayout="dropdown"
+                                      fromYear={1900}
+                                      toYear={new Date().getFullYear()}
+                                      defaultMonth={new Date(2024, 6)}
+                                      selected={
+                                        field.value
+                                          ? new Date(field.value)
+                                          : undefined
+                                      }
+                                      onSelect={(value) =>
+                                        field.onChange(value?.toUTCString())
+                                      }
+                                      disabled={(date: Date) =>
+                                        date > new Date() ||
+                                        date < new Date("1900-01-01")
+                                      }
+                                    />
+                                  </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                                <input
+                                  type="hidden"
+                                  name={`_honoraries.${index}._birthDate`}
+                                  value={field.value}
+                                />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`_positions.${index}._deathDate`}
+                            render={({ field }) => (
+                              <FormItem className="flex flex-col">
+                                <FormLabel>Date of death</FormLabel>
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <FormControl>
+                                      <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                          "w-full pl-3 text-left font-normal",
+                                          !field.value &&
+                                            "text-muted-foreground"
+                                        )}
+                                      >
+                                        {field.value ? (
+                                          format(field.value, "PPP")
+                                        ) : (
+                                          <span>Pick a date</span>
+                                        )}
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                      </Button>
+                                    </FormControl>
+                                  </PopoverTrigger>
+                                  <PopoverContent
+                                    className="w-auto p-0"
+                                    align="start"
+                                  >
+                                    <Calendar
+                                      mode="single"
+                                      captionLayout="dropdown"
+                                      fromYear={1900}
+                                      toYear={new Date().getFullYear()}
+                                      defaultMonth={new Date(2024, 6)}
+                                      selected={
+                                        field.value
+                                          ? new Date(field.value)
+                                          : undefined
+                                      }
+                                      onSelect={(value) =>
+                                        field.onChange(value?.toUTCString())
+                                      }
+                                      disabled={(date: Date) =>
+                                        date > new Date() ||
+                                        date < new Date("1900-01-01")
+                                      }
+                                    />
+                                  </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                                <input
+                                  type="hidden"
+                                  name={`_positions.${index}._deathDate`}
+                                  value={field.value}
+                                />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      ) : null}
                     </div>
-                    <Button variant="outline" disabled>
+                    {/* <Button variant="outline" disabled>
                       See contact information
-                    </Button>
+                    </Button> */}
                   </div>
                 );
               })}
@@ -660,301 +756,36 @@ export default function NationalSectionForm({
                 name="_positionSize"
                 value={positionFields.length}
               />
-              <div className="space-y-4 border-t pt-4">
-                <h2 className="text-lg font-semibold after:content-['*'] after:ml-0.5 after:text-red-500">
-                  About Youth Commission
-                </h2>
-                <div className="grid w-full items-center gap-1.5">
-                  <FormField
-                    control={form.control}
-                    name="_lang.aboutYoung"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Enter details about youth commission"
-                            className="resize-none"
-                            onChange={field.onChange}
-                            value={field.value}
-                            onBlur={field.onBlur}
-                            ref={field.ref}
-                            name={field.name}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          You can use max. 500 words for this input
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="space-y-4 border-t pt-4">
-                <h2 className="text-lg font-semibold">
-                  CIOFF International Honorary Members
-                </h2>
-                {honoraryFields.map((field, index) => {
-                  const positionIndex = index + 1;
-                  return (
-                    <div key={field.id} className="space-y-4  pt-4">
-                      <h3 className="font-medium">Honorary {positionIndex}</h3>
-                      <FormField
-                        control={form.control}
-                        name={`_honoraries.${index}.id`}
-                        render={({ field }) => (
-                          <FormControl>
-                            <Input
-                              ref={field.ref}
-                              value={field.value}
-                              name={field.name}
-                              type="hidden"
-                            />
-                          </FormControl>
-                        )}
-                      />
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_honoraries.${index}.name`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Name</FormLabel>
-                              <FormControl>
-                                <Input
-                                  ref={field.ref}
-                                  onChange={field.onChange}
-                                  onBlur={field.onBlur}
-                                  value={
-                                    field.value === "" ? undefined : field.value
-                                  }
-                                  name={field.name}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Enter your current name
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_honoraries.${index}._photo`}
-                          render={({
-                            field: { value, onChange, ...fieldProps },
-                          }) => (
-                            <FormItem>
-                              <FormLabel>Picture</FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...fieldProps}
-                                  placeholder="Picture"
-                                  type="file"
-                                  accept="image/*, application/pdf"
-                                  onChange={(event) =>
-                                    onChange(
-                                      event.target.files &&
-                                        event.target.files[0]
-                                    )
-                                  }
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_honoraries.${index}._lang.id`}
-                          render={({ field }) => (
-                            <FormControl>
-                              <Input
-                                name={field.name}
-                                onChange={field.onChange}
-                                value={field.value}
-                                onBlur={field.onBlur}
-                                ref={field.ref}
-                                type="hidden"
-                              />
-                            </FormControl>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`_honoraries.${index}._lang.shortBio`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Short Bio</FormLabel>
-                              <FormControl>
-                                <Textarea
-                                  placeholder="Tell us a bit about you"
-                                  className="resize-none"
-                                  name={field.name}
-                                  onChange={field.onChange}
-                                  defaultValue={field.value || undefined}
-                                  onBlur={field.onBlur}
-                                  ref={field.ref}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                You can use max. 200 words for this input
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_honoraries.${index}._birthDate`}
-                          render={({ field }) => (
-                            <FormItem className="flex flex-col">
-                              <FormLabel>Date of birth</FormLabel>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <FormControl>
-                                    <Button
-                                      variant={"outline"}
-                                      className={cn(
-                                        "w-full pl-3 text-left font-normal",
-                                        !field.value && "text-muted-foreground"
-                                      )}
-                                    >
-                                      {field.value ? (
-                                        format(field.value, "PPP")
-                                      ) : (
-                                        <span>Pick a date</span>
-                                      )}
-                                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                    </Button>
-                                  </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent
-                                  className="w-auto p-0"
-                                  align="start"
-                                >
-                                  <Calendar
-                                    mode="single"
-                                    captionLayout="dropdown"
-                                    fromYear={1900}
-                                    toYear={new Date().getFullYear()}
-                                    defaultMonth={new Date(2024, 6)}
-                                    selected={
-                                      field.value
-                                        ? new Date(field.value)
-                                        : undefined
-                                    }
-                                    onSelect={(value) =>
-                                      field.onChange(value?.toUTCString())
-                                    }
-                                    disabled={(date: Date) =>
-                                      date > new Date() ||
-                                      date < new Date("1900-01-01")
-                                    }
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                              <FormMessage />
-                              <input
-                                type="hidden"
-                                name={`_honoraries.${index}._birthDate`}
-                                value={field.value}
-                              />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_honoraries.${index}._deathDate`}
-                          render={({ field }) => (
-                            <FormItem className="flex flex-col">
-                              <FormLabel>Date of death</FormLabel>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <FormControl>
-                                    <Button
-                                      variant={"outline"}
-                                      className={cn(
-                                        "w-full pl-3 text-left font-normal",
-                                        !field.value && "text-muted-foreground"
-                                      )}
-                                    >
-                                      {field.value ? (
-                                        format(field.value, "PPP")
-                                      ) : (
-                                        <span>Pick a date</span>
-                                      )}
-                                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                    </Button>
-                                  </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent
-                                  className="w-auto p-0"
-                                  align="start"
-                                >
-                                  <Calendar
-                                    mode="single"
-                                    captionLayout="dropdown"
-                                    fromYear={1900}
-                                    toYear={new Date().getFullYear()}
-                                    defaultMonth={new Date(2024, 6)}
-                                    selected={
-                                      field.value
-                                        ? new Date(field.value)
-                                        : undefined
-                                    }
-                                    onSelect={(value) =>
-                                      field.onChange(value?.toUTCString())
-                                    }
-                                    disabled={(date: Date) =>
-                                      date > new Date() ||
-                                      date < new Date("1900-01-01")
-                                    }
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                              <FormMessage />
-                              <input
-                                type="hidden"
-                                name={`_honoraries.${index}._deathDate`}
-                                value={field.value}
-                              />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-                <Button
-                  type="button"
-                  onClick={(_) =>
-                    appendHonorary({
-                      name: "",
-                      phone: "",
-                      email: "",
-                      isHonorable: true,
-                      _photo: undefined,
-                      _lang: { shortBio: "" },
-                    })
-                  }
-                >
-                  <PlusCircle className="mr-2 h-4 w-4" /> Add Honorary Member
-                </Button>
-                <input
-                  type="hidden"
-                  name="_honorarySize"
-                  value={honoraryFields.length}
-                />
-              </div>
+              {/* <div className="space-y-4 border-t pt-4"> */}
+              {/*   <h2 className="text-lg font-semibold after:content-['*'] after:ml-0.5 after:text-red-500"> */}
+              {/*     About Youth Commission */}
+              {/*   </h2> */}
+              {/*   <div className="grid w-full items-center gap-1.5"> */}
+              {/*     <FormField */}
+              {/*       control={form.control} */}
+              {/*       name="_lang.aboutYoung" */}
+              {/*       render={({ field }) => ( */}
+              {/*         <FormItem> */}
+              {/*           <FormControl> */}
+              {/*             <Textarea */}
+              {/*               placeholder="Enter details about youth commission" */}
+              {/*               className="resize-none" */}
+              {/*               onChange={field.onChange} */}
+              {/*               value={field.value} */}
+              {/*               onBlur={field.onBlur} */}
+              {/*               ref={field.ref} */}
+              {/*               name={field.name} */}
+              {/*             /> */}
+              {/*           </FormControl> */}
+              {/*           <FormDescription> */}
+              {/*             You can use max. 500 words for this input */}
+              {/*           </FormDescription> */}
+              {/*           <FormMessage /> */}
+              {/*         </FormItem> */}
+              {/*       )} */}
+              {/*     /> */}
+              {/*   </div> */}
+              {/* </div> */}
               <div className="space-y-4 border-t pt-4">
                 <h2 className="text-lg font-semibold">Social media</h2>
                 <FormField
