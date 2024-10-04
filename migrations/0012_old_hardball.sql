@@ -1,1 +1,0 @@
-ALTER TABLE "festivals_lang" ADD COLUMN "other_translator_language" text;
