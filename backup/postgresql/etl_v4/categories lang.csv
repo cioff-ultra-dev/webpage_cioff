@@ -1,0 +1,70 @@
+"name","lang","category_id"
+International,1,1
+Internacional,2,1
+International,3,1
+Folk Dancing,1,2
+Danzas Folclóricas,2,2
+Danse folklorique,3,2
+Folk Singing,1,3
+Canto Folclórico,2,3
+Chant folklorique,3,3
+Folk Music,1,4
+Música Folclórica,2,4
+Musique folklorique,3,4
+Traditional Cooking,1,5
+Cocina Tradicional,2,5
+Cuisine traditionnelle,3,5
+Traditional Trades,1,6
+Oficios Tradicionales,2,6
+Métiers traditionnels,3,6
+Traditional games,1,7
+Juegos Tradicionales,2,7
+Jeux traditionnels,3,7
+Sector,1,8
+Sector,2,8
+Secteur,3,8
+National,1,9
+Nacional,2,9
+National,3,9
+CIOFF,1,10
+CIOFF,2,10
+CIOFF,3,10
+Children,1,11
+Niños,2,11
+Enfants,3,11
+Expositions,1,12
+Exposiciones,2,12
+Expositions,3,12
+Conferences,1,13
+Conferencias,2,13
+Conférences,3,13
+Authentic,1,14
+Auténtico,2,14
+Authentique,3,14
+Elaborate,1,15
+Elaborado,2,15
+Élaboré,3,15
+Stylized,1,16
+Estilizado,2,16
+Stylisé,3,16
+Music,1,18
+Música,2,18
+Musique,3,18
+Dance,1,19
+Danza,2,19
+Danse,3,19
+Youth / Adults / Seniors ,1,20
+Jóvenes / Adultos / Personas mayores,2,20
+Jeunes / Adultes / Seniors,3,20
+Teenagers / Children,1,21
+Adolescentes / Niños,2,21
+Adolescents / Enfants,3,21
+"Hotel, hostel, campus",1,22
+"Hotel, hostal, campus",2,22
+"Hôtel, auberge, campus",3,22
+Family houses,1,23
+Casas familiares,2,23
+Maisons familiales,3,23
+"Schools, gym halls",1,24
+"Escuelas, gimnasios",2,24
+"Écoles, gymnases",3,24

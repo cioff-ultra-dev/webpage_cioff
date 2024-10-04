@@ -1,0 +1,595 @@
+"name","lang","country_id"
+Afghanistan,1,1
+Albania,1,2
+Germany,1,3
+Andorra,1,4
+Angola,1,5
+Antigua and Barbuda,1,6
+Saudi Arabia,1,7
+Algeria,1,8
+Argentina,1,9
+Armenia,1,10
+Australia,1,11
+Austria,1,12
+Azerbaijan,1,13
+Bahamas,1,14
+Bangladesh,1,15
+Barbados,1,16
+Bahrain,1,17
+Belgium,1,18
+Belize,1,19
+Benin,1,20
+Belarus,1,21
+Myanmar,1,22
+Bolivia,1,23
+Bosnia and Herzegovina,1,24
+Botswana,1,25
+Brazil,1,26
+Brunei,1,27
+Bulgaria,1,28
+Burkina Faso,1,29
+Burundi,1,30
+Bhutan,1,31
+Cape Verde,1,32
+Cambodia,1,33
+Cameroon,1,34
+Canada,1,35
+Qatar,1,36
+Chad,1,37
+Chile,1,38
+China,1,39
+Cyprus,1,40
+Vatican City,1,41
+Colombia,1,42
+Comoros,1,43
+North Korea,1,44
+South Korea,1,45
+Ivory Coast,1,46
+Costa Rica,1,47
+Croatia,1,48
+Cuba,1,49
+Denmark,1,50
+Dominica,1,51
+Ecuador,1,52
+Egypt,1,53
+El Salvador,1,54
+United Arab Emirates,1,55
+Eritrea,1,56
+Slovakia,1,57
+Slovenia,1,58
+Spain,1,59
+United States,1,60
+Estonia,1,61
+Ethiopia,1,62
+Philippines,1,63
+Finland,1,64
+Fiji,1,65
+France,1,66
+Gabon,1,67
+Gambia,1,68
+Georgia,1,69
+Ghana,1,70
+Grenada,1,71
+Greece,1,72
+Guatemala,1,73
+Guyana,1,74
+Guinea,1,75
+Equatorial Guinea,1,76
+Guinea-Bissau,1,77
+Haiti,1,78
+Honduras,1,79
+Hungary,1,80
+India,1,81
+Indonesia,1,82
+Iraq,1,83
+Iran,1,84
+Ireland,1,85
+Iceland,1,86
+Marshall Islands,1,87
+Solomon Islands,1,88
+Israel,1,89
+Italy,1,90
+Jamaica,1,91
+Japan,1,92
+Jordan,1,93
+Kazakhstan,1,94
+Kenya,1,95
+Kyrgyzstan,1,96
+Kiribati,1,97
+Kuwait,1,98
+Laos,1,99
+Lesotho,1,100
+Latvia,1,101
+Lebanon,1,102
+Liberia,1,103
+Libya,1,104
+Liechtenstein,1,105
+Lithuania,1,106
+Luxembourg,1,107
+Madagascar,1,108
+Malaysia,1,109
+Malawi,1,110
+Maldives,1,111
+Mali,1,112
+Malta,1,113
+Morocco,1,114
+Mauritius,1,115
+Mauritania,1,116
+Mexico,1,117
+Micronesia,1,118
+Moldova,1,119
+Monaco,1,120
+Mongolia,1,121
+Montenegro,1,122
+Mozambique,1,123
+Namibia,1,124
+Nauru,1,125
+Nepal,1,126
+Nicaragua,1,127
+Niger,1,128
+Nigeria,1,129
+Norway,1,130
+New Zealand,1,131
+Oman,1,132
+Netherlands,1,133
+Pakistan,1,134
+Palau,1,135
+Panama,1,136
+Papua New Guinea,1,137
+Paraguay,1,138
+Peru,1,139
+Poland,1,140
+Portugal,1,141
+United Kingdom,1,142
+Central African Republic,1,143
+Czech Republic,1,144
+North Macedonia,1,145
+Republic of the Congo,1,146
+Democratic Republic of the Congo,1,147
+Dominican Republic,1,148
+South Africa,1,149
+Rwanda,1,150
+Romania,1,151
+Russia,1,152
+Samoa,1,153
+Saint Kitts and Nevis,1,154
+San Marino,1,155
+Saint Vincent and the Grenadines,1,156
+Saint Lucia,1,157
+São Tomé and Príncipe,1,158
+Senegal,1,159
+Serbia,1,160
+Seychelles,1,161
+Sierra Leone,1,162
+Singapore,1,163
+Syria,1,164
+Somalia,1,165
+Sri Lanka,1,166
+Eswatini,1,167
+Sudan,1,168
+South Sudan,1,169
+Sweden,1,170
+Switzerland,1,171
+"Suriname, lang",1,172
+Thailand,1,173
+Tanzania,1,174
+Tajikistan,1,175
+East Timor,1,176
+Togo,1,177
+Tonga,1,178
+Trinidad and Tobago,1,179
+Tunisia,1,180
+Turkmenistan,1,181
+Turkey,1,182
+Tuvalu,1,183
+Ukraine,1,184
+Uganda,1,185
+Uruguay,1,186
+Uzbekistan,1,187
+Vanuatu,1,188
+Venezuela,1,189
+Vietnam,1,190
+Yemen,1,191
+Djibouti,1,192
+Zambia,1,193
+Zimbabwe,1,194
+Chinese Taipei,1,195
+Northern Cyprus,1,196
+AKV Kemajl Azizi,1,197
+Afganistán,2,1
+Albania,2,2
+Alemania,2,3
+Andorra,2,4
+Angola,2,5
+Antigua y Barbuda,2,6
+Arabia Saudita,2,7
+Argelia,2,8
+Argentina,2,9
+Armenia,2,10
+Australia,2,11
+Austria,2,12
+Azerbaiyán,2,13
+Bahamas,2,14
+Bangladés,2,15
+Barbados,2,16
+Baréin,2,17
+Bélgica,2,18
+Belice,2,19
+Benín,2,20
+Bielorrusia,2,21
+Birmania,2,22
+Bolivia,2,23
+Bosnia y Herzegovina,2,24
+Botsuana,2,25
+Brasil,2,26
+Brunéi,2,27
+Bulgaria,2,28
+Burkina Faso,2,29
+Burundi,2,30
+Bután,2,31
+Cabo Verde,2,32
+Camboya,2,33
+Camerún,2,34
+Canadá,2,35
+Catar,2,36
+Chad,2,37
+Chile,2,38
+China,2,39
+Chipre,2,40
+Ciudad del Vaticano,2,41
+Colombia,2,42
+Comoras,2,43
+Corea del Norte,2,44
+Corea del Sur,2,45
+Costa de Marfil,2,46
+Costa Rica,2,47
+Croacia,2,48
+Cuba,2,49
+Dinamarca,2,50
+Dominica,2,51
+Ecuador,2,52
+Egipto,2,53
+El Salvador,2,54
+Emiratos Árabes Unidos,2,55
+Eritrea,2,56
+Eslovaquia,2,57
+Eslovenia,2,58
+España,2,59
+Estados Unidos,2,60
+Estonia,2,61
+Etiopía,2,62
+Filipinas,2,63
+Finlandia,2,64
+Fiyi,2,65
+Francia,2,66
+Gabón,2,67
+Gambia,2,68
+Georgia,2,69
+Ghana,2,70
+Granada,2,71
+Grecia,2,72
+Guatemala,2,73
+Guyana,2,74
+Guinea,2,75
+Guinea ecuatorial,2,76
+Guinea-Bisáu,2,77
+Haití,2,78
+Honduras,2,79
+Hungría,2,80
+India,2,81
+Indonesia,2,82
+Irak,2,83
+Irán,2,84
+Irlanda,2,85
+Islandia,2,86
+Islas Marshall,2,87
+Islas Salomón,2,88
+Israel,2,89
+Italia,2,90
+Jamaica,2,91
+Japón,2,92
+Jordania,2,93
+Kazajistán,2,94
+Kenia,2,95
+Kirguistán,2,96
+Kiribati,2,97
+Kuwait,2,98
+Laos,2,99
+Lesoto,2,100
+Letonia,2,101
+Líbano,2,102
+Liberia,2,103
+Libia,2,104
+Liechtenstein,2,105
+Lituania,2,106
+Luxemburgo,2,107
+Madagascar,2,108
+Malasia,2,109
+Malaui,2,110
+Maldivas,2,111
+Malí,2,112
+Malta,2,113
+Marruecos,2,114
+Mauricio,2,115
+Mauritania,2,116
+México,2,117
+Micronesia,2,118
+Moldavia,2,119
+Mónaco,2,120
+Mongolia,2,121
+Montenegro,2,122
+Mozambique,2,123
+Namibia,2,124
+Nauru,2,125
+Nepal,2,126
+Nicaragua,2,127
+Níger,2,128
+Nigeria,2,129
+Noruega,2,130
+Nueva Zelanda,2,131
+Omán,2,132
+Países Bajos,2,133
+Pakistán,2,134
+Palaos,2,135
+Panamá,2,136
+Papúa Nueva Guinea,2,137
+Paraguay,2,138
+Perú,2,139
+Polonia,2,140
+Portugal,2,141
+Reino Unido,2,142
+República Centroafricana,2,143
+República Checa,2,144
+República de Macedonia,2,145
+República del Congo,2,146
+República Democrática del Congo,2,147
+República Dominicana,2,148
+República Sudafricana,2,149
+Ruanda,2,150
+Rumanía,2,151
+Rusia,2,152
+Samoa,2,153
+San Cristóbal y Nieves,2,154
+San Marino,2,155
+San Vicente y las Granadinas,2,156
+Santa Lucía,2,157
+Santo Tomé y Príncipe,2,158
+Senegal,2,159
+Serbia,2,160
+Seychelles,2,161
+Sierra Leona,2,162
+Singapur,2,163
+Siria,2,164
+Somalia,2,165
+Sri Lanka,2,166
+Suazilandia,2,167
+Sudán,2,168
+Sudán del Sur,2,169
+Suecia,2,170
+Suiza,2,171
+Surinam,2,172
+Tailandia,2,173
+Tanzania,2,174
+Tayikistán,2,175
+Timor Oriental,2,176
+Togo,2,177
+Tonga,2,178
+Trinidad y Tobago,2,179
+Túnez,2,180
+Turkmenistán,2,181
+Turquía,2,182
+Tuvalu,2,183
+Ucrania,2,184
+Uganda,2,185
+Uruguay,2,186
+Uzbekistán,2,187
+Vanuatu,2,188
+Venezuela,2,189
+Vietnam,2,190
+Yemen,2,191
+Yibuti,2,192
+Zambia,2,193
+Zimbabue,2,194
+Taipéi Chino,2,195
+Chipre del Norte,2,196
+AKV Kemajl Azizi,2,197
+Afghanistan,3,1
+Albanie,3,2
+Allemagne,3,3
+Andorre,3,4
+Angola,3,5
+Antigua-et-Barbuda,3,6
+Arabie Saoudite,3,7
+Algérie,3,8
+Argentine,3,9
+Arménie,3,10
+Australie,3,11
+Autriche,3,12
+Azerbaïdjan,3,13
+Bahamas,3,14
+Bangladesh,3,15
+Barbade,3,16
+Bahreïn,3,17
+Belgique,3,18
+Bélize,3,19
+Bénin,3,20
+Biélorussie,3,21
+Birmanie,3,22
+Bolivie,3,23
+Bosnie-Herzégovine,3,24
+Botswana,3,25
+Brésil,3,26
+Brunei,3,27
+Bulgarie,3,28
+Burkina Faso,3,29
+Burundi,3,30
+Bhoutan,3,31
+Cap-Vert,3,32
+Cambodge,3,33
+Cameroun,3,34
+Canada,3,35
+Qatar,3,36
+Tchad,3,37
+Chili,3,38
+Chine,3,39
+Chypre,3,40
+Vatican,3,41
+Colombie,3,42
+Comores,3,43
+Corée du Nord,3,44
+Corée du Sud,3,45
+Côte d´Ivoire,3,46
+Costa Rica,3,47
+Croatie,3,48
+Cuba,3,49
+Danemark,3,50
+Dominique,3,51
+Équateur,3,52
+Égypte,3,53
+Salvador,3,54
+Émirats Arabes Unis,3,55
+Érythrée,3,56
+Slovaquie,3,57
+Slovénie,3,58
+Espagne,3,59
+États-Unis,3,60
+Estonie,3,61
+Éthiopie,3,62
+Philippines,3,63
+Finlande,3,64
+Fidji,3,65
+France,3,66
+Gabon,3,67
+Gambie,3,68
+Géorgie,3,69
+Ghana,3,70
+Grenade,3,71
+Grèce,3,72
+Guatemala,3,73
+Guyane,3,74
+Guinée,3,75
+Guinée équatoriale,3,76
+Guinée-Bissau,3,77
+Haïti,3,78
+Honduras,3,79
+Hongrie,3,80
+Inde,3,81
+Indonésie,3,82
+Irak,3,83
+Iran,3,84
+Irlande,3,85
+Islande,3,86
+Îles Marshall,3,87
+Îles Salomon,3,88
+Israël,3,89
+Italie,3,90
+Jamaïque,3,91
+Japon,3,92
+Jordanie,3,93
+Kazakhstan,3,94
+Kenya,3,95
+Kirghizistan,3,96
+Kiribati,3,97
+Koweït,3,98
+Laos,3,99
+Lesotho,3,100
+Lettonie,3,101
+Liban,3,102
+Libéria,3,103
+Libye,3,104
+Liechtenstein,3,105
+Lituanie,3,106
+Luxembourg,3,107
+Madagascar,3,108
+Malaisie,3,109
+Malawi,3,110
+Maldives,3,111
+Mali,3,112
+Malte,3,113
+Maroc,3,114
+Maurice,3,115
+Mauritanie,3,116
+Mexique,3,117
+Micronésie,3,118
+Moldavie,3,119
+Monaco,3,120
+Mongolie,3,121
+Monténégro,3,122
+Mozambique,3,123
+Namibie,3,124
+Nauru,3,125
+Népal,3,126
+Nicaragua,3,127
+Niger,3,128
+Nigeria,3,129
+Norvège,3,130
+Nouvelle-Zélande,3,131
+Oman,3,132
+Pays-Bas,3,133
+Pakistan,3,134
+Palau,3,135
+Panama,3,136
+Papouasie-Nouvelle-Guinée,3,137
+Paraguay,3,138
+Pérou,3,139
+Pologne,3,140
+Portugal,3,141
+Royaume-Uni,3,142
+République Centrafricaine,3,143
+République tchèque,3,144
+Macédoine du Nord,3,145
+République du Congo,3,146
+République Démocratique du Congo,3,147
+République dominicaine,3,148
+Afrique du Sud,3,149
+Rwanda,3,150
+Roumanie,3,151
+Russie,3,152
+Samoa,3,153
+Saint-Christophe-et-Niévès,3,154
+Saint-Marin,3,155
+Saint-Vincent-et-les-Grenadines,3,156
+Sainte-Lucie,3,157
+Sao Tomé-et-Principe,3,158
+Sénégal,3,159
+Serbie,3,160
+Seychelles,3,161
+Sierra Leone,3,162
+Singapour,3,163
+Syrie,3,164
+Somalie,3,165
+Sri Lanka,3,166
+Swaziland,3,167
+Soudan,3,168
+Soudan du Sud,3,169
+Suède,3,170
+Suisse,3,171
+Suriname,3,172
+Thaïlande,3,173
+Tanzanie,3,174
+Tadjikistan,3,175
+Timor-Oriental,3,176
+Togo,3,177
+Tonga,3,178
+Trinité-et-Tobago,3,179
+Tunisie,3,180
+Turkménistan,3,181
+Turquie,3,182
+Tuvalu,3,183
+Ukraine,3,184
+Ouganda,3,185
+Uruguay,3,186
+Ouzbékistan,3,187
+Vanuatu,3,188
+Venezuela,3,189
+Vietnam,3,190
+Yémen,3,191
+Djibouti,3,192
+Zambie,3,193
+Zimbabwe,3,194
+Taipei chinois,3,195
+Chypre du Nord,3,196
+AKV Kemajl Azizi,3,197
+Tahiti,1,198
+Tahití,2,198
+Tahiti,3,198

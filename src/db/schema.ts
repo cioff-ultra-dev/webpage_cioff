@@ -426,8 +426,9 @@ export type SelectFestivalToCategories =
 
 /** CIOFF Daniel Schema */
 
-export const cioffSchema = pgSchema("prod");
+export const cioffSchema = pgSchema("public");
 export const langCodeEnum = pgEnum("lang_code", ["en", "es", "fr"]);
+export const stateEnum = pgEnum("state_mode", ["offline", "online"]);
 
 /*
 1. USER MODULE:
@@ -485,6 +486,7 @@ export const CountriesProd = cioffSchema.table("countries", {
   slug: text("slug").notNull(),
   lat: text("lat"),
   lng: text("lng"),
+  nativeLang: integer("native_lang").references(() => LanguagesProd.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -631,7 +633,7 @@ export const CategoriesLangProd = cioffSchema.table("categories_lang", {
 export const FestivalsProd = cioffSchema.table("festivals", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull(),
-  stateMode: stateModeEnum("state_mode").default("offline"),
+  stateMode: stateEnum("state_mode").default("offline"),
   urlValidated: boolean("url_validated").default(false),
   directorName: text("director_name").notNull().default(""),
   email: text("email"),
