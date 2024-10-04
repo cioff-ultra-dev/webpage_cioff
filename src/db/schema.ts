@@ -28,7 +28,7 @@ export const langCodeEnum = pgEnum("lang_code", ["en", "es", "fr"]);
 /* Users Table */
 
 export const users = pgTable(
-  "users",
+  "user",
   {
     id: text("id")
       .primaryKey()
@@ -416,7 +416,7 @@ export const languages = pgTable("languages", {
 export const roles = pgTable("roles", {
   id: serial("id").primaryKey(),
   name: text("name"),
-  // active: boolean("active"),
+  active: boolean("active").default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
