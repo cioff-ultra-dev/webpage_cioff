@@ -233,6 +233,7 @@ export default function EventForm({
       _lang: {
         id: currentLang?.id ?? 0,
         name: currentLang?.name,
+        description: currentLang?.description,
         otherTranslatorLanguage: currentLang?.otherTranslatorLanguage,
       },
     },
@@ -516,9 +517,9 @@ export default function EventForm({
                     </div>
                   </div>
                   <div>
-                    {/* <FormField
+                    <FormField
                       control={form.control}
-                      name="description"
+                      name="_lang.description"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
@@ -537,7 +538,7 @@ export default function EventForm({
                           <FormMessage />
                         </FormItem>
                       )}
-                    /> */}
+                    />
                   </div>
                   <div className="border-b pb-4">
                     <h2 className="text-lg font-semibold">Current Dates</h2>
