@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import type { NextAuthConfig } from "next-auth";
 
 export const authConfig = {
@@ -11,14 +10,14 @@ export const authConfig = {
       const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
 
       if (isLoggedIn && nextUrl.pathname === "/dashboard") {
-        return NextResponse.redirect(new URL("/dashboard/events", url));
+        return Response.redirect(new URL("/dashboard/festivals", url));
       }
 
       if (isOnDashboard) {
         if (isLoggedIn) return true;
         return false;
       }
-      return NextResponse.next();
+      return true;
     },
   },
   providers: [],

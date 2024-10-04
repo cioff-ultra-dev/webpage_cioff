@@ -1,1 +1,0 @@
-ALTER TABLE "labs"."festivals" ADD COLUMN "old_id" integer;

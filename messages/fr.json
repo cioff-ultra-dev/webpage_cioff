@@ -1,0 +1,42 @@
+{
+  "home": {},
+  "locale_switch": {
+    "select": "Sélectionner la langue"
+  },
+  "form": {
+    "name": "Name",
+    "phone": "Phone Number",
+    "contact": "Contact",
+    "description": "Description",
+    "location": "Location",
+    "directorName": "Name of director",
+    "_currentDates": "Current datest",
+    "_ageOfParticipants": "Age of participants",
+    "_styleOfFestival": "Style of festival",
+    "_typeOfFestival": "Type of festival",
+    "_status": "Status",
+    "festival": {
+      "name": "Nom",
+      "phone": "Phone Number",
+      "contact": "Contact",
+      "description": "Description",
+      "location": "Location",
+      "directorName": "Nom du directeur",
+      "_currentDates": "Current datest",
+      "_ageOfParticipants": "Age of participants",
+      "_styleOfFestival": "Style of festival",
+      "_typeOfFestival": "Type of festival",
+      "_status": "Status"
+    },
+    "ns": {
+      "title": "AJOUTER UNE SECTION NATIONALE",
+      "disclaimer": "Les champs avec * sont obligatoires.",
+      "_lang": {
+        "name": "Nom de l'association"
+      }
+    }
+  },
+  "customErrors": {
+    "invalid_phone_number": "Numéro de téléphone invalide"
+  }
+}

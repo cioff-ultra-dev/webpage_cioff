@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { getLocale, getMessages } from "next-intl/server";
 import { cn } from "@/lib/utils";
 import "./globals.css";
+import I18NProvider from "@/components/provider/i18n";
 
 const fontHeading = Inter({
   subsets: ["latin"],
@@ -20,17 +22,22 @@ export const metadata: Metadata = {
   description: "Small description for the CIOFF site",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body
         className={cn("antialiased", fontHeading.variable, fontBody.variable)}
       >
-        {children}
+        <I18NProvider messages={messages} locale={locale}>
+          {children}
+        </I18NProvider>
       </body>
     </html>
   );

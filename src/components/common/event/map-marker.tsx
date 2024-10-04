@@ -3,9 +3,9 @@
 import { SelectFestival } from "@/db/schema";
 import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
 
-export function MapMarkerEvent({ event }: { event: SelectFestival }) {
-  const lat = Number(event?.location?.split(",").at(0)) || 0;
-  const lng = Number(event?.location?.split(",").at(1)) || 0;
+export function MapMarkerEvent({ location }: { location: string }) {
+  const lat = Number(location?.split(",").at(0)) || 0;
+  const lng = Number(location?.split(",").at(1)) || 0;
 
   return (
     <APIProvider apiKey={"AIzaSyBRO_oBiyzOAQbH7Jcv3ZrgOgkfNp1wJeI"}>

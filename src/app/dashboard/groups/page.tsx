@@ -25,11 +25,23 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { format } from "date-fns";
-import { EllipsisVertical } from "lucide-react";
-import { SelectFestival } from "@/db/schema";
+import { EllipsisVertical, Send } from "lucide-react";
+import { SelectFestival, SelectGroup } from "@/db/schema";
+import {
+  AllGroupType,
+  getAllGroups,
+  getAllGroupsByOwner,
+} from "@/db/queries/groups";
+import { getFormatter, getLocale } from "next-intl/server";
+import { defaultLocale } from "@/i18n/config";
+import { auth } from "@/auth";
 
 export default async function DashboardPage() {
-  const events: SelectFestival[] = [];
+  const session = await auth();
+  const locale = await getLocale();
+  const formatter = await getFormatter();
+  const groups = await getAllGroupsByOwner(locale);
+
   return (
     <Tabs defaultValue="all">
       <div className="flex items-center">
@@ -63,14 +75,26 @@ export default async function DashboardPage() {
           {/*     Export */}
           {/*   </span> */}
           {/* </Button> */}
-          <Link href="/dashboard/groups/new">
-            <Button size="sm" className="h-8 gap-1">
-              <CirclePlusIcon className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Add Group
-              </span>
-            </Button>
-          </Link>
+          <div className="flex gap-3">
+            {session?.user.role?.name === "National Sections" ? (
+              <Link href="/dashboard/groups/invitation">
+                <Button size="sm" variant="secondary" className="h-8 gap-1">
+                  <Send className="h-3.5 w-3.5" />
+                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                    Generate Group Invitation
+                  </span>
+                </Button>
+              </Link>
+            ) : null}
+            <Link href="/dashboard/groups/new">
+              <Button size="sm" className="h-8 gap-1">
+                <CirclePlusIcon className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Add Group
+                </span>
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
       <TabsContent value="all">
@@ -82,14 +106,14 @@ export default async function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {events.length ? (
+            {groups.length ? (
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead className="hidden md:table-cell">Date</TableHead>
                     <TableHead className="hidden md:table-cell">
-                      State
+                      Country
                     </TableHead>
                     <TableHead>
                       <span className="sr-only">Actions</span>
@@ -97,17 +121,26 @@ export default async function DashboardPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {events.map((item) => {
+                  {groups.map((item) => {
                     return (
                       <TableRow key={item.id}>
                         <TableCell className="font-medium">
-                          {item.name}
+                          {item.owners
+                            .at(0)
+                            ?.group?.langs.find(
+                              (item) => item.l?.code === locale,
+                            )?.name ||
+                            item.owners
+                              .at(0)
+                              ?.group?.langs.find(
+                                (item) => item.l?.code === defaultLocale,
+                              )?.name}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
                           {format(item.createdAt, "PPP")}
                         </TableCell>
                         <TableCell className="hidden md:table-cell capitalize">
-                          {item.stateMode}
+                          {item.country?.id}
                         </TableCell>
                         <TableCell>
                           <DropdownMenu>
@@ -123,15 +156,27 @@ export default async function DashboardPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem>
+                              {/* <DropdownMenuItem
+                                asChild
+                                className="cursor-pointer"
+                              >
                                 <Link
                                   href={`/event/${item.id}`}
                                   target="_blank"
                                 >
                                   Preview
                                 </Link>
+                              </DropdownMenuItem> */}
+                              <DropdownMenuItem
+                                asChild
+                                className="cursor-pointer"
+                              >
+                                <Link
+                                  href={`/dashboard/groups/${item.id}/edit`}
+                                >
+                                  Edit
+                                </Link>
                               </DropdownMenuItem>
-                              <DropdownMenuItem disabled>Edit</DropdownMenuItem>
                               <DropdownMenuItem disabled>
                                 Delete
                               </DropdownMenuItem>

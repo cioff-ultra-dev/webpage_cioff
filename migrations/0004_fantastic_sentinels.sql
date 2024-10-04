@@ -1,1 +1,0 @@
-ALTER TABLE "etl_countries" RENAME TO "countries";

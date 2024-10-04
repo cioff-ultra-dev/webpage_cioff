@@ -10,16 +10,29 @@ const selectUserByP1 = db
   .prepare("selectUserByP1");
 
 export async function getUserById(
-  id: SelectUser["id"],
+  id: SelectUser["id"]
 ): Promise<Array<SelectUser>> {
   return db.select().from(users).where(eq(users.id, id));
 }
 
 export async function getUserByEmail(
-  email: SelectUser["email"],
+  email: SelectUser["email"]
 ): Promise<Array<SelectUser>> {
   return selectUserByP1.execute({ email });
 }
+
+export async function getUserAuth(email: SelectUser["email"]) {
+  return db.query.users.findFirst({
+    where: eq(users.email, email),
+    with: {
+      role: true,
+    },
+  });
+}
+
+export type UserDataAuthType = NonNullable<
+  Awaited<ReturnType<typeof getUserAuth>>
+>;
 
 export async function createUser(user: InsertUser) {
   return db.insert(users).values(user).returning();

@@ -3,11 +3,12 @@ import type { SWRInfiniteResponse } from "swr/infinite";
 
 interface InfiniteScrollProps<T> {
   swr: SWRInfiniteResponse<T>;
-  children?: React.ReactChild | ((item: T) => React.ReactNode);
+  children?: React.ReactNode | ((item: T) => React.ReactNode);
   loadingIndicator?: React.ReactNode;
   endingIndicator?: React.ReactNode;
   isReachingEnd: boolean | ((swr: SWRInfiniteResponse<T>) => boolean);
   offset?: number;
+  classNameWrapper?: string;
 }
 
 const useIntersection = <T extends HTMLElement>(): [boolean, Ref<T>] => {
@@ -25,7 +26,7 @@ const useIntersection = <T extends HTMLElement>(): [boolean, Ref<T>] => {
 };
 
 const InfiniteScroll = <T,>(
-  props: InfiniteScrollProps<T>
+  props: InfiniteScrollProps<T>,
 ): React.ReactElement<InfiniteScrollProps<T>> => {
   const {
     swr,
@@ -35,6 +36,7 @@ const InfiniteScroll = <T,>(
     endingIndicator,
     isReachingEnd,
     offset = 0,
+    classNameWrapper,
   } = props;
 
   const [intersecting, ref] = useIntersection<HTMLDivElement>();
@@ -53,9 +55,10 @@ const InfiniteScroll = <T,>(
       {typeof children === "function"
         ? data?.map((item) => children(item))
         : children}
-      <div style={{ position: "relative" }}>
+      {!ending ? loadingIndicator : null}
+      <div style={{ position: "relative" }} className={classNameWrapper}>
         <div ref={ref} style={{ position: "absolute", top: offset }}></div>
-        {ending ? endingIndicator : loadingIndicator}
+        {ending ? endingIndicator : null}
       </div>
     </>
   );

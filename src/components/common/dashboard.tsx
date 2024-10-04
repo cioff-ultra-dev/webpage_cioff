@@ -8,14 +8,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -27,8 +19,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { SignOut } from "@/components/common/signout-button";
+import { Globe } from "lucide-react";
+import DashboardBreadcrumb from "./dashboard/breadcrumbs";
+import { getAllLanguages } from "@/db/queries/languages";
+import LocaleSwitcher from "./locale-switcher";
+import { getTranslations } from "next-intl/server";
 
-export default function Dashboard({ children }: { children: React.ReactNode }) {
+export default async function Dashboard({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const locales = await getAllLanguages();
+  const t = await getTranslations("link");
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
@@ -50,36 +53,38 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
                   prefetch={false}
                 >
                   <HomeIcon className="h-5 w-5" />
-                  <span className="sr-only">Dashboard</span>
+                  <span className="sr-only">{t("dashboard")}</span>
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">Dashboard</TooltipContent>
+              <TooltipContent side="right">{t("dashboard")}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
-                  href="/dashboard/events"
+                  href="/dashboard/festivals"
                   className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                   prefetch={false}
                 >
                   <CalendarIcon className="h-5 w-5" />
-                  <span className="sr-only">Events</span>
+                  <span className="sr-only">{t("festivals")}</span>
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">Events</TooltipContent>
+              <TooltipContent side="right">{t("festivals")}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
-                  href="#"
+                  href="/dashboard/national-sections"
                   className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                   prefetch={false}
                 >
-                  <PackageIcon className="h-5 w-5" />
-                  <span className="sr-only">Products</span>
+                  <Globe className="h-5 w-5" />
+                  <span className="sr-only">{t("national-sections")}</span>
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">Products</TooltipContent>
+              <TooltipContent side="right">
+                {t("national-sections")}
+              </TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -89,23 +94,23 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
                   prefetch={false}
                 >
                   <UsersIcon className="h-5 w-5" />
-                  <span className="sr-only">Groups</span>
+                  <span className="sr-only">{t("groups")}</span>
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">Groups</TooltipContent>
+              <TooltipContent side="right">{t("groups")}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
-                  href="#"
+                  href="/dashboard/reports"
                   className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                   prefetch={false}
                 >
                   <LineChartIcon className="h-5 w-5" />
-                  <span className="sr-only">Analytics</span>
+                  <span className="sr-only">Reports</span>
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">Analytics</TooltipContent>
+              <TooltipContent side="right">Reports</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </nav>
@@ -114,7 +119,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
-                  href="#"
+                  href="/dashboard/settings"
                   className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                   prefetch={false}
                 >
@@ -189,29 +194,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
               </nav>
             </SheetContent>
           </Sheet>
-          <Breadcrumb className="hidden md:flex">
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="#" prefetch={false}>
-                    Dashboard
-                  </Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="#" prefetch={false}>
-                    Events
-                  </Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>All Events</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+          <DashboardBreadcrumb capitalizeLinks />
           <div className="relative ml-auto flex-1 md:grow-0">
             <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -219,6 +202,9 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
               placeholder="Search events..."
               className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
             />
+          </div>
+          <div>
+            <LocaleSwitcher locales={locales} className="text-gray-500" />
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -240,10 +226,11 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <Link href="/dashboard/settings">Profile </Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem asChild className="cursor-pointer">
                 <SignOut />
               </DropdownMenuItem>
             </DropdownMenuContent>

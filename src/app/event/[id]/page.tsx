@@ -10,32 +10,48 @@ import { format } from "date-fns";
 import { MapMarkerEvent } from "@/components/common/event/map-marker";
 import { GalleryImageEvent } from "@/components/common/event/gallery-images";
 import { CoverImageEvent } from "@/components/common/event/cover";
+import { getLocale } from "next-intl/server";
+import { defaultLocale } from "@/i18n/config";
+import { SelectFestival } from "@/db/schema";
 
 export default async function EventDetail({
   params,
 }: {
   params: { id: string };
 }) {
-  const result = await getFestivalById(Number(params.id));
-  const [event] = result;
+  const locale = await getLocale();
+  const festival = await getFestivalById(Number(params.id), locale);
 
   return (
     <div className="flex flex-col w-full min-h-screen">
       <Header className="border-b" text="text-black" />
       <main className="flex flex-col flex-1 gap-4 md:gap-8 bg-gray-50">
         <div className="relative w-full h-[400px]">
-          <CoverImageEvent cover={event.cover || ""} />
+          <CoverImageEvent cover={String(festival?.coverId) || ""} />
           <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent">
             <div className="flex items-center gap-2">
               <Avatar>
                 <AvatarImage
-                  src={event.logo || "/placeholder-user.jpg"}
+                  src={String(festival?.logoId) || "/placeholder-user.jpg"}
                   alt="Logo"
                 />
-                <AvatarFallback>{event.name}</AvatarFallback>
+                <AvatarFallback>
+                  {festival?.langs.find((item) => item.l?.code === locale)
+                    ?.name ||
+                    festival?.langs.find(
+                      (item) => item.l?.code === defaultLocale
+                    )?.name}
+                </AvatarFallback>
               </Avatar>
               <div>
-                <h1 className="text-2xl font-bold text-white">{event.name}</h1>
+                <h1 className="text-2xl font-bold text-white">
+                  {" "}
+                  {festival?.langs.find((item) => item.l?.code === locale)
+                    ?.name ||
+                    festival?.langs.find(
+                      (item) => item.l?.code === defaultLocale
+                    )?.name}
+                </h1>
               </div>
             </div>
           </div>
@@ -67,7 +83,13 @@ export default async function EventDetail({
                       <CardTitle>Description</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p>{event.description}</p>
+                      <p>
+                        {festival?.langs.find((item) => item.l?.code === locale)
+                          ?.description ||
+                          festival?.langs.find(
+                            (item) => item.l?.code === defaultLocale
+                          )?.description}
+                      </p>
                     </CardContent>
                   </Card>
                   <Card className="col-span-1">
@@ -75,7 +97,7 @@ export default async function EventDetail({
                       <CardTitle>Location</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <MapMarkerEvent event={event} />
+                      <MapMarkerEvent location={festival?.location ?? ""} />
                       <Button variant="outline" className="mt-2">
                         Get Directions
                       </Button>
@@ -104,7 +126,13 @@ export default async function EventDetail({
                       <CardTitle>Contact</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p>{event.address}</p>
+                      <p>
+                        {festival?.langs.find((item) => item.l?.code === locale)
+                          ?.address ||
+                          festival?.langs.find(
+                            (item) => item.l?.code === defaultLocale
+                          )?.address}
+                      </p>
                     </CardContent>
                   </Card>
                 </div>
@@ -113,13 +141,13 @@ export default async function EventDetail({
                     <CardTitle>Festival Date</CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-wrap gap-2">
-                    {event?.currentDates?.split(",").map((item) => {
+                    {/* {festival?.currentDates?.split(",").map((item) => {
                       return (
                         <Badge key={item}>
                           {format(new Date(Number(item) * 1000), "PPP")}
                         </Badge>
                       );
-                    })}
+                    })} */}
                   </CardContent>
                 </Card>
                 <Card className="col-span-1">
@@ -127,25 +155,27 @@ export default async function EventDetail({
                     <CardTitle>Gallery</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <GalleryImageEvent event={event} />
+                    <GalleryImageEvent event={festival as SelectFestival} />
                   </CardContent>
                 </Card>
-                <Card className="col-span-1">
-                  <CardHeader>
-                    <CardTitle>Video</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <iframe
-                      width="560"
-                      height="315"
-                      src={`https://www.youtube.com/embed/${event.youtubeId}`}
-                      title="YouTube video player"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </CardContent>
-                </Card>
+                {festival?.youtubeId ? (
+                  <Card className="col-span-1">
+                    <CardHeader>
+                      <CardTitle>Video</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <iframe
+                        width="560"
+                        height="315"
+                        src={`https://www.youtube.com/embed/${festival?.youtubeId}`}
+                        title="YouTube video player"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </CardContent>
+                  </Card>
+                ) : null}
               </div>
             </TabsContent>
           </Tabs>

@@ -1,0 +1,56 @@
+{
+  "home": {
+    "title": "Hola mundo!"
+  },
+  "locale_switch": {
+    "select": "Seleccionar idioma"
+  },
+  "notification": {
+    "success": "Guardado Exitosamente"
+  },
+  "link": {
+    "dashboard": "Panel",
+    "national-sections": "Sección Nacional",
+    "festivals": "Festivales",
+    "groups": "Grupos",
+    "edit": "Editar"
+  },
+  "form": {
+    "name": "Nombre",
+    "phone": "Número de teléfono",
+    "contact": "Contacto",
+    "description": "Descripcion",
+    "location": "Localizacion",
+    "directorName": "Nombre del Director",
+    "_currentDates": "Fechas actuales",
+    "_ageOfParticipants": "Edad de participantes",
+    "_styleOfFestival": "Estilo de festival",
+    "_typeOfFestival": "Tipo de festival",
+    "_status": "Estado",
+    "festival": {
+      "name": "Nombre del festival",
+      "phone": "Número de teléfono",
+      "contact": "Contacto",
+      "description": "Descripcion",
+      "location": "Localizacion",
+      "directorName": "Nombre del Director",
+      "_currentDates": "Fechas actuales",
+      "_ageOfParticipants": "Edad de participantes",
+      "_styleOfFestival": "Estilo de festival",
+      "_typeOfFestival": "Tipo de festival",
+      "_status": "Estado"
+    },
+    "ns": {
+      "title": "AGREGAR UNA SECCIÓN NACIONAL",
+      "disclaimer": "Los campos con * son obligatorios.",
+      "_lang": {
+        "name": "Nombre de la asociacion",
+        "about": "Acerca de"
+      }
+    }
+  },
+  "customErrors": {
+    "file_required": "Archivo es requerido",
+    "invalid_phone_number": "Número de teléfono inválido"
+  }
+}

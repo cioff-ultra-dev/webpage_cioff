@@ -1,0 +1,94 @@
+{
+  "home": {
+    "title": "Hello world!"
+  },
+  "locale_switch": {
+    "select": "Select language",
+    "es": "Español",
+    "fr": "Français",
+    "en": "English"
+  },
+  "notification": {
+    "success": "Saved Successfully",
+    "email_exist": "Email already exist",
+    "email": {
+      "festival_invitation_subject": "Festivals User Invitation - CIOFF",
+      "group_invitation_subject": "Groups User Invitation - CIOFF",
+      "login_to": "Log in to CIOFF"
+    }
+  },
+  "link": {
+    "dashboard": "Dashboard",
+    "national-sections": "National Sections",
+    "festivals": "Festivals",
+    "groups": "Groups",
+    "edit": "Edit",
+    "settings": "Settings"
+  },
+  "form": {
+    "name": "Name",
+    "phone": "Phone Number",
+    "contact": "Contact",
+    "description": "Description",
+    "location": "Location",
+    "directorName": "Name of director",
+    "_currentDates": "Current datest",
+    "_ageOfParticipants": "Age of participants",
+    "_styleOfFestival": "Style of festival",
+    "_typeOfFestival": "Type of festival",
+    "_status": "Status",
+    "festival": {
+      "tag": {
+        "typeOfFestival": "Type of Festival",
+        "ageOfParticipants": "Age of Participants",
+        "styleOfFestival": "Style of Festival",
+        "typeOfAccomodation": "Type of Accomodation"
+      },
+      "name": "Name",
+      "phone": "Phone Number",
+      "contact": "Contact",
+      "description": "Description",
+      "location": "Location",
+      "directorName": "Name of director",
+      "_currentDates": "Current datest",
+      "_ageOfParticipants": "Age of participants",
+      "_styleOfFestival": "Style of festival",
+      "_typeOfFestival": "Type of festival",
+      "_status": "Status"
+    },
+    "ns": {
+      "title": "ADD A NATIONAL SECTION",
+      "disclaimer": "The fields with * are mandatory.",
+      "_lang": {
+        "name": "Name of the association"
+      },
+      "_festivals": [
+        {
+          "name": "Name of the festival"
+        }
+      ],
+      "_positionsSize": "Position list",
+      "_positions": [
+        {
+          "name": "Name",
+          "email": "Email Address",
+          "phone": "Phone Number (country code)",
+          "_lang": {
+            "shortBio": "Short Bio"
+          }
+        }
+      ]
+    },
+    "profile": {
+      "password_match": "Password does not match",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password"
+    }
+  },
+  "customErrors": {
+    "file_required": "File is required",
+    "invalid_phone_number": "Invalid phone number",
+    "password_match": "Password does not match"
+  }
+}

@@ -9,14 +9,7 @@ import "yet-another-react-lightbox/styles.css";
 export interface CustomImage extends Image {}
 
 export function GalleryImageEvent({ event }: { event: SelectFestival }) {
-  const photos: CustomImage[] =
-    event?.photos?.split(",").map((item) => {
-      return {
-        src: item,
-        width: 600,
-        height: 400,
-      };
-    }) || [];
+  const photos: CustomImage[] = [];
   const [index, setIndex] = useState(-1);
 
   const handleClick = (index: number, _item: CustomImage) => setIndex(index);
