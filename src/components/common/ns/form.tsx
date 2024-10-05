@@ -4,7 +4,12 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import {
+  SubmitHandler,
+  useFieldArray,
+  useForm,
+  useWatch,
+} from "react-hook-form";
 import * as RPNInput from "react-phone-number-input";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -78,6 +83,7 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
   z.object({
     _lang: inserNationalSectionLangSchema,
     _positions: z.array(positionsSchema),
+    _positionSize: z.array(z.any()).min(3).max(11),
     _events: z.array(
       insertEventSchema.pick({ id: true }).extend({
         _startDate: z.string().datetime().optional(),
@@ -183,23 +189,32 @@ export default function NationalSectionForm({
           },
         };
       }),
-      _positions:
-        currentNationalSection?.positions.map((position) => {
-          return {
-            ...position,
-            _isHonorable: position.isHonorable ?? false,
-            _birthDate: position.birthDate
-              ? position.birthDate.toUTCString()
-              : "",
-            _deathDate: position.deadDate
-              ? position.deadDate.toUTCString()
-              : "",
-            _lang: {
-              id: position?.langs?.at(0)?.id ?? 0,
-              shortBio: position.langs.at(0)?.shortBio,
+      _positions: currentNationalSection?.positions.length
+        ? currentNationalSection?.positions.map((position) => {
+            return {
+              ...position,
+              _isHonorable: position.isHonorable ?? false,
+              _birthDate: position.birthDate
+                ? position.birthDate.toUTCString()
+                : "",
+              _deathDate: position.deadDate
+                ? position.deadDate.toUTCString()
+                : "",
+              _lang: {
+                id: position?.langs?.at(0)?.id ?? 0,
+                shortBio: position.langs.at(0)?.shortBio,
+              },
+            };
+          })
+        : [
+            {
+              name: "",
+              phone: "",
+              email: "",
+              _photo: undefined,
+              _lang: { shortBio: "" },
             },
-          };
-        }) ?? [],
+          ],
       _festivals: currentNationalSection?.festivals.map((festival) => {
         return {
           ...festival,
@@ -233,6 +248,8 @@ export default function NationalSectionForm({
 
   const t = useTranslations("form.ns");
   const router = useRouter();
+
+  console.log(form.formState.errors);
 
   useEffect(() => {
     form.setValue("_lang.name", currentLang?.name || "");
@@ -286,6 +303,15 @@ export default function NationalSectionForm({
     control: form.control,
     name: "_groups",
   });
+
+  const positions = useWatch({
+    control: form.control,
+    name: "_positions",
+  });
+
+  useEffect(() => {
+    form.setValue("_positionSize", Array.from({ length: positions.length }));
+  }, [positions, form]);
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -603,8 +629,8 @@ export default function NationalSectionForm({
                           </FormItem>
                         )}
                       />
-                      {form.getValues(`_positions.${index}._isHonorable`) ? (
-                        <div className="pl-5 border-l">
+                      {positions?.[index]?._isHonorable ? (
+                        <div className="pl-5 border-l space-y-4 pt-4">
                           <FormField
                             control={form.control}
                             name={`_positions.${index}._birthDate`}
@@ -734,6 +760,11 @@ export default function NationalSectionForm({
                   </div>
                 );
               })}
+              {form.getFieldState("_positionSize").error ? (
+                <p className={cn("text-sm font-medium text-destructive")}>
+                  {form.getFieldState("_positionSize").error?.message}
+                </p>
+              ) : null}
               <Button
                 type="button"
                 onClick={(_) =>
