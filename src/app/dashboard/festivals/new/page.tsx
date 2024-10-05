@@ -56,6 +56,7 @@ export default async function NewEvent() {
           categories: typeOfAccomodation,
         },
       ]}
+      currentCategoriesSelected={[]}
       languages={languages}
       statuses={statuses}
       locale={locale}

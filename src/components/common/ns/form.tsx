@@ -64,6 +64,13 @@ import { toast } from "sonner";
 import { customRevalidatePath, customRevalidateTag } from "../revalidateTag";
 import { useRouter } from "next/navigation";
 import { DatePickerWithRange } from "@/components/ui/datepicker-with-range";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const positionsSchema = insertNationalSectionPositionsSchema.merge(
   z.object({
@@ -71,6 +78,7 @@ const positionsSchema = insertNationalSectionPositionsSchema.merge(
     _isHonorable: z.boolean().optional(),
     _birthDate: z.string().optional(),
     _deathDate: z.string().optional(),
+    _type: z.string(),
     _photo: z
       .any()
       .refine((item) => item instanceof File || typeof item === "undefined", {
@@ -487,6 +495,44 @@ export default function NationalSectionForm({
                         )}
                       />
                     </div>
+                    <div>
+                      <FormField
+                        control={form.control}
+                        name={`_positions.${index}._type`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a verified email to display" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="m@example.com">
+                                  m@example.com
+                                </SelectItem>
+                                <SelectItem value="m@google.com">
+                                  m@google.com
+                                </SelectItem>
+                                <SelectItem value="m@support.com">
+                                  m@support.com
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormDescription>
+                              You can manage email addresses in your{" "}
+                              <Link href="/examples/forms">email settings</Link>
+                              .
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                     <div className="grid w-full items-center gap-1.5">
                       <FormField
                         control={form.control}
@@ -773,6 +819,7 @@ export default function NationalSectionForm({
                     phone: "",
                     email: "",
                     _photo: undefined,
+                    _type: "",
                     _lang: { shortBio: "" },
                   })
                 }

@@ -212,7 +212,7 @@ export default function EventForm({
       location: currentFestival?.location ?? "",
       lat: currentFestival?.lat ?? "",
       lng: currentFestival?.lng ?? "",
-      translatorLanguages: currentFestival?.translatorLanguages ?? "",
+      translatorLanguages: currentFestival?.translatorLanguages ?? null,
       _ageOfParticipants: currentCategoriesSelected,
       _styleOfFestival: currentCategoriesSelected,
       _typeOfAccomodation:
