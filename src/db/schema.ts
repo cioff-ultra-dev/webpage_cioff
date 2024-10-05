@@ -314,27 +314,6 @@ export const nationalSectionsPositions = pgTable("national_section_positions", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
-export const NationalSectionsPositionsTest = pgTable(
-  "national_section_positions_test",
-  {
-    id: serial("id").primaryKey(),
-    name: text("name").notNull(),
-    title: text("title"),
-    phone: text("phone"),
-    email: text("email"),
-    countryName: text("country_name"),
-    typePositionId: integer("type_position_id").references(
-      () => typePosition.id
-    ),
-    birthDate: date("birth_date", { mode: "date" }),
-    deadDate: date("dead_date", { mode: "date" }),
-    isHonorable: boolean("is_honorable").default(false),
-    countryId: integer("country_id").references(() => countries.id),
-    nsId: integer("ns_id").references(() => nationalSections.id),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
-  }
-);
 export const nationalSectionPositionsLang = pgTable(
   "national_section_positions_lang",
   {
