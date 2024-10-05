@@ -467,7 +467,6 @@ export default function GroupForm({
                             accept="image/*"
                             onChange={field.onChange}
                             onBlur={field.onBlur}
-                            value={field.value || ""}
                             name={field.name}
                           />
                         </FormControl>

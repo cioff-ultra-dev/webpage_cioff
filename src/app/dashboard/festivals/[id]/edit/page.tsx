@@ -57,25 +57,25 @@ export default async function EditFestival({
     <EventForm
       categoryGroups={[
         {
-          name: t("typeOfFestival"),
+          // name: t("typeOfFestival"),
           slug: "type-of-festival",
           title: t("typeOfFestival"),
           categories: typeOfFestival,
         },
         {
-          name: t("ageOfParticipants"),
+          // name: t("ageOfParticipants"),
           slug: "age-of-participants",
           title: t("ageOfParticipants"),
           categories: ageOfParticipants,
         },
         {
-          name: t("styleOfFestival"),
+          // name: t("styleOfFestival"),
           slug: "style-of-festival",
           title: t("styleOfFestival"),
           categories: styleOfFestival,
         },
         {
-          name: t("typeOfAccomodation"),
+          // name: t("typeOfAccomodation"),
           slug: "type-of-accomodation",
           title: t("typeOfAccomodation"),
           categories: typeOfAccomodation,
@@ -89,6 +89,7 @@ export default async function EditFestival({
       currentCategoriesSelected={currentCategoriesSelected}
       id={`${festival?.id}`}
       slug={params.id}
+      locale={locale}
     />
   );
 }

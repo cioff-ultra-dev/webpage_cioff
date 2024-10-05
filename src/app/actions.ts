@@ -232,7 +232,7 @@ export async function updateNationalSection(formData: FormData) {
   await db.transaction(async (tx) => {
     await tx
       .update(nationalSectionsLang)
-      .set({ name, about, aboutYoung })
+      .set({ name, about })
       .where(
         and(
           eq(nationalSectionsLang.nsId, nsId),
@@ -357,12 +357,14 @@ export async function updateNationalSection(formData: FormData) {
         ) as string;
         const toDate = formData.get(`_events.${index}._rangeDate.to`) as string;
 
-        otherEvents.push({
-          id: id === 0 ? undefined : id,
-          nsId,
-          startDate: fromDate ? new Date(fromDate) : undefined,
-          endDate: toDate ? new Date(toDate) : new Date(fromDate),
-        });
+        if (fromDate) {
+          otherEvents.push({
+            id: id === 0 ? undefined : id,
+            nsId,
+            startDate: new Date(fromDate),
+            endDate: toDate ? new Date(toDate) : new Date(fromDate),
+          });
+        }
 
         otherEventLangs.push({
           id: eventLangId === 0 ? undefined : eventLangId,
@@ -1086,12 +1088,14 @@ export async function updateFestival(formData: FormData) {
           `_currentDates.${index}._rangeDate.to`
         ) as string;
 
-        currentDates.push({
-          id: id === 0 ? undefined : id,
-          festivalId: currentFestival.id,
-          startDate: fromDate ? new Date(fromDate) : undefined,
-          endDate: toDate ? new Date(toDate) : new Date(fromDate),
-        });
+        if (fromDate) {
+          currentDates.push({
+            id: id === 0 ? undefined : id,
+            festivalId: currentFestival.id,
+            startDate: new Date(fromDate),
+            endDate: toDate ? new Date(toDate) : new Date(fromDate),
+          });
+        }
       }
     }
 
@@ -1105,12 +1109,14 @@ export async function updateFestival(formData: FormData) {
           `_nextDates.${index}._rangeDate.to`
         ) as string;
 
-        currentDates.push({
-          id: id === 0 ? undefined : id,
-          festivalId: currentFestival.id,
-          startDate: fromDate ? new Date(fromDate) : undefined,
-          endDate: toDate ? new Date(toDate) : new Date(fromDate),
-        });
+        if (fromDate) {
+          currentDates.push({
+            id: id === 0 ? undefined : id,
+            festivalId: currentFestival.id,
+            startDate: new Date(fromDate),
+            endDate: toDate ? new Date(toDate) : new Date(fromDate),
+          });
+        }
       }
     }
 

@@ -16,10 +16,6 @@ import {
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import type { AdapterAccountType } from "next-auth/adapters";
 import { isPossiblePhoneNumber } from "libphonenumber-js";
-import {
-  NationalSectionPositionsLangProd,
-  NationalSectionProd,
-} from "./schemaCustom";
 
 // Custom SQL Function
 export function lower(email: AnyPgColumn): SQL {
@@ -1157,19 +1153,19 @@ export const nationalSectionPositionRelations = relations(
       fields: [nationalSectionsPositions.nsId],
       references: [nationalSections.id],
     }),
-    langs: many(NationalSectionPositionsLangProd),
+    langs: many(nationalSectionPositionsLang),
   })
 );
 
 export const nationalSectionPositionLangRelations = relations(
-  NationalSectionPositionsLangProd,
+  nationalSectionPositionsLang,
   ({ one }) => ({
     position: one(nationalSectionsPositions, {
-      fields: [NationalSectionPositionsLangProd.nsPositionsId],
+      fields: [nationalSectionPositionsLang.nsPositionsId],
       references: [nationalSectionsPositions.id],
     }),
     l: one(languages, {
-      fields: [NationalSectionPositionsLangProd.lang],
+      fields: [nationalSectionPositionsLang.lang],
       references: [languages.id],
     }),
   })
@@ -1343,8 +1339,7 @@ export const insertReportNationalSectionLangSchema = createInsertSchema(
   }
 );
 
-export const insertNationalSectionSchema =
-  createInsertSchema(NationalSectionProd);
+export const insertNationalSectionSchema = createInsertSchema(nationalSections);
 
 export const inserNationalSectionLangSchema = createInsertSchema(
   nationalSectionsLang,
@@ -1369,7 +1364,7 @@ export const insertNationalSectionPositionsSchema = createInsertSchema(
 );
 
 export const insertNationalSectionPositionsLangSchema = createInsertSchema(
-  NationalSectionPositionsLangProd,
+  nationalSectionPositionsLang,
   {
     shortBio: (schema) =>
       schema.shortBio.min(1).refine(
@@ -1456,6 +1451,6 @@ export type SelectNationalSectionPositions =
   typeof nationalSectionsPositions.$inferSelect;
 
 export type InsertNationalSectionPositionsLang =
-  typeof NationalSectionPositionsLangProd.$inferInsert;
+  typeof nationalSectionPositionsLang.$inferInsert;
 export type SelectNationalSectionPositionsLang =
-  typeof NationalSectionPositionsLangProd.$inferSelect;
+  typeof nationalSectionPositionsLang.$inferSelect;

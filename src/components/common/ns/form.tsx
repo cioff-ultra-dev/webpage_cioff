@@ -79,7 +79,7 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
     _lang: inserNationalSectionLangSchema,
     _positions: z.array(positionsSchema),
     _events: z.array(
-      insertEventSchema.extend({
+      insertEventSchema.pick({ id: true }).extend({
         _startDate: z.string().datetime().optional(),
         _endDate: z.string().datetime().optional(),
         _rangeDate: z.object({
@@ -167,7 +167,6 @@ export default function NationalSectionForm({
       _lang: {
         name: currentLang?.name,
         about: currentLang?.about,
-        aboutYoung: currentLang?.aboutYoung,
       },
       _social: currentNationalSection?.social || {},
       _events: currentNationalSection?.otherEvents.map((event) => {
@@ -238,7 +237,6 @@ export default function NationalSectionForm({
   useEffect(() => {
     form.setValue("_lang.name", currentLang?.name || "");
     form.setValue("_lang.about", currentLang?.about || "");
-    form.setValue("_lang.aboutYoung", currentLang?.aboutYoung || "");
 
     currentNationalSection?.positions.forEach((position, index) => {
       form.setValue(
@@ -253,7 +251,6 @@ export default function NationalSectionForm({
   }, [
     currentLang?.name,
     currentLang?.about,
-    currentLang?.aboutYoung,
     currentNationalSection?.positions,
     form,
   ]);
@@ -403,7 +400,7 @@ export default function NationalSectionForm({
                             className="resize-none"
                             name={field.name}
                             onChange={field.onChange}
-                            value={field.value}
+                            value={field.value || ""}
                             onBlur={field.onBlur}
                             ref={field.ref}
                           />

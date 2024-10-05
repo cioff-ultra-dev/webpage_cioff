@@ -150,6 +150,7 @@ export default function EventForm({
   id,
   currentCategoriesSelected,
   slug,
+  locale,
 }: {
   categoryGroups: CategoryGroupWithCategories[];
   languages: SelectLanguages[];
@@ -160,6 +161,7 @@ export default function EventForm({
   currentCategoriesSelected?: string[];
   id?: string;
   slug?: string;
+  locale?: string;
 }) {
   useI18nZodErrors("festival");
   const t = useTranslations("form.festival");
@@ -510,7 +512,7 @@ export default function EventForm({
                     <FormField
                       control={form.control}
                       name="_lang.description"
-                      render={({ field }) => (
+                      render={({ field: { value, ...restField } }) => (
                         <FormItem>
                           <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
                             Description
@@ -519,7 +521,8 @@ export default function EventForm({
                             <Textarea
                               placeholder="Please write the year of creation of your festival"
                               className="resize-none h-32"
-                              {...field}
+                              {...restField}
+                              value={value ?? ""}
                             />
                           </FormControl>
                           <FormDescription>
@@ -784,7 +787,12 @@ export default function EventForm({
                   {categoryGroups.map((item) => {
                     const options: MultiSelectProps["options"] =
                       item.categories.map((category) => ({
-                        label: category.name,
+                        label:
+                          category.langs.find(
+                            (item) => item?.l?.code === locale
+                          )?.name ||
+                          category.langs.at(0)?.name ||
+                          "",
                         value: String(category.id),
                         caption: "",
                       }));
@@ -867,7 +875,11 @@ export default function EventForm({
                                           key={category.id}
                                           value={String(category.id)}
                                         >
-                                          {category.name}
+                                          {category.langs.find(
+                                            (item) => item?.l?.code === locale
+                                          )?.name ||
+                                            category.langs.at(0)?.name ||
+                                            ""}
                                         </SelectItem>
                                       ))}
                                     </SelectContent>

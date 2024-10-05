@@ -1,12 +1,15 @@
 import { db } from "@/db";
 import { categoryGroups, SelectCategory } from "@/db/schema";
 import { inArray } from "drizzle-orm";
+import { getCategoryForGroups } from "./events";
+
+type CategoryTypeWith = Awaited<ReturnType<typeof getCategoryForGroups>>;
 
 export type CategoryGroupWithCategories = {
-  name: string;
+  // name: string;
   slug: string;
   title: string;
-  categories: SelectCategory[];
+  categories: CategoryTypeWith;
 };
 
 export async function getCategoryGroupsWithCategories() {
