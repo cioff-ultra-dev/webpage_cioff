@@ -141,10 +141,12 @@ export const users = pgTable(
     city: text("city"),
     zip: text("zip"),
     phone: text("phone"),
-    image: integer("image_id").references(() => storages.id),
+    image: text("image"),
+    // image: integer("image_id").references(() => storages.id),
     password: text("password"),
     active: boolean("active").default(false),
     emailVerified: timestamp("emailVerified", { mode: "date" }),
+    photoId: integer("image_id").references(() => storages.id),
     isCreationNotified: boolean("is_creation_notified").default(false),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
@@ -433,7 +435,7 @@ export const events = pgTable("events", {
   startDate: timestamp("start_date", { mode: "date" }).notNull(),
   endDate: timestamp("end_date", { mode: "date" }).notNull(),
   festivalId: integer("festival_id").references(() => festivals.id),
-  nsId: integer("ns_id").references(() => nationalSections.id), // TODO No se me hace necesario
+  nsId: integer("ns_id").references(() => nationalSections.id),
   active: boolean("active").default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
@@ -747,7 +749,7 @@ export const reportNationalSectionsLang = pgTable("report_ns_lang", {
   id: serial("id").primaryKey(),
   title: text("title"),
   comment: text("comment"),
-  workDescription: text("work_description"), // TODO se movio desde reports ns
+  workDescription: text("work_description"),
   lang: integer("lang")
     .references(() => languages.id)
     .notNull(),
@@ -1323,7 +1325,11 @@ export const insertGroupLangSchema = createInsertSchema(groupsLang, {
 export const selectFestivalSchema = createSelectSchema(festivals);
 
 export const insertReportNationalSectionsSchema = createInsertSchema(
-  reportNationalSectionsLang, // TODO hice cambio de una tabla a otra
+  reportNationalSections
+);
+
+export const insertReportNationalSectionLangSchema = createInsertSchema(
+  reportNationalSectionsLang,
   {
     workDescription: (schema) =>
       schema.workDescription.min(1).refine(
