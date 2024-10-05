@@ -192,9 +192,10 @@ export async function createGroup(prevState: unknown, formData: FormData) {
 }
 
 export async function updateNationalSection(formData: FormData) {
-  const session = await auth();
   const locale = await getLocale();
   const t = await getTranslations("notification");
+
+  console.log(Object.fromEntries(formData));
 
   const nsId = Number(formData.get("id"));
   const name = formData.get("_lang.name") as string;
@@ -276,6 +277,7 @@ export async function updateNationalSection(formData: FormData) {
         const positionLangId = Number(
           formData.get(`_positions.${index}._lang.id`)
         );
+        const typeId = Number(formData.get(`_positions.${index}._type`));
         const shortBio = formData.get(
           `_positions.${index}._lang.shortBio`
         ) as string;
@@ -299,6 +301,7 @@ export async function updateNationalSection(formData: FormData) {
           photoId: storagePhotoId,
           nsId: nsId,
           isHonorable,
+          typePositionId: !typeId ? typeId : undefined,
           birthDate: birthDate ? new Date(birthDate) : undefined,
           deadDate: deathDate ? new Date(deathDate) : undefined,
         });
@@ -322,6 +325,7 @@ export async function updateNationalSection(formData: FormData) {
             "isHonorable",
             "birthDate",
             "deadDate",
+            "typePositionId",
           ]),
         })
         .returning({ id: nationalSectionsPositions.id });

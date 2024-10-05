@@ -77,6 +77,20 @@ export const languages = pgTable("languages", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
+export const regions = pgTable("regions", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const regionsLang = pgTable("regions_lang", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  regionId: integer("region_id").references(() => regions.id),
+  lang: integer("lang_id").references(() => languages.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
 export const countries = pgTable("countries", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull(),
@@ -266,6 +280,20 @@ export const nationalSectionsLang = pgTable("national_section_lang", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
+export const typePosition = pgTable("type_positions", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const typePositionLang = pgTable("type_positions_lang", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  typePositionId: integer("type_position_id").references(() => typePosition.id),
+  lang: integer("lang_id").references(() => languages.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
 export const nationalSectionsPositions = pgTable("national_section_positions", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -275,6 +303,7 @@ export const nationalSectionsPositions = pgTable("national_section_positions", {
   deadDate: date("dead_date", { mode: "date" }),
   isHonorable: boolean("is_honorable").default(false),
   photoId: integer("photo_id").references(() => storages.id),
+  typePositionId: integer("type_position_id").references(() => typePosition.id),
   nsId: integer("ns_id").references(() => nationalSections.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
@@ -1154,6 +1183,10 @@ export const nationalSectionPositionRelations = relations(
       references: [nationalSections.id],
     }),
     langs: many(nationalSectionPositionsLang),
+    type: one(typePosition, {
+      fields: [nationalSectionsPositions.typePositionId],
+      references: [typePosition.id],
+    }),
   })
 );
 
@@ -1233,6 +1266,25 @@ export const eventLangRelations = relations(eventsLang, ({ one }) => ({
 export const statusRelations = relations(statuses, ({ many }) => ({
   festivals: many(festivals),
 }));
+
+export const typePositionRelations = relations(typePosition, ({ many }) => ({
+  positions: many(nationalSectionsPositions),
+  langs: many(typePositionLang),
+}));
+
+export const typePositionLangRelations = relations(
+  typePositionLang,
+  ({ one }) => ({
+    type: one(typePosition, {
+      fields: [typePositionLang.typePositionId],
+      references: [typePosition.id],
+    }),
+    l: one(languages, {
+      fields: [typePositionLang.lang],
+      references: [languages.id],
+    }),
+  })
+);
 
 /* Schema Zod  */
 

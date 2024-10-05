@@ -57,7 +57,10 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { PhoneInput } from "@/components/ui/phone-input";
-import { NationalSectionDetailsType } from "@/db/queries/national-sections";
+import {
+  NationalSectionDetailsType,
+  PositionTypeForNSType,
+} from "@/db/queries/national-sections";
 import { useTranslations } from "next-intl";
 import { useI18nZodErrors } from "@/hooks/use-i18n-zod-errors";
 import { toast } from "sonner";
@@ -71,6 +74,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 const positionsSchema = insertNationalSectionPositionsSchema.merge(
   z.object({
@@ -163,15 +175,18 @@ function Submit({
 export default function NationalSectionForm({
   currentNationalSection,
   currentLang,
+  typePositions,
   id,
   slug,
 }: {
   currentNationalSection?: NationalSectionDetailsType | undefined;
   currentLang?: NonNullable<NationalSectionDetailsType>["langs"][number];
+  typePositions?: PositionTypeForNSType;
   id?: string;
   slug?: string;
 }) {
   // const [state, formAction] = useFormState(, null);
+  console.log({ typePositions });
   useI18nZodErrors("ns");
   const form = useForm<z.infer<typeof formNationalSectionSchema>>({
     resolver: zodResolver(formNationalSectionSchema),
@@ -201,6 +216,9 @@ export default function NationalSectionForm({
         ? currentNationalSection?.positions.map((position) => {
             return {
               ...position,
+              _type: position.typePositionId
+                ? String(position.typePositionId)
+                : undefined,
               _isHonorable: position.isHonorable ?? false,
               _birthDate: position.birthDate
                 ? position.birthDate.toUTCString()
@@ -495,40 +513,101 @@ export default function NationalSectionForm({
                         )}
                       />
                     </div>
-                    <div>
+                    <div className="grid w-full items-center gap-1.5">
                       <FormField
                         control={form.control}
                         name={`_positions.${index}._type`}
                         render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a verified email to display" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="m@example.com">
-                                  m@example.com
-                                </SelectItem>
-                                <SelectItem value="m@google.com">
-                                  m@google.com
-                                </SelectItem>
-                                <SelectItem value="m@support.com">
-                                  m@support.com
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
+                          <FormItem className="flex flex-col">
+                            <FormLabel>Type Position</FormLabel>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    data-test={field.value}
+                                    className={cn(
+                                      "justify-between capitalize",
+                                      !field.value && "text-muted-foreground"
+                                    )}
+                                  >
+                                    {field.value
+                                      ? typePositions
+                                          ?.find(
+                                            (typePosition) =>
+                                              String(typePosition.id) ===
+                                              field.value
+                                          )
+                                          ?.slug.replaceAll("-", " ")
+                                      : "Select type position"}
+                                    <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-full p-0">
+                                <Command>
+                                  <CommandInput
+                                    placeholder="Search type..."
+                                    className="h-9"
+                                  />
+                                  <CommandList>
+                                    <CommandEmpty>
+                                      No type position found.
+                                    </CommandEmpty>
+                                    <CommandGroup>
+                                      {typePositions?.map((typePosition) => (
+                                        <CommandItem
+                                          value={String(
+                                            typePosition.slug.replaceAll(
+                                              "-",
+                                              " "
+                                            )
+                                          )}
+                                          key={`_positions.${index}._type.${String(
+                                            typePosition.id
+                                          )}`}
+                                          className="capitalize"
+                                          onSelect={() => {
+                                            console.log(
+                                              String(typePosition.id)
+                                            );
+                                            form.setValue(
+                                              `_positions.${index}._type`,
+                                              String(typePosition.id)
+                                            );
+                                          }}
+                                        >
+                                          {typePosition.slug.replaceAll(
+                                            "-",
+                                            " "
+                                          )}
+                                          <CheckIcon
+                                            className={cn(
+                                              "ml-auto h-4 w-4",
+                                              String(typePosition.id) ===
+                                                field.value
+                                                ? "opacity-100"
+                                                : "opacity-0"
+                                            )}
+                                          />
+                                        </CommandItem>
+                                      ))}
+                                    </CommandGroup>
+                                  </CommandList>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
                             <FormDescription>
-                              You can manage email addresses in your{" "}
-                              <Link href="/examples/forms">email settings</Link>
-                              .
+                              This is the type position that will be used in the
+                              NationalSection.
                             </FormDescription>
                             <FormMessage />
+                            <input
+                              type="hidden"
+                              name={`_positions.${index}._type`}
+                              value={field.value}
+                            />
                           </FormItem>
                         )}
                       />
@@ -731,7 +810,7 @@ export default function NationalSectionForm({
                                 <FormMessage />
                                 <input
                                   type="hidden"
-                                  name={`_honoraries.${index}._birthDate`}
+                                  name={`_positions.${index}._birthDate`}
                                   value={field.value}
                                 />
                               </FormItem>
