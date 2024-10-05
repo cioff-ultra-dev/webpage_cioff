@@ -4,12 +4,7 @@ import React, { useRef, useState } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import {
-  SubmitHandler,
-  useFieldArray,
-  useForm,
-  useWatch,
-} from "react-hook-form";
+import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
 import { Label } from "@/components/ui/label";
 import {
@@ -23,8 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button, type ButtonProps } from "@/components/ui/button";
-import { createFestival, updateFestival } from "@/app/actions";
-import { useFormState, useFormStatus } from "react-dom";
+import { updateFestival } from "@/app/actions";
 import * as RPNInput from "react-phone-number-input";
 import {
   Form,
@@ -239,8 +233,6 @@ export default function EventForm({
     },
   });
 
-  console.log({ currentFestival });
-
   const formRef = useRef<HTMLFormElement>(null);
 
   const onSubmitForm: SubmitHandler<z.infer<typeof globalEventSchema>> = async (
@@ -271,8 +263,6 @@ export default function EventForm({
     control: form.control,
     name: "_nextDates",
   });
-
-  console.log(currentFestival);
 
   return (
     <APIProvider apiKey={"AIzaSyBRO_oBiyzOAQbH7Jcv3ZrgOgkfNp1wJeI"}>
@@ -1131,7 +1121,6 @@ export default function EventForm({
                               ))}
                             </SelectContent>
                           </Select>
-
                           <FormDescription>
                             This is your current festival name
                           </FormDescription>
