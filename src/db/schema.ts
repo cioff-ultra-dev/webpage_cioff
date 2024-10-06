@@ -259,12 +259,31 @@ National Section Positions
 National Section Positions Lang
 */
 
+export const typeNationalSections = pgTable("type_national_section", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const typeNationalSectionsLang = pgTable("type_national_section_lang", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  lang: integer("lang").references(() => languages.id),
+  typeNationalSectionId: integer("type_national_section_id").references(
+    () => typeNationalSections.id
+  ),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
 export const nationalSections = pgTable("national_section", {
   id: serial("id").primaryKey(),
   published: boolean("published").default(false),
   slug: text("slug").notNull(),
   socialMediaLinksId: integer("socia_media_links_id").references(
     () => socialMediaLinks.id
+  ),
+  typeNationalSectionId: integer("type_national_section_id").references(
+    () => typeNationalSections.id
   ),
   countryId: integer("country_id").references(() => countries.id),
   createdBy: text("created_by").references(() => users.id),
