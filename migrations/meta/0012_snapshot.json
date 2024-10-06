@@ -1,6 +1,6 @@
 {
-  "id": "c89b72e0-8ab0-48af-b89a-f5e68ba2e2ce",
-  "prevId": "9405f9c0-f133-45ed-b110-6289456e15c5",
+  "id": "de74dfd8-e580-4659-b589-f23c98944aaa",
+  "prevId": "c89b72e0-8ab0-48af-b89a-f5e68ba2e2ce",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -87,6 +87,18 @@
           "primaryKey": false,
           "notNull": true
         },
+        "country_id": {
+          "name": "country_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "socia_media_links_id": {
+          "name": "socia_media_links_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "url": {
           "name": "url",
           "type": "text",
@@ -141,6 +153,32 @@
       },
       "indexes": {},
       "foreignKeys": {
+        "sub_pages_country_id_countries_id_fk": {
+          "name": "sub_pages_country_id_countries_id_fk",
+          "tableFrom": "sub_pages",
+          "tableTo": "countries",
+          "columnsFrom": [
+            "country_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "sub_pages_socia_media_links_id_social_media_links_id_fk": {
+          "name": "sub_pages_socia_media_links_id_social_media_links_id_fk",
+          "tableFrom": "sub_pages",
+          "tableTo": "social_media_links",
+          "columnsFrom": [
+            "socia_media_links_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "sub_pages_created_by_user_id_fk": {
           "name": "sub_pages_created_by_user_id_fk",
           "tableFrom": "sub_pages",
@@ -1140,6 +1178,18 @@
           "primaryKey": true,
           "notNull": true
         },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category_group_id": {
+          "name": "category_group_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "start_date": {
           "name": "start_date",
           "type": "timestamp",
@@ -1187,6 +1237,19 @@
       },
       "indexes": {},
       "foreignKeys": {
+        "events_category_group_id_category_groups_id_fk": {
+          "name": "events_category_group_id_category_groups_id_fk",
+          "tableFrom": "events",
+          "tableTo": "category_groups",
+          "columnsFrom": [
+            "category_group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "events_festival_id_festivals_id_fk": {
           "name": "events_festival_id_festivals_id_fk",
           "tableFrom": "events",
@@ -2090,6 +2153,42 @@
           "primaryKey": false,
           "notNull": false
         },
+        "cover_photo_id": {
+          "name": "cover_photo_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "logo_id": {
+          "name": "logo_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "video_link": {
+          "name": "video_link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "facebook_link": {
+          "name": "facebook_link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "instagram_link": {
+          "name": "instagram_link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "website_link": {
+          "name": "website_link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "is_able_travel_live_music": {
           "name": "is_able_travel_live_music",
           "type": "boolean",
@@ -2173,6 +2272,32 @@
       },
       "indexes": {},
       "foreignKeys": {
+        "groups_cover_photo_id_storage_id_fk": {
+          "name": "groups_cover_photo_id_storage_id_fk",
+          "tableFrom": "groups",
+          "tableTo": "storage",
+          "columnsFrom": [
+            "cover_photo_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "groups_logo_id_storage_id_fk": {
+          "name": "groups_logo_id_storage_id_fk",
+          "tableFrom": "groups",
+          "tableTo": "storage",
+          "columnsFrom": [
+            "logo_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "groups_general_director_photo_id_storage_id_fk": {
           "name": "groups_general_director_photo_id_storage_id_fk",
           "tableFrom": "groups",

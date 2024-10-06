@@ -168,14 +168,24 @@ export async function createGroup(prevState: unknown, formData: FormData) {
   const generalDirectorProfile = formData.get(
     "generalDirectorProfile"
   ) as string;
+  const generalDirectorPhoto = formData.get("_generalDirectorPhoto") as File;
+
   const artisticDirectorName = formData.get("artisticDirectorName") as string;
   const artisticDirectorProfile = formData.get(
     "artisticDirectorProfile"
   ) as string;
-  const directorPhoto = formData.get("directorPhoto") as File;
+  const artisticDirectorPhoto = formData.get("_artisticDirectorPhoto") as File;
+
+  const musicalDirectorName = formData.get("musicalDirectorName") as string;
+  const musicalDirectorProfile = formData.get(
+    "musicalDirectorProfile"
+  ) as string;
+  const musicalDirectorPhoto = formData.get("_musicalDirectorPhoto") as File;
 
   await db.transaction(async (tx) => {
-    const generalDirectorPhotoId = await uploadFile(directorPhoto, tx);
+    const generalDirectorPhotoId = await uploadFile(generalDirectorPhoto, tx);
+    const artisticDirectorPhotoId = await uploadFile(artisticDirectorPhoto, tx);
+    const musicalDirectorPhotoId = await uploadFile(musicalDirectorPhoto, tx);
 
     await tx
       .update(groups)
@@ -183,6 +193,9 @@ export async function createGroup(prevState: unknown, formData: FormData) {
         generalDirectorName,
         generalDirectorPhotoId,
         artisticDirectorName,
+        artisticDirectorPhotoId,
+        musicalDirectorName,
+        musicalDirectorPhotoId,
       })
       .where(eq(groups.id, id));
   });

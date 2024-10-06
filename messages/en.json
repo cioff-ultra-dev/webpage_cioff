@@ -84,6 +84,11 @@
       "currentPassword": "Current Password",
       "newPassword": "New Password",
       "confirmPassword": "Confirm Password"
+    },
+    "group": {
+      "_lang": {
+        "name": "Name of the group"
+      }
     }
   },
   "customErrors": {

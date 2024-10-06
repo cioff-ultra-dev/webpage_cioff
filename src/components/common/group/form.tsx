@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
 import { Label } from "@/components/ui/label";
 import {
@@ -44,6 +44,8 @@ import {
   insertFestivalSchema,
   insertGroupLangSchema,
   insertGroupSchema,
+  insertSubGroupLangSchema,
+  insertSubGroupSchema,
   SelectGroup,
 } from "@/db/schema";
 import { AutocompletePlaces } from "@/components/ui/autocomplete-places";
@@ -58,15 +60,24 @@ import { PlusCircle, X } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { addYears, endOfYear, format, startOfYear, subYears } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { GroupDetailsType } from "@/db/queries/groups";
+import {
+  AgeGroupsType,
+  GroupDetailsType,
+  GroupStyleType,
+  TypeOfGroupType,
+} from "@/db/queries/groups";
 import { Cross2Icon, FileTextIcon } from "@radix-ui/react-icons";
 import { MultiSelect, MultiSelectProps } from "@/components/ui/multi-select";
 import { Switch } from "@/components/ui/switch";
+import { useI18nZodErrors } from "@/hooks/use-i18n-zod-errors";
+import { useTranslations } from "next-intl";
+import { DatePickerWithRange } from "@/components/ui/datepicker-with-range";
 
 const globalGroupSchema = insertGroupSchema.extend({
   _lang: insertGroupLangSchema,
   _typeOfGroup: z.string(),
   _groupAge: z.string(),
+  _styleOfGroup: z.string(),
   _generalDirectorPhoto: z
     .any()
     .refine((item) => item instanceof File || typeof item === "undefined", {
@@ -82,6 +93,16 @@ const globalGroupSchema = insertGroupSchema.extend({
     .refine((item) => item instanceof File || typeof item === "undefined", {
       params: { i18n: "file_required" },
     }),
+  _specificDate: z.object({
+    from: z.string(),
+    to: z.string().optional(),
+  }),
+  _specificRegion: z.string(),
+  _subgroups: z.array(
+    insertSubGroupSchema.extend({
+      _lang: insertSubGroupLangSchema,
+    })
+  ),
 });
 
 interface FilePreviewProps {
@@ -216,10 +237,18 @@ interface RepertoireItem {
 export default function GroupForm({
   currentGroup,
   id,
+  typeOfGroups,
+  ageGroups,
+  groupStyles,
 }: {
   currentGroup?: GroupDetailsType | undefined;
   id?: string;
+  typeOfGroups: TypeOfGroupType;
+  ageGroups: AgeGroupsType;
+  groupStyles: GroupStyleType;
 }) {
+  useI18nZodErrors("group");
+
   // const [state, formAction] = useFormState(createGroup, undefined);
   const [groupType, setGroupType] = useState<string>("only_dance");
   const [travelAvailability, setTravelAvailability] = useState<string>("no");
@@ -232,6 +261,11 @@ export default function GroupForm({
   >(null);
   const [selectedTypeOfGroup, setSelectedTypeOfGroup] = useState<string[]>([]);
   const [selectedGroupAge, setSelectedGroupAge] = useState<string[]>([]);
+  const [selectedStyleOfGroup, setSelectedStyleOfGroup] = useState<string[]>(
+    []
+  );
+
+  const t = useTranslations("form.group");
 
   useEffect(() => {
     if (directorPhotoUrl.current) {
@@ -283,6 +317,13 @@ export default function GroupForm({
     },
   });
 
+  const { fields: subGroupFields, append: appendSubGroupEvent } = useFieldArray(
+    {
+      control: form.control,
+      name: "_subgroups",
+    }
+  );
+
   const formRef = useRef<HTMLFormElement>(null);
 
   const onSubmitForm: SubmitHandler<z.infer<typeof globalGroupSchema>> = async (
@@ -318,7 +359,7 @@ export default function GroupForm({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>Module 1: Group Information</CardTitle>
+                <CardTitle>Group Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -354,7 +395,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          General Director name
+                          President/General Director name
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -377,7 +418,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          General Director profile
+                          President/General Director profile
                         </FormLabel>
                         <FormControl>
                           <Textarea
@@ -399,6 +440,33 @@ export default function GroupForm({
                     )}
                   />
                 </div>
+                <div className="space-y-2">
+                  <FormField
+                    control={form.control}
+                    name={"_generalDirectorPhoto"}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                          President/General Director's photo
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            ref={field.ref}
+                            type="file"
+                            accept="image/*"
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            value={field.value || ""}
+                            name={field.name}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Artist Director */}
                 <div className="space-y-2">
                   <FormField
                     control={form.control}
@@ -475,6 +543,86 @@ export default function GroupForm({
                     )}
                   />
                 </div>
+
+                {/* Musical Director */}
+                <div className="space-y-2">
+                  <FormField
+                    control={form.control}
+                    name={"musicalDirectorName"}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                          Musical Director name
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            ref={field.ref}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            value={field.value || ""}
+                            name={field.name}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <FormField
+                    control={form.control}
+                    name={"_lang.musicalDirectorProfile"}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                          Musical Director profile
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            className="resize-none"
+                            placeholder="Write a short description of your main achievements,
+                            studies, etc"
+                            name={field.name}
+                            onChange={field.onChange}
+                            value={field.value || ""}
+                            onBlur={field.onBlur}
+                            ref={field.ref}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          You can use max. 500 words for this input
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <FormField
+                    control={form.control}
+                    name={"_musicalDirectorPhoto"}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                          Musical Director's photo
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            ref={field.ref}
+                            type="file"
+                            accept="image/*"
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            value={field.value || ""}
+                            name={field.name}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
                 <div className="space-y-2">
                   <FormField
                     control={form.control}
@@ -500,15 +648,13 @@ export default function GroupForm({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input id="email" type="email" name="email" />
-                  {/* <FormField
+                  <FormField
                     control={form.control}
-                    name={"email"}
+                    name="_lang.address"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Email Address
+                          Mail Address
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -519,13 +665,10 @@ export default function GroupForm({
                             name={field.name}
                           />
                         </FormControl>
-                        <FormDescription>
-                          Enter your current email address
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
-                  /> */}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -540,18 +683,15 @@ export default function GroupForm({
                     control={form.control}
                     name="_typeOfGroup"
                     render={({ field }) => {
-                      const options: MultiSelectProps["options"] = [
-                        {
-                          value: "dance",
-                          label: "Only dance",
-                          caption: "",
-                        },
-                        {
-                          value: "music",
-                          label: "Only music",
-                          caption: "",
-                        },
-                      ];
+                      const options: MultiSelectProps["options"] =
+                        typeOfGroups.map((type) => {
+                          const label = type.langs?.[0]?.name;
+                          return {
+                            label: label,
+                            value: String(type.id),
+                            caption: "",
+                          };
+                        });
 
                       return (
                         <FormItem>
@@ -631,28 +771,15 @@ export default function GroupForm({
                     control={form.control}
                     name="_groupAge"
                     render={({ field }) => {
-                      const options: MultiSelectProps["options"] = [
-                        {
-                          value: "seniors",
-                          label: "Seniors",
-                          caption: "",
-                        },
-                        {
-                          value: "youth-adults",
-                          label: "Youth / Adults",
-                          caption: "",
-                        },
-                        {
-                          value: "teenagers",
-                          label: "Teenagers",
-                          caption: "",
-                        },
-                        {
-                          value: "children",
-                          label: "Children",
-                          caption: "",
-                        },
-                      ];
+                      const options: MultiSelectProps["options"] =
+                        ageGroups.map((type) => {
+                          const label = type.langs?.[0]?.name;
+                          return {
+                            label: label,
+                            value: String(type.id),
+                            caption: "",
+                          };
+                        });
 
                       return (
                         <FormItem>
@@ -710,37 +837,209 @@ export default function GroupForm({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>
-                    Do you have another contact person for your other group?
-                  </Label>
-                  <div className="space-y-2">
-                    <Input placeholder="Name" />
-                    <Input placeholder="Phone + Mail" />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="_styleOfGroup"
+                    render={({ field }) => {
+                      const options: MultiSelectProps["options"] =
+                        groupStyles.map((type) => {
+                          const label = type.langs?.[0]?.name;
+                          return {
+                            label: label,
+                            value: String(type.id),
+                            caption: "",
+                          };
+                        });
+
+                      return (
+                        <FormItem>
+                          <FormLabel>Style of group</FormLabel>
+                          <FormControl>
+                            <MultiSelect
+                              ref={field.ref}
+                              options={options}
+                              onValueChange={(values) => {
+                                setSelectedStyleOfGroup(values);
+                                form.setValue(
+                                  "_styleOfGroup",
+                                  JSON.stringify(values)
+                                );
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
+                  />
+                  <input
+                    type="hidden"
+                    name="_styleOfGroup"
+                    value={JSON.stringify(selectedStyleOfGroup) || "[]"}
+                  />
                 </div>
-                <div className="space-y-2">
-                  <Label>Style of group</Label>
-                  <RadioGroup defaultValue="authentic">
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="authentic" id="authentic" />
-                      <Label htmlFor="authentic">Authentic</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="elaborated" id="elaborated" />
-                      <Label htmlFor="elaborated">Elaborated</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="stylized" id="stylized" />
-                      <Label htmlFor="stylized">Stylized</Label>
-                    </div>
-                  </RadioGroup>
+
+                <div className="space-y-4 border-t pt-4">
+                  <h2 className="text-lg font-semibold">Sub Groups</h2>
+                  {subGroupFields.map((field, index) => (
+                    <Card
+                      key={field.id}
+                      className="grid w-full items-center pt-6 gap-1.5"
+                    >
+                      <FormField
+                        control={form.control}
+                        name={`_subgroups.${index}.id`}
+                        render={({ field }) => (
+                          <FormControl>
+                            <Input
+                              ref={field.ref}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              value={field.value}
+                              name={field.name}
+                              type="hidden"
+                            />
+                          </FormControl>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`_subgroups.${index}._lang.id`}
+                        render={({ field }) => (
+                          <FormControl>
+                            <Input
+                              ref={field.ref}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              value={field.value}
+                              name={field.name}
+                              type="hidden"
+                            />
+                          </FormControl>
+                        )}
+                      />
+                      <CardContent className=" flex items-center flex-col gap-5">
+                        <div className="grid w-full items-center gap-1.5">
+                          <FormField
+                            control={form.control}
+                            name={`_subgroups.${index}._lang.name`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                                  Name of the sub group
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    ref={field.ref}
+                                    onChange={field.onChange}
+                                    onBlur={field.onBlur}
+                                    value={field.value ?? ""}
+                                    name={field.name}
+                                  />
+                                </FormControl>
+                                <FormDescription>
+                                  Enter your current sub group name
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <div className="grid w-full items-center gap-1.5">
+                          <FormField
+                            control={form.control}
+                            name={`_subgroups.${index}.membersNumber`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                                  Number of members
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    ref={field.ref}
+                                    type="number"
+                                    max="40"
+                                    onChange={field.onChange}
+                                    onBlur={field.onBlur}
+                                    value={field.value || ""}
+                                    name={field.name}
+                                  />
+                                </FormControl>
+                                <FormDescription>
+                                  Write number of members
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <div className="grid w-full items-center gap-1.5">
+                          <FormField
+                            control={form.control}
+                            name="_groupAge"
+                            render={({ field }) => {
+                              const options: MultiSelectProps["options"] =
+                                ageGroups.map((type) => {
+                                  const label = type.langs?.[0]?.name;
+                                  return {
+                                    label: label,
+                                    value: String(type.id),
+                                    caption: "",
+                                  };
+                                });
+
+                              return (
+                                <FormItem>
+                                  <FormLabel>Group age</FormLabel>
+                                  <FormControl>
+                                    <MultiSelect
+                                      ref={field.ref}
+                                      options={options}
+                                      onValueChange={(values) => {
+                                        setSelectedGroupAge(values);
+                                        form.setValue(
+                                          "_groupAge",
+                                          JSON.stringify(values)
+                                        );
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              );
+                            }}
+                          />
+                          <input
+                            type="hidden"
+                            name="_groupAge"
+                            value={JSON.stringify(selectedGroupAge) || "[]"}
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  <Button
+                    type="button"
+                    onClick={(_) =>
+                      appendSubGroupEvent({
+                        _lang: {},
+                      })
+                    }
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add Event
+                  </Button>
+                  {/* <input
+                    type="hidden"
+                    name="_eventSize"
+                    value={eventFields.length}
+                  /> */}
                 </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Module 3: Travel Information</CardTitle>
+                <CardTitle>Travel Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -762,32 +1061,100 @@ export default function GroupForm({
                 {travelAvailability === "yes" && (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="specificDate">
-                        Any specific date? (calendar option)
-                      </Label>
-                      <Input id="specificDate" type="date" />
+                      <FormField
+                        control={form.control}
+                        name={`_specificDate`}
+                        render={({ field: { value, onChange } }) => (
+                          <FormItem>
+                            <FormLabel>
+                              Any specific date? (calendar option)
+                            </FormLabel>
+                            <FormControl>
+                              <>
+                                <DatePickerWithRange
+                                  className="w-full"
+                                  buttonClassName="w-full"
+                                  defaultDates={{
+                                    from: form.getValues(`_specificDate.from`)
+                                      ? new Date(
+                                          form.getValues(`_specificDate.from`)
+                                        )
+                                      : undefined,
+                                    to:
+                                      form.getValues(`_specificDate.to`) &&
+                                      form.getValues(`_specificDate.from`) !==
+                                        form.getValues(`_specificDate.to`)
+                                        ? new Date(
+                                            form.getValues(`_specificDate.to`)!
+                                          )
+                                        : undefined,
+                                  }}
+                                  onValueChange={(rangeValue) => {
+                                    onChange({
+                                      from: rangeValue?.from?.toUTCString(),
+                                      to: rangeValue?.to?.toUTCString() ?? "",
+                                    });
+                                  }}
+                                />
+                              </>
+                            </FormControl>
+                            {form?.getFieldState(`_specificDate.from`).error
+                              ?.message ? (
+                              <p
+                                className={cn(
+                                  "text-sm font-medium text-destructive"
+                                )}
+                              >
+                                {
+                                  form?.getFieldState(`_specificDate.from`)
+                                    .error?.message
+                                }
+                              </p>
+                            ) : null}
+                          </FormItem>
+                        )}
+                      />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="specificRegion">
-                        Any specific region?
-                      </Label>
-                      <Select>
-                        <SelectTrigger id="specificRegion">
-                          <SelectValue placeholder="Select a region" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="europe">Europe</SelectItem>
-                          <SelectItem value="asia">Asia</SelectItem>
-                          <SelectItem value="africa">Africa</SelectItem>
-                          <SelectItem value="northAmerica">
-                            North America
-                          </SelectItem>
-                          <SelectItem value="southAmerica">
-                            South America
-                          </SelectItem>
-                          <SelectItem value="oceania">Oceania</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormField
+                        control={form.control}
+                        name="_specificRegion"
+                        render={({ field }) => {
+                          return (
+                            <FormItem>
+                              <FormLabel>Any specific region?</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={
+                                  field.value ? `${field.value}` : undefined
+                                }
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="font-medium data-[placeholder]:text-muted-foreground">
+                                    <SelectValue placeholder="Select a region" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="europe">Europe</SelectItem>
+                                  <SelectItem value="asia">Asia</SelectItem>
+                                  <SelectItem value="africa">Africa</SelectItem>
+                                  <SelectItem value="northAmerica">
+                                    North America
+                                  </SelectItem>
+                                  <SelectItem value="southAmerica">
+                                    South America
+                                  </SelectItem>
+                                  <SelectItem value="oceania">
+                                    Oceania
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          );
+                        }}
+                      />
+                      ˇ{" "}
                     </div>
                   </>
                 )}

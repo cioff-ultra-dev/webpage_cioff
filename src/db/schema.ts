@@ -442,6 +442,12 @@ export const festivalsToStatuses = pgTable(
 );
 export const events = pgTable("events", {
   id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  // name: text("name").notNull(),
+  // icon: text("icon"),
+  categoryGroupId: integer("category_group_id").references(
+    () => categoryGroups.id
+  ),
   startDate: timestamp("start_date", { mode: "date" }).notNull(),
   endDate: timestamp("end_date", { mode: "date" }).notNull(),
   festivalId: integer("festival_id").references(() => festivals.id),
@@ -476,6 +482,14 @@ export const groups = pgTable("groups", {
   artisticDirectorPhoto: text("artistic_director_photo"),
   musicalDirectorName: text("musical_director_name"),
   musicalDirectorPhoto: text("musical_director_photo"),
+
+  coverPhotoId: integer("cover_photo_id").references(() => storages.id),
+  logoId: integer("logo_id").references(() => storages.id),
+  videoLink: text("video_link"),
+  facebookLink: text("facebook_link"),
+  instagramLink: text("instagram_link"),
+  websiteLink: text("website_link"),
+
   isAbleTravelLiveMusic: boolean("is_able_travel_live_music").default(false),
   membersNumber: integer("members_number"),
   phone: text("phone"),
@@ -646,6 +660,10 @@ Sub Pages Texts Lang
 export const SubPagesProd = pgTable("sub_pages", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull(),
+  countryId: integer("country_id").references(() => countries.id),
+  socialMediaLinksId: integer("socia_media_links_id").references(
+    () => socialMediaLinks.id
+  ),
   url: text("url").notNull(),
   isNews: boolean("is_news").default(false),
   originalDate: timestamp("original_date", { mode: "date" }).notNull(),
@@ -1427,6 +1445,10 @@ export const insertSocialMediaLinkSchema = createInsertSchema(
     websiteLink: (schema) => schema.websiteLink.url(),
   }
 );
+
+export const insertSubGroupSchema = createInsertSchema(subgroups);
+
+export const insertSubGroupLangSchema = createInsertSchema(subgroupsLang);
 
 /* Infered Types */
 
