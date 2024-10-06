@@ -4,7 +4,12 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import {
+  SubmitHandler,
+  useFieldArray,
+  useForm,
+  useWatch,
+} from "react-hook-form";
 import * as RPNInput from "react-phone-number-input";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -52,19 +57,40 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { PhoneInput } from "@/components/ui/phone-input";
-import { NationalSectionDetailsType } from "@/db/queries/national-sections";
+import {
+  NationalSectionDetailsType,
+  PositionTypeForNSType,
+} from "@/db/queries/national-sections";
 import { useTranslations } from "next-intl";
 import { useI18nZodErrors } from "@/hooks/use-i18n-zod-errors";
 import { toast } from "sonner";
 import { customRevalidatePath, customRevalidateTag } from "../revalidateTag";
 import { useRouter } from "next/navigation";
 import { DatePickerWithRange } from "@/components/ui/datepicker-with-range";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 const positionsSchema = insertNationalSectionPositionsSchema.merge(
   z.object({
     _lang: insertNationalSectionPositionsLangSchema,
+    _isHonorable: z.boolean().optional(),
     _birthDate: z.string().optional(),
     _deathDate: z.string().optional(),
+    _type: z.string(),
     _photo: z
       .any()
       .refine((item) => item instanceof File || typeof item === "undefined", {
@@ -73,31 +99,13 @@ const positionsSchema = insertNationalSectionPositionsSchema.merge(
   })
 );
 
-const honorariesSchema = insertNationalSectionPositionsSchema
-  .merge(
-    z.object({
-      _lang: insertNationalSectionPositionsLangSchema,
-      _birthDate: z.string().optional(),
-      _deathDate: z.string().optional(),
-      _photo: z
-        .any()
-        .refine((item) => item instanceof File || typeof item === "undefined", {
-          params: { i18n: "file_required" },
-        }),
-    })
-  )
-  .extend({
-    email: z.string().optional(),
-    phone: z.string().optional(),
-  });
-
 const formNationalSectionSchema = insertNationalSectionSchema.merge(
   z.object({
     _lang: inserNationalSectionLangSchema,
     _positions: z.array(positionsSchema),
-    _honoraries: z.array(honorariesSchema),
+    _positionSize: z.array(z.any()).min(3).max(11),
     _events: z.array(
-      insertEventSchema.extend({
+      insertEventSchema.pick({ id: true }).extend({
         _startDate: z.string().datetime().optional(),
         _endDate: z.string().datetime().optional(),
         _rangeDate: z.object({
@@ -112,12 +120,13 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
         z.object({
           ownerId: z.number().optional(),
           _lang: insertFestivalLangSchema.pick({ name: true, id: true }),
-          certificationFile: z.any().refine(
-            (item) => {
-              return item instanceof File || typeof item !== "undefined";
-            },
-            { params: { i18n: "file_required" } }
-          ),
+          certificationFile: z.any(),
+          // certificationFile: z.any().refine(
+          //   (item) => {
+          //     return item instanceof File || typeof item !== "undefined";
+          //   },
+          //   { params: { i18n: "file_required" } }
+          // ),
         })
       )
     ),
@@ -128,12 +137,13 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
           ownerId: z.number().optional(),
           email: z.string().email(),
           _lang: insertGroupLangSchema.pick({ name: true, id: true }),
-          certificationFile: z
-            .any()
-            .refine(
-              (item) => item instanceof File || typeof item !== "undefined",
-              { params: { i18n: "file_required" } }
-            ),
+          certificationFile: z.any(),
+          // certificationFile: z
+          //   .any()
+          //   .refine(
+          //     (item) => item instanceof File || typeof item !== "undefined",
+          //     { params: { i18n: "file_required" } }
+          //   ),
         })
       )
     ),
@@ -165,15 +175,18 @@ function Submit({
 export default function NationalSectionForm({
   currentNationalSection,
   currentLang,
+  typePositions,
   id,
   slug,
 }: {
   currentNationalSection?: NationalSectionDetailsType | undefined;
   currentLang?: NonNullable<NationalSectionDetailsType>["langs"][number];
+  typePositions?: PositionTypeForNSType;
   id?: string;
   slug?: string;
 }) {
   // const [state, formAction] = useFormState(, null);
+  console.log({ typePositions });
   useI18nZodErrors("ns");
   const form = useForm<z.infer<typeof formNationalSectionSchema>>({
     resolver: zodResolver(formNationalSectionSchema),
@@ -183,7 +196,6 @@ export default function NationalSectionForm({
       _lang: {
         name: currentLang?.name,
         about: currentLang?.about,
-        aboutYoung: currentLang?.aboutYoung,
       },
       _social: currentNationalSection?.social || {},
       _events: currentNationalSection?.otherEvents.map((event) => {
@@ -200,25 +212,14 @@ export default function NationalSectionForm({
           },
         };
       }),
-      _positions:
-        currentNationalSection?.positions
-          ?.filter((position) => !position.isHonorable)
-          .map((position) => {
+      _positions: currentNationalSection?.positions.length
+        ? currentNationalSection?.positions.map((position) => {
             return {
               ...position,
-              _lang: {
-                id: position?.langs?.at(0)?.id ?? 0,
-                shortBio: position.langs.at(0)?.shortBio,
-              },
-            };
-          }) ?? [],
-      _honoraries:
-        currentNationalSection?.positions
-          ?.filter((position) => position.isHonorable)
-          .map((position) => {
-            return {
-              ...position,
-              email: position.email || "",
+              _type: position.typePositionId
+                ? String(position.typePositionId)
+                : undefined,
+              _isHonorable: position.isHonorable ?? false,
               _birthDate: position.birthDate
                 ? position.birthDate.toUTCString()
                 : "",
@@ -230,7 +231,16 @@ export default function NationalSectionForm({
                 shortBio: position.langs.at(0)?.shortBio,
               },
             };
-          }) ?? [],
+          })
+        : [
+            {
+              name: "",
+              phone: "",
+              email: "",
+              _photo: undefined,
+              _lang: { shortBio: "" },
+            },
+          ],
       _festivals: currentNationalSection?.festivals.map((festival) => {
         return {
           ...festival,
@@ -265,39 +275,25 @@ export default function NationalSectionForm({
   const t = useTranslations("form.ns");
   const router = useRouter();
 
+  console.log(form.formState.errors);
+
   useEffect(() => {
     form.setValue("_lang.name", currentLang?.name || "");
     form.setValue("_lang.about", currentLang?.about || "");
-    form.setValue("_lang.aboutYoung", currentLang?.aboutYoung || "");
 
-    currentNationalSection?.positions
-      .filter((position) => !position.isHonorable)
-      .forEach((position, index) => {
-        form.setValue(
-          `_positions.${index}._lang.shortBio`,
-          position.langs.at(0)?.shortBio || ""
-        );
-        form.setValue(
-          `_positions.${index}._lang.id`,
-          position.langs.at(0)?.id ?? 0
-        );
-      });
-    currentNationalSection?.positions
-      .filter((position) => position.isHonorable)
-      .forEach((position, index) => {
-        form.setValue(
-          `_honoraries.${index}._lang.shortBio`,
-          position.langs.at(0)?.shortBio || ""
-        );
-        form.setValue(
-          `_honoraries.${index}._lang.id`,
-          position.langs.at(0)?.id ?? 0
-        );
-      });
+    currentNationalSection?.positions.forEach((position, index) => {
+      form.setValue(
+        `_positions.${index}._lang.shortBio`,
+        position.langs.at(0)?.shortBio || ""
+      );
+      form.setValue(
+        `_positions.${index}._lang.id`,
+        position.langs.at(0)?.id ?? 0
+      );
+    });
   }, [
     currentLang?.name,
     currentLang?.about,
-    currentLang?.aboutYoung,
     currentNationalSection?.positions,
     form,
   ]);
@@ -305,11 +301,6 @@ export default function NationalSectionForm({
   const { fields: positionFields, append: appendPosition } = useFieldArray({
     control: form.control,
     name: "_positions",
-  });
-
-  const { fields: honoraryFields, append: appendHonorary } = useFieldArray({
-    control: form.control,
-    name: "_honoraries",
   });
 
   const {
@@ -338,6 +329,15 @@ export default function NationalSectionForm({
     control: form.control,
     name: "_groups",
   });
+
+  const positions = useWatch({
+    control: form.control,
+    name: "_positions",
+  });
+
+  useEffect(() => {
+    form.setValue("_positionSize", Array.from({ length: positions.length }));
+  }, [positions, form]);
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -452,7 +452,7 @@ export default function NationalSectionForm({
                             className="resize-none"
                             name={field.name}
                             onChange={field.onChange}
-                            value={field.value}
+                            value={field.value || ""}
                             onBlur={field.onBlur}
                             ref={field.ref}
                           />
@@ -509,6 +509,105 @@ export default function NationalSectionForm({
                               Enter your current name
                             </FormDescription>
                             <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="grid w-full items-center gap-1.5">
+                      <FormField
+                        control={form.control}
+                        name={`_positions.${index}._type`}
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col">
+                            <FormLabel>Type Position</FormLabel>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    data-test={field.value}
+                                    className={cn(
+                                      "justify-between capitalize",
+                                      !field.value && "text-muted-foreground"
+                                    )}
+                                  >
+                                    {field.value
+                                      ? typePositions
+                                          ?.find(
+                                            (typePosition) =>
+                                              String(typePosition.id) ===
+                                              field.value
+                                          )
+                                          ?.slug.replaceAll("-", " ")
+                                      : "Select type position"}
+                                    <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-full p-0">
+                                <Command>
+                                  <CommandInput
+                                    placeholder="Search type..."
+                                    className="h-9"
+                                  />
+                                  <CommandList>
+                                    <CommandEmpty>
+                                      No type position found.
+                                    </CommandEmpty>
+                                    <CommandGroup>
+                                      {typePositions?.map((typePosition) => (
+                                        <CommandItem
+                                          value={String(
+                                            typePosition.slug.replaceAll(
+                                              "-",
+                                              " "
+                                            )
+                                          )}
+                                          key={`_positions.${index}._type.${String(
+                                            typePosition.id
+                                          )}`}
+                                          className="capitalize"
+                                          onSelect={() => {
+                                            console.log(
+                                              String(typePosition.id)
+                                            );
+                                            form.setValue(
+                                              `_positions.${index}._type`,
+                                              String(typePosition.id)
+                                            );
+                                          }}
+                                        >
+                                          {typePosition.slug.replaceAll(
+                                            "-",
+                                            " "
+                                          )}
+                                          <CheckIcon
+                                            className={cn(
+                                              "ml-auto h-4 w-4",
+                                              String(typePosition.id) ===
+                                                field.value
+                                                ? "opacity-100"
+                                                : "opacity-0"
+                                            )}
+                                          />
+                                        </CommandItem>
+                                      ))}
+                                    </CommandGroup>
+                                  </CommandList>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+                            <FormDescription>
+                              This is the type position that will be used in the
+                              NationalSection.
+                            </FormDescription>
+                            <FormMessage />
+                            <input
+                              type="hidden"
+                              name={`_positions.${index}._type`}
+                              value={field.value}
+                            />
                           </FormItem>
                         )}
                       />
@@ -632,13 +731,165 @@ export default function NationalSectionForm({
                           </FormItem>
                         )}
                       />
+                      <FormField
+                        control={form.control}
+                        name={`_positions.${index}._isHonorable`}
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                            <div className="space-y-0.5">
+                              <FormLabel>Honorary Member</FormLabel>
+                              <FormDescription>
+                                Receive honorary members for this national
+                                section
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                defaultChecked={field.value}
+                                onCheckedChange={field.onChange}
+                                name={field.name}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      {positions?.[index]?._isHonorable ? (
+                        <div className="pl-5 border-l space-y-4 pt-4">
+                          <FormField
+                            control={form.control}
+                            name={`_positions.${index}._birthDate`}
+                            render={({ field }) => (
+                              <FormItem className="flex flex-col">
+                                <FormLabel>Date of birth</FormLabel>
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <FormControl>
+                                      <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                          "w-full pl-3 text-left font-normal",
+                                          !field.value &&
+                                            "text-muted-foreground"
+                                        )}
+                                      >
+                                        {field.value ? (
+                                          format(field.value, "PPP")
+                                        ) : (
+                                          <span>Pick a date</span>
+                                        )}
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                      </Button>
+                                    </FormControl>
+                                  </PopoverTrigger>
+                                  <PopoverContent
+                                    className="w-auto p-0"
+                                    align="start"
+                                  >
+                                    <Calendar
+                                      mode="single"
+                                      captionLayout="dropdown"
+                                      fromYear={1900}
+                                      toYear={new Date().getFullYear()}
+                                      defaultMonth={new Date(2024, 6)}
+                                      selected={
+                                        field.value
+                                          ? new Date(field.value)
+                                          : undefined
+                                      }
+                                      onSelect={(value) =>
+                                        field.onChange(value?.toUTCString())
+                                      }
+                                      disabled={(date: Date) =>
+                                        date > new Date() ||
+                                        date < new Date("1900-01-01")
+                                      }
+                                    />
+                                  </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                                <input
+                                  type="hidden"
+                                  name={`_positions.${index}._birthDate`}
+                                  value={field.value}
+                                />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`_positions.${index}._deathDate`}
+                            render={({ field }) => (
+                              <FormItem className="flex flex-col">
+                                <FormLabel>Date of death</FormLabel>
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <FormControl>
+                                      <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                          "w-full pl-3 text-left font-normal",
+                                          !field.value &&
+                                            "text-muted-foreground"
+                                        )}
+                                      >
+                                        {field.value ? (
+                                          format(field.value, "PPP")
+                                        ) : (
+                                          <span>Pick a date</span>
+                                        )}
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                      </Button>
+                                    </FormControl>
+                                  </PopoverTrigger>
+                                  <PopoverContent
+                                    className="w-auto p-0"
+                                    align="start"
+                                  >
+                                    <Calendar
+                                      mode="single"
+                                      captionLayout="dropdown"
+                                      fromYear={1900}
+                                      toYear={new Date().getFullYear()}
+                                      defaultMonth={new Date(2024, 6)}
+                                      selected={
+                                        field.value
+                                          ? new Date(field.value)
+                                          : undefined
+                                      }
+                                      onSelect={(value) =>
+                                        field.onChange(value?.toUTCString())
+                                      }
+                                      disabled={(date: Date) =>
+                                        date > new Date() ||
+                                        date < new Date("1900-01-01")
+                                      }
+                                    />
+                                  </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                                <input
+                                  type="hidden"
+                                  name={`_positions.${index}._deathDate`}
+                                  value={field.value}
+                                />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      ) : null}
                     </div>
-                    <Button variant="outline" disabled>
+                    {/* <Button variant="outline" disabled>
                       See contact information
-                    </Button>
+                    </Button> */}
                   </div>
                 );
               })}
+              {form.getFieldState("_positionSize").error ? (
+                <p className={cn("text-sm font-medium text-destructive")}>
+                  {form.getFieldState("_positionSize").error?.message}
+                </p>
+              ) : null}
               <Button
                 type="button"
                 onClick={(_) =>
@@ -647,6 +898,7 @@ export default function NationalSectionForm({
                     phone: "",
                     email: "",
                     _photo: undefined,
+                    _type: "",
                     _lang: { shortBio: "" },
                   })
                 }
@@ -658,301 +910,36 @@ export default function NationalSectionForm({
                 name="_positionSize"
                 value={positionFields.length}
               />
-              <div className="space-y-4 border-t pt-4">
-                <h2 className="text-lg font-semibold after:content-['*'] after:ml-0.5 after:text-red-500">
-                  About Youth Commission
-                </h2>
-                <div className="grid w-full items-center gap-1.5">
-                  <FormField
-                    control={form.control}
-                    name="_lang.aboutYoung"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Enter details about youth commission"
-                            className="resize-none"
-                            onChange={field.onChange}
-                            value={field.value}
-                            onBlur={field.onBlur}
-                            ref={field.ref}
-                            name={field.name}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          You can use max. 500 words for this input
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="space-y-4 border-t pt-4">
-                <h2 className="text-lg font-semibold">
-                  CIOFF International Honorary Members
-                </h2>
-                {honoraryFields.map((field, index) => {
-                  const positionIndex = index + 1;
-                  return (
-                    <div key={field.id} className="space-y-4  pt-4">
-                      <h3 className="font-medium">Honorary {positionIndex}</h3>
-                      <FormField
-                        control={form.control}
-                        name={`_honoraries.${index}.id`}
-                        render={({ field }) => (
-                          <FormControl>
-                            <Input
-                              ref={field.ref}
-                              value={field.value}
-                              name={field.name}
-                              type="hidden"
-                            />
-                          </FormControl>
-                        )}
-                      />
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_honoraries.${index}.name`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Name</FormLabel>
-                              <FormControl>
-                                <Input
-                                  ref={field.ref}
-                                  onChange={field.onChange}
-                                  onBlur={field.onBlur}
-                                  value={
-                                    field.value === "" ? undefined : field.value
-                                  }
-                                  name={field.name}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Enter your current name
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_honoraries.${index}._photo`}
-                          render={({
-                            field: { value, onChange, ...fieldProps },
-                          }) => (
-                            <FormItem>
-                              <FormLabel>Picture</FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...fieldProps}
-                                  placeholder="Picture"
-                                  type="file"
-                                  accept="image/*, application/pdf"
-                                  onChange={(event) =>
-                                    onChange(
-                                      event.target.files &&
-                                        event.target.files[0]
-                                    )
-                                  }
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_honoraries.${index}._lang.id`}
-                          render={({ field }) => (
-                            <FormControl>
-                              <Input
-                                name={field.name}
-                                onChange={field.onChange}
-                                value={field.value}
-                                onBlur={field.onBlur}
-                                ref={field.ref}
-                                type="hidden"
-                              />
-                            </FormControl>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`_honoraries.${index}._lang.shortBio`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Short Bio</FormLabel>
-                              <FormControl>
-                                <Textarea
-                                  placeholder="Tell us a bit about you"
-                                  className="resize-none"
-                                  name={field.name}
-                                  onChange={field.onChange}
-                                  defaultValue={field.value || undefined}
-                                  onBlur={field.onBlur}
-                                  ref={field.ref}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                You can use max. 200 words for this input
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_honoraries.${index}._birthDate`}
-                          render={({ field }) => (
-                            <FormItem className="flex flex-col">
-                              <FormLabel>Date of birth</FormLabel>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <FormControl>
-                                    <Button
-                                      variant={"outline"}
-                                      className={cn(
-                                        "w-full pl-3 text-left font-normal",
-                                        !field.value && "text-muted-foreground"
-                                      )}
-                                    >
-                                      {field.value ? (
-                                        format(field.value, "PPP")
-                                      ) : (
-                                        <span>Pick a date</span>
-                                      )}
-                                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                    </Button>
-                                  </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent
-                                  className="w-auto p-0"
-                                  align="start"
-                                >
-                                  <Calendar
-                                    mode="single"
-                                    captionLayout="dropdown"
-                                    fromYear={1900}
-                                    toYear={new Date().getFullYear()}
-                                    defaultMonth={new Date(2024, 6)}
-                                    selected={
-                                      field.value
-                                        ? new Date(field.value)
-                                        : undefined
-                                    }
-                                    onSelect={(value) =>
-                                      field.onChange(value?.toUTCString())
-                                    }
-                                    disabled={(date: Date) =>
-                                      date > new Date() ||
-                                      date < new Date("1900-01-01")
-                                    }
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                              <FormMessage />
-                              <input
-                                type="hidden"
-                                name={`_honoraries.${index}._birthDate`}
-                                value={field.value}
-                              />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_honoraries.${index}._deathDate`}
-                          render={({ field }) => (
-                            <FormItem className="flex flex-col">
-                              <FormLabel>Date of death</FormLabel>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <FormControl>
-                                    <Button
-                                      variant={"outline"}
-                                      className={cn(
-                                        "w-full pl-3 text-left font-normal",
-                                        !field.value && "text-muted-foreground"
-                                      )}
-                                    >
-                                      {field.value ? (
-                                        format(field.value, "PPP")
-                                      ) : (
-                                        <span>Pick a date</span>
-                                      )}
-                                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                    </Button>
-                                  </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent
-                                  className="w-auto p-0"
-                                  align="start"
-                                >
-                                  <Calendar
-                                    mode="single"
-                                    captionLayout="dropdown"
-                                    fromYear={1900}
-                                    toYear={new Date().getFullYear()}
-                                    defaultMonth={new Date(2024, 6)}
-                                    selected={
-                                      field.value
-                                        ? new Date(field.value)
-                                        : undefined
-                                    }
-                                    onSelect={(value) =>
-                                      field.onChange(value?.toUTCString())
-                                    }
-                                    disabled={(date: Date) =>
-                                      date > new Date() ||
-                                      date < new Date("1900-01-01")
-                                    }
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                              <FormMessage />
-                              <input
-                                type="hidden"
-                                name={`_honoraries.${index}._deathDate`}
-                                value={field.value}
-                              />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-                <Button
-                  type="button"
-                  onClick={(_) =>
-                    appendHonorary({
-                      name: "",
-                      phone: "",
-                      email: "",
-                      isHonorable: true,
-                      _photo: undefined,
-                      _lang: { shortBio: "" },
-                    })
-                  }
-                >
-                  <PlusCircle className="mr-2 h-4 w-4" /> Add Honorary Member
-                </Button>
-                <input
-                  type="hidden"
-                  name="_honorarySize"
-                  value={honoraryFields.length}
-                />
-              </div>
+              {/* <div className="space-y-4 border-t pt-4"> */}
+              {/*   <h2 className="text-lg font-semibold after:content-['*'] after:ml-0.5 after:text-red-500"> */}
+              {/*     About Youth Commission */}
+              {/*   </h2> */}
+              {/*   <div className="grid w-full items-center gap-1.5"> */}
+              {/*     <FormField */}
+              {/*       control={form.control} */}
+              {/*       name="_lang.aboutYoung" */}
+              {/*       render={({ field }) => ( */}
+              {/*         <FormItem> */}
+              {/*           <FormControl> */}
+              {/*             <Textarea */}
+              {/*               placeholder="Enter details about youth commission" */}
+              {/*               className="resize-none" */}
+              {/*               onChange={field.onChange} */}
+              {/*               value={field.value} */}
+              {/*               onBlur={field.onBlur} */}
+              {/*               ref={field.ref} */}
+              {/*               name={field.name} */}
+              {/*             /> */}
+              {/*           </FormControl> */}
+              {/*           <FormDescription> */}
+              {/*             You can use max. 500 words for this input */}
+              {/*           </FormDescription> */}
+              {/*           <FormMessage /> */}
+              {/*         </FormItem> */}
+              {/*       )} */}
+              {/*     /> */}
+              {/*   </div> */}
+              {/* </div> */}
               <div className="space-y-4 border-t pt-4">
                 <h2 className="text-lg font-semibold">Social media</h2>
                 <FormField
@@ -1345,7 +1332,7 @@ export default function NationalSectionForm({
                           )}
                         />
                       </div>
-                      <div className="grid w-full items-center gap-1.5">
+                      {/* <div className="grid w-full items-center gap-1.5">
                         <FormField
                           control={form.control}
                           name={`_festivals.${index}.certificationFile`}
@@ -1385,7 +1372,7 @@ export default function NationalSectionForm({
                             Turn off profile
                           </Label>
                         </div>
-                      </div>
+                      </div> */}
                       {/* {festivalFields.length > 1 && (
                         <Button
                           variant="destructive"
@@ -1527,7 +1514,7 @@ export default function NationalSectionForm({
                           )}
                         />
                       </div>
-                      <div className="grid w-full items-center gap-1.5">
+                      {/* <div className="grid w-full items-center gap-1.5">
                         <FormField
                           control={form.control}
                           name={`_groups.${index}.certificationFile`}
@@ -1567,7 +1554,7 @@ export default function NationalSectionForm({
                             Turn off profile
                           </Label>
                         </div>
-                      </div>
+                      </div> */}
                       {/* {groupFields.length > 1 && (
                         <Button
                           variant="destructive"

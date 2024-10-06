@@ -4,6 +4,7 @@ import { UserDataAuthType } from "@/db/queries";
 import { CountByCountriesResult } from "@/db/queries/reports";
 import {
   insertActivitySchema,
+  insertReportNationalSectionLangSchema,
   insertReportNationalSectionsSchema,
 } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -60,6 +61,7 @@ export const formReportNationalSectionSchema =
   insertReportNationalSectionsSchema.merge(
     z.object({
       _activities: z.array(insertActivitySchema),
+      _lang: insertReportNationalSectionLangSchema,
     })
   );
 
@@ -300,7 +302,7 @@ export default function ReportNationalSectionForm({
                 <div>
                   <FormField
                     control={form.control}
-                    name="workDescription"
+                    name="_lang.workDescription"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Description</FormLabel>

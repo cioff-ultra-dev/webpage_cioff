@@ -1,0 +1,1 @@
+ALTER TABLE "national_section_lang" ALTER COLUMN "about" DROP NOT NULL;

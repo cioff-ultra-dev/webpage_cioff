@@ -1,11 +1,13 @@
 "use server";
 
 import {
+  categories,
   emailTemplates,
   events,
   eventsLang,
   festivals,
   festivalsLang,
+  festivalToCategories,
   groups,
   groupsLang,
   InsertEvent,
@@ -39,7 +41,7 @@ import { PgTable } from "drizzle-orm/pg-core";
 import { replaceTags } from "@codejamboree/replace-tags";
 import generator from "generate-password-ts";
 import { generateHashPassword, isSamePassword } from "@/lib/password";
-import { headers } from "next/headers";
+import slug from "slug";
 
 const preparedLanguagesByCode = db.query.languages
   .findFirst({
@@ -203,9 +205,10 @@ export async function createGroup(prevState: unknown, formData: FormData) {
 }
 
 export async function updateNationalSection(formData: FormData) {
-  const session = await auth();
   const locale = await getLocale();
   const t = await getTranslations("notification");
+
+  console.log(Object.fromEntries(formData));
 
   const nsId = Number(formData.get("id"));
   const name = formData.get("_lang.name") as string;
@@ -243,7 +246,7 @@ export async function updateNationalSection(formData: FormData) {
   await db.transaction(async (tx) => {
     await tx
       .update(nationalSectionsLang)
-      .set({ name, about, aboutYoung })
+      .set({ name, about })
       .where(
         and(
           eq(nationalSectionsLang.nsId, nsId),
@@ -287,6 +290,7 @@ export async function updateNationalSection(formData: FormData) {
         const positionLangId = Number(
           formData.get(`_positions.${index}._lang.id`)
         );
+        const typeId = Number(formData.get(`_positions.${index}._type`));
         const shortBio = formData.get(
           `_positions.${index}._lang.shortBio`
         ) as string;
@@ -310,6 +314,7 @@ export async function updateNationalSection(formData: FormData) {
           photoId: storagePhotoId,
           nsId: nsId,
           isHonorable,
+          typePositionId: !typeId ? typeId : undefined,
           birthDate: birthDate ? new Date(birthDate) : undefined,
           deadDate: deathDate ? new Date(deathDate) : undefined,
         });
@@ -333,6 +338,7 @@ export async function updateNationalSection(formData: FormData) {
             "isHonorable",
             "birthDate",
             "deadDate",
+            "typePositionId",
           ]),
         })
         .returning({ id: nationalSectionsPositions.id });
@@ -368,12 +374,14 @@ export async function updateNationalSection(formData: FormData) {
         ) as string;
         const toDate = formData.get(`_events.${index}._rangeDate.to`) as string;
 
-        otherEvents.push({
-          id: id === 0 ? undefined : id,
-          nsId,
-          startDate: fromDate ? new Date(fromDate) : undefined,
-          endDate: toDate ? new Date(toDate) : new Date(fromDate),
-        });
+        if (fromDate) {
+          otherEvents.push({
+            id: id === 0 ? undefined : id,
+            nsId,
+            startDate: new Date(fromDate),
+            endDate: toDate ? new Date(toDate) : new Date(fromDate),
+          });
+        }
 
         otherEventLangs.push({
           id: eventLangId === 0 ? undefined : eventLangId,
@@ -466,6 +474,7 @@ export async function updateNationalSection(formData: FormData) {
             certificationMemberId: storageCertificationFileId,
             nsId,
             countryId: currentNationalSection?.countryId,
+            slug: slug(name),
           })
           .onConflictDoUpdate({
             target: festivals.id,
@@ -709,7 +718,6 @@ export async function createNationalSection(formData: FormData) {
 
 export async function generateFestival(formData: FormData) {
   const locale = await getLocale();
-  const headerList = headers();
   const session = await auth();
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
@@ -742,6 +750,21 @@ export async function generateFestival(formData: FormData) {
         })
         .returning();
 
+      const [currentFestival] = await tx
+        .insert(festivals)
+        .values({
+          nsId,
+          countryId: currentNationalSection?.countryId,
+          slug: slug(name),
+        })
+        .returning();
+
+      await tx.insert(festivalsLang).values({
+        name,
+        festivalId: currentFestival.id,
+        lang: lang?.id,
+      });
+
       if (user.email && !user.isCreationNotified && !user.emailVerified) {
         const [emailTemplate] = await db
           .select()
@@ -768,20 +791,6 @@ export async function generateFestival(formData: FormData) {
           .set({ isCreationNotified: true })
           .where(eq(users.id, user.id));
       }
-
-      const [currentFestival] = await tx
-        .insert(festivals)
-        .values({
-          nsId,
-          countryId: currentNationalSection?.countryId,
-        })
-        .returning();
-
-      await tx.insert(festivalsLang).values({
-        name,
-        festivalId: currentFestival.id,
-        lang: lang?.id,
-      });
 
       const ownerList: (typeof owners.$inferInsert)[] = [
         { userId: user.id, festivalId: currentFestival.id },
@@ -929,7 +938,6 @@ export async function updateAccountFields(formData: FormData) {
   const firstName = formData.get("firstname") as string;
   const lastName = formData.get("lastname") as string;
   const email = formData.get("email") as string;
-  console.log({ firstName, lastName, email, id: session?.user.id });
 
   const t = await getTranslations("notification");
 
@@ -966,8 +974,6 @@ export async function updatePasswordFields(formData: FormData) {
 
   const t = await getTranslations("notification");
   const hashedPassword = await generateHashPassword(confirmPassword);
-
-  console.log({ currentPassword, newPassword, confirmPassword });
 
   try {
     const result = await db.transaction(async (tx) => {
@@ -1011,6 +1017,151 @@ export async function updatePasswordFields(formData: FormData) {
     const er = err as Error;
     return { error: er.message };
   }
+
+  return { success: t("success"), error: null };
+}
+
+export async function updateFestival(formData: FormData) {
+  const locale = await getLocale();
+  const id = Number(formData.get("id"));
+  const langId = Number(formData.get("_lang.id"));
+  const name = formData.get("_lang.name") as string;
+  const directorName = formData.get("directorName") as string;
+  const phone = formData.get("phone") as string;
+  const location = formData.get("location") as string;
+  const lat = formData.get("lat") as string;
+  const lng = formData.get("lng") as string;
+  const translatorLanguages = formData.get("translatorLanguages") as string;
+  const peoples = Number(formData.get("peoples"));
+  const statusId = Number((formData.get("_status") as string) ?? "") || null;
+  const otherTranslatorLanguage = formData.get(
+    "_lang.otherTranslatorLanguage"
+  ) as string;
+  const groupCategories = JSON.parse(
+    (formData.get("groupCategories") as string) || ""
+  ) as string[];
+
+  const currentDateSize = Number(formData.get("_currentDateSize"));
+  const nextDateSize = Number(formData.get("_nextDateSize"));
+
+  const currentDates: InsertEvent[] = [];
+
+  const lang = await preparedLanguagesByCode.execute({ locale });
+  const t = await getTranslations("notification");
+
+  await db.transaction(async (tx) => {
+    const [currentFestival] = await tx
+      .insert(festivals)
+      .values({
+        id: id === 0 ? undefined : id,
+        directorName,
+        phone,
+        location,
+        translatorLanguages,
+        peoples,
+        statusId,
+        lat,
+        lng,
+      })
+      .onConflictDoUpdate({
+        target: festivals.id,
+        set: buildConflictUpdateColumns(festivals, [
+          "directorName",
+          "phone",
+          "location",
+          "lat",
+          "lng",
+          "translatorLanguages",
+          "peoples",
+          "statusId",
+        ]),
+      })
+      .returning();
+
+    await tx
+      .insert(festivalsLang)
+      .values({
+        id: langId === 0 ? undefined : langId,
+        name,
+        otherTranslatorLanguage,
+        festivalId: currentFestival.id,
+        lang: lang?.id,
+      })
+      .onConflictDoUpdate({
+        target: festivalsLang.id,
+        set: buildConflictUpdateColumns(festivalsLang, [
+          "name",
+          "otherTranslatorLanguage",
+        ]),
+      });
+
+    if (currentDateSize > 0) {
+      for (let index = 0; index < currentDateSize; index++) {
+        const id = Number(formData.get(`_currentDates.${index}._rangeDate.id`));
+        const fromDate = formData.get(
+          `_currentDates.${index}._rangeDate.from`
+        ) as string;
+        const toDate = formData.get(
+          `_currentDates.${index}._rangeDate.to`
+        ) as string;
+
+        if (fromDate) {
+          currentDates.push({
+            id: id === 0 ? undefined : id,
+            festivalId: currentFestival.id,
+            startDate: new Date(fromDate),
+            endDate: toDate ? new Date(toDate) : new Date(fromDate),
+          });
+        }
+      }
+    }
+
+    if (nextDateSize > 0) {
+      for (let index = 0; index < currentDateSize; index++) {
+        const id = Number(formData.get(`_nextDates.${index}._rangeDate.id`));
+        const fromDate = formData.get(
+          `_nextDates.${index}._rangeDate.from`
+        ) as string;
+        const toDate = formData.get(
+          `_nextDates.${index}._rangeDate.to`
+        ) as string;
+
+        if (fromDate) {
+          currentDates.push({
+            id: id === 0 ? undefined : id,
+            festivalId: currentFestival.id,
+            startDate: new Date(fromDate),
+            endDate: toDate ? new Date(toDate) : new Date(fromDate),
+          });
+        }
+      }
+    }
+
+    console.log(currentDates);
+
+    if (currentDates.length) {
+      await tx
+        .insert(events)
+        .values(currentDates)
+        .onConflictDoUpdate({
+          target: events.id,
+          set: buildConflictUpdateColumns(events, ["startDate", "endDate"]),
+        });
+    }
+
+    if (groupCategories.length) {
+      await tx
+        .delete(festivalToCategories)
+        .where(eq(festivalToCategories.festivalId, currentFestival.id));
+
+      await tx.insert(festivalToCategories).values(
+        groupCategories.map((categoryId) => ({
+          categoryId: Number(categoryId),
+          festivalId: currentFestival.id,
+        }))
+      );
+    }
+  });
 
   return { success: t("success"), error: null };
 }

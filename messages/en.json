@@ -38,6 +38,12 @@
     "_typeOfFestival": "Type of festival",
     "_status": "Status",
     "festival": {
+      "tag": {
+        "typeOfFestival": "Type of Festival",
+        "ageOfParticipants": "Age of Participants",
+        "styleOfFestival": "Style of Festival",
+        "typeOfAccomodation": "Type of Accomodation"
+      },
       "name": "Name",
       "phone": "Phone Number",
       "contact": "Contact",
@@ -74,12 +80,15 @@
       ]
     },
     "profile": {
-      "password_match": "Password does not match"
+      "password_match": "Password does not match",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password"
     },
     "group": {
       "_lang": {
         "name": "Name of the group"
-      } 
+      }
     }
   },
   "customErrors": {

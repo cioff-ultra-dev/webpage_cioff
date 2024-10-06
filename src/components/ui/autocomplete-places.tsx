@@ -21,9 +21,10 @@ import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 interface Props {
   id?: string | null;
   onPlaceSelect: (place: google.maps.places.PlaceResult | null) => void;
+  defaultPlace?: string;
 }
 const AutocompletePlaces = React.forwardRef<React.ElementRef<"button">, Props>(
-  ({ id, onPlaceSelect }, ref) => {
+  ({ id, onPlaceSelect, defaultPlace }, ref) => {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const map = useMap(id);
@@ -45,7 +46,7 @@ const AutocompletePlaces = React.forwardRef<React.ElementRef<"button">, Props>(
       Array<google.maps.places.AutocompletePrediction>
     >([]);
 
-    const [inputValue, setInputValue] = useState<string>("");
+    const [inputValue, setInputValue] = useState<string>(defaultPlace ?? "");
 
     useEffect(() => {
       if (!places || !map) return;

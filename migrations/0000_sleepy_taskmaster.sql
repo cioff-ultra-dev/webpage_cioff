@@ -28,39 +28,6 @@ EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "report_group" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"slug" text NOT NULL,
-	"group_id" integer NOT NULL,
-	"amount_persons_travelled" integer,
-	"ich" text,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "sub_pages" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"slug" text NOT NULL,
-	"url" text NOT NULL,
-	"is_news" boolean DEFAULT false,
-	"original_date" timestamp NOT NULL,
-	"published" boolean DEFAULT false,
-	"created_by" text,
-	"updated_by" text,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "sub_pages_texts_lang" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"title" text NOT NULL,
-	"description" text NOT NULL,
-	"lang" integer,
-	"subpage_id" integer,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "account" (
 	"userId" text NOT NULL,
 	"type" text NOT NULL,
@@ -76,15 +43,10 @@ CREATE TABLE IF NOT EXISTS "account" (
 	CONSTRAINT "account_provider_providerAccountId_pk" PRIMARY KEY("provider","providerAccountId")
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "activities" (
+CREATE TABLE IF NOT EXISTS "announcements_files" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"name" text,
-	"type" "type_activity",
-	"modality" "modality_activity",
-	"length" "length_activity",
-	"length_size" integer,
-	"performer_size" integer,
-	"report_national_section_id" integer,
+	"announcement_id" integer,
+	"media_id" integer,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
@@ -102,14 +64,6 @@ CREATE TABLE IF NOT EXISTS "announcements" (
 	"updated_at" timestamp
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "announcements_files" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"announcement_id" integer,
-	"media_id" integer,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "authenticator" (
 	"credentialID" text NOT NULL,
 	"userId" text NOT NULL,
@@ -123,16 +77,6 @@ CREATE TABLE IF NOT EXISTS "authenticator" (
 	CONSTRAINT "authenticator_credentialID_unique" UNIQUE("credentialID")
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "categories" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"name" text NOT NULL,
-	"slug" text NOT NULL,
-	"icon" text,
-	"category_group_id" integer,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "categories_lang" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
@@ -143,20 +87,20 @@ CREATE TABLE IF NOT EXISTS "categories_lang" (
 	"updated_at" timestamp
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "category_groups" (
+CREATE TABLE IF NOT EXISTS "categories" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"title" text NOT NULL,
-	"slug" text,
+	"name" text NOT NULL,
+	"slug" text NOT NULL,
+	"icon" text,
+	"category_group_id" integer,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "countries" (
+CREATE TABLE IF NOT EXISTS "category_groups" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"name" text,
-	"native_lang" integer,
-	"lat" text,
-	"lng" text,
+	"title" text NOT NULL,
+	"slug" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
@@ -170,11 +114,12 @@ CREATE TABLE IF NOT EXISTS "countries_lang" (
 	"updated_at" timestamp
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "countries_lang_index" (
+CREATE TABLE IF NOT EXISTS "countries" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"en" integer,
-	"es" integer,
-	"fr" integer,
+	"slug" text NOT NULL,
+	"lat" text,
+	"lng" text,
+	"native_lang" integer,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
@@ -186,33 +131,23 @@ CREATE TABLE IF NOT EXISTS "design" (
 	"updated_at" timestamp
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "docs" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"title" text,
-	"docfile" text NOT NULL,
-	"dockeywords" text,
-	"lang" text,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "events" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"start_date" timestamp,
-	"end_date" timestamp,
-	"festival_id" integer,
-	"ns_id" integer,
-	"active" boolean DEFAULT true,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "events_lang" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" text,
 	"description" text,
 	"lang" integer,
 	"event_id" integer,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "events" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"start_date" timestamp NOT NULL,
+	"end_date" timestamp NOT NULL,
+	"festival_id" integer,
+	"ns_id" integer,
+	"active" boolean DEFAULT true,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
@@ -241,6 +176,18 @@ CREATE TABLE IF NOT EXISTS "festival_to_categories" (
 	CONSTRAINT "festival_to_categories_festival_id_category_id_pk" PRIMARY KEY("festival_id","category_id")
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "festivals_lang" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"name" text DEFAULT '' NOT NULL,
+	"description" text DEFAULT '' NOT NULL,
+	"address" text,
+	"other_translator_language" text,
+	"lang" integer,
+	"festival_id" integer,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "festivals" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"slug" text DEFAULT '',
@@ -261,65 +208,24 @@ CREATE TABLE IF NOT EXISTS "festivals" (
 	"director_name" text DEFAULT '' NOT NULL,
 	"categories" text,
 	"publish" boolean,
-	"country_id" integer,
+	"status_id" integer,
 	"ns_id" integer,
+	"certification_member_id" integer,
+	"country_id" integer,
 	"logo_id" integer,
 	"cover_id" integer,
-	"certification_member_id" integer,
 	"created_by" text,
 	"updated_by" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "festivals_lang" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"name" text DEFAULT '' NOT NULL,
-	"description" text DEFAULT '' NOT NULL,
-	"address" text,
-	"lang" integer,
-	"festival_id" integer,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "festivals_to_statuses" (
-	"festival_id" integer,
-	"status_id" integer,
-	"question" text,
-	"text" text,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp,
-	CONSTRAINT "festivals_to_statuses_festival_id_status_id_pk" PRIMARY KEY("festival_id","status_id")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "group_to_categories" (
-	"festival_id" integer,
+	"group_id" integer,
 	"category_id" integer,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp,
-	CONSTRAINT "group_to_categories_festival_id_category_id_pk" PRIMARY KEY("festival_id","category_id")
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "groups" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"general_director_name" text,
-	"general_director_photo" text,
-	"artistic_director_name" text,
-	"artistic_director_photo" text,
-	"musical_director_name" text,
-	"musical_director_photo" text,
-	"phone" text,
-	"general_director_photo_id" integer,
-	"artistic_director_photo_id" integer,
-	"musical_director_photo_id" integer,
-	"ns_id" integer,
-	"country_id" integer,
-	"certification_member_id" integer,
-	"created_by" text,
-	"updated_by" text,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp
+	CONSTRAINT "group_to_categories_group_id_category_id_pk" PRIMARY KEY("group_id","category_id")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "groups_lang" (
@@ -336,18 +242,33 @@ CREATE TABLE IF NOT EXISTS "groups_lang" (
 	"updated_at" timestamp
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "languages" (
+CREATE TABLE IF NOT EXISTS "groups" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"name" text NOT NULL,
-	"code" "lang_code" DEFAULT 'en' NOT NULL,
+	"general_director_name" text,
+	"general_director_photo" text,
+	"artistic_director_name" text,
+	"artistic_director_photo" text,
+	"musical_director_name" text,
+	"musical_director_photo" text,
+	"is_able_travel_live_music" boolean DEFAULT false,
+	"members_number" integer,
+	"phone" text,
+	"general_director_photo_id" integer,
+	"artistic_director_photo_id" integer,
+	"musical_director_photo_id" integer,
+	"ns_id" integer,
+	"country_id" integer,
+	"certification_member_id" integer,
+	"created_by" text,
+	"updated_by" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "menu" (
+CREATE TABLE IF NOT EXISTS "languages" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"slug" text NOT NULL,
-	"order" integer,
+	"name" text NOT NULL,
+	"code" "lang_code" NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
@@ -361,6 +282,14 @@ CREATE TABLE IF NOT EXISTS "menu_lang" (
 	"updated_at" timestamp
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "menu" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"slug" text NOT NULL,
+	"order" integer,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "national_section_positions_lang" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"short_bio" text NOT NULL,
@@ -370,23 +299,10 @@ CREATE TABLE IF NOT EXISTS "national_section_positions_lang" (
 	"updated_at" timestamp
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "national_section" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"published" boolean DEFAULT false,
-	"slug" text NOT NULL,
-	"country_id" integer,
-	"socia_media_links_id" integer,
-	"created_by" text,
-	"updated_by" text,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "national_section_lang" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"about" text NOT NULL,
-	"about_young" text NOT NULL,
 	"lang" integer,
 	"ns_id" integer,
 	"created_at" timestamp DEFAULT now() NOT NULL,
@@ -397,15 +313,41 @@ CREATE TABLE IF NOT EXISTS "national_section_positions" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"phone" text NOT NULL,
-	"email" text,
-	"birth_date" timestamp DEFAULT now(),
-	"dead_date" timestamp DEFAULT now(),
+	"email" text NOT NULL,
+	"birth_date" date,
+	"dead_date" date,
 	"is_honorable" boolean DEFAULT false,
 	"photo_id" integer,
 	"ns_id" integer,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp,
-	CONSTRAINT "national_section_positions_email_unique" UNIQUE("email")
+	"updated_at" timestamp
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "national_section_positions_test" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"name" text NOT NULL,
+	"phone" text,
+	"email" text,
+	"country_name" text,
+	"birth_date" date,
+	"dead_date" date,
+	"is_honorable" boolean DEFAULT false,
+	"country_id" integer,
+	"ns_id" integer,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "national_section" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"published" boolean DEFAULT false,
+	"slug" text NOT NULL,
+	"socia_media_links_id" integer,
+	"country_id" integer,
+	"created_by" text,
+	"updated_by" text,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "other_social_media_links" (
@@ -429,8 +371,8 @@ CREATE TABLE IF NOT EXISTS "owners" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "permissions" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"name" text,
-	"active" boolean,
+	"name" text NOT NULL,
+	"active" boolean DEFAULT true,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
@@ -440,6 +382,24 @@ CREATE TABLE IF NOT EXISTS "rating_festival_results_lang" (
 	"comment" text,
 	"lang" integer NOT NULL,
 	"rating_festival_to_groups_id" integer NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "rating_festival_to_groups_answers_lang" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"comment" text,
+	"lang" integer NOT NULL,
+	"rating_festival_to_groups_answers_id" integer NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "rating_festival_to_groups_answers" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"rating" integer NOT NULL,
+	"rating_festival_to_groups_id" integer NOT NULL,
+	"rating_question_id" integer NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
@@ -454,24 +414,6 @@ CREATE TABLE IF NOT EXISTS "rating_festival_to_groups" (
 	"is_invitation_per_website" boolean,
 	"is_invitation_per_ns" boolean,
 	"is_group_live_music" boolean,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "rating_festival_to_groups_answers" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"rating" integer NOT NULL,
-	"rating_festival_to_groups_id" integer NOT NULL,
-	"rating_question_id" integer NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "rating_festival_to_groups_answers_lang" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"comment" text,
-	"lang" integer NOT NULL,
-	"rating_festival_to_groups_answers_id" integer NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
@@ -494,6 +436,15 @@ CREATE TABLE IF NOT EXISTS "rating_group_results_lang" (
 	"updated_at" timestamp
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "rating_group_to_festivals_answers" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"rating" integer NOT NULL,
+	"report_group_to_festivals_id" integer NOT NULL,
+	"rating_question_id" integer NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "rating_group_to_festivals" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"rating_result" integer NOT NULL,
@@ -510,10 +461,11 @@ CREATE TABLE IF NOT EXISTS "rating_group_to_festivals" (
 	"updated_at" timestamp
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "rating_group_to_festivals_answers" (
+CREATE TABLE IF NOT EXISTS "rating_questions_lang" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"rating" integer NOT NULL,
-	"report_group_to_festivals_id" integer NOT NULL,
+	"name" text,
+	"tooltip" text,
+	"lang" integer NOT NULL,
 	"rating_question_id" integer NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
@@ -527,19 +479,17 @@ CREATE TABLE IF NOT EXISTS "rating_questions" (
 	"updated_at" timestamp
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "rating_questions_lang" (
+CREATE TABLE IF NOT EXISTS "rating_type" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"name" text,
-	"tooltip" text,
-	"lang" integer NOT NULL,
-	"rating_question_id" integer NOT NULL,
+	"name" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "rating_type" (
+CREATE TABLE IF NOT EXISTS "report_festival_activities" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"name" text NOT NULL,
+	"report_type_category_id" integer NOT NULL,
+	"report_festival_id" integer NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
@@ -559,10 +509,12 @@ CREATE TABLE IF NOT EXISTS "report_festival" (
 	"updated_at" timestamp
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "report_festival_activities" (
+CREATE TABLE IF NOT EXISTS "report_group" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"report_type_category_id" integer NOT NULL,
-	"report_festival_id" integer NOT NULL,
+	"slug" text NOT NULL,
+	"group_id" integer NOT NULL,
+	"amount_persons_travelled" integer,
+	"ich" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
@@ -591,6 +543,17 @@ CREATE TABLE IF NOT EXISTS "report_ns_activities" (
 	"updated_at" timestamp
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "report_ns_lang" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"title" text,
+	"comment" text,
+	"work_description" text,
+	"lang" integer NOT NULL,
+	"report_ns_id" integer NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "report_ns" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"slug" text NOT NULL,
@@ -598,34 +561,13 @@ CREATE TABLE IF NOT EXISTS "report_ns" (
 	"group_size" integer,
 	"association_size" integer,
 	"individual_memeber_size" integer,
+	"active_national_commission" boolean,
+	"ns_id" integer NOT NULL,
 	"number_festivals" integer,
 	"number_groups" integer,
 	"number_associations_or_other_organizations" integer,
 	"number_individual_members" integer,
 	"is_actively_engaged_nc" boolean,
-	"active_national_commission" boolean,
-	"work_description" text,
-	"country_id" integer,
-	"ns_id" integer NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "report_ns_lang" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"title" text,
-	"comment" text,
-	"lang" integer NOT NULL,
-	"report_ns_id" integer NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "report_type_categories" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"slug" text NOT NULL,
-	"oriented_to" text,
-	"subType" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
@@ -639,10 +581,18 @@ CREATE TABLE IF NOT EXISTS "report_type_categories_lang" (
 	"updated_at" timestamp
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "report_type_categories" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"slug" text NOT NULL,
+	"oriented_to" text,
+	"subType" text,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "roles" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"name" text,
-	"active" boolean,
+	"name" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
@@ -655,14 +605,14 @@ CREATE TABLE IF NOT EXISTS "roles_to_permissions" (
 	"updated_at" timestamp
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "session_group" (
+	"id" serial PRIMARY KEY NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "session" (
 	"sessionToken" text PRIMARY KEY NOT NULL,
 	"userId" text NOT NULL,
 	"expires" timestamp NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "session_group" (
-	"id" serial PRIMARY KEY NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "social_media_links" (
@@ -670,6 +620,15 @@ CREATE TABLE IF NOT EXISTS "social_media_links" (
 	"facebook_link" text,
 	"instagram_link" text,
 	"website_link" text,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "statuses_lang" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"name" text,
+	"status_id" integer,
+	"lang_id" integer,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
@@ -682,22 +641,64 @@ CREATE TABLE IF NOT EXISTS "statuses" (
 	"updated_at" timestamp
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "storages" (
+CREATE TABLE IF NOT EXISTS "storage" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"url" text NOT NULL,
 	"name" text,
 	"aux" text,
 	"keywords" text,
+	"lang" integer,
 	"is_file" boolean DEFAULT false,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "timeline" (
+CREATE TABLE IF NOT EXISTS "sub_pages" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"slug" text NOT NULL,
-	"video_id" text,
-	"media_id" integer,
+	"url" text NOT NULL,
+	"is_news" boolean DEFAULT false,
+	"original_date" timestamp NOT NULL,
+	"published" boolean DEFAULT false,
+	"created_by" text,
+	"updated_by" text,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "sub_pages_texts_lang" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"title" text NOT NULL,
+	"description" text NOT NULL,
+	"lang" integer,
+	"subpage_id" integer,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "subgroup_to_categories" (
+	"subgroup_id" integer,
+	"category_id" integer,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp,
+	CONSTRAINT "subgroup_to_categories_subgroup_id_category_id_pk" PRIMARY KEY("subgroup_id","category_id")
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "subgroups_lang" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"name" text,
+	"contact_address" text,
+	"subgroup_id" integer,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "subgroups" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"members_number" integer,
+	"contact_name" text,
+	"contact_phone" text,
+	"group_id" integer,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
@@ -708,6 +709,15 @@ CREATE TABLE IF NOT EXISTS "timeline_lang" (
 	"description" text NOT NULL,
 	"lang" integer,
 	"timeline_id" integer,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "timeline" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"slug" text NOT NULL,
+	"video_id" text,
+	"media_id" integer,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
@@ -725,14 +735,14 @@ CREATE TABLE IF NOT EXISTS "user" (
 	"city" text,
 	"zip" text,
 	"phone" text,
-	"image" text,
+	"image_id" integer,
 	"password" text,
 	"active" boolean DEFAULT false,
 	"emailVerified" timestamp,
-	"image_id" integer,
 	"is_creation_notified" boolean DEFAULT false,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp
+	"updated_at" timestamp,
+	CONSTRAINT "user_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "verificationToken" (
@@ -742,35 +752,35 @@ CREATE TABLE IF NOT EXISTS "verificationToken" (
 	CONSTRAINT "verificationToken_identifier_token_pk" PRIMARY KEY("identifier","token")
 );
 --> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "report_group" ADD CONSTRAINT "report_group_group_id_groups_id_fk" FOREIGN KEY ("group_id") REFERENCES "public"."groups"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
+CREATE TABLE IF NOT EXISTS "activities" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"name" text,
+	"type" "type_activity",
+	"modality" "modality_activity",
+	"length" "length_activity",
+	"length_size" integer,
+	"performer_size" integer,
+	"report_national_section_id" integer,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp
+);
 --> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "sub_pages" ADD CONSTRAINT "sub_pages_created_by_user_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
+CREATE TABLE IF NOT EXISTS "email_templates" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"lang" integer,
+	"template" text NOT NULL,
+	"tag" text
+);
 --> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "sub_pages" ADD CONSTRAINT "sub_pages_updated_by_user_id_fk" FOREIGN KEY ("updated_by") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "sub_pages_texts_lang" ADD CONSTRAINT "sub_pages_texts_lang_lang_languages_id_fk" FOREIGN KEY ("lang") REFERENCES "public"."languages"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "sub_pages_texts_lang" ADD CONSTRAINT "sub_pages_texts_lang_subpage_id_sub_pages_id_fk" FOREIGN KEY ("subpage_id") REFERENCES "public"."sub_pages"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
+CREATE TABLE IF NOT EXISTS "festivals_to_statuses" (
+	"festival_id" integer,
+	"status_id" integer,
+	"question" text,
+	"text" text,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp,
+	CONSTRAINT "festivals_to_statuses_festival_id_status_id_pk" PRIMARY KEY("festival_id","status_id")
+);
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "account" ADD CONSTRAINT "account_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
@@ -779,7 +789,13 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "activities" ADD CONSTRAINT "activities_report_national_section_id_report_ns_id_fk" FOREIGN KEY ("report_national_section_id") REFERENCES "public"."report_ns"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "announcements_files" ADD CONSTRAINT "announcements_files_announcement_id_announcements_id_fk" FOREIGN KEY ("announcement_id") REFERENCES "public"."announcements"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "announcements_files" ADD CONSTRAINT "announcements_files_media_id_storage_id_fk" FOREIGN KEY ("media_id") REFERENCES "public"."storage"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -797,25 +813,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "announcements_files" ADD CONSTRAINT "announcements_files_announcement_id_announcements_id_fk" FOREIGN KEY ("announcement_id") REFERENCES "public"."announcements"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "announcements_files" ADD CONSTRAINT "announcements_files_media_id_storages_id_fk" FOREIGN KEY ("media_id") REFERENCES "public"."storages"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
  ALTER TABLE "authenticator" ADD CONSTRAINT "authenticator_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "categories" ADD CONSTRAINT "categories_category_group_id_category_groups_id_fk" FOREIGN KEY ("category_group_id") REFERENCES "public"."category_groups"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -833,7 +831,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "countries" ADD CONSTRAINT "countries_native_lang_languages_id_fk" FOREIGN KEY ("native_lang") REFERENCES "public"."languages"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "categories" ADD CONSTRAINT "categories_category_group_id_category_groups_id_fk" FOREIGN KEY ("category_group_id") REFERENCES "public"."category_groups"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -851,19 +849,13 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "design" ADD CONSTRAINT "design_banner_media_id_storages_id_fk" FOREIGN KEY ("banner_media_id") REFERENCES "public"."storages"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "countries" ADD CONSTRAINT "countries_native_lang_languages_id_fk" FOREIGN KEY ("native_lang") REFERENCES "public"."languages"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "events" ADD CONSTRAINT "events_festival_id_festivals_id_fk" FOREIGN KEY ("festival_id") REFERENCES "public"."festivals"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "events" ADD CONSTRAINT "events_ns_id_national_section_id_fk" FOREIGN KEY ("ns_id") REFERENCES "public"."national_section"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "design" ADD CONSTRAINT "design_banner_media_id_storage_id_fk" FOREIGN KEY ("banner_media_id") REFERENCES "public"."storage"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -876,6 +868,18 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "events_lang" ADD CONSTRAINT "events_lang_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "events" ADD CONSTRAINT "events_festival_id_festivals_id_fk" FOREIGN KEY ("festival_id") REFERENCES "public"."festivals"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "events" ADD CONSTRAINT "events_ns_id_national_section_id_fk" FOREIGN KEY ("ns_id") REFERENCES "public"."national_section"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -899,7 +903,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "festival_photos" ADD CONSTRAINT "festival_photos_photo_id_storages_id_fk" FOREIGN KEY ("photo_id") REFERENCES "public"."storages"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "festival_photos" ADD CONSTRAINT "festival_photos_photo_id_storage_id_fk" FOREIGN KEY ("photo_id") REFERENCES "public"."storage"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -917,7 +921,19 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "festivals" ADD CONSTRAINT "festivals_country_id_countries_id_fk" FOREIGN KEY ("country_id") REFERENCES "public"."countries"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "festivals_lang" ADD CONSTRAINT "festivals_lang_lang_languages_id_fk" FOREIGN KEY ("lang") REFERENCES "public"."languages"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "festivals_lang" ADD CONSTRAINT "festivals_lang_festival_id_festivals_id_fk" FOREIGN KEY ("festival_id") REFERENCES "public"."festivals"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "festivals" ADD CONSTRAINT "festivals_status_id_statuses_id_fk" FOREIGN KEY ("status_id") REFERENCES "public"."statuses"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -929,19 +945,25 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "festivals" ADD CONSTRAINT "festivals_logo_id_storages_id_fk" FOREIGN KEY ("logo_id") REFERENCES "public"."storages"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "festivals" ADD CONSTRAINT "festivals_certification_member_id_storage_id_fk" FOREIGN KEY ("certification_member_id") REFERENCES "public"."storage"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "festivals" ADD CONSTRAINT "festivals_cover_id_storages_id_fk" FOREIGN KEY ("cover_id") REFERENCES "public"."storages"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "festivals" ADD CONSTRAINT "festivals_country_id_countries_id_fk" FOREIGN KEY ("country_id") REFERENCES "public"."countries"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "festivals" ADD CONSTRAINT "festivals_certification_member_id_storages_id_fk" FOREIGN KEY ("certification_member_id") REFERENCES "public"."storages"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "festivals" ADD CONSTRAINT "festivals_logo_id_storage_id_fk" FOREIGN KEY ("logo_id") REFERENCES "public"."storage"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "festivals" ADD CONSTRAINT "festivals_cover_id_storage_id_fk" FOREIGN KEY ("cover_id") REFERENCES "public"."storage"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -959,31 +981,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "festivals_lang" ADD CONSTRAINT "festivals_lang_lang_languages_id_fk" FOREIGN KEY ("lang") REFERENCES "public"."languages"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "festivals_lang" ADD CONSTRAINT "festivals_lang_festival_id_festivals_id_fk" FOREIGN KEY ("festival_id") REFERENCES "public"."festivals"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "festivals_to_statuses" ADD CONSTRAINT "festivals_to_statuses_festival_id_festivals_id_fk" FOREIGN KEY ("festival_id") REFERENCES "public"."festivals"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "festivals_to_statuses" ADD CONSTRAINT "festivals_to_statuses_status_id_statuses_id_fk" FOREIGN KEY ("status_id") REFERENCES "public"."statuses"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "group_to_categories" ADD CONSTRAINT "group_to_categories_festival_id_groups_id_fk" FOREIGN KEY ("festival_id") REFERENCES "public"."groups"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "group_to_categories" ADD CONSTRAINT "group_to_categories_group_id_groups_id_fk" FOREIGN KEY ("group_id") REFERENCES "public"."groups"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -995,19 +993,31 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "groups" ADD CONSTRAINT "groups_general_director_photo_id_storages_id_fk" FOREIGN KEY ("general_director_photo_id") REFERENCES "public"."storages"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "groups_lang" ADD CONSTRAINT "groups_lang_lang_languages_id_fk" FOREIGN KEY ("lang") REFERENCES "public"."languages"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "groups" ADD CONSTRAINT "groups_artistic_director_photo_id_storages_id_fk" FOREIGN KEY ("artistic_director_photo_id") REFERENCES "public"."storages"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "groups_lang" ADD CONSTRAINT "groups_lang_group_id_groups_id_fk" FOREIGN KEY ("group_id") REFERENCES "public"."groups"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "groups" ADD CONSTRAINT "groups_musical_director_photo_id_storages_id_fk" FOREIGN KEY ("musical_director_photo_id") REFERENCES "public"."storages"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "groups" ADD CONSTRAINT "groups_general_director_photo_id_storage_id_fk" FOREIGN KEY ("general_director_photo_id") REFERENCES "public"."storage"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "groups" ADD CONSTRAINT "groups_artistic_director_photo_id_storage_id_fk" FOREIGN KEY ("artistic_director_photo_id") REFERENCES "public"."storage"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "groups" ADD CONSTRAINT "groups_musical_director_photo_id_storage_id_fk" FOREIGN KEY ("musical_director_photo_id") REFERENCES "public"."storage"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -1025,7 +1035,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "groups" ADD CONSTRAINT "groups_certification_member_id_storages_id_fk" FOREIGN KEY ("certification_member_id") REFERENCES "public"."storages"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "groups" ADD CONSTRAINT "groups_certification_member_id_storage_id_fk" FOREIGN KEY ("certification_member_id") REFERENCES "public"."storage"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -1038,18 +1048,6 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "groups" ADD CONSTRAINT "groups_updated_by_user_id_fk" FOREIGN KEY ("updated_by") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "groups_lang" ADD CONSTRAINT "groups_lang_lang_languages_id_fk" FOREIGN KEY ("lang") REFERENCES "public"."languages"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "groups_lang" ADD CONSTRAINT "groups_lang_group_id_groups_id_fk" FOREIGN KEY ("group_id") REFERENCES "public"."groups"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -1079,30 +1077,6 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "national_section" ADD CONSTRAINT "national_section_country_id_countries_id_fk" FOREIGN KEY ("country_id") REFERENCES "public"."countries"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "national_section" ADD CONSTRAINT "national_section_socia_media_links_id_social_media_links_id_fk" FOREIGN KEY ("socia_media_links_id") REFERENCES "public"."social_media_links"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "national_section" ADD CONSTRAINT "national_section_created_by_user_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "national_section" ADD CONSTRAINT "national_section_updated_by_user_id_fk" FOREIGN KEY ("updated_by") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
  ALTER TABLE "national_section_lang" ADD CONSTRAINT "national_section_lang_lang_languages_id_fk" FOREIGN KEY ("lang") REFERENCES "public"."languages"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
@@ -1115,13 +1089,49 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "national_section_positions" ADD CONSTRAINT "national_section_positions_photo_id_storages_id_fk" FOREIGN KEY ("photo_id") REFERENCES "public"."storages"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "national_section_positions" ADD CONSTRAINT "national_section_positions_photo_id_storage_id_fk" FOREIGN KEY ("photo_id") REFERENCES "public"."storage"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "national_section_positions" ADD CONSTRAINT "national_section_positions_ns_id_national_section_id_fk" FOREIGN KEY ("ns_id") REFERENCES "public"."national_section"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "national_section_positions_test" ADD CONSTRAINT "national_section_positions_test_country_id_countries_id_fk" FOREIGN KEY ("country_id") REFERENCES "public"."countries"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "national_section_positions_test" ADD CONSTRAINT "national_section_positions_test_ns_id_national_section_id_fk" FOREIGN KEY ("ns_id") REFERENCES "public"."national_section"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "national_section" ADD CONSTRAINT "national_section_socia_media_links_id_social_media_links_id_fk" FOREIGN KEY ("socia_media_links_id") REFERENCES "public"."social_media_links"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "national_section" ADD CONSTRAINT "national_section_country_id_countries_id_fk" FOREIGN KEY ("country_id") REFERENCES "public"."countries"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "national_section" ADD CONSTRAINT "national_section_created_by_user_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "national_section" ADD CONSTRAINT "national_section_updated_by_user_id_fk" FOREIGN KEY ("updated_by") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -1169,13 +1179,13 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "rating_festival_to_groups" ADD CONSTRAINT "rating_festival_to_groups_report_festival_id_report_festival_id_fk" FOREIGN KEY ("report_festival_id") REFERENCES "public"."report_festival"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "rating_festival_to_groups_answers_lang" ADD CONSTRAINT "rating_festival_to_groups_answers_lang_lang_languages_id_fk" FOREIGN KEY ("lang") REFERENCES "public"."languages"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "rating_festival_to_groups" ADD CONSTRAINT "rating_festival_to_groups_group_id_groups_id_fk" FOREIGN KEY ("group_id") REFERENCES "public"."groups"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "rating_festival_to_groups_answers_lang" ADD CONSTRAINT "rating_festival_to_groups_answers_lang_rating_festival_to_groups_answers_id_rating_festival_to_groups_answers_id_fk" FOREIGN KEY ("rating_festival_to_groups_answers_id") REFERENCES "public"."rating_festival_to_groups_answers"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -1193,13 +1203,13 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "rating_festival_to_groups_answers_lang" ADD CONSTRAINT "rating_festival_to_groups_answers_lang_lang_languages_id_fk" FOREIGN KEY ("lang") REFERENCES "public"."languages"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "rating_festival_to_groups" ADD CONSTRAINT "rating_festival_to_groups_report_festival_id_report_festival_id_fk" FOREIGN KEY ("report_festival_id") REFERENCES "public"."report_festival"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "rating_festival_to_groups_answers_lang" ADD CONSTRAINT "rating_festival_to_groups_answers_lang_rating_festival_to_groups_answers_id_rating_festival_to_groups_answers_id_fk" FOREIGN KEY ("rating_festival_to_groups_answers_id") REFERENCES "public"."rating_festival_to_groups_answers"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "rating_festival_to_groups" ADD CONSTRAINT "rating_festival_to_groups_group_id_groups_id_fk" FOREIGN KEY ("group_id") REFERENCES "public"."groups"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -1223,19 +1233,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "rating_group_results_lang" ADD CONSTRAINT "rating_group_results_lang_report_group_to_festivals_id_languages_id_fk" FOREIGN KEY ("report_group_to_festivals_id") REFERENCES "public"."languages"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "rating_group_to_festivals" ADD CONSTRAINT "rating_group_to_festivals_report_group_id_report_group_id_fk" FOREIGN KEY ("report_group_id") REFERENCES "public"."report_group"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "rating_group_to_festivals" ADD CONSTRAINT "rating_group_to_festivals_festival_id_festivals_id_fk" FOREIGN KEY ("festival_id") REFERENCES "public"."festivals"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "rating_group_results_lang" ADD CONSTRAINT "rating_group_results_lang_report_group_to_festivals_id_rating_group_to_festivals_id_fk" FOREIGN KEY ("report_group_to_festivals_id") REFERENCES "public"."rating_group_to_festivals"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -1253,7 +1251,13 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "rating_questions" ADD CONSTRAINT "rating_questions_rating_type_id_rating_type_id_fk" FOREIGN KEY ("rating_type_id") REFERENCES "public"."rating_type"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "rating_group_to_festivals" ADD CONSTRAINT "rating_group_to_festivals_report_group_id_report_group_id_fk" FOREIGN KEY ("report_group_id") REFERENCES "public"."report_group"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "rating_group_to_festivals" ADD CONSTRAINT "rating_group_to_festivals_festival_id_festivals_id_fk" FOREIGN KEY ("festival_id") REFERENCES "public"."festivals"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -1271,7 +1275,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "report_festival" ADD CONSTRAINT "report_festival_festival_id_festivals_id_fk" FOREIGN KEY ("festival_id") REFERENCES "public"."festivals"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "rating_questions" ADD CONSTRAINT "rating_questions_rating_type_id_rating_type_id_fk" FOREIGN KEY ("rating_type_id") REFERENCES "public"."rating_type"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -1284,6 +1288,18 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "report_festival_activities" ADD CONSTRAINT "report_festival_activities_report_festival_id_report_festival_id_fk" FOREIGN KEY ("report_festival_id") REFERENCES "public"."report_festival"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "report_festival" ADD CONSTRAINT "report_festival_festival_id_festivals_id_fk" FOREIGN KEY ("festival_id") REFERENCES "public"."festivals"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "report_group" ADD CONSTRAINT "report_group_group_id_groups_id_fk" FOREIGN KEY ("group_id") REFERENCES "public"."groups"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -1325,18 +1341,6 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "report_ns" ADD CONSTRAINT "report_ns_country_id_countries_id_fk" FOREIGN KEY ("country_id") REFERENCES "public"."countries"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "report_ns" ADD CONSTRAINT "report_ns_ns_id_national_section_id_fk" FOREIGN KEY ("ns_id") REFERENCES "public"."national_section"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
  ALTER TABLE "report_ns_lang" ADD CONSTRAINT "report_ns_lang_lang_languages_id_fk" FOREIGN KEY ("lang") REFERENCES "public"."languages"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
@@ -1344,6 +1348,12 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "report_ns_lang" ADD CONSTRAINT "report_ns_lang_report_ns_id_report_ns_id_fk" FOREIGN KEY ("report_ns_id") REFERENCES "public"."report_ns"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "report_ns" ADD CONSTRAINT "report_ns_ns_id_national_section_id_fk" FOREIGN KEY ("ns_id") REFERENCES "public"."national_section"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -1379,7 +1389,67 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "timeline" ADD CONSTRAINT "timeline_media_id_storages_id_fk" FOREIGN KEY ("media_id") REFERENCES "public"."storages"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "statuses_lang" ADD CONSTRAINT "statuses_lang_status_id_statuses_id_fk" FOREIGN KEY ("status_id") REFERENCES "public"."statuses"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "statuses_lang" ADD CONSTRAINT "statuses_lang_lang_id_languages_id_fk" FOREIGN KEY ("lang_id") REFERENCES "public"."languages"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "storage" ADD CONSTRAINT "storage_lang_languages_id_fk" FOREIGN KEY ("lang") REFERENCES "public"."languages"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "sub_pages" ADD CONSTRAINT "sub_pages_created_by_user_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "sub_pages" ADD CONSTRAINT "sub_pages_updated_by_user_id_fk" FOREIGN KEY ("updated_by") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "sub_pages_texts_lang" ADD CONSTRAINT "sub_pages_texts_lang_lang_languages_id_fk" FOREIGN KEY ("lang") REFERENCES "public"."languages"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "sub_pages_texts_lang" ADD CONSTRAINT "sub_pages_texts_lang_subpage_id_sub_pages_id_fk" FOREIGN KEY ("subpage_id") REFERENCES "public"."sub_pages"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "subgroup_to_categories" ADD CONSTRAINT "subgroup_to_categories_subgroup_id_subgroups_id_fk" FOREIGN KEY ("subgroup_id") REFERENCES "public"."subgroups"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "subgroup_to_categories" ADD CONSTRAINT "subgroup_to_categories_category_id_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "subgroups_lang" ADD CONSTRAINT "subgroups_lang_subgroup_id_subgroups_id_fk" FOREIGN KEY ("subgroup_id") REFERENCES "public"."subgroups"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "subgroups" ADD CONSTRAINT "subgroups_group_id_groups_id_fk" FOREIGN KEY ("group_id") REFERENCES "public"."groups"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -1397,6 +1467,12 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
+ ALTER TABLE "timeline" ADD CONSTRAINT "timeline_media_id_storage_id_fk" FOREIGN KEY ("media_id") REFERENCES "public"."storage"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
  ALTER TABLE "user" ADD CONSTRAINT "user_role_id_roles_id_fk" FOREIGN KEY ("role_id") REFERENCES "public"."roles"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
@@ -1409,7 +1485,31 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "user" ADD CONSTRAINT "user_image_id_storages_id_fk" FOREIGN KEY ("image_id") REFERENCES "public"."storages"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "user" ADD CONSTRAINT "user_image_id_storage_id_fk" FOREIGN KEY ("image_id") REFERENCES "public"."storage"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "activities" ADD CONSTRAINT "activities_report_national_section_id_report_ns_id_fk" FOREIGN KEY ("report_national_section_id") REFERENCES "public"."report_ns"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "email_templates" ADD CONSTRAINT "email_templates_lang_languages_id_fk" FOREIGN KEY ("lang") REFERENCES "public"."languages"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "festivals_to_statuses" ADD CONSTRAINT "festivals_to_statuses_festival_id_festivals_id_fk" FOREIGN KEY ("festival_id") REFERENCES "public"."festivals"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "festivals_to_statuses" ADD CONSTRAINT "festivals_to_statuses_status_id_statuses_id_fk" FOREIGN KEY ("status_id") REFERENCES "public"."statuses"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

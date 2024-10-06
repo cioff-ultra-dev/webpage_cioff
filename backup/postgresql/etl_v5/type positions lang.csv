@@ -1,0 +1,25 @@
+"name","type_position_id","lang_id"
+President,1,1
+Vice president,2,1
+Secretary General,3,1
+Treasurer,4,1
+Youth Representative,5,1
+Groups Commission,6,1
+Festivals Commission,7,1
+Other member,8,1
+Presidente,1,2
+Vicepresidente,2,2
+Secretario/a General,3,2
+Tesorero/a,4,2
+Representante Juvenil,5,2
+Comisión de Grupos,6,2
+Comisión de Festivales,7,2
+Otro miembro,8,2
+Président(e),1,3
+Vice-Président(e),2,3
+Secrétaire Général(e),3,3
+Trésorier(e),4,3
+Représent(e) Jeunes,5,3
+Commission Groupes,6,3
+Commission Festivals,7,3
+Autre membre,8,3

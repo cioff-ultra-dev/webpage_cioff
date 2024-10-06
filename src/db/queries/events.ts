@@ -68,6 +68,63 @@ export async function getFestivalById(
   });
 }
 
+export async function getFestivalBySlug(
+  slug: SelectFestival["slug"],
+  locale: string = defaultLocale as SelectLanguages["code"]
+) {
+  const localeValue = locale as SelectLanguages["code"];
+  const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
+
+  const pushLocales = [localeValue];
+
+  if (localeValue !== currentDefaultLocale) {
+    pushLocales.push(currentDefaultLocale);
+  }
+
+  const sq = db
+    .select({ id: languages.id })
+    .from(languages)
+    .where(inArray(languages.code, pushLocales));
+
+  return db.query.festivals.findFirst({
+    where(fields, { eq }) {
+      return eq(fields.slug, slug!);
+    },
+    with: {
+      langs: {
+        where(fields, { inArray }) {
+          return inArray(fields.lang, sq);
+        },
+        with: {
+          l: true,
+        },
+      },
+      events: true,
+      festivalsToCategories: {
+        with: {
+          category: {
+            with: {
+              langs: true,
+            },
+          },
+        },
+      },
+      status: true,
+      owners: {
+        with: {
+          user: {
+            with: {
+              role: true,
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+export type FestivalBySlugType = Awaited<ReturnType<typeof getFestivalBySlug>>;
+
 export async function getAllNestedFestivals() {
   const baseQuery = db
     .select({
@@ -113,6 +170,37 @@ export async function getAllFestivalsByOwner(locale: string) {
               l: true,
             },
           },
+        },
+      },
+    },
+  });
+}
+
+export async function getCategoryForGroups(locale: string, fields: string[]) {
+  const session = await auth();
+  const localeValue = locale as SelectLanguages["code"];
+  const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
+
+  const pushLocales = [localeValue];
+
+  if (localeValue !== currentDefaultLocale) {
+    pushLocales.push(currentDefaultLocale);
+  }
+
+  const sq = db
+    .select({ id: languages.id })
+    .from(languages)
+    .where(inArray(languages.code, pushLocales));
+
+  return db.query.categories.findMany({
+    where: inArray(categories.slug, fields),
+    with: {
+      langs: {
+        where(fields, { inArray }) {
+          return inArray(fields.lang, sq);
+        },
+        with: {
+          l: true,
         },
       },
     },

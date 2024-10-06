@@ -1,0 +1,90 @@
+"id","role_id","country_id","email","password","firstname","lastname","title","active"
+"00000001-0000-0000-0000-000000000001",3,2,albania@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Albania,CIOFF,false
+"00000002-0000-0000-0000-000000000002",3,8,algeria@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Algeria,CIOFF,false
+"00000003-0000-0000-0000-000000000003",3,9,argentina@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Argentina,CIOFF,false
+"00000004-0000-0000-0000-000000000004",3,12,austria@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Austria,CIOFF,false
+"00000005-0000-0000-0000-000000000005",3,18,belgium@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Belgium,CIOFF,false
+"00000006-0000-0000-0000-000000000006",3,20,benin@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Benin,CIOFF,false
+"00000007-0000-0000-0000-000000000007",3,23,bolivia@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Bolivia,CIOFF,false
+"00000008-0000-0000-0000-000000000008",3,24,bosnia-herzegovina@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Bosnia-Herzegovina,CIOFF,false
+"00000009-0000-0000-0000-000000000009",3,26,brazil@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Brazil,CIOFF,false
+"00000010-0000-0000-0000-000000000010",3,28,bulgaria@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Bulgaria,CIOFF,false
+"00000011-0000-0000-0000-000000000011",3,35,canada@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Canada,CIOFF,false
+"00000012-0000-0000-0000-000000000012",3,38,chile@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Chile,CIOFF,false
+"00000013-0000-0000-0000-000000000013",3,39,china@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,China,CIOFF,false
+"00000014-0000-0000-0000-000000000014",3,195,chinese-taipei@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Chinese-Taipei,CIOFF,false
+"00000015-0000-0000-0000-000000000015",3,42,colombia@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Colombia,CIOFF,true
+"00000016-0000-0000-0000-000000000016",3,43,comoros@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Comoros,CIOFF,false
+"00000017-0000-0000-0000-000000000017",3,47,costa-rica@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Costa Rica,CIOFF,false
+"00000018-0000-0000-0000-000000000018",3,48,croatia@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Croatia,CIOFF,false
+"00000019-0000-0000-0000-000000000019",3,40,cyprus@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Cyprus,CIOFF,false
+"00000020-0000-0000-0000-000000000020",3,144,czech-republic@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Czech Republic,CIOFF,false
+"00000021-0000-0000-0000-000000000021",3,52,ecuador@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Ecuador,CIOFF,false
+"00000022-0000-0000-0000-000000000022",3,61,estonia@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Estonia,CIOFF,false
+"00000023-0000-0000-0000-000000000023",3,64,finland@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Finland,CIOFF,false
+"00000024-0000-0000-0000-000000000024",3,66,france@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,France,CIOFF,false
+"00000025-0000-0000-0000-000000000025",3,69,georgia@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Georgia,CIOFF,false
+"00000026-0000-0000-0000-000000000026",3,3,germany@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Germany,CIOFF,false
+"00000027-0000-0000-0000-000000000027",3,70,ghana@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Ghana,CIOFF,false
+"00000028-0000-0000-0000-000000000028",3,72,greece@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Greece,CIOFF,false
+"00000029-0000-0000-0000-000000000029",3,73,guatemala@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Guatemala,CIOFF,false
+"00000030-0000-0000-0000-000000000030",3,79,honduras@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Honduras,CIOFF,false
+"00000031-0000-0000-0000-000000000031",3,80,hungary@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Hungary,CIOFF,false
+"00000032-0000-0000-0000-000000000032",3,81,india@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,India,CIOFF,false
+"00000033-0000-0000-0000-000000000033",3,82,indonesia@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Indonesia,CIOFF,false
+"00000034-0000-0000-0000-000000000034",3,89,israel@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Israel,CIOFF,false
+"00000035-0000-0000-0000-000000000035",3,90,italy@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Italy,CIOFF,false
+"00000036-0000-0000-0000-000000000036",3,92,japan@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Japan,CIOFF,false
+"00000037-0000-0000-0000-000000000037",3,197,kejmal-azizi@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Kemajl Azizi,CIOFF,false
+"00000038-0000-0000-0000-000000000038",3,96,kyrgyzstan@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Kyrgyzstan,CIOFF,false
+"00000039-0000-0000-0000-000000000039",3,107,luxembourg@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Luxembourg,CIOFF,false
+"00000040-0000-0000-0000-000000000040",3,110,malawi@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Malawi,CIOFF,false
+"00000041-0000-0000-0000-000000000041",3,109,malaysia@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Malaysia,CIOFF,false
+"00000042-0000-0000-0000-000000000042",3,117,mexico@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Mexico,CIOFF,false
+"00000043-0000-0000-0000-000000000043",3,122,montenegro@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Montenegro,CIOFF,false
+"00000044-0000-0000-0000-000000000044",3,126,nepal@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Nepal,CIOFF,false
+"00000045-0000-0000-0000-000000000045",3,133,netherlands@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Netherlands,CIOFF,false
+"00000046-0000-0000-0000-000000000046",3,145,north-macedonia@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,North-Macedonia,CIOFF,false
+"00000047-0000-0000-0000-000000000047",3,196,cyprus-northernpart@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Northern Part,CIOFF,false
+"00000048-0000-0000-0000-000000000048",3,136,panama@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Panama,CIOFF,false
+"00000049-0000-0000-0000-000000000049",3,138,paraguay@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Paraguay,CIOFF,false
+"00000050-0000-0000-0000-000000000050",3,139,peru@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Peru,CIOFF,false
+"00000051-0000-0000-0000-000000000051",3,140,poland@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Poland,CIOFF,false
+"00000052-0000-0000-0000-000000000052",3,141,portugal@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Portugal,CIOFF,false
+"00000053-0000-0000-0000-000000000053",3,151,romania@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Romania,CIOFF,false
+"00000054-0000-0000-0000-000000000054",3,160,serbia@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Serbia,CIOFF,false
+"00000055-0000-0000-0000-000000000055",3,162,sierra-leone@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Sierra-Leone,CIOFF,false
+"00000056-0000-0000-0000-000000000056",3,57,slovakia@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Slovakia,CIOFF,false
+"00000057-0000-0000-0000-000000000057",3,58,slovenia@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Slovenia,CIOFF,false
+"00000058-0000-0000-0000-000000000058",3,45,south-korea@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,South Korea,CIOFF,false
+"00000059-0000-0000-0000-000000000059",3,149,south-africa@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,South-Africa,CIOFF,false
+"00000060-0000-0000-0000-000000000060",3,59,spain@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Spain,CIOFF,false
+"00000061-0000-0000-0000-000000000061",3,171,switzerland@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Switzerland,CIOFF,false
+"00000062-0000-0000-0000-000000000062",3,198,tahiti@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Tahiti,CIOFF,false
+"00000063-0000-0000-0000-000000000063",3,173,thailand@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Thailand,CIOFF,false
+"00000064-0000-0000-0000-000000000064",3,176,timor-leste@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Timor Leste,CIOFF,false
+"00000065-0000-0000-0000-000000000065",3,177,togo@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Togo,CIOFF,false
+"00000066-0000-0000-0000-000000000066",3,182,turkey@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Turkey,CIOFF,false
+"00000067-0000-0000-0000-000000000067",3,142,united-kingdom@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,United Kingdom,CIOFF,false
+"00000068-0000-0000-0000-000000000068",3,60,united-states@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,United States,CIOFF,false
+"00000069-0000-0000-0000-000000000069",3,187,uzbekistan@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Admin,Uzbekistan,CIOFF,false
+"00000070-0000-0000-0000-000000000070",2,18,bart.dewitte@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Bart,Dewitte,Mr.,false
+"00000071-0000-0000-0000-000000000071",1,42,festivals@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,CIOFF Festivals,Commission,Mr.,false
+"00000072-0000-0000-0000-000000000072",2,35,catherine.limbertie@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Catherine,Limbertie,Ms.,false
+"00000073-0000-0000-0000-000000000073",2,35,christian.hidalgo-mazzei@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Christian,Hidalgo-Mazzei,Mr.,false
+"00000074-0000-0000-0000-000000000074",2,136,eduardo.hansell@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Eduardo Antonio Hansell,Chifundo,Mr.,false
+"00000075-0000-0000-0000-000000000075",2,48,enrih.merdic@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Enrih,Merdic,Mr.,false
+"00000076-0000-0000-0000-000000000076",2,66,jean-pascal.mariot@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Jean Pascal,Mariot,Mr.,false
+"00000077-0000-0000-0000-000000000077",2,3,klaus.hohmeier@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Klaus,Hohmeier,Mr.,false
+"00000078-0000-0000-0000-000000000078",2,72,konstantinos.tolis@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Konstantinos,Tolis,Mr.,false
+"00000079-0000-0000-0000-000000000079",2,48,kristina.medaric@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Kristina,Medaric,Ms.,false
+"00000080-0000-0000-0000-000000000080",1,42,laura.lopez@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Laura,López,Ms.,true
+"00000081-0000-0000-0000-000000000081",2,171,lauriane.zosso@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Lauriane,Zosso,Ms.,false
+"00000082-0000-0000-0000-000000000082",2,151,ioan.cocian@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Loan,Cocian,Mr.,false
+"00000083-0000-0000-0000-000000000083",2,20,marcel.zounon@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Marcel,Zounon,Mr.,false
+"00000084-0000-0000-0000-000000000084",2,38,marcelo.fierro@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Marcelo,Fierro,Mr.,false
+"00000085-0000-0000-0000-000000000085",2,26,socorro.maciel@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Maria do Socorro,Maciel,Ms,false
+"00000086-0000-0000-0000-000000000086",2,66,patrick.schepens@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Patrick,Schepens,Mr.,false
+"00000087-0000-0000-0000-000000000087",2,81,pawan.kapoor@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Pawan,Kapoor,Mr.,false
+"00000088-0000-0000-0000-000000000088",2,59,rafael.cantero@cioff.org,$2a$10$xxIC6W.6CJpwKay4uh72XuQzRMt.kCjsri1uPOs26hiNOgsE5F8My,Rafael,Cantero Muñoz,Mr.,false
+"00000089-0000-0000-0000-000000000089",1,42,gerencia@ultradev.com.co,$2a$10$hlg9ywg6TKzvEVSdmEaWkePeIPIwDT58W3VX4QG1PDAay7CxZq41K,Ultra,Dev,System,true

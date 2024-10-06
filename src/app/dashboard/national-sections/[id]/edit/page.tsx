@@ -1,5 +1,6 @@
 import NationalSectionForm from "@/components/common/ns/form";
 import {
+  getAllTypePositionsforNS,
   getNationalSectionBySlug,
   NationalSectionDetailsType,
 } from "@/db/queries/national-sections";
@@ -14,6 +15,7 @@ export default async function EditNationalSection({
   const ns: NationalSectionDetailsType | undefined =
     await getNationalSectionBySlug(params.id, locale);
   const currentLang = ns?.langs.find((lang) => lang.l?.code === locale);
+  const typePositions = await getAllTypePositionsforNS(locale);
 
   return (
     <NationalSectionForm
@@ -21,6 +23,7 @@ export default async function EditNationalSection({
       currentNationalSection={ns}
       id={`${ns?.id}`}
       slug={params.id}
+      typePositions={typePositions}
     />
   );
 }

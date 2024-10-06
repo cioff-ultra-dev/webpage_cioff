@@ -1,1 +1,0 @@
-ALTER TABLE "countries" RENAME COLUMN "name" TO "slug";

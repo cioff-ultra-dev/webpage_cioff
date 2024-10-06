@@ -1,6 +1,6 @@
 {
-  "id": "599f2731-f42e-4cd9-be92-e0706a4fb7ce",
-  "prevId": "e8fbe66b-0522-40d7-a4b0-c6d037d744e2",
+  "id": "15fae948-0330-406b-8c00-8c026eb50775",
+  "prevId": "2b9ea8a8-3983-411f-b711-8cbe9bbf101a",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -586,10 +586,10 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "announcements_files_media_id_storages_id_fk": {
-          "name": "announcements_files_media_id_storages_id_fk",
+        "announcements_files_media_id_storage_id_fk": {
+          "name": "announcements_files_media_id_storage_id_fk",
           "tableFrom": "announcements_files",
-          "tableTo": "storages",
+          "tableTo": "storage",
           "columnsFrom": [
             "media_id"
           ],
@@ -699,12 +699,6 @@
           "name": "id",
           "type": "serial",
           "primaryKey": true,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
           "notNull": true
         },
         "slug": {
@@ -893,13 +887,7 @@
           "name": "slug",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
-        },
-        "native_lang": {
-          "name": "native_lang",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "lat": {
           "name": "lat",
@@ -910,6 +898,18 @@
         "lng": {
           "name": "lng",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "region_id": {
+          "name": "region_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "native_lang": {
+          "name": "native_lang",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
@@ -929,6 +929,19 @@
       },
       "indexes": {},
       "foreignKeys": {
+        "countries_region_id_regions_id_fk": {
+          "name": "countries_region_id_regions_id_fk",
+          "tableFrom": "countries",
+          "tableTo": "regions",
+          "columnsFrom": [
+            "region_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "countries_native_lang_languages_id_fk": {
           "name": "countries_native_lang_languages_id_fk",
           "tableFrom": "countries",
@@ -1020,53 +1033,6 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.countries_lang_index": {
-      "name": "countries_lang_index",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "en": {
-          "name": "en",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "es": {
-          "name": "es",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "fr": {
-          "name": "fr",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "public.design": {
       "name": "design",
       "schema": "",
@@ -1099,10 +1065,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "design_banner_media_id_storages_id_fk": {
-          "name": "design_banner_media_id_storages_id_fk",
+        "design_banner_media_id_storage_id_fk": {
+          "name": "design_banner_media_id_storage_id_fk",
           "tableFrom": "design",
-          "tableTo": "storages",
+          "tableTo": "storage",
           "columnsFrom": [
             "banner_media_id"
           ],
@@ -1113,59 +1079,6 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.docs": {
-      "name": "docs",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "docfile": {
-          "name": "docfile",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "dockeywords": {
-          "name": "dockeywords",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "lang": {
-          "name": "lang",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -1231,13 +1144,13 @@
           "name": "start_date",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "end_date": {
           "name": "end_date",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "festival_id": {
           "name": "festival_id",
@@ -1503,10 +1416,10 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "festival_photos_photo_id_storages_id_fk": {
-          "name": "festival_photos_photo_id_storages_id_fk",
+        "festival_photos_photo_id_storage_id_fk": {
+          "name": "festival_photos_photo_id_storage_id_fk",
           "tableFrom": "festival_photos",
-          "tableTo": "storages",
+          "tableTo": "storage",
           "columnsFrom": [
             "photo_id"
           ],
@@ -1713,14 +1626,26 @@
           "primaryKey": false,
           "notNull": false
         },
-        "country_id": {
-          "name": "country_id",
+        "status_id": {
+          "name": "status_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
         "ns_id": {
           "name": "ns_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "certification_member_id": {
+          "name": "certification_member_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "country_id": {
+          "name": "country_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
@@ -1733,12 +1658,6 @@
         },
         "cover_id": {
           "name": "cover_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "certification_member_id": {
-          "name": "certification_member_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
@@ -1771,12 +1690,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "festivals_country_id_countries_id_fk": {
-          "name": "festivals_country_id_countries_id_fk",
+        "festivals_status_id_statuses_id_fk": {
+          "name": "festivals_status_id_statuses_id_fk",
           "tableFrom": "festivals",
-          "tableTo": "countries",
+          "tableTo": "statuses",
           "columnsFrom": [
-            "country_id"
+            "status_id"
           ],
           "columnsTo": [
             "id"
@@ -1797,10 +1716,36 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "festivals_logo_id_storages_id_fk": {
-          "name": "festivals_logo_id_storages_id_fk",
+        "festivals_certification_member_id_storage_id_fk": {
+          "name": "festivals_certification_member_id_storage_id_fk",
           "tableFrom": "festivals",
-          "tableTo": "storages",
+          "tableTo": "storage",
+          "columnsFrom": [
+            "certification_member_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "festivals_country_id_countries_id_fk": {
+          "name": "festivals_country_id_countries_id_fk",
+          "tableFrom": "festivals",
+          "tableTo": "countries",
+          "columnsFrom": [
+            "country_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "festivals_logo_id_storage_id_fk": {
+          "name": "festivals_logo_id_storage_id_fk",
+          "tableFrom": "festivals",
+          "tableTo": "storage",
           "columnsFrom": [
             "logo_id"
           ],
@@ -1810,25 +1755,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "festivals_cover_id_storages_id_fk": {
-          "name": "festivals_cover_id_storages_id_fk",
+        "festivals_cover_id_storage_id_fk": {
+          "name": "festivals_cover_id_storage_id_fk",
           "tableFrom": "festivals",
-          "tableTo": "storages",
+          "tableTo": "storage",
           "columnsFrom": [
             "cover_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "festivals_certification_member_id_storages_id_fk": {
-          "name": "festivals_certification_member_id_storages_id_fk",
-          "tableFrom": "festivals",
-          "tableTo": "storages",
-          "columnsFrom": [
-            "certification_member_id"
           ],
           "columnsTo": [
             "id"
@@ -1887,11 +1819,17 @@
           "name": "description",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "''"
         },
         "address": {
           "name": "address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "other_translator_language": {
+          "name": "other_translator_language",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -2235,10 +2173,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "groups_general_director_photo_id_storages_id_fk": {
-          "name": "groups_general_director_photo_id_storages_id_fk",
+        "groups_general_director_photo_id_storage_id_fk": {
+          "name": "groups_general_director_photo_id_storage_id_fk",
           "tableFrom": "groups",
-          "tableTo": "storages",
+          "tableTo": "storage",
           "columnsFrom": [
             "general_director_photo_id"
           ],
@@ -2248,10 +2186,10 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "groups_artistic_director_photo_id_storages_id_fk": {
-          "name": "groups_artistic_director_photo_id_storages_id_fk",
+        "groups_artistic_director_photo_id_storage_id_fk": {
+          "name": "groups_artistic_director_photo_id_storage_id_fk",
           "tableFrom": "groups",
-          "tableTo": "storages",
+          "tableTo": "storage",
           "columnsFrom": [
             "artistic_director_photo_id"
           ],
@@ -2261,10 +2199,10 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "groups_musical_director_photo_id_storages_id_fk": {
-          "name": "groups_musical_director_photo_id_storages_id_fk",
+        "groups_musical_director_photo_id_storage_id_fk": {
+          "name": "groups_musical_director_photo_id_storage_id_fk",
           "tableFrom": "groups",
-          "tableTo": "storages",
+          "tableTo": "storage",
           "columnsFrom": [
             "musical_director_photo_id"
           ],
@@ -2300,10 +2238,10 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "groups_certification_member_id_storages_id_fk": {
-          "name": "groups_certification_member_id_storages_id_fk",
+        "groups_certification_member_id_storage_id_fk": {
+          "name": "groups_certification_member_id_storage_id_fk",
           "tableFrom": "groups",
-          "tableTo": "storages",
+          "tableTo": "storage",
           "columnsFrom": [
             "certification_member_id"
           ],
@@ -2469,8 +2407,7 @@
           "type": "lang_code",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'en'"
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
@@ -2703,14 +2640,14 @@
           "primaryKey": false,
           "notNull": true
         },
-        "country_id": {
-          "name": "country_id",
+        "socia_media_links_id": {
+          "name": "socia_media_links_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
-        "socia_media_links_id": {
-          "name": "socia_media_links_id",
+        "country_id": {
+          "name": "country_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
@@ -2743,12 +2680,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "national_section_country_id_countries_id_fk": {
-          "name": "national_section_country_id_countries_id_fk",
+        "national_section_socia_media_links_id_social_media_links_id_fk": {
+          "name": "national_section_socia_media_links_id_social_media_links_id_fk",
           "tableFrom": "national_section",
-          "tableTo": "countries",
+          "tableTo": "social_media_links",
           "columnsFrom": [
-            "country_id"
+            "socia_media_links_id"
           ],
           "columnsTo": [
             "id"
@@ -2756,12 +2693,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "national_section_socia_media_links_id_social_media_links_id_fk": {
-          "name": "national_section_socia_media_links_id_social_media_links_id_fk",
+        "national_section_country_id_countries_id_fk": {
+          "name": "national_section_country_id_countries_id_fk",
           "tableFrom": "national_section",
-          "tableTo": "social_media_links",
+          "tableTo": "countries",
           "columnsFrom": [
-            "socia_media_links_id"
+            "country_id"
           ],
           "columnsTo": [
             "id"
@@ -2819,13 +2756,7 @@
           "name": "about",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
-        },
-        "about_young": {
-          "name": "about_young",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "lang": {
           "name": "lang",
@@ -2895,6 +2826,12 @@
           "primaryKey": true,
           "notNull": true
         },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "name": {
           "name": "name",
           "type": "text",
@@ -2938,6 +2875,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "type_position_id": {
+          "name": "type_position_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "ns_id": {
           "name": "ns_id",
           "type": "integer",
@@ -2960,12 +2903,25 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "national_section_positions_photo_id_storages_id_fk": {
-          "name": "national_section_positions_photo_id_storages_id_fk",
+        "national_section_positions_photo_id_storage_id_fk": {
+          "name": "national_section_positions_photo_id_storage_id_fk",
           "tableFrom": "national_section_positions",
-          "tableTo": "storages",
+          "tableTo": "storage",
           "columnsFrom": [
             "photo_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "national_section_positions_type_position_id_type_positions_id_fk": {
+          "name": "national_section_positions_type_position_id_type_positions_id_fk",
+          "tableFrom": "national_section_positions",
+          "tableTo": "type_positions",
+          "columnsFrom": [
+            "type_position_id"
           ],
           "columnsTo": [
             "id"
@@ -2987,6 +2943,41 @@
           "onUpdate": "no action"
         }
       },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.new_type_positions": {
+      "name": "new_type_positions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -3171,13 +3162,14 @@
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "active": {
           "name": "active",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": true
         },
         "created_at": {
           "name": "created_at",
@@ -3655,10 +3647,10 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "rating_group_results_lang_report_group_to_festivals_id_languages_id_fk": {
-          "name": "rating_group_results_lang_report_group_to_festivals_id_languages_id_fk",
+        "rating_group_results_lang_report_group_to_festivals_id_rating_group_to_festivals_id_fk": {
+          "name": "rating_group_results_lang_report_group_to_festivals_id_rating_group_to_festivals_id_fk",
           "tableFrom": "rating_group_results_lang",
-          "tableTo": "languages",
+          "tableTo": "rating_group_to_festivals",
           "columnsFrom": [
             "report_group_to_festivals_id"
           ],
@@ -4029,6 +4021,115 @@
       },
       "indexes": {},
       "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.regions": {
+      "name": "regions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.regions_lang": {
+      "name": "regions_lang",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "region_id": {
+          "name": "region_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lang_id": {
+          "name": "lang_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "regions_lang_region_id_regions_id_fk": {
+          "name": "regions_lang_region_id_regions_id_fk",
+          "tableFrom": "regions_lang",
+          "tableTo": "regions",
+          "columnsFrom": [
+            "region_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "regions_lang_lang_id_languages_id_fk": {
+          "name": "regions_lang_lang_id_languages_id_fk",
+          "tableFrom": "regions_lang",
+          "tableTo": "languages",
+          "columnsFrom": [
+            "lang_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -4441,6 +4542,18 @@
           "primaryKey": false,
           "notNull": false
         },
+        "active_national_commission": {
+          "name": "active_national_commission",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ns_id": {
+          "name": "ns_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
         "number_festivals": {
           "name": "number_festivals",
           "type": "integer",
@@ -4471,30 +4584,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "active_national_commission": {
-          "name": "active_national_commission",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "work_description": {
-          "name": "work_description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "country_id": {
-          "name": "country_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "ns_id": {
-          "name": "ns_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -4511,19 +4600,6 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "report_ns_country_id_countries_id_fk": {
-          "name": "report_ns_country_id_countries_id_fk",
-          "tableFrom": "report_ns",
-          "tableTo": "countries",
-          "columnsFrom": [
-            "country_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
         "report_ns_ns_id_national_section_id_fk": {
           "name": "report_ns_ns_id_national_section_id_fk",
           "tableFrom": "report_ns",
@@ -4559,6 +4635,12 @@
         },
         "comment": {
           "name": "comment",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "work_description": {
+          "name": "work_description",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -4756,13 +4838,7 @@
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
-        },
-        "active": {
-          "name": "active",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
@@ -4997,8 +5073,82 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.storages": {
-      "name": "storages",
+    "public.statuses_lang": {
+      "name": "statuses_lang",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status_id": {
+          "name": "status_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lang_id": {
+          "name": "lang_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "statuses_lang_status_id_statuses_id_fk": {
+          "name": "statuses_lang_status_id_statuses_id_fk",
+          "tableFrom": "statuses_lang",
+          "tableTo": "statuses",
+          "columnsFrom": [
+            "status_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "statuses_lang_lang_id_languages_id_fk": {
+          "name": "statuses_lang_lang_id_languages_id_fk",
+          "tableFrom": "statuses_lang",
+          "tableTo": "languages",
+          "columnsFrom": [
+            "lang_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.storage": {
+      "name": "storage",
       "schema": "",
       "columns": {
         "id": {
@@ -5031,6 +5181,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "lang": {
+          "name": "lang",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "is_file": {
           "name": "is_file",
           "type": "boolean",
@@ -5053,7 +5209,219 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "storage_lang_languages_id_fk": {
+          "name": "storage_lang_languages_id_fk",
+          "tableFrom": "storage",
+          "tableTo": "languages",
+          "columnsFrom": [
+            "lang"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.subgroup_to_categories": {
+      "name": "subgroup_to_categories",
+      "schema": "",
+      "columns": {
+        "subgroup_id": {
+          "name": "subgroup_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "category_id": {
+          "name": "category_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "subgroup_to_categories_subgroup_id_subgroups_id_fk": {
+          "name": "subgroup_to_categories_subgroup_id_subgroups_id_fk",
+          "tableFrom": "subgroup_to_categories",
+          "tableTo": "subgroups",
+          "columnsFrom": [
+            "subgroup_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "subgroup_to_categories_category_id_categories_id_fk": {
+          "name": "subgroup_to_categories_category_id_categories_id_fk",
+          "tableFrom": "subgroup_to_categories",
+          "tableTo": "categories",
+          "columnsFrom": [
+            "category_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "subgroup_to_categories_subgroup_id_category_id_pk": {
+          "name": "subgroup_to_categories_subgroup_id_category_id_pk",
+          "columns": [
+            "subgroup_id",
+            "category_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "public.subgroups": {
+      "name": "subgroups",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "members_number": {
+          "name": "members_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "contact_name": {
+          "name": "contact_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "contact_phone": {
+          "name": "contact_phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "group_id": {
+          "name": "group_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "subgroups_group_id_groups_id_fk": {
+          "name": "subgroups_group_id_groups_id_fk",
+          "tableFrom": "subgroups",
+          "tableTo": "groups",
+          "columnsFrom": [
+            "group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.subgroups_lang": {
+      "name": "subgroups_lang",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "contact_address": {
+          "name": "contact_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "subgroup_id": {
+          "name": "subgroup_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "subgroups_lang_subgroup_id_subgroups_id_fk": {
+          "name": "subgroups_lang_subgroup_id_subgroups_id_fk",
+          "tableFrom": "subgroups_lang",
+          "tableTo": "subgroups",
+          "columnsFrom": [
+            "subgroup_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -5101,10 +5469,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "timeline_media_id_storages_id_fk": {
-          "name": "timeline_media_id_storages_id_fk",
+        "timeline_media_id_storage_id_fk": {
+          "name": "timeline_media_id_storage_id_fk",
           "tableFrom": "timeline",
-          "tableTo": "storages",
+          "tableTo": "storage",
           "columnsFrom": [
             "media_id"
           ],
@@ -5187,6 +5555,115 @@
           "tableTo": "timeline",
           "columnsFrom": [
             "timeline_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.type_positions": {
+      "name": "type_positions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.type_positions_lang": {
+      "name": "type_positions_lang",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type_position_id": {
+          "name": "type_position_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lang_id": {
+          "name": "lang_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "type_positions_lang_type_position_id_type_positions_id_fk": {
+          "name": "type_positions_lang_type_position_id_type_positions_id_fk",
+          "tableFrom": "type_positions_lang",
+          "tableTo": "type_positions",
+          "columnsFrom": [
+            "type_position_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "type_positions_lang_lang_id_languages_id_fk": {
+          "name": "type_positions_lang_lang_id_languages_id_fk",
+          "tableFrom": "type_positions_lang",
+          "tableTo": "languages",
+          "columnsFrom": [
+            "lang_id"
           ],
           "columnsTo": [
             "id"
@@ -5370,10 +5847,10 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "user_image_id_storages_id_fk": {
-          "name": "user_image_id_storages_id_fk",
+        "user_image_id_storage_id_fk": {
+          "name": "user_image_id_storage_id_fk",
           "tableFrom": "user",
-          "tableTo": "storages",
+          "tableTo": "storage",
           "columnsFrom": [
             "image_id"
           ],

@@ -31,7 +31,7 @@ export async function getAllNationalSections(): Promise<
 
 export async function getNationalSectionBySlug(
   slug: SelectNationalSection["slug"],
-  currentLocale: string = defaultLocale as SelectLanguages["code"],
+  currentLocale: string = defaultLocale as SelectLanguages["code"]
 ) {
   const sq = db
     .select({ id: languages.id })
@@ -43,6 +43,7 @@ export async function getNationalSectionBySlug(
     with: {
       positions: {
         with: {
+          type: true,
           langs: {
             where(fields, { eq }) {
               return eq(fields.lang, sq);
@@ -127,7 +128,7 @@ export type NationalSectionDetailsType = Awaited<
 >;
 
 export async function getCurrentNationalSection(
-  countryId: SelectNationalSection["countryId"],
+  countryId: SelectNationalSection["countryId"]
 ) {
   return db.query.nationalSections.findFirst({
     where(fields, { eq }) {
@@ -203,4 +204,38 @@ export async function getAllNationalSectionsByOwner(locale: string) {
 
 export type NationalSectionByOwnerType = Awaited<
   ReturnType<typeof getAllNationalSectionsByOwner>
+>;
+
+export async function getAllTypePositionsforNS(locale: string) {
+  const session = await auth();
+  const localeValue = locale as SelectLanguages["code"];
+  const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
+
+  const pushLocales = [localeValue];
+
+  if (localeValue !== currentDefaultLocale) {
+    pushLocales.push(currentDefaultLocale);
+  }
+
+  const sq = db
+    .select({ id: languages.id })
+    .from(languages)
+    .where(inArray(languages.code, pushLocales));
+
+  return db.query.typePosition.findMany({
+    with: {
+      langs: {
+        where(fields, { inArray }) {
+          return inArray(fields.lang, sq);
+        },
+        with: {
+          l: true,
+        },
+      },
+    },
+  });
+}
+
+export type PositionTypeForNSType = Awaited<
+  ReturnType<typeof getAllTypePositionsforNS>
 >;

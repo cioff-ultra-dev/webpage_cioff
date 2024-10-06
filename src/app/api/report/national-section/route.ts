@@ -8,13 +8,13 @@ export async function POST(request: Request) {
   const result = (await request.json()) as z.infer<
     typeof formReportNationalSectionSchema
   >;
-  const session = await auth();
+  // const session = await auth();
 
   const { _activities, ...mainData } = result;
 
-  if (session?.user) {
-    mainData.countryId = session.user.countryId;
-  }
+  // if (session?.user) {
+  //   mainData.countryId = session.user.countryId;
+  // }
 
   const reportId: number = await db.transaction(async (tx) => {
     const [report] = await tx

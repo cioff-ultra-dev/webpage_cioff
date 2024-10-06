@@ -1,0 +1,1 @@
+DROP TABLE "national_section_positions_test";

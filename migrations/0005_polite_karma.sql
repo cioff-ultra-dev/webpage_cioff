@@ -1,1 +1,0 @@
-ALTER TABLE "email_templates" ADD COLUMN "tag" text;
