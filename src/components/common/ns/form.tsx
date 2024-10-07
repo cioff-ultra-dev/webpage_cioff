@@ -83,6 +83,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { Session } from "next-auth";
 
 const positionsSchema = insertNationalSectionPositionsSchema.merge(
   z.object({
@@ -96,7 +97,7 @@ const positionsSchema = insertNationalSectionPositionsSchema.merge(
       .refine((item) => item instanceof File || typeof item === "undefined", {
         params: { i18n: "file_required" },
       }),
-  })
+  }),
 );
 
 const formNationalSectionSchema = insertNationalSectionSchema.merge(
@@ -113,7 +114,7 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
           to: z.string().optional(),
         }),
         _lang: insertEventLangSchema,
-      })
+      }),
     ),
     _festivals: z.array(
       inserFestivalByNSSchema.merge(
@@ -127,8 +128,8 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
           //   },
           //   { params: { i18n: "file_required" } }
           // ),
-        })
-      )
+        }),
+      ),
     ),
     _social: insertSocialMediaLinkSchema,
     _groups: z.array(
@@ -144,10 +145,10 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
           //     (item) => item instanceof File || typeof item !== "undefined",
           //     { params: { i18n: "file_required" } }
           //   ),
-        })
-      )
+        }),
+      ),
     ),
-  })
+  }),
 );
 
 function Submit({
@@ -178,7 +179,9 @@ export default function NationalSectionForm({
   typePositions,
   id,
   slug,
+  session,
 }: {
+  session?: Session;
   currentNationalSection?: NationalSectionDetailsType | undefined;
   currentLang?: NonNullable<NationalSectionDetailsType>["langs"][number];
   typePositions?: PositionTypeForNSType;
@@ -186,7 +189,6 @@ export default function NationalSectionForm({
   slug?: string;
 }) {
   // const [state, formAction] = useFormState(, null);
-  console.log({ typePositions });
   useI18nZodErrors("ns");
   const form = useForm<z.infer<typeof formNationalSectionSchema>>({
     resolver: zodResolver(formNationalSectionSchema),
@@ -284,11 +286,11 @@ export default function NationalSectionForm({
     currentNationalSection?.positions.forEach((position, index) => {
       form.setValue(
         `_positions.${index}._lang.shortBio`,
-        position.langs.at(0)?.shortBio || ""
+        position.langs.at(0)?.shortBio || "",
       );
       form.setValue(
         `_positions.${index}._lang.id`,
-        position.langs.at(0)?.id ?? 0
+        position.langs.at(0)?.id ?? 0,
       );
     });
   }, [
@@ -529,7 +531,7 @@ export default function NationalSectionForm({
                                     data-test={field.value}
                                     className={cn(
                                       "justify-between capitalize",
-                                      !field.value && "text-muted-foreground"
+                                      !field.value && "text-muted-foreground",
                                     )}
                                   >
                                     {field.value
@@ -537,7 +539,7 @@ export default function NationalSectionForm({
                                           ?.find(
                                             (typePosition) =>
                                               String(typePosition.id) ===
-                                              field.value
+                                              field.value,
                                           )
                                           ?.slug.replaceAll("-", " ")
                                       : "Select type position"}
@@ -561,26 +563,26 @@ export default function NationalSectionForm({
                                           value={String(
                                             typePosition.slug.replaceAll(
                                               "-",
-                                              " "
-                                            )
+                                              " ",
+                                            ),
                                           )}
                                           key={`_positions.${index}._type.${String(
-                                            typePosition.id
+                                            typePosition.id,
                                           )}`}
                                           className="capitalize"
                                           onSelect={() => {
                                             console.log(
-                                              String(typePosition.id)
+                                              String(typePosition.id),
                                             );
                                             form.setValue(
                                               `_positions.${index}._type`,
-                                              String(typePosition.id)
+                                              String(typePosition.id),
                                             );
                                           }}
                                         >
                                           {typePosition.slug.replaceAll(
                                             "-",
-                                            " "
+                                            " ",
                                           )}
                                           <CheckIcon
                                             className={cn(
@@ -588,7 +590,7 @@ export default function NationalSectionForm({
                                               String(typePosition.id) ===
                                                 field.value
                                                 ? "opacity-100"
-                                                : "opacity-0"
+                                                : "opacity-0",
                                             )}
                                           />
                                         </CommandItem>
@@ -680,7 +682,7 @@ export default function NationalSectionForm({
                                 accept="image/*, application/pdf"
                                 onChange={(event) =>
                                   onChange(
-                                    event.target.files && event.target.files[0]
+                                    event.target.files && event.target.files[0],
                                   )
                                 }
                               />
@@ -731,152 +733,157 @@ export default function NationalSectionForm({
                           </FormItem>
                         )}
                       />
-                      <FormField
-                        control={form.control}
-                        name={`_positions.${index}._isHonorable`}
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                            <div className="space-y-0.5">
-                              <FormLabel>Honorary Member</FormLabel>
-                              <FormDescription>
-                                Receive honorary members for this national
-                                section
-                              </FormDescription>
-                            </div>
-                            <FormControl>
-                              <Switch
-                                checked={field.value}
-                                defaultChecked={field.value}
-                                onCheckedChange={field.onChange}
-                                name={field.name}
+                      {session?.user.role?.name === "Admin" ||
+                      session?.user.role?.name === "Council" ? (
+                        <>
+                          <FormField
+                            control={form.control}
+                            name={`_positions.${index}._isHonorable`}
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                                <div className="space-y-0.5">
+                                  <FormLabel>Honorary Member</FormLabel>
+                                  <FormDescription>
+                                    Receive honorary members for this national
+                                    section
+                                  </FormDescription>
+                                </div>
+                                <FormControl>
+                                  <Switch
+                                    checked={field.value}
+                                    defaultChecked={field.value}
+                                    onCheckedChange={field.onChange}
+                                    name={field.name}
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                          {positions?.[index]?._isHonorable ? (
+                            <div className="pl-5 border-l space-y-4 pt-4">
+                              <FormField
+                                control={form.control}
+                                name={`_positions.${index}._birthDate`}
+                                render={({ field }) => (
+                                  <FormItem className="flex flex-col">
+                                    <FormLabel>Date of birth</FormLabel>
+                                    <Popover>
+                                      <PopoverTrigger asChild>
+                                        <FormControl>
+                                          <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                              "w-full pl-3 text-left font-normal",
+                                              !field.value &&
+                                                "text-muted-foreground",
+                                            )}
+                                          >
+                                            {field.value ? (
+                                              format(field.value, "PPP")
+                                            ) : (
+                                              <span>Pick a date</span>
+                                            )}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                          </Button>
+                                        </FormControl>
+                                      </PopoverTrigger>
+                                      <PopoverContent
+                                        className="w-auto p-0"
+                                        align="start"
+                                      >
+                                        <Calendar
+                                          mode="single"
+                                          captionLayout="dropdown"
+                                          fromYear={1900}
+                                          toYear={new Date().getFullYear()}
+                                          defaultMonth={new Date(2024, 6)}
+                                          selected={
+                                            field.value
+                                              ? new Date(field.value)
+                                              : undefined
+                                          }
+                                          onSelect={(value) =>
+                                            field.onChange(value?.toUTCString())
+                                          }
+                                          disabled={(date: Date) =>
+                                            date > new Date() ||
+                                            date < new Date("1900-01-01")
+                                          }
+                                        />
+                                      </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                    <input
+                                      type="hidden"
+                                      name={`_positions.${index}._birthDate`}
+                                      value={field.value}
+                                    />
+                                  </FormItem>
+                                )}
                               />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                      {positions?.[index]?._isHonorable ? (
-                        <div className="pl-5 border-l space-y-4 pt-4">
-                          <FormField
-                            control={form.control}
-                            name={`_positions.${index}._birthDate`}
-                            render={({ field }) => (
-                              <FormItem className="flex flex-col">
-                                <FormLabel>Date of birth</FormLabel>
-                                <Popover>
-                                  <PopoverTrigger asChild>
-                                    <FormControl>
-                                      <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                          "w-full pl-3 text-left font-normal",
-                                          !field.value &&
-                                            "text-muted-foreground"
-                                        )}
+                              <FormField
+                                control={form.control}
+                                name={`_positions.${index}._deathDate`}
+                                render={({ field }) => (
+                                  <FormItem className="flex flex-col">
+                                    <FormLabel>Date of death</FormLabel>
+                                    <Popover>
+                                      <PopoverTrigger asChild>
+                                        <FormControl>
+                                          <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                              "w-full pl-3 text-left font-normal",
+                                              !field.value &&
+                                                "text-muted-foreground",
+                                            )}
+                                          >
+                                            {field.value ? (
+                                              format(field.value, "PPP")
+                                            ) : (
+                                              <span>Pick a date</span>
+                                            )}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                          </Button>
+                                        </FormControl>
+                                      </PopoverTrigger>
+                                      <PopoverContent
+                                        className="w-auto p-0"
+                                        align="start"
                                       >
-                                        {field.value ? (
-                                          format(field.value, "PPP")
-                                        ) : (
-                                          <span>Pick a date</span>
-                                        )}
-                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                      </Button>
-                                    </FormControl>
-                                  </PopoverTrigger>
-                                  <PopoverContent
-                                    className="w-auto p-0"
-                                    align="start"
-                                  >
-                                    <Calendar
-                                      mode="single"
-                                      captionLayout="dropdown"
-                                      fromYear={1900}
-                                      toYear={new Date().getFullYear()}
-                                      defaultMonth={new Date(2024, 6)}
-                                      selected={
-                                        field.value
-                                          ? new Date(field.value)
-                                          : undefined
-                                      }
-                                      onSelect={(value) =>
-                                        field.onChange(value?.toUTCString())
-                                      }
-                                      disabled={(date: Date) =>
-                                        date > new Date() ||
-                                        date < new Date("1900-01-01")
-                                      }
+                                        <Calendar
+                                          mode="single"
+                                          captionLayout="dropdown"
+                                          fromYear={1900}
+                                          toYear={new Date().getFullYear()}
+                                          defaultMonth={new Date(2024, 6)}
+                                          selected={
+                                            field.value
+                                              ? new Date(field.value)
+                                              : undefined
+                                          }
+                                          onSelect={(value) =>
+                                            field.onChange(value?.toUTCString())
+                                          }
+                                          disabled={(date: Date) =>
+                                            date > new Date() ||
+                                            date < new Date("1900-01-01")
+                                          }
+                                        />
+                                      </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                    <input
+                                      type="hidden"
+                                      name={`_positions.${index}._deathDate`}
+                                      value={field.value}
                                     />
-                                  </PopoverContent>
-                                </Popover>
-                                <FormMessage />
-                                <input
-                                  type="hidden"
-                                  name={`_positions.${index}._birthDate`}
-                                  value={field.value}
-                                />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name={`_positions.${index}._deathDate`}
-                            render={({ field }) => (
-                              <FormItem className="flex flex-col">
-                                <FormLabel>Date of death</FormLabel>
-                                <Popover>
-                                  <PopoverTrigger asChild>
-                                    <FormControl>
-                                      <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                          "w-full pl-3 text-left font-normal",
-                                          !field.value &&
-                                            "text-muted-foreground"
-                                        )}
-                                      >
-                                        {field.value ? (
-                                          format(field.value, "PPP")
-                                        ) : (
-                                          <span>Pick a date</span>
-                                        )}
-                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                      </Button>
-                                    </FormControl>
-                                  </PopoverTrigger>
-                                  <PopoverContent
-                                    className="w-auto p-0"
-                                    align="start"
-                                  >
-                                    <Calendar
-                                      mode="single"
-                                      captionLayout="dropdown"
-                                      fromYear={1900}
-                                      toYear={new Date().getFullYear()}
-                                      defaultMonth={new Date(2024, 6)}
-                                      selected={
-                                        field.value
-                                          ? new Date(field.value)
-                                          : undefined
-                                      }
-                                      onSelect={(value) =>
-                                        field.onChange(value?.toUTCString())
-                                      }
-                                      disabled={(date: Date) =>
-                                        date > new Date() ||
-                                        date < new Date("1900-01-01")
-                                      }
-                                    />
-                                  </PopoverContent>
-                                </Popover>
-                                <FormMessage />
-                                <input
-                                  type="hidden"
-                                  name={`_positions.${index}._deathDate`}
-                                  value={field.value}
-                                />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          ) : null}
+                        </>
                       ) : null}
                     </div>
                     {/* <Button variant="outline" disabled>
@@ -1130,28 +1137,28 @@ export default function NationalSectionForm({
                                     buttonClassName="w-full"
                                     defaultDates={{
                                       from: form.getValues(
-                                        `_events.${index}._rangeDate.from`
+                                        `_events.${index}._rangeDate.from`,
                                       )
                                         ? new Date(
                                             form.getValues(
-                                              `_events.${index}._rangeDate.from`
-                                            )
+                                              `_events.${index}._rangeDate.from`,
+                                            ),
                                           )
                                         : undefined,
                                       to:
                                         form.getValues(
-                                          `_events.${index}._rangeDate.to`
+                                          `_events.${index}._rangeDate.to`,
                                         ) &&
                                         form.getValues(
-                                          `_events.${index}._rangeDate.from`
+                                          `_events.${index}._rangeDate.from`,
                                         ) !==
                                           form.getValues(
-                                            `_events.${index}._rangeDate.to`
+                                            `_events.${index}._rangeDate.to`,
                                           )
                                           ? new Date(
                                               form.getValues(
-                                                `_events.${index}._rangeDate.to`
-                                              )!
+                                                `_events.${index}._rangeDate.to`,
+                                              )!,
                                             )
                                           : undefined,
                                     }}
@@ -1175,16 +1182,16 @@ export default function NationalSectionForm({
                                 </>
                               </FormControl>
                               {form?.getFieldState(
-                                `_events.${index}._rangeDate.from`
+                                `_events.${index}._rangeDate.from`,
                               ).error?.message ? (
                                 <p
                                   className={cn(
-                                    "text-sm font-medium text-destructive"
+                                    "text-sm font-medium text-destructive",
                                   )}
                                 >
                                   {
                                     form?.getFieldState(
-                                      `_events.${index}._rangeDate.from`
+                                      `_events.${index}._rangeDate.from`,
                                     ).error?.message
                                   }
                                 </p>
@@ -1213,16 +1220,16 @@ export default function NationalSectionForm({
                   value={eventFields.length}
                 />
               </div>
-              <div className="space-y-4 border-t pt-4">
+              {/* <div className="space-y-4 border-t pt-4">
                 <h2 className="text-lg font-semibold">Module 2: Members</h2>
                 <p className="text-sm text-muted-foreground">
                   Register your members. Only the sections and groups approved
                   by you will be visible to the public. You need to register at
                   least one international festival.
                 </p>
-              </div>
+              </div> */}
 
-              <div className="space-y-4 border-t pt-4">
+              {/* <div className="space-y-4 border-t pt-4">
                 <h2 className="text-lg font-semibold">Festivals</h2>
                 {festivalFields.map((field, index) => {
                   return (
@@ -1332,7 +1339,7 @@ export default function NationalSectionForm({
                           )}
                         />
                       </div>
-                      {/* <div className="grid w-full items-center gap-1.5">
+                      <div className="grid w-full items-center gap-1.5">
                         <FormField
                           control={form.control}
                           name={`_festivals.${index}.certificationFile`}
@@ -1352,7 +1359,7 @@ export default function NationalSectionForm({
                                   onChange={(event) =>
                                     onChange(
                                       event.target.files &&
-                                        event.target.files[0]
+                                        event.target.files[0],
                                     )
                                   }
                                 />
@@ -1372,8 +1379,8 @@ export default function NationalSectionForm({
                             Turn off profile
                           </Label>
                         </div>
-                      </div> */}
-                      {/* {festivalFields.length > 1 && (
+                      </div>
+                      {festivalFields.length > 1 && (
                         <Button
                           variant="destructive"
                           size="sm"
@@ -1381,7 +1388,7 @@ export default function NationalSectionForm({
                         >
                           <Trash2 className="mr-2 h-4 w-4" /> Remove Festival
                         </Button>
-                      )} */}
+                      )}
                     </div>
                   );
                 })}
@@ -1403,8 +1410,8 @@ export default function NationalSectionForm({
                   name="_festivalSize"
                   value={festivalFields.length}
                 />
-              </div>
-              <div className="space-y-4 border-t pt-4">
+              </div> */}
+              {/* <div className="space-y-4 border-t pt-4">
                 <h2 className="text-lg font-semibold">Groups</h2>
                 {groupFields.map((field, index) => {
                   return (
@@ -1514,7 +1521,7 @@ export default function NationalSectionForm({
                           )}
                         />
                       </div>
-                      {/* <div className="grid w-full items-center gap-1.5">
+                      <div className="grid w-full items-center gap-1.5">
                         <FormField
                           control={form.control}
                           name={`_groups.${index}.certificationFile`}
@@ -1554,8 +1561,8 @@ export default function NationalSectionForm({
                             Turn off profile
                           </Label>
                         </div>
-                      </div> */}
-                      {/* {groupFields.length > 1 && (
+                      </div>
+                      {groupFields.length > 1 && (
                         <Button
                           variant="destructive"
                           size="sm"
@@ -1563,7 +1570,7 @@ export default function NationalSectionForm({
                         >
                           <Trash2 className="mr-2 h-4 w-4" /> Remove Group
                         </Button>
-                      )} */}
+                      )}
                     </div>
                   );
                 })}
@@ -1585,7 +1592,7 @@ export default function NationalSectionForm({
                   name="_groupSize"
                   value={groupFields.length}
                 />
-              </div>
+              </div> */}
             </CardContent>
           </Card>
           <div className="sticky bottom-5 mt-4 right-0 flex justify-end px-4">

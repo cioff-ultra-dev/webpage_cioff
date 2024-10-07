@@ -1,5 +1,14 @@
 import GroupForm from "@/components/common/group/form";
-import { getGroupById, GroupDetailsType } from "@/db/queries/groups";
+import {
+  AgeGroupsType,
+  getAllAgeGroups,
+  getAllGroupStyles,
+  getAllTypeOfGroups,
+  getGroupById,
+  GroupDetailsType,
+  GroupStyleType,
+  TypeOfGroupType,
+} from "@/db/queries/groups";
 
 export default async function EditGroup({
   params,
@@ -10,5 +19,17 @@ export default async function EditGroup({
     Number(params.id)
   );
 
-  return <GroupForm currentGroup={group} id={params.id} />;
+  const typeOfGroups: TypeOfGroupType = await getAllTypeOfGroups();
+  const ageGroups: AgeGroupsType = await getAllAgeGroups();
+  const groupStyles: GroupStyleType = await getAllGroupStyles();
+
+  return (
+    <GroupForm
+      currentGroup={group}
+      id={params.id}
+      typeOfGroups={typeOfGroups}
+      ageGroups={ageGroups}
+      groupStyles={groupStyles}
+    />
+  );
 }

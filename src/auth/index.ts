@@ -70,7 +70,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    session({ session, token, user }) {
+    session({ session, token }) {
       session.user = token.user as UserDataAuthType;
       return session;
     },
