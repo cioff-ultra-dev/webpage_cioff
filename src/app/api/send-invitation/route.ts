@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
         await transport.sendMail({
           from: process.env.GMAIL_USER,
           to: [user.email],
-          subject: t("email.activation_account"),
+          subject: emailTemplate.subject || t("email.activation_account"),
           html: message,
         });
 
