@@ -101,7 +101,7 @@ const globalGroupSchema = insertGroupSchema.extend({
   _subgroups: z.array(
     insertSubGroupSchema.extend({
       _lang: insertSubGroupLangSchema,
-    })
+    }),
   ),
 });
 
@@ -262,7 +262,7 @@ export default function GroupForm({
   const [selectedTypeOfGroup, setSelectedTypeOfGroup] = useState<string[]>([]);
   const [selectedGroupAge, setSelectedGroupAge] = useState<string[]>([]);
   const [selectedStyleOfGroup, setSelectedStyleOfGroup] = useState<string[]>(
-    []
+    [],
   );
 
   const t = useTranslations("form.group");
@@ -295,12 +295,12 @@ export default function GroupForm({
   const updateRepertoireItem = (
     id: number,
     field: keyof RepertoireItem,
-    value: string | FileList | null
+    value: string | FileList | null,
   ) => {
     setRepertoire(
       repertoire.map((item) =>
-        item.id === id ? { ...item, [field]: value } : item
-      )
+        item.id === id ? { ...item, [field]: value } : item,
+      ),
     );
   };
 
@@ -321,13 +321,13 @@ export default function GroupForm({
     {
       control: form.control,
       name: "_subgroups",
-    }
+    },
   );
 
   const formRef = useRef<HTMLFormElement>(null);
 
   const onSubmitForm: SubmitHandler<z.infer<typeof globalGroupSchema>> = async (
-    _data
+    _data,
   ) => {
     // const result = await updateNationalSection(new FormData(formRef.current!));
     // if (result.success) {
@@ -456,7 +456,6 @@ export default function GroupForm({
                             accept="image/*"
                             onChange={field.onChange}
                             onBlur={field.onBlur}
-                            value={field.value || ""}
                             name={field.name}
                           />
                         </FormControl>
@@ -613,7 +612,6 @@ export default function GroupForm({
                             accept="image/*"
                             onChange={field.onChange}
                             onBlur={field.onBlur}
-                            value={field.value || ""}
                             name={field.name}
                           />
                         </FormControl>
@@ -704,7 +702,7 @@ export default function GroupForm({
                                 setSelectedTypeOfGroup(values);
                                 form.setValue(
                                   "_typeOfGroup",
-                                  JSON.stringify(values)
+                                  JSON.stringify(values),
                                 );
                               }}
                             />
@@ -792,7 +790,7 @@ export default function GroupForm({
                                 setSelectedGroupAge(values);
                                 form.setValue(
                                   "_groupAge",
-                                  JSON.stringify(values)
+                                  JSON.stringify(values),
                                 );
                               }}
                             />
@@ -862,7 +860,7 @@ export default function GroupForm({
                                 setSelectedStyleOfGroup(values);
                                 form.setValue(
                                   "_styleOfGroup",
-                                  JSON.stringify(values)
+                                  JSON.stringify(values),
                                 );
                               }}
                             />
@@ -999,7 +997,7 @@ export default function GroupForm({
                                         setSelectedGroupAge(values);
                                         form.setValue(
                                           "_groupAge",
-                                          JSON.stringify(values)
+                                          JSON.stringify(values),
                                         );
                                       }}
                                     />
@@ -1077,7 +1075,7 @@ export default function GroupForm({
                                   defaultDates={{
                                     from: form.getValues(`_specificDate.from`)
                                       ? new Date(
-                                          form.getValues(`_specificDate.from`)
+                                          form.getValues(`_specificDate.from`),
                                         )
                                       : undefined,
                                     to:
@@ -1085,7 +1083,7 @@ export default function GroupForm({
                                       form.getValues(`_specificDate.from`) !==
                                         form.getValues(`_specificDate.to`)
                                         ? new Date(
-                                            form.getValues(`_specificDate.to`)!
+                                            form.getValues(`_specificDate.to`)!,
                                           )
                                         : undefined,
                                   }}
@@ -1102,7 +1100,7 @@ export default function GroupForm({
                               ?.message ? (
                               <p
                                 className={cn(
-                                  "text-sm font-medium text-destructive"
+                                  "text-sm font-medium text-destructive",
                                 )}
                               >
                                 {
@@ -1248,7 +1246,7 @@ export default function GroupForm({
                           updateRepertoireItem(
                             item.id,
                             "description",
-                            e.target.value
+                            e.target.value,
                           )
                         }
                       />
@@ -1266,7 +1264,7 @@ export default function GroupForm({
                           updateRepertoireItem(
                             item.id,
                             "photos",
-                            e.target.files
+                            e.target.files,
                           )
                         }
                       />
