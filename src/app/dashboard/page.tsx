@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { db } from "@/db";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -9,7 +10,21 @@ export default async function DashboardPage() {
   const pathname = headerList.get("x-current-path");
   const isRootDashboard = pathname === "/dashboard";
 
+  if (!session) {
+    return redirect("/login");
+  }
+
+  const currentInfo = await db.query.users.findFirst({
+    where(fields, { eq }) {
+      return eq(fields.id, session.user.id!);
+    },
+  });
+
   if (isRootDashboard) {
+    if (!currentInfo?.active) {
+      return redirect("/dashboard/settings#change-password");
+    }
+
     if (
       session?.user.role?.name === "Admin" ||
       session?.user.role?.name === "Council" ||
