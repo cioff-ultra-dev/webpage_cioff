@@ -93,14 +93,16 @@ export default async function DashboardPage() {
                 </Button>
               </Link>
             ) : null}
-            <Link href="/dashboard/groups/new">
-              <Button size="sm" className="h-8 gap-1">
-                <CirclePlusIcon className="h-3.5 w-3.5" />
-                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  Add Group
-                </span>
-              </Button>
-            </Link>
+            {session?.user.role?.name === "Admin" ? (
+              <Link href="/dashboard/groups/new">
+                <Button size="sm" className="h-8 gap-1">
+                  <CirclePlusIcon className="h-3.5 w-3.5" />
+                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                    Add Group
+                  </span>
+                </Button>
+              </Link>
+            ) : null}
           </div>
         </div>
       </div>

@@ -43,11 +43,6 @@ export default async function DashboardPage() {
     const [currentData] = response;
 
     festivals = currentData.ns?.festivals ?? [];
-    // console.log(
-    //   festivals.map((item) => {
-    //     return item.owners;
-    //   })
-    // );
   }
 
   return (
@@ -94,14 +89,16 @@ export default async function DashboardPage() {
                 </Button>
               </Link>
             ) : null}
-            <Link href="/dashboard/festivals/new">
-              <Button size="sm" variant="default" className="h-8 gap-1">
-                <CirclePlusIcon className="h-3.5 w-3.5" />
-                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  Add Festival
-                </span>
-              </Button>
-            </Link>
+            {session?.user.role?.name === "Admin" ? (
+              <Link href="/dashboard/festivals/new">
+                <Button size="sm" variant="default" className="h-8 gap-1">
+                  <CirclePlusIcon className="h-3.5 w-3.5" />
+                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                    Add Festival
+                  </span>
+                </Button>
+              </Link>
+            ) : null}
           </div>
         </div>
       </div>

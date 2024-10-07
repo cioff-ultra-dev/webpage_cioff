@@ -73,6 +73,9 @@ import {
   DatePickerWithRange,
   DateRangeProps,
 } from "@/components/ui/datepicker-with-range";
+import { Session } from "next-auth";
+import { customRevalidatePath } from "../revalidateTag";
+import { useRouter } from "next/navigation";
 
 const dateRangeSchema = z.object({
   id: z.string().optional(),
@@ -151,6 +154,7 @@ export default function EventForm({
   currentCategoriesSelected,
   slug,
   locale,
+  session,
 }: {
   categoryGroups: CategoryGroupWithCategories[];
   languages: SelectLanguages[];
@@ -162,9 +166,12 @@ export default function EventForm({
   id?: string;
   slug?: string;
   locale?: string;
+  session?: Session;
 }) {
   useI18nZodErrors("festival");
   const t = useTranslations("form.festival");
+  const router = useRouter();
+  const isNSAccount = session?.user.role?.name === "National Sections";
 
   const [selectedPlace, setSelectedPlace] =
     useState<google.maps.places.PlaceResult | null>(null);
@@ -177,6 +184,7 @@ export default function EventForm({
   const [progress, setProgress] = React.useState(13);
   const form = useForm<z.infer<typeof globalEventSchema>>({
     resolver: zodResolver(globalEventSchema),
+    shouldUnregister: isNSAccount,
     defaultValues: {
       id: id ? Number(id) : 0,
       _nextDates:
@@ -247,12 +255,11 @@ export default function EventForm({
       toast.error(result.error);
     }
 
-    // customRevalidatePath(`/dashboard/national-sections/${slug}/edit`);
-    // customRevalidatePath("/dashboard/national-sections");
+    customRevalidatePath("/dashboard/national-sections");
 
-    // if (result.success) {
-    // router.push("/dashboard/national-sections");
-    // }
+    if (result.success) {
+      router.push("/dashboard/national-sections");
+    }
   };
 
   const { fields: currentDateFields, append: appendCurrentDates } =
@@ -331,7 +338,7 @@ export default function EventForm({
                             {t("name")}
                           </FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input {...field} disabled={isNSAccount} />
                           </FormControl>
                           <FormDescription>
                             This is your current festival name
@@ -351,7 +358,7 @@ export default function EventForm({
                             {t("directorName")}
                           </FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input {...field} disabled={isNSAccount} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -360,7 +367,11 @@ export default function EventForm({
                   </div>
                   <div>
                     <Label>State Mode</Label>
-                    <RadioGroup defaultValue="offline" name="stateMode">
+                    <RadioGroup
+                      defaultValue="offline"
+                      name="stateMode"
+                      disabled={isNSAccount}
+                    >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="online" id="r1" />
                         <Label htmlFor="r1">Online</Label>
@@ -386,6 +397,7 @@ export default function EventForm({
                               id="phone"
                               placeholder="Enter a phone number"
                               international
+                              disabled={isNSAccount}
                               {...fieldRest}
                             />
                           </FormControl>
@@ -407,7 +419,7 @@ export default function EventForm({
                             Email Address
                           </FormLabel>
                           <FormControl>
-                            <Input {...field} readOnly disabled />
+                            <Input {...field} readOnly />
                           </FormControl>
                           <FormDescription>
                             Current user owner of this festival
@@ -431,6 +443,7 @@ export default function EventForm({
                               id="location_festival"
                               {...field}
                               defaultPlace={field.value!}
+                              disabled={isNSAccount}
                               onPlaceSelect={(currentPlace) => {
                                 field.onChange(currentPlace?.formatted_address);
                                 setSelectedPlace(currentPlace);
@@ -523,6 +536,7 @@ export default function EventForm({
                               className="resize-none h-32"
                               {...restField}
                               value={value ?? ""}
+                              disabled={isNSAccount}
                             />
                           </FormControl>
                           <FormDescription>
@@ -549,6 +563,7 @@ export default function EventForm({
                                   value={field.value}
                                   name={field.name}
                                   type="hidden"
+                                  disabled={isNSAccount}
                                 />
                               </FormControl>
                             )}
@@ -565,6 +580,7 @@ export default function EventForm({
                                       <DatePickerWithRange
                                         className="w-full"
                                         buttonClassName="w-full"
+                                        disabled={isNSAccount}
                                         defaultDates={{
                                           from: form.getValues(
                                             `_currentDates.${index}._rangeDate.from`
@@ -642,6 +658,7 @@ export default function EventForm({
                         appendCurrentDates({ _rangeDate: { from: "" } })
                       }
                       className="mt-2"
+                      disabled={isNSAccount}
                     >
                       <PlusCircle className="mr-2 h-4 w-4" /> Add Current Date
                     </Button>
@@ -667,6 +684,7 @@ export default function EventForm({
                                   value={field.value}
                                   name={field.name}
                                   type="hidden"
+                                  disabled={isNSAccount}
                                 />
                               </FormControl>
                             )}
@@ -724,7 +742,10 @@ export default function EventForm({
                                           addYears(new Date(), 1)
                                         )}
                                         disabled={(date) => {
-                                          return date < endOfYear(new Date());
+                                          return (
+                                            date < endOfYear(new Date()) ||
+                                            isNSAccount
+                                          );
                                         }}
                                       />
                                       <input
@@ -768,6 +789,7 @@ export default function EventForm({
                         appendNextDates({ _rangeDate: { from: "" } })
                       }
                       className="mt-2"
+                      disabled={isNSAccount}
                     >
                       <PlusCircle className="mr-2 h-4 w-4" /> Add Next Date
                     </Button>
@@ -820,6 +842,7 @@ export default function EventForm({
                                   <MultiSelect
                                     options={options}
                                     ref={field.ref}
+                                    disabled={isNSAccount}
                                     value={field.value as string[]}
                                     defaultValue={(
                                       field.value as string[]
@@ -848,6 +871,7 @@ export default function EventForm({
                                   <Select
                                     name={`_${camelCase(item.slug!)}`}
                                     defaultValue={field.value}
+                                    disabled={isNSAccount}
                                     onValueChange={(value) => {
                                       field.onChange(value);
                                       setSelectedGroupCategories(
@@ -927,6 +951,7 @@ export default function EventForm({
                                 accept="image/*"
                                 ref={field.ref}
                                 type="file"
+                                disabled={isNSAccount}
                               />
                             </FormControl>
                             <FormDescription>
@@ -949,6 +974,7 @@ export default function EventForm({
                             <AutocompletePlaces
                               id="transport_location_festival"
                               {...field}
+                              disabled={isNSAccount}
                               onPlaceSelect={(currentPlace) => {
                                 setSelectedTransportPlace(currentPlace);
                                 form.setValue(
@@ -1023,6 +1049,7 @@ export default function EventForm({
                               <MultiSelect
                                 options={options}
                                 defaultValue={field.value?.split(",")}
+                                disabled={isNSAccount}
                                 onValueChange={(values) => {
                                   setSelectedLanguages(values);
                                   form.setValue(
@@ -1056,7 +1083,11 @@ export default function EventForm({
                             Other language your translator know to speak
                           </FormLabel>
                           <FormControl>
-                            <Input {...restFields} value={value ?? ""} />
+                            <Input
+                              {...restFields}
+                              disabled={isNSAccount}
+                              value={value ?? ""}
+                            />
                           </FormControl>
                           <FormDescription>
                             Include another language that support
@@ -1087,6 +1118,7 @@ export default function EventForm({
                               }
                               name={field.name}
                               type="number"
+                              disabled={isNSAccount}
                             />
                             <FormMessage />
                           </FormItem>
@@ -1116,6 +1148,7 @@ export default function EventForm({
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                             name={field.name}
+                            disabled={isNSAccount}
                           >
                             <FormControl>
                               <SelectTrigger>
@@ -1160,6 +1193,7 @@ export default function EventForm({
                             id="recognizedSince"
                             name="recognizedSince"
                             placeholder="e.g., 2014 - 2024"
+                            disabled={isNSAccount}
                           />
                         </div>
                         <div>
@@ -1170,6 +1204,7 @@ export default function EventForm({
                             id="financialCompensation"
                             name="financialCompensation"
                             placeholder="If ticked: How much?"
+                            disabled={isNSAccount}
                           />
                         </div>
                         <div>
@@ -1180,6 +1215,7 @@ export default function EventForm({
                                 id="liveMusicRequired"
                                 name="components"
                                 value="liveMusicRequired"
+                                disabled={isNSAccount}
                               />
                               <Label htmlFor="liveMusicRequired">
                                 Live music required
@@ -1190,6 +1226,7 @@ export default function EventForm({
                                 id="traditionalTrade"
                                 name="components"
                                 value="traditionalTrade"
+                                disabled={isNSAccount}
                               />
                               <Label htmlFor="traditionalTrade">
                                 Traditional trade
@@ -1200,6 +1237,7 @@ export default function EventForm({
                                 id="traditionalFood"
                                 name="components"
                                 value="traditionalFood"
+                                disabled={isNSAccount}
                               />
                               <Label htmlFor="traditionalFood">
                                 Traditional food
@@ -1210,6 +1248,7 @@ export default function EventForm({
                                 id="exhibitions"
                                 name="components"
                                 value="exhibitions"
+                                disabled={isNSAccount}
                               />
                               <Label htmlFor="exhibitions">Exhibitions</Label>
                             </div>
@@ -1218,6 +1257,7 @@ export default function EventForm({
                                 id="traditionalGames"
                                 name="components"
                                 value="traditionalGames"
+                                disabled={isNSAccount}
                               />
                               <Label htmlFor="traditionalGames">
                                 Traditional games
@@ -1227,6 +1267,7 @@ export default function EventForm({
                               <Checkbox
                                 id="workshops"
                                 name="components"
+                                disabled={isNSAccount}
                                 value="workshops"
                               />
                               <Label htmlFor="workshops">Workshops</Label>
@@ -1251,6 +1292,7 @@ export default function EventForm({
                       type="file"
                       multiple
                       accept="image/*"
+                      disabled={isNSAccount}
                     />
                     <p className="text-sm text-gray-500">
                       Max 5 photos x 3MB each
@@ -1263,12 +1305,19 @@ export default function EventForm({
                       name="coverPhoto"
                       type="file"
                       accept="image/*"
+                      disabled={isNSAccount}
                     />
                     <p className="text-sm text-gray-500">Size TBC</p>
                   </div>
                   <div>
                     <Label htmlFor="logo">Logo</Label>
-                    <Input id="logo" name="logo" type="file" accept="image/*" />
+                    <Input
+                      id="logo"
+                      name="logo"
+                      type="file"
+                      accept="image/*"
+                      disabled={isNSAccount}
+                    />
                     <p className="text-sm text-gray-500">Size TBC</p>
                   </div>
                   <div>
@@ -1277,14 +1326,27 @@ export default function EventForm({
                       id="youtubeId"
                       name="youtubeId"
                       placeholder="YouTube ID"
+                      disabled={isNSAccount}
                     />
                   </div>
                   <div>
                     <Label>Social media</Label>
                     <div className="space-y-2">
-                      <Input name="facebook" placeholder="Facebook link" />
-                      <Input name="instagram" placeholder="Instagram Link" />
-                      <Input name="website" placeholder="Website link" />
+                      <Input
+                        name="facebook"
+                        placeholder="Facebook link"
+                        disabled={isNSAccount}
+                      />
+                      <Input
+                        name="instagram"
+                        placeholder="Instagram Link"
+                        disabled={isNSAccount}
+                      />
+                      <Input
+                        name="website"
+                        placeholder="Website link"
+                        disabled={isNSAccount}
+                      />
                     </div>
                   </div>
                 </CardContent>
@@ -1299,7 +1361,7 @@ export default function EventForm({
                   <Label htmlFor="cioffGroups">
                     Do you have any CIOFF groups confirmed so far?
                   </Label>
-                  <Select name="cioffGroups">
+                  <Select name="cioffGroups" disabled={isNSAccount}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
@@ -1313,7 +1375,7 @@ export default function EventForm({
                   <Label htmlFor="lookingForGroups">
                     Are you looking for groups?
                   </Label>
-                  <Select name="lookingForGroups">
+                  <Select name="lookingForGroups" disabled={isNSAccount}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
@@ -1338,44 +1400,47 @@ export default function EventForm({
                     id="recognitionCertificate"
                     name="recognitionCertificate"
                     type="file"
+                    disabled={isNSAccount}
                   />
                 </div>
               </CardContent>
             </Card>
-            <div className="sticky bottom-5 right-0 flex justify-end px-4">
-              <Card className="flex justify-end gap-4 w-full">
-                <CardContent className="flex-row items-center p-4 flex w-full justify-between">
-                  <div className="flex-1">
-                    <Label className="text-sm font-medium flex items-center gap-1">
-                      Progress
-                      {progress >= 50 && (
-                        <CircleCheck
-                          size={15}
-                          className={cn(
-                            (progress >= 50 || progress <= 99) &&
-                              "text-primary",
-                            progress === 100 && "text-green-600"
-                          )}
-                        />
-                      )}
-                    </Label>
-                    <Progress
-                      value={progress}
-                      className={cn("w-[50%] h-2 mt-2")}
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="ghost" asChild>
-                      <Link href="/dashboard/festivals">Cancel</Link>
-                    </Button>
-                    <Submit
-                      label="Publish"
-                      isLoading={form.formState.isSubmitting}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            {!isNSAccount ? (
+              <div className="sticky bottom-5 right-0 flex justify-end px-4">
+                <Card className="flex justify-end gap-4 w-full">
+                  <CardContent className="flex-row items-center p-4 flex w-full justify-between">
+                    <div className="flex-1">
+                      <Label className="text-sm font-medium flex items-center gap-1">
+                        Progress
+                        {progress >= 50 && (
+                          <CircleCheck
+                            size={15}
+                            className={cn(
+                              (progress >= 50 || progress <= 99) &&
+                                "text-primary",
+                              progress === 100 && "text-green-600"
+                            )}
+                          />
+                        )}
+                      </Label>
+                      <Progress
+                        value={progress}
+                        className={cn("w-[50%] h-2 mt-2")}
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="ghost" asChild>
+                        <Link href="/dashboard/festivals">Cancel</Link>
+                      </Button>
+                      <Submit
+                        label="Publish"
+                        isLoading={form.formState.isSubmitting}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : null}
           </form>
         </Form>
       </div>
