@@ -28,14 +28,22 @@ import { EllipsisVertical, Send } from "lucide-react";
 import { getFormatter, getLocale } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
 import { auth } from "@/auth";
+import SendInvitation from "../../../components/common/send-invitation";
 
 export default async function DashboardPage() {
   const session = await auth();
   const locale = await getLocale();
   const formatter = await getFormatter();
-  const festivals = (await getAllFestivalsByOwner(locale))
+  const response = await getAllFestivalsByOwner(locale);
+  let festivals = response
     .filter((item) => item.festival)
     .map((item) => item.festival);
+
+  if (session?.user.role?.name === "National Sections") {
+    const [currentData] = response;
+
+    festivals = currentData.ns?.festivals ?? [];
+  }
 
   return (
     <Tabs defaultValue="all">
@@ -123,7 +131,7 @@ export default async function DashboardPage() {
                           {item?.langs.find((item) => item.l?.code === locale)
                             ?.name ||
                             item?.langs.find(
-                              (item) => item.l?.code === defaultLocale,
+                              (item) => item.l?.code === defaultLocale
                             )?.name}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
@@ -169,8 +177,14 @@ export default async function DashboardPage() {
                                   Edit
                                 </Link>
                               </DropdownMenuItem>
-                              <DropdownMenuItem disabled>
-                                Delete
+                              <DropdownMenuItem>
+                                {item?.email ? (
+                                  <SendInvitation
+                                    email={item.email}
+                                    festivalId={item.id}
+                                    roleName="Festivals"
+                                  />
+                                ) : null}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>

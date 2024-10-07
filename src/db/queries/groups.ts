@@ -48,17 +48,15 @@ export async function getAllGroupsByOwner(locale: string) {
     .from(languages)
     .where(inArray(languages.code, pushLocales));
 
-  return db.query.groups.findMany({
+  return db.query.owners.findMany({
+    where(fields, { eq }) {
+      return eq(fields.userId, session?.user.id!);
+    },
     with: {
-      country: true,
-      owners: {
-        where(fields, { eq }) {
-          return eq(fields.userId, session?.user.id!);
-        },
+      ns: {
         with: {
-          group: {
+          groups: {
             with: {
-              country: true,
               langs: {
                 where(fields, { inArray }) {
                   return inArray(fields.lang, sq);
@@ -71,21 +69,33 @@ export async function getAllGroupsByOwner(locale: string) {
           },
         },
       },
+      group: {
+        with: {
+          langs: {
+            where(fields, { inArray }) {
+              return inArray(fields.lang, sq);
+            },
+            with: {
+              l: true,
+            },
+          },
+        },
+      },
     },
   });
 }
 
 export async function getAllTypeOfGroups() {
   const locale = await getLocale();
-  const lang = await preparedLanguagesByCode.execute({locale});
+  const lang = await preparedLanguagesByCode.execute({ locale });
   return db.query.categories.findMany({
     where(fields, operators) {
-      return operators.inArray(fields.slug, ["music", "dance"])
+      return operators.inArray(fields.slug, ["music", "dance"]);
     },
     with: {
       langs: {
         where(fields, operators) {
-          return operators.eq(fields.lang, lang?.id!)
+          return operators.eq(fields.lang, lang?.id!);
         },
       },
     },
@@ -96,15 +106,20 @@ export type TypeOfGroupType = Awaited<ReturnType<typeof getAllTypeOfGroups>>;
 
 export async function getAllAgeGroups() {
   const locale = await getLocale();
-  const lang = await preparedLanguagesByCode.execute({locale});
+  const lang = await preparedLanguagesByCode.execute({ locale });
   return db.query.categories.findMany({
     where(fields, operators) {
-      return operators.inArray(fields.slug, ["children", "seniors", "youth_adults", "teenagers"])
+      return operators.inArray(fields.slug, [
+        "children",
+        "seniors",
+        "youth_adults",
+        "teenagers",
+      ]);
     },
     with: {
       langs: {
         where(fields, operators) {
-          return operators.eq(fields.lang, lang?.id!)
+          return operators.eq(fields.lang, lang?.id!);
         },
       },
     },
@@ -115,15 +130,19 @@ export type AgeGroupsType = Awaited<ReturnType<typeof getAllAgeGroups>>;
 
 export async function getAllGroupStyles() {
   const locale = await getLocale();
-  const lang = await preparedLanguagesByCode.execute({locale});
+  const lang = await preparedLanguagesByCode.execute({ locale });
   return db.query.categories.findMany({
     where(fields, operators) {
-      return operators.inArray(fields.slug, ["authentic", "elaborated", "stylized"])
+      return operators.inArray(fields.slug, [
+        "authentic",
+        "elaborated",
+        "stylized",
+      ]);
     },
     with: {
       langs: {
         where(fields, operators) {
-          return operators.eq(fields.lang, lang?.id!)
+          return operators.eq(fields.lang, lang?.id!);
         },
       },
     },

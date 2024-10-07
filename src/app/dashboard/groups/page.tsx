@@ -40,7 +40,14 @@ export default async function DashboardPage() {
   const session = await auth();
   const locale = await getLocale();
   const formatter = await getFormatter();
-  const groups = await getAllGroupsByOwner(locale);
+  const response = await getAllGroupsByOwner(locale);
+  let groups = response.filter((item) => item.group).map((item) => item.group);
+
+  if (session?.user.role?.name === "National Sections") {
+    const [currentData] = response;
+
+    groups = currentData.ns?.groups ?? [];
+  }
 
   return (
     <Tabs defaultValue="all">
@@ -123,24 +130,21 @@ export default async function DashboardPage() {
                 <TableBody>
                   {groups.map((item) => {
                     return (
-                      <TableRow key={item.id}>
+                      <TableRow key={item?.id}>
                         <TableCell className="font-medium">
-                          {item.owners
-                            .at(0)
-                            ?.group?.langs.find(
-                              (item) => item.l?.code === locale,
-                            )?.name ||
-                            item.owners
-                              .at(0)
-                              ?.group?.langs.find(
-                                (item) => item.l?.code === defaultLocale,
-                              )?.name}
+                          {item?.langs.find((item) => item.l?.code === locale)
+                            ?.name ||
+                            item?.langs.find(
+                              (item) => item.l?.code === defaultLocale
+                            )?.name}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
-                          {format(item.createdAt, "PPP")}
+                          {item?.createdAt
+                            ? format(item?.createdAt, "PPP")
+                            : null}
                         </TableCell>
                         <TableCell className="hidden md:table-cell capitalize">
-                          {item.country?.id}
+                          {/* {item.country?.id} */}
                         </TableCell>
                         <TableCell>
                           <DropdownMenu>
@@ -172,7 +176,7 @@ export default async function DashboardPage() {
                                 className="cursor-pointer"
                               >
                                 <Link
-                                  href={`/dashboard/groups/${item.id}/edit`}
+                                  href={`/dashboard/groups/${item?.id}/edit`}
                                 >
                                   Edit
                                 </Link>
