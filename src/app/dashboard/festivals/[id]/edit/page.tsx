@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import EventForm from "@/components/common/event/form";
 import { getCategoryGroupsWithCategories } from "@/db/queries/category-group";
 import {
@@ -15,6 +16,7 @@ export default async function EditFestival({
 }: {
   params: { id: string };
 }) {
+  const session = await auth();
   const locale = await getLocale();
   const t = await getTranslations("form.festival.tag");
   const festival: FestivalBySlugType | undefined = await getFestivalBySlug(
@@ -90,6 +92,7 @@ export default async function EditFestival({
       id={`${festival?.id}`}
       slug={params.id}
       locale={locale}
+      session={session!}
     />
   );
 }

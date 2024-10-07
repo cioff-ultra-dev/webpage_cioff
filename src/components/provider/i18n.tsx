@@ -21,7 +21,7 @@ export default function I18NProvider({
       onError={onError}
     >
       {children}
-      <SToaster />
+      <SToaster richColors />
     </NextIntlClientProvider>
   );
 }

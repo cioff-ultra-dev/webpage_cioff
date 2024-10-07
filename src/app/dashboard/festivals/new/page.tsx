@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import EventForm from "@/components/common/event/form";
 import { getCategoryGroupsWithCategories } from "@/db/queries/category-group";
 import { getCategoryForGroups } from "@/db/queries/events";
@@ -6,6 +7,7 @@ import { getAllStatuses } from "@/db/queries/statuses";
 import { getLocale, getTranslations } from "next-intl/server";
 
 export default async function NewEvent() {
+  const session = await auth();
   const locale = await getLocale();
   const languages = await getAllLanguages();
   const statuses = await getAllStatuses();
@@ -60,6 +62,7 @@ export default async function NewEvent() {
       languages={languages}
       statuses={statuses}
       locale={locale}
+      session={session!}
     />
   );
 }

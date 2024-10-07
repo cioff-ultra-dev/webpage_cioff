@@ -43,11 +43,6 @@ export default async function DashboardPage() {
     const [currentData] = response;
 
     festivals = currentData.ns?.festivals ?? [];
-    // console.log(
-    //   festivals.map((item) => {
-    //     return item.owners;
-    //   })
-    // );
   }
 
   return (

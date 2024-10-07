@@ -22,9 +22,10 @@ interface Props {
   id?: string | null;
   onPlaceSelect: (place: google.maps.places.PlaceResult | null) => void;
   defaultPlace?: string;
+  disabled?: boolean;
 }
 const AutocompletePlaces = React.forwardRef<React.ElementRef<"button">, Props>(
-  ({ id, onPlaceSelect, defaultPlace }, ref) => {
+  ({ id, onPlaceSelect, defaultPlace, disabled = false }, ref) => {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const map = useMap(id);
@@ -115,6 +116,7 @@ const AutocompletePlaces = React.forwardRef<React.ElementRef<"button">, Props>(
               variant="outline"
               role="combobox"
               ref={ref}
+              disabled={disabled}
               aria-expanded={open}
               className="w-full justify-between overflow-hidden"
             >
