@@ -29,6 +29,9 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useI18nZodErrors } from "@/hooks/use-i18n-zod-errors";
+import { useRouter } from "next/navigation";
+import { customRevalidatePath } from "../revalidateTag";
+import { useSession } from "next-auth/react";
 
 const profileFieldSchema = accountFieldsSchema;
 
@@ -51,13 +54,14 @@ export default function SettingProfile({
   currentInfo: SelectUser;
 }) {
   useI18nZodErrors("profile");
+  const router = useRouter();
 
   const accountForm = useForm<z.infer<typeof profileFieldSchema>>({
     resolver: zodResolver(profileFieldSchema),
     defaultValues: {
-      firstname: currentInfo.firstname,
-      lastname: currentInfo.lastname,
-      email: currentInfo.email,
+      firstname: currentInfo?.firstname,
+      lastname: currentInfo?.lastname,
+      email: currentInfo?.email,
     },
   });
 
@@ -97,6 +101,9 @@ export default function SettingProfile({
 
     if (result.success) {
       passwordForm.reset();
+
+      customRevalidatePath("/dashboard");
+      router.push("/dashboard");
     }
   };
 
@@ -105,107 +112,9 @@ export default function SettingProfile({
 
   return (
     <>
-      <Card x-chunk="dashboard-04-chunk-1">
-        <CardHeader>
-          <CardTitle>Profile Fields</CardTitle>
-          <CardDescription>
-            Provide base fields related to your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...accountForm}>
-            <form
-              ref={accountFormRef}
-              onSubmit={accountForm.handleSubmit(onSubmitAccountForm)}
-              className="space-y-4"
-            >
-              <div className="grid w-full items-center gap-1.5">
-                <FormField
-                  control={accountForm.control}
-                  name="firstname"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>First name</FormLabel>
-                      <FormControl>
-                        <Input
-                          name={field.name}
-                          ref={field.ref}
-                          value={field.value || ""}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        This is your current first name.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="grid w-full items-center gap-1.5">
-                <FormField
-                  control={accountForm.control}
-                  name="lastname"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Last name</FormLabel>
-                      <FormControl>
-                        <Input
-                          name={field.name}
-                          ref={field.ref}
-                          value={field.value || ""}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        This is your current last name.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="grid w-full items-center gap-1.5">
-                <FormField
-                  control={accountForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email Address</FormLabel>
-                      <FormControl>
-                        <Input
-                          name={field.name}
-                          ref={field.ref}
-                          value={field.value || ""}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        This is your current email.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="border-t space-y-4 pt-4">
-                <Button
-                  type="submit"
-                  disabled={accountForm.formState.isSubmitting}
-                >
-                  Save
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
       <Card x-chunk="dashboard-04-chunk-2">
         <CardHeader>
-          <CardTitle>Change Password</CardTitle>
+          <CardTitle id="change-password">Change Password</CardTitle>
           <CardDescription>
             This section will provide changing your password account
           </CardDescription>
@@ -296,6 +205,104 @@ export default function SettingProfile({
                 <Button
                   type="submit"
                   disabled={passwordForm.formState.isSubmitting}
+                >
+                  Save
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+      <Card x-chunk="dashboard-04-chunk-1">
+        <CardHeader>
+          <CardTitle>Profile Fields</CardTitle>
+          <CardDescription>
+            Provide base fields related to your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...accountForm}>
+            <form
+              ref={accountFormRef}
+              onSubmit={accountForm.handleSubmit(onSubmitAccountForm)}
+              className="space-y-4"
+            >
+              <div className="grid w-full items-center gap-1.5">
+                <FormField
+                  control={accountForm.control}
+                  name="firstname"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>First name</FormLabel>
+                      <FormControl>
+                        <Input
+                          name={field.name}
+                          ref={field.ref}
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        This is your current first name.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="grid w-full items-center gap-1.5">
+                <FormField
+                  control={accountForm.control}
+                  name="lastname"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Last name</FormLabel>
+                      <FormControl>
+                        <Input
+                          name={field.name}
+                          ref={field.ref}
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        This is your current last name.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="grid w-full items-center gap-1.5">
+                <FormField
+                  control={accountForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email Address</FormLabel>
+                      <FormControl>
+                        <Input
+                          name={field.name}
+                          ref={field.ref}
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        This is your current email.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="border-t space-y-4 pt-4">
+                <Button
+                  type="submit"
+                  disabled={accountForm.formState.isSubmitting}
                 >
                   Save
                 </Button>
