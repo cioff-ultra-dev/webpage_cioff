@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 
       const currentCountry = await tx.query.countries.findFirst({
         where(fields, { eq }) {
-          return eq(fields.id, user.countryId!);
+          return eq(fields.id, countryId);
         },
       });
 
@@ -138,7 +138,8 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch (error) {
-    return Response.json({ error: "Soomething went wrong" });
+    console.log(error);
+    return Response.json({ error: "Something went wrong" });
   }
 
   return Response.json({ success: t("sent_success") });
