@@ -183,6 +183,7 @@ export default async function DashboardPage() {
                                     email={item.email}
                                     festivalId={item.id}
                                     roleName="Festivals"
+                                    countryId={item.countryId!}
                                   />
                                 ) : null}
                               </DropdownMenuItem>

@@ -18,10 +18,12 @@ export default function SendInvitation({
   email,
   festivalId,
   roleName,
+  countryId,
 }: {
   email: string;
   roleName: string;
   festivalId: number;
+  countryId: number;
 }) {
   const form = useForm<z.infer<typeof dataSchema>>({
     resolver: zodResolver(dataSchema),
@@ -37,11 +39,17 @@ export default function SendInvitation({
   ) => {
     const result = await (
       await fetch(
-        `/api/send-invitation?email=${email}&festivalId=${festivalId}&roleName=${roleName}`
+        `/api/send-invitation?email=${email}&festivalId=${festivalId}&roleName=${roleName}&countryId=${countryId}`
       )
     ).json();
 
-    console.log(result);
+    if (result.error) {
+      toast.error(result.error);
+    }
+
+    if (result.success) {
+      toast.success(result.success);
+    }
   };
 
   return (

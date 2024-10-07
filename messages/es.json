@@ -6,7 +6,10 @@
     "select": "Seleccionar idioma"
   },
   "notification": {
-    "success": "Guardado Exitosamente"
+    "success": "Guardado Exitosamente",
+    "email": {
+      "activation_account": "Activación Intranet CIOFF"
+    }
   },
   "link": {
     "dashboard": "Panel",

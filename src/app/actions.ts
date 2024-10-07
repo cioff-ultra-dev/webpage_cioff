@@ -208,8 +208,6 @@ export async function updateNationalSection(formData: FormData) {
   const locale = await getLocale();
   const t = await getTranslations("notification");
 
-  console.log(Object.fromEntries(formData));
-
   const nsId = Number(formData.get("id"));
   const name = formData.get("_lang.name") as string;
   const about = formData.get("_lang.about") as string;
@@ -440,6 +438,9 @@ export async function updateNationalSection(formData: FormData) {
           where: eq(roles.name, "Festivals"),
         });
 
+        const password = generator.generate({ length: 10, numbers: true });
+        const hashedPassword = await generateHashPassword(password);
+
         const [user] = await tx
           .insert(users)
           .values({
@@ -453,12 +454,36 @@ export async function updateNationalSection(formData: FormData) {
           })
           .returning();
 
-        if (user.email && !user.isCreationNotified && !user.emailVerified) {
+        if (user.email && !user.isCreationNotified) {
+          const currentCountry = await tx.query.countries.findFirst({
+            where(fields, { eq }) {
+              return eq(fields.id, user.countryId!);
+            },
+          });
+
+          const [emailTemplate] = await db
+            .select()
+            .from(emailTemplates)
+            .where(
+              and(
+                eq(emailTemplates.lang, currentCountry?.nativeLang! ?? 1),
+                eq(emailTemplates.tag, "festival-group")
+              )
+            );
+
+          const message = replaceTags(emailTemplate.template, {
+            name: name,
+            password: password,
+            url: `<a target="_blank" href="${
+              process.env.HOSTNAME_URL
+            }/login">${t("email.login_to")}</a>`,
+          });
+
           await transport.sendMail({
             from: process.env.GMAIL_USER,
             to: [user.email],
-            subject: `[REQUEST] - Verification your festival called ${name}`,
-            text: "You need to verify your account on the platform the ",
+            subject: t("email.activation_account"),
+            html: message,
           });
 
           await tx
@@ -545,12 +570,36 @@ export async function updateNationalSection(formData: FormData) {
           })
           .returning();
 
-        if (user.email && !user.isCreationNotified && !user.emailVerified) {
+        if (user.email && !user.isCreationNotified) {
+          const currentCountry = await tx.query.countries.findFirst({
+            where(fields, { eq }) {
+              return eq(fields.id, user.countryId!);
+            },
+          });
+
+          const [emailTemplate] = await db
+            .select()
+            .from(emailTemplates)
+            .where(
+              and(
+                eq(emailTemplates.lang, currentCountry?.nativeLang! ?? 1),
+                eq(emailTemplates.tag, "festival-group")
+              )
+            );
+
+          const message = replaceTags(emailTemplate.template, {
+            name: name,
+            // password: password,
+            url: `<a target="_blank" href="${
+              process.env.HOSTNAME_URL
+            }/login">${t("email.login_to")}</a>`,
+          });
+
           await transport.sendMail({
             from: process.env.GMAIL_USER,
             to: [user.email],
-            subject: `[REQUEST] - Verification your group called ${name}`,
-            text: "You need to verify your account on the platform the ",
+            subject: t("email.activation_account"),
+            html: message,
           });
 
           await tx
@@ -608,6 +657,8 @@ export async function updateNationalSection(formData: FormData) {
 }
 
 export async function createNationalSection(formData: FormData) {
+  const locale = await getLocale();
+  const t = await getTranslations("notification");
   const session = await auth();
   const name = formData.get("_lang.name") as string;
   const about = formData.get("_lang.about") as string;
@@ -619,6 +670,8 @@ export async function createNationalSection(formData: FormData) {
 
   const festivalsItems: InsertFestival[] = [];
   const groupsItems: InsertGroup[] = [];
+
+  const lang = await preparedLanguagesByCode.execute({ locale });
 
   await db.transaction(async (tx) => {
     for (let index = 0; index < festivalSize; index++) {
@@ -650,13 +703,43 @@ export async function createNationalSection(formData: FormData) {
         })
         .returning();
 
-      if (email) {
+      if (user.email && !user.isCreationNotified) {
+        const currentCountry = await tx.query.countries.findFirst({
+          where(fields, { eq }) {
+            return eq(fields.id, user.countryId!);
+          },
+        });
+
+        const [emailTemplate] = await db
+          .select()
+          .from(emailTemplates)
+          .where(
+            and(
+              eq(emailTemplates.lang, currentCountry?.nativeLang! ?? 1),
+              eq(emailTemplates.tag, "festival-group")
+            )
+          );
+
+        const message = replaceTags(emailTemplate.template, {
+          name: name,
+          // password: password,
+          email: user.email,
+          url: `<a target="_blank" href="${process.env.HOSTNAME_URL}/login">${t(
+            "email.login_to"
+          )}</a>`,
+        });
+
         await transport.sendMail({
           from: process.env.GMAIL_USER,
-          to: [email],
-          subject: `Request Verification your festival called ${name}`,
-          text: "You need to verify your account on the platform the ",
+          to: [user.email],
+          subject: t("email.activation_account"),
+          html: message,
         });
+
+        await tx
+          .update(users)
+          .set({ isCreationNotified: true })
+          .where(eq(users.id, user.id));
       }
 
       festivalsItems.push({
@@ -693,13 +776,42 @@ export async function createNationalSection(formData: FormData) {
         })
         .returning();
 
-      if (email) {
+      if (user.email && !user.isCreationNotified) {
+        const currentCountry = await tx.query.countries.findFirst({
+          where(fields, { eq }) {
+            return eq(fields.id, user.countryId!);
+          },
+        });
+
+        const [emailTemplate] = await db
+          .select()
+          .from(emailTemplates)
+          .where(
+            and(
+              eq(emailTemplates.lang, currentCountry?.nativeLang! ?? 1),
+              eq(emailTemplates.tag, "festival-group")
+            )
+          );
+
+        const message = replaceTags(emailTemplate.template, {
+          name: name,
+          // password: password,
+          url: `<a target="_blank" href="${process.env.HOSTNAME_URL}/login">${t(
+            "email.login_to"
+          )}</a>`,
+        });
+
         await transport.sendMail({
           from: process.env.GMAIL_USER,
-          to: [email],
-          subject: `Request Verification your festival called ${name}`,
-          text: "You need to verify your account on the platform",
+          to: [user.email],
+          subject: t("email.activation_account"),
+          html: message,
         });
+
+        await tx
+          .update(users)
+          .set({ isCreationNotified: true })
+          .where(eq(users.id, user.id));
       }
 
       groupsItems.push({
@@ -765,12 +877,22 @@ export async function generateFestival(formData: FormData) {
         lang: lang?.id,
       });
 
-      if (user.email && !user.isCreationNotified && !user.emailVerified) {
+      if (user.email && !user.isCreationNotified) {
+        const currentCountry = await tx.query.countries.findFirst({
+          where(fields, { eq }) {
+            return eq(fields.id, user.countryId!);
+          },
+        });
+
         const [emailTemplate] = await db
           .select()
           .from(emailTemplates)
-          .where(eq(emailTemplates.lang, lang?.id!));
-
+          .where(
+            and(
+              eq(emailTemplates.lang, currentCountry?.nativeLang! ?? 1),
+              eq(emailTemplates.tag, "festival-group")
+            )
+          );
         const message = replaceTags(emailTemplate.template, {
           name: name,
           password: password,
@@ -782,7 +904,7 @@ export async function generateFestival(formData: FormData) {
         await transport.sendMail({
           from: process.env.GMAIL_USER,
           to: [user.email],
-          subject: t("email.festival_invitation_subject"),
+          subject: t("email.activation_account"),
           html: message,
         });
 
@@ -860,10 +982,21 @@ export async function generateGroup(formData: FormData) {
         .returning();
 
       if (user.email && !user.isCreationNotified && !user.emailVerified) {
+        const currentCountry = await tx.query.countries.findFirst({
+          where(fields, { eq }) {
+            return eq(fields.id, user.countryId!);
+          },
+        });
+
         const [emailTemplate] = await db
           .select()
           .from(emailTemplates)
-          .where(eq(emailTemplates.lang, lang?.id!));
+          .where(
+            and(
+              eq(emailTemplates.lang, currentCountry?.nativeLang! ?? 1),
+              eq(emailTemplates.tag, "festival-group")
+            )
+          );
 
         const message = replaceTags(emailTemplate.template, {
           name: name,
@@ -876,7 +1009,7 @@ export async function generateGroup(formData: FormData) {
         await transport.sendMail({
           from: process.env.GMAIL_USER,
           to: [user.email],
-          subject: t("email.festival_invitation_subject"),
+          subject: t("email.activation_account"),
           html: message,
         });
 
