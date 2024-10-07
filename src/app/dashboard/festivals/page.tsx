@@ -43,6 +43,11 @@ export default async function DashboardPage() {
     const [currentData] = response;
 
     festivals = currentData.ns?.festivals ?? [];
+    // console.log(
+    //   festivals.map((item) => {
+    //     return item.owners;
+    //   })
+    // );
   }
 
   return (
@@ -114,6 +119,9 @@ export default async function DashboardPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
+                    <TableHead className="hidden md:table-cell">
+                      Owner
+                    </TableHead>
                     <TableHead className="hidden md:table-cell">Date</TableHead>
                     <TableHead className="hidden md:table-cell">
                       State
@@ -133,6 +141,9 @@ export default async function DashboardPage() {
                             item?.langs.find(
                               (item) => item.l?.code === defaultLocale
                             )?.name}
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          {item?.owners.at(0)?.user?.email || item?.email}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
                           {item?.createdAt

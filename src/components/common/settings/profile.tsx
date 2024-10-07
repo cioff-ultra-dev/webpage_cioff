@@ -74,7 +74,7 @@ export default function SettingProfile({
     z.infer<typeof profileFieldSchema>
   > = async (_data) => {
     const result = await updateAccountFields(
-      new FormData(accountFormRef.current!),
+      new FormData(accountFormRef.current!)
     );
     if (result.success) {
       toast.success(result.success);
@@ -91,7 +91,7 @@ export default function SettingProfile({
     z.infer<typeof accountPasswordSchema>
   > = async (_data) => {
     const result = await updatePasswordFields(
-      new FormData(passwordFormRef.current!),
+      new FormData(passwordFormRef.current!)
     );
     if (result.success) {
       toast.success(result.success);
@@ -99,10 +99,11 @@ export default function SettingProfile({
       toast.error(result.error);
     }
 
+    customRevalidatePath("/dashboard");
+
     if (result.success) {
       passwordForm.reset();
 
-      customRevalidatePath("/dashboard");
       router.push("/dashboard");
     }
   };

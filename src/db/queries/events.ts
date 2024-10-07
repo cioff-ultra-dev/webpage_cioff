@@ -35,7 +35,7 @@ export async function newFestival(festival: InsertFestival) {
 
 export async function getFestivalById(
   id: SelectFestival["id"],
-  locale: string,
+  locale: string
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
@@ -70,7 +70,7 @@ export async function getFestivalById(
 
 export async function getFestivalBySlug(
   slug: SelectFestival["slug"],
-  locale: string = defaultLocale as SelectLanguages["code"],
+  locale: string = defaultLocale as SelectLanguages["code"]
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
@@ -164,6 +164,11 @@ export async function getAllFestivalsByOwner(locale: string) {
         with: {
           festivals: {
             with: {
+              owners: {
+                with: {
+                  user: true,
+                },
+              },
               langs: {
                 where(fields, { inArray }) {
                   return inArray(fields.lang, sq);
@@ -178,6 +183,11 @@ export async function getAllFestivalsByOwner(locale: string) {
       },
       festival: {
         with: {
+          owners: {
+            with: {
+              user: true,
+            },
+          },
           langs: {
             where(fields, { inArray }) {
               return inArray(fields.lang, sq);
