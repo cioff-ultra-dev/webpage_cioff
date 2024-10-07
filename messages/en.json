@@ -11,10 +11,12 @@
   "notification": {
     "success": "Saved Successfully",
     "email_exist": "Email already exist",
+    "sent_success": "Sent Successfully",
     "email": {
       "festival_invitation_subject": "Festivals User Invitation - CIOFF",
       "group_invitation_subject": "Groups User Invitation - CIOFF",
-      "login_to": "Log in to CIOFF"
+      "login_to": "Log in to CIOFF",
+      "activation_account": "CIOFF Intranet Activation"
     }
   },
   "link": {

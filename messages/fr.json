@@ -3,6 +3,13 @@
   "locale_switch": {
     "select": "Sélectionner la langue"
   },
+  "notification": {
+    "success": "Saved Successfully",
+    "email_exist": "Email already exist",
+    "email": {
+      "activation_account": "Activation de l'intranet CIOFF"
+    }
+  },
   "form": {
     "name": "Name",
     "phone": "Phone Number",
