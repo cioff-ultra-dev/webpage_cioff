@@ -1056,6 +1056,14 @@ export const emailTemplates = pgTable("email_templates", {
   tag: text("tag"),
 });
 
+export const videoTutorialLinks = pgTable("video_tutorial_links", {
+  id: serial("id").primaryKey(),
+  lang: integer("lang").references(() => languages.id),
+  role: integer("role").references(() => roles.id),
+  link: text("link").notNull(),
+  tag: text("tag"),
+});
+
 /* Relations */
 
 export const userRelations = relations(users, ({ one }) => ({

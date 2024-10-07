@@ -5,6 +5,7 @@ import {
   owners,
   roles,
   users,
+  videoTutorialLinks,
 } from "@/db/schema";
 import { transport } from "@/lib/mailer";
 import replaceTags from "@codejamboree/replace-tags";
@@ -50,6 +51,16 @@ export async function GET(request: NextRequest) {
           return eq(fields.id, countryId);
         },
       });
+
+      const [video] = await tx
+        .select()
+        .from(videoTutorialLinks)
+        .where(
+          and(
+            eq(videoTutorialLinks.lang, currentCountry?.nativeLang! ?? 1),
+            eq(videoTutorialLinks.role, role?.id!)
+          )
+        );
 
       let name = "";
       const password = generator.generate({ length: 10, numbers: true });
@@ -121,7 +132,7 @@ export async function GET(request: NextRequest) {
             "email.login_to"
           )}</a>`,
           email: user.email,
-          video: `<a target="_blank" href="${process.env.HOSTNAME_URL}/login">See the video</a>`,
+          video: `<a target="_blank" href="${video.link}">Video</a>`,
         });
 
         await transport.sendMail({

@@ -26,6 +26,7 @@ import {
   socialMediaLinks,
   storages,
   users,
+  videoTutorialLinks,
 } from "@/db/schema";
 import { transport } from "@/lib/mailer";
 import { put } from "@vercel/blob";
@@ -884,6 +885,16 @@ export async function generateFestival(formData: FormData) {
           },
         });
 
+        const [video] = await tx
+          .select()
+          .from(videoTutorialLinks)
+          .where(
+            and(
+              eq(videoTutorialLinks.lang, currentCountry?.nativeLang! ?? 1),
+              eq(videoTutorialLinks.role, role?.id!)
+            )
+          );
+
         const [emailTemplate] = await db
           .select()
           .from(emailTemplates)
@@ -900,7 +911,7 @@ export async function generateFestival(formData: FormData) {
             "email.login_to"
           )}</a>`,
           email: user.email,
-          video: `<a target="_blank" href="${process.env.HOSTNAME_URL}/login">See the video</a>`,
+          video: `<a target="_blank" href="${video.link}">Video</a>`,
         });
 
         await transport.sendMail({
@@ -990,6 +1001,16 @@ export async function generateGroup(formData: FormData) {
           },
         });
 
+        const [video] = await tx
+          .select()
+          .from(videoTutorialLinks)
+          .where(
+            and(
+              eq(videoTutorialLinks.lang, currentCountry?.nativeLang! ?? 1),
+              eq(videoTutorialLinks.role, role?.id!)
+            )
+          );
+
         const [emailTemplate] = await db
           .select()
           .from(emailTemplates)
@@ -1007,7 +1028,7 @@ export async function generateGroup(formData: FormData) {
             "email.login_to"
           )}</a>`,
           email: user.email,
-          video: `<a target="_blank" href="${process.env.HOSTNAME_URL}/login">See the video</a>`,
+          video: `<a target="_blank" href="${video.link}">Video</a>`,
         });
 
         await transport.sendMail({
