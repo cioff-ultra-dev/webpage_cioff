@@ -34,8 +34,10 @@ import {
 } from "@/db/queries/national-sections";
 import { getFormatter, getLocale } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
+import { auth } from "@/auth";
 
 export default async function DashboardPage() {
+  const session = await auth();
   const locale = await getLocale();
   const formatter = await getFormatter();
   const nationalSections = (await getAllNationalSectionsByOwner(locale))
@@ -75,14 +77,16 @@ export default async function DashboardPage() {
           {/*     Export */}
           {/*   </span> */}
           {/* </Button> */}
-          <Link href="/dashboard/national-sections/new">
-            <Button size="sm" className="h-8 gap-1">
-              <CirclePlusIcon className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Add National Section
-              </span>
-            </Button>
-          </Link>
+          {session?.user.role?.name === "Admin" ? (
+            <Link href="/dashboard/national-sections/new">
+              <Button size="sm" className="h-8 gap-1">
+                <CirclePlusIcon className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Add National Section
+                </span>
+              </Button>
+            </Link>
+          ) : null}
         </div>
       </div>
       <TabsContent value="all">
@@ -116,7 +120,7 @@ export default async function DashboardPage() {
                           {item?.langs.find((item) => item.l?.code === locale)
                             ?.name ||
                             item?.langs.find(
-                              (item) => item.l?.code === defaultLocale,
+                              (item) => item.l?.code === defaultLocale
                             )?.name}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
@@ -132,7 +136,7 @@ export default async function DashboardPage() {
                           {item?.langs.find((item) => item.l?.code === locale)
                             ?.about ||
                             item?.langs.find(
-                              (item) => item.l?.code === defaultLocale,
+                              (item) => item.l?.code === defaultLocale
                             )?.about}
                         </TableCell>
                         <TableCell>

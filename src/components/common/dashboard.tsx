@@ -99,7 +99,7 @@ export default async function Dashboard({
               </TooltipTrigger>
               <TooltipContent side="right">{t("groups")}</TooltipContent>
             </Tooltip>
-            <Tooltip>
+            {/* <Tooltip>
               <TooltipTrigger asChild>
                 <Link
                   href="/dashboard/reports"
@@ -111,7 +111,7 @@ export default async function Dashboard({
                 </Link>
               </TooltipTrigger>
               <TooltipContent side="right">Reports</TooltipContent>
-            </Tooltip>
+            </Tooltip> */}
           </TooltipProvider>
         </nav>
         <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">

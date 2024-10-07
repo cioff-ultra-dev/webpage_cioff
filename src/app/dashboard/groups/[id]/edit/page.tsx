@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import GroupForm from "@/components/common/group/form";
 import {
   AgeGroupsType,
@@ -18,6 +19,7 @@ export default async function EditGroup({
   const group: GroupDetailsType | undefined = await getGroupById(
     Number(params.id)
   );
+  const session = await auth();
 
   const typeOfGroups: TypeOfGroupType = await getAllTypeOfGroups();
   const ageGroups: AgeGroupsType = await getAllAgeGroups();
@@ -30,6 +32,7 @@ export default async function EditGroup({
       typeOfGroups={typeOfGroups}
       ageGroups={ageGroups}
       groupStyles={groupStyles}
+      session={session!}
     />
   );
 }

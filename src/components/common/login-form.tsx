@@ -47,7 +47,7 @@ export default function LoginForm() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex justify-end mb-4">
-              <Button variant="secondary" className="w-full mt-4">
+              <Button variant="secondary" className="w-full mt-4" disabled>
                 I want my membership
               </Button>
             </div>
@@ -84,7 +84,7 @@ export default function LoginForm() {
       </form>
       <div className="hidden bg-muted lg:block">
         <Image
-          src="https://generated.vusercontent.net/placeholder.svg"
+          src="/cover-login.jpg"
           alt="Image"
           width="1920"
           height="1080"

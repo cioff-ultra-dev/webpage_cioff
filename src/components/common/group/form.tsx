@@ -72,6 +72,7 @@ import { Switch } from "@/components/ui/switch";
 import { useI18nZodErrors } from "@/hooks/use-i18n-zod-errors";
 import { useTranslations } from "next-intl";
 import { DatePickerWithRange } from "@/components/ui/datepicker-with-range";
+import { Session } from "next-auth";
 
 const globalGroupSchema = insertGroupSchema.extend({
   _lang: insertGroupLangSchema,
@@ -101,7 +102,7 @@ const globalGroupSchema = insertGroupSchema.extend({
   _subgroups: z.array(
     insertSubGroupSchema.extend({
       _lang: insertSubGroupLangSchema,
-    }),
+    })
   ),
 });
 
@@ -240,14 +241,17 @@ export default function GroupForm({
   typeOfGroups,
   ageGroups,
   groupStyles,
+  session,
 }: {
   currentGroup?: GroupDetailsType | undefined;
   id?: string;
   typeOfGroups: TypeOfGroupType;
   ageGroups: AgeGroupsType;
   groupStyles: GroupStyleType;
+  session?: Session;
 }) {
   useI18nZodErrors("group");
+  const isNSAccount = session?.user.role?.name === "National Sections";
 
   // const [state, formAction] = useFormState(createGroup, undefined);
   const [groupType, setGroupType] = useState<string>("only_dance");
@@ -262,7 +266,7 @@ export default function GroupForm({
   const [selectedTypeOfGroup, setSelectedTypeOfGroup] = useState<string[]>([]);
   const [selectedGroupAge, setSelectedGroupAge] = useState<string[]>([]);
   const [selectedStyleOfGroup, setSelectedStyleOfGroup] = useState<string[]>(
-    [],
+    []
   );
 
   const t = useTranslations("form.group");
@@ -295,12 +299,12 @@ export default function GroupForm({
   const updateRepertoireItem = (
     id: number,
     field: keyof RepertoireItem,
-    value: string | FileList | null,
+    value: string | FileList | null
   ) => {
     setRepertoire(
       repertoire.map((item) =>
-        item.id === id ? { ...item, [field]: value } : item,
-      ),
+        item.id === id ? { ...item, [field]: value } : item
+      )
     );
   };
 
@@ -321,13 +325,13 @@ export default function GroupForm({
     {
       control: form.control,
       name: "_subgroups",
-    },
+    }
   );
 
   const formRef = useRef<HTMLFormElement>(null);
 
   const onSubmitForm: SubmitHandler<z.infer<typeof globalGroupSchema>> = async (
-    _data,
+    _data
   ) => {
     // const result = await updateNationalSection(new FormData(formRef.current!));
     // if (result.success) {
@@ -378,6 +382,7 @@ export default function GroupForm({
                             onBlur={field.onBlur}
                             value={field.value || ""}
                             name={field.name}
+                            disabled={isNSAccount}
                           />
                         </FormControl>
                         <FormDescription>
@@ -404,6 +409,7 @@ export default function GroupForm({
                             onBlur={field.onBlur}
                             value={field.value || ""}
                             name={field.name}
+                            disabled={isNSAccount}
                           />
                         </FormControl>
                         <FormMessage />
@@ -430,6 +436,7 @@ export default function GroupForm({
                             value={field.value || ""}
                             onBlur={field.onBlur}
                             ref={field.ref}
+                            disabled={isNSAccount}
                           />
                         </FormControl>
                         <FormDescription>
@@ -457,6 +464,7 @@ export default function GroupForm({
                             onChange={field.onChange}
                             onBlur={field.onBlur}
                             name={field.name}
+                            disabled={isNSAccount}
                           />
                         </FormControl>
                         <FormMessage />
@@ -482,6 +490,7 @@ export default function GroupForm({
                             onBlur={field.onBlur}
                             value={field.value || ""}
                             name={field.name}
+                            disabled={isNSAccount}
                           />
                         </FormControl>
                         <FormMessage />
@@ -508,6 +517,7 @@ export default function GroupForm({
                             value={field.value || ""}
                             onBlur={field.onBlur}
                             ref={field.ref}
+                            disabled={isNSAccount}
                           />
                         </FormControl>
                         <FormDescription>
@@ -535,6 +545,7 @@ export default function GroupForm({
                             onChange={field.onChange}
                             onBlur={field.onBlur}
                             name={field.name}
+                            disabled={isNSAccount}
                           />
                         </FormControl>
                         <FormMessage />
@@ -560,6 +571,7 @@ export default function GroupForm({
                             onBlur={field.onBlur}
                             value={field.value || ""}
                             name={field.name}
+                            disabled={isNSAccount}
                           />
                         </FormControl>
                         <FormMessage />
@@ -586,6 +598,7 @@ export default function GroupForm({
                             value={field.value || ""}
                             onBlur={field.onBlur}
                             ref={field.ref}
+                            disabled={isNSAccount}
                           />
                         </FormControl>
                         <FormDescription>
@@ -613,6 +626,7 @@ export default function GroupForm({
                             onChange={field.onChange}
                             onBlur={field.onBlur}
                             name={field.name}
+                            disabled={isNSAccount}
                           />
                         </FormControl>
                         <FormMessage />
@@ -637,6 +651,7 @@ export default function GroupForm({
                             placeholder="Enter a phone number"
                             international
                             {...fieldRest}
+                            disabled={isNSAccount}
                           />
                         </FormControl>
                         <FormDescription>Enter a phone number</FormDescription>
@@ -661,6 +676,7 @@ export default function GroupForm({
                             onBlur={field.onBlur}
                             value={field.value || ""}
                             name={field.name}
+                            disabled={isNSAccount}
                           />
                         </FormControl>
                         <FormMessage />
@@ -698,11 +714,12 @@ export default function GroupForm({
                             <MultiSelect
                               ref={field.ref}
                               options={options}
+                              disabled={isNSAccount}
                               onValueChange={(values) => {
                                 setSelectedTypeOfGroup(values);
                                 form.setValue(
                                   "_typeOfGroup",
-                                  JSON.stringify(values),
+                                  JSON.stringify(values)
                                 );
                               }}
                             />
@@ -733,6 +750,7 @@ export default function GroupForm({
                           <Switch
                             checked={field.value!}
                             onCheckedChange={field.onChange}
+                            disabled={isNSAccount}
                           />
                         </FormControl>
                       </FormItem>
@@ -756,6 +774,7 @@ export default function GroupForm({
                             value={field.value || ""}
                             onBlur={field.onBlur}
                             ref={field.ref}
+                            disabled={isNSAccount}
                           />
                         </FormControl>
                         <FormDescription>Max 500 words</FormDescription>
@@ -786,11 +805,12 @@ export default function GroupForm({
                             <MultiSelect
                               ref={field.ref}
                               options={options}
+                              disabled={isNSAccount}
                               onValueChange={(values) => {
                                 setSelectedGroupAge(values);
                                 form.setValue(
                                   "_groupAge",
-                                  JSON.stringify(values),
+                                  JSON.stringify(values)
                                 );
                               }}
                             />
@@ -824,6 +844,7 @@ export default function GroupForm({
                             onBlur={field.onBlur}
                             value={field.value || ""}
                             name={field.name}
+                            disabled={isNSAccount}
                           />
                         </FormControl>
                         <FormDescription>
@@ -856,11 +877,12 @@ export default function GroupForm({
                             <MultiSelect
                               ref={field.ref}
                               options={options}
+                              disabled={isNSAccount}
                               onValueChange={(values) => {
                                 setSelectedStyleOfGroup(values);
                                 form.setValue(
                                   "_styleOfGroup",
-                                  JSON.stringify(values),
+                                  JSON.stringify(values)
                                 );
                               }}
                             />
@@ -887,6 +909,7 @@ export default function GroupForm({
                       <FormField
                         control={form.control}
                         name={`_subgroups.${index}.id`}
+                        disabled={isNSAccount}
                         render={({ field }) => (
                           <FormControl>
                             <Input
@@ -912,6 +935,7 @@ export default function GroupForm({
                               value={field.value}
                               name={field.name}
                               type="hidden"
+                              disabled={isNSAccount}
                             />
                           </FormControl>
                         )}
@@ -933,6 +957,7 @@ export default function GroupForm({
                                     onBlur={field.onBlur}
                                     value={field.value ?? ""}
                                     name={field.name}
+                                    disabled={isNSAccount}
                                   />
                                 </FormControl>
                                 <FormDescription>
@@ -961,6 +986,7 @@ export default function GroupForm({
                                     onBlur={field.onBlur}
                                     value={field.value || ""}
                                     name={field.name}
+                                    disabled={isNSAccount}
                                   />
                                 </FormControl>
                                 <FormDescription>
@@ -993,11 +1019,12 @@ export default function GroupForm({
                                     <MultiSelect
                                       ref={field.ref}
                                       options={options}
+                                      disabled={isNSAccount}
                                       onValueChange={(values) => {
                                         setSelectedGroupAge(values);
                                         form.setValue(
                                           "_groupAge",
-                                          JSON.stringify(values),
+                                          JSON.stringify(values)
                                         );
                                       }}
                                     />
@@ -1018,6 +1045,7 @@ export default function GroupForm({
                   ))}
                   <Button
                     type="button"
+                    disabled={isNSAccount}
                     onClick={(_) =>
                       appendSubGroupEvent({
                         _lang: {},
@@ -1045,6 +1073,7 @@ export default function GroupForm({
                   <RadioGroup
                     value={travelAvailability}
                     onValueChange={setTravelAvailability}
+                    disabled={isNSAccount}
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="yes" id="yes-available" />
@@ -1072,10 +1101,11 @@ export default function GroupForm({
                                 <DatePickerWithRange
                                   className="w-full"
                                   buttonClassName="w-full"
+                                  disabled={isNSAccount}
                                   defaultDates={{
                                     from: form.getValues(`_specificDate.from`)
                                       ? new Date(
-                                          form.getValues(`_specificDate.from`),
+                                          form.getValues(`_specificDate.from`)
                                         )
                                       : undefined,
                                     to:
@@ -1083,7 +1113,7 @@ export default function GroupForm({
                                       form.getValues(`_specificDate.from`) !==
                                         form.getValues(`_specificDate.to`)
                                         ? new Date(
-                                            form.getValues(`_specificDate.to`)!,
+                                            form.getValues(`_specificDate.to`)!
                                           )
                                         : undefined,
                                   }}
@@ -1100,7 +1130,7 @@ export default function GroupForm({
                               ?.message ? (
                               <p
                                 className={cn(
-                                  "text-sm font-medium text-destructive",
+                                  "text-sm font-medium text-destructive"
                                 )}
                               >
                                 {
@@ -1123,6 +1153,7 @@ export default function GroupForm({
                               <FormLabel>Any specific region?</FormLabel>
                               <Select
                                 onValueChange={field.onChange}
+                                disabled={isNSAccount}
                                 defaultValue={
                                   field.value ? `${field.value}` : undefined
                                 }
@@ -1166,41 +1197,60 @@ export default function GroupForm({
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="photos">Photos</Label>
-                  <Input id="photos" type="file" accept="image/*" multiple />
+                  <Input
+                    id="photos"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    disabled={isNSAccount}
+                  />
                   <p className="text-sm text-muted-foreground">
                     Max 5 photos x 3MB each
                   </p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="coverPhoto">Cover photo</Label>
-                  <Input id="coverPhoto" type="file" accept="image/*" />
+                  <Input
+                    id="coverPhoto"
+                    type="file"
+                    accept="image/*"
+                    disabled={isNSAccount}
+                  />
                   <p className="text-sm text-muted-foreground">Size TBC</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="logo">Logo</Label>
-                  <Input id="logo" type="file" accept="image/*" />
+                  <Input
+                    id="logo"
+                    type="file"
+                    accept="image/*"
+                    disabled={isNSAccount}
+                  />
                   <p className="text-sm text-muted-foreground">Size TBC</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="video">Video</Label>
-                  <Input id="video" placeholder="YouTube Link" />
+                  <Input
+                    id="video"
+                    placeholder="YouTube Link"
+                    disabled={isNSAccount}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="facebook">Facebook link</Label>
-                  <Input id="facebook" type="url" />
+                  <Input id="facebook" type="url" disabled={isNSAccount} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="instagram">Instagram Link</Label>
-                  <Input id="instagram" type="url" />
+                  <Input id="instagram" type="url" disabled={isNSAccount} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="website">Website link</Label>
-                  <Input id="website" type="url" />
+                  <Input id="website" type="url" disabled={isNSAccount} />
                 </div>
               </CardContent>
             </Card>
-
-            <Card>
+            {/* <Card>
               <CardHeader>
                 <CardTitle>Repertoire</CardTitle>
                 <CardDescription>
@@ -1246,7 +1296,7 @@ export default function GroupForm({
                           updateRepertoireItem(
                             item.id,
                             "description",
-                            e.target.value,
+                            e.target.value
                           )
                         }
                       />
@@ -1264,7 +1314,7 @@ export default function GroupForm({
                           updateRepertoireItem(
                             item.id,
                             "photos",
-                            e.target.files,
+                            e.target.files
                           )
                         }
                       />
@@ -1293,7 +1343,7 @@ export default function GroupForm({
                   <PlusCircle className="mr-2 h-4 w-4" /> Add Repertoire Section
                 </Button>
               </CardContent>
-            </Card>
+            </Card> */}
 
             <Card>
               <CardHeader>
@@ -1304,7 +1354,12 @@ export default function GroupForm({
                   <Label htmlFor="groupPortfolio">
                     Upload group portfolio/brochure
                   </Label>
-                  <Input id="groupPortfolio" type="file" accept=".pdf" />
+                  <Input
+                    id="groupPortfolio"
+                    type="file"
+                    accept=".pdf"
+                    disabled={isNSAccount}
+                  />
                   <p className="text-sm text-muted-foreground">
                     Only PDF - max 10MB
                   </p>
@@ -1312,18 +1367,20 @@ export default function GroupForm({
               </CardContent>
             </Card>
           </div>
-          <div className="sticky bottom-5 mt-4 right-0 flex justify-end px-4">
-            <Card className="flex justify-end gap-4 w-full">
-              <CardContent className="flex-row items-center p-4 flex w-full justify-end">
-                <div className="flex gap-2">
-                  <Button variant="ghost" asChild>
-                    <Link href="/dashboard/national-sections">Cancel</Link>
-                  </Button>
-                  <Submit label="Save" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {!isNSAccount ? (
+            <div className="sticky bottom-5 mt-4 right-0 flex justify-end px-4">
+              <Card className="flex justify-end gap-4 w-full">
+                <CardContent className="flex-row items-center p-4 flex w-full justify-end">
+                  <div className="flex gap-2">
+                    <Button variant="ghost" asChild>
+                      <Link href="/dashboard/national-sections">Cancel</Link>
+                    </Button>
+                    <Submit label="Save" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          ) : null}
         </form>
       </Form>
     </div>
