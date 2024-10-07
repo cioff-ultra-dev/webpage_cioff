@@ -1,0 +1,12 @@
+{
+  "name": "email-sender",
+  "version": "1.0.0",
+  "description": "Script para enviar correos a un grupo de personas",
+  "main": "sendEmails.js",
+  "scripts": {
+    "send": "node sendEmails.js"
+  },
+  "dependencies": {
+    "nodemailer": "^6.7.2"
+  }
+}

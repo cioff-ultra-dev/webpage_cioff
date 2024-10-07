@@ -407,6 +407,9 @@ export const festivals = pgTable("festivals", {
   certificationMemberId: integer("certification_member_id").references(
     () => storages.id
   ),
+  socialMediaLinksId: integer("socia_media_links_id").references(
+    () => socialMediaLinks.id
+  ),
   countryId: integer("country_id").references(() => countries.id),
   logoId: integer("logo_id").references(() => storages.id),
   coverId: integer("cover_id").references(() => storages.id),
@@ -1086,6 +1089,10 @@ export const festivalRelations = relations(festivals, ({ many, one }) => ({
   status: one(statuses, {
     fields: [festivals.statusId],
     references: [statuses.id],
+  }),
+  social: one(socialMediaLinks, {
+    fields: [festivals.socialMediaLinksId],
+    references: [socialMediaLinks.id],
   }),
   langs: many(festivalsLang),
   owners: many(owners),
