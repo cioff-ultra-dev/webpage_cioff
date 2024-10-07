@@ -899,12 +899,14 @@ export async function generateFestival(formData: FormData) {
           url: `<a target="_blank" href="${process.env.HOSTNAME_URL}/login">${t(
             "email.login_to"
           )}</a>`,
+          email: user.email,
+          video: `<a target="_blank" href="${process.env.HOSTNAME_URL}/login">See the video</a>`,
         });
 
         await transport.sendMail({
           from: process.env.GMAIL_USER,
           to: [user.email],
-          subject: t("email.activation_account"),
+          subject: emailTemplate.subject || t("email.activation_account"),
           html: message,
         });
 
@@ -1004,12 +1006,14 @@ export async function generateGroup(formData: FormData) {
           url: `<a target="_blank" href="${process.env.HOSTNAME_URL}/login">${t(
             "email.login_to"
           )}</a>`,
+          email: user.email,
+          video: `<a target="_blank" href="${process.env.HOSTNAME_URL}/login">See the video</a>`,
         });
 
         await transport.sendMail({
           from: process.env.GMAIL_USER,
           to: [user.email],
-          subject: t("email.activation_account"),
+          subject: emailTemplate.subject || t("email.activation_account"),
           html: message,
         });
 
