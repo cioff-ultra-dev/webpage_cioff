@@ -95,7 +95,7 @@ const globalEventSchema = insertFestivalSchema
       _styleOfFestival: z.array(z.string()).nonempty(),
       _typeOfAccomodation: z.string().optional(),
       _typeOfFestival: z.array(z.string()).nonempty(),
-      _status: z.string(),
+      // _status: z.string(),
       _email: z.string().email(),
       _lang: insertFestivalLangSchema,
       _accomodationPhoto: z.any().optional(),
@@ -230,9 +230,9 @@ export default function EventForm({
             ?.categories.some((category) => item === String(category.id));
         }) ?? "",
       _typeOfFestival: currentCategoriesSelected,
-      _status: currentFestival?.status?.id
-        ? String(currentFestival?.status.id)
-        : undefined,
+      // _status: currentFestival?.status?.id
+      //   ? String(currentFestival?.status.id)
+      //   : undefined,
       _email: currentOwner?.user?.email,
       _lang: {
         id: currentLang?.id ?? 0,
@@ -365,7 +365,7 @@ export default function EventForm({
                       )}
                     />
                   </div>
-                  <div>
+                  {/* <div>
                     <Label>State Mode</Label>
                     <RadioGroup
                       defaultValue="offline"
@@ -381,7 +381,7 @@ export default function EventForm({
                         <Label htmlFor="r2">Offline</Label>
                       </div>
                     </RadioGroup>
-                  </div>
+                  </div> */}
                   <div>
                     <FormField
                       control={form.control}
@@ -963,7 +963,7 @@ export default function EventForm({
                       />
                     </div>
                   ) : null}
-                  <div>
+                  {/* <div>
                     <FormField
                       control={form.control}
                       name="_transportLocation"
@@ -1028,7 +1028,7 @@ export default function EventForm({
                         place={selectedTransportPlace}
                       />
                     </div>
-                  </div>
+                  </div> */}
                   <div>
                     <FormField
                       control={form.control}
@@ -1130,7 +1130,7 @@ export default function EventForm({
               </Card>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
+              {/* <Card>
                 <CardHeader>
                   <CardTitle>Status and Details</CardTitle>
                 </CardHeader>
@@ -1278,7 +1278,7 @@ export default function EventForm({
                     </Card>
                   ) : null}
                 </CardContent>
-              </Card>
+              </Card> */}
               <Card>
                 <CardHeader>
                   <CardTitle>Media</CardTitle>
@@ -1321,17 +1321,22 @@ export default function EventForm({
                     <p className="text-sm text-gray-500">Size TBC</p>
                   </div>
                   <div>
-                    <Label htmlFor="youtubeId">Youtube Embed ID</Label>
+                    <Label htmlFor="youtubeId">Youtube</Label>
                     <Input
                       id="youtubeId"
                       name="youtubeId"
-                      placeholder="YouTube ID"
+                      placeholder="YouTube Link"
                       disabled={isNSAccount}
                     />
                   </div>
                   <div>
                     <Label>Social media</Label>
                     <div className="space-y-2">
+                      <Input
+                        name="socialId"
+                        disabled={isNSAccount}
+                        type="hidden"
+                      />
                       <Input
                         name="facebook"
                         placeholder="Facebook link"
@@ -1352,7 +1357,7 @@ export default function EventForm({
                 </CardContent>
               </Card>
             </div>
-            <Card>
+            {/* <Card>
               <CardHeader>
                 <CardTitle>Additional Information</CardTitle>
               </CardHeader>
@@ -1404,13 +1409,13 @@ export default function EventForm({
                   />
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
             {!isNSAccount ? (
               <div className="sticky bottom-5 right-0 flex justify-end px-4">
                 <Card className="flex justify-end gap-4 w-full">
                   <CardContent className="flex-row items-center p-4 flex w-full justify-between">
                     <div className="flex-1">
-                      <Label className="text-sm font-medium flex items-center gap-1">
+                      {/* <Label className="text-sm font-medium flex items-center gap-1">
                         Progress
                         {progress >= 50 && (
                           <CircleCheck
@@ -1426,14 +1431,14 @@ export default function EventForm({
                       <Progress
                         value={progress}
                         className={cn("w-[50%] h-2 mt-2")}
-                      />
+                      /> */}
                     </div>
                     <div className="flex gap-2">
                       <Button variant="ghost" asChild>
                         <Link href="/dashboard/festivals">Cancel</Link>
                       </Button>
                       <Submit
-                        label="Publish"
+                        label="Save"
                         isLoading={form.formState.isSubmitting}
                       />
                     </div>

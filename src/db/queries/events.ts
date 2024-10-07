@@ -109,6 +109,7 @@ export async function getFestivalBySlug(
           },
         },
       },
+      social: true,
       status: true,
       owners: {
         with: {

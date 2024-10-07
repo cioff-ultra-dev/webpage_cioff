@@ -15,20 +15,18 @@ export default async function NewEvent() {
 
   const typeOfFestival = await getCategoryForGroups(locale, ["music", "dance"]);
   const ageOfParticipants = await getCategoryForGroups(locale, [
-    "children",
-    "youth",
-    "adults",
-    "seniors",
+    "teenagers-children",
+    "youth-adults-seniors",
   ]);
   const styleOfFestival = await getCategoryForGroups(locale, [
     "stylized",
-    "elaborated",
+    "elaborate",
     "authentic",
   ]);
   const typeOfAccomodation = await getCategoryForGroups(locale, [
-    "hotel",
+    "hotel-hostel-campus",
     "family-houses",
-    "schools",
+    "schools-gym-halls",
   ]);
   return (
     <EventForm

@@ -928,15 +928,19 @@ export async function generateFestival(formData: FormData) {
       }
 
       const ownerList: (typeof owners.$inferInsert)[] = [
-        { userId: user.id, festivalId: currentFestival.id },
+        {
+          userId: user.id,
+          festivalId: currentFestival.id,
+          nsId: currentNationalSection?.id,
+        },
       ];
 
-      if (session?.user.role?.name === "National Sections") {
-        ownerList.push({
-          userId: session.user.id,
-          festivalId: currentFestival.id,
-        });
-      }
+      // if (session?.user.role?.name === "National Sections") {
+      //   ownerList.push({
+      //     userId: session.user.id,
+      //     festivalId: currentFestival.id,
+      //   });
+      // }
 
       await tx
         .insert(owners)
@@ -1059,15 +1063,19 @@ export async function generateGroup(formData: FormData) {
       });
 
       const ownerList: (typeof owners.$inferInsert)[] = [
-        { userId: user.id, groupId: currentGroup.id },
+        {
+          userId: user.id,
+          groupId: currentGroup.id,
+          nsId: currentNationalSection?.id,
+        },
       ];
 
-      if (session?.user.role?.name === "National Sections") {
-        ownerList.push({
-          userId: session.user.id,
-          groupId: currentGroup.id,
-        });
-      }
+      // if (session?.user.role?.name === "National Sections") {
+      //   ownerList.push({
+      //     userId: session.user.id,
+      //     groupId: currentGroup.id,
+      //   });
+      // }
 
       await tx
         .insert(owners)
@@ -1200,6 +1208,11 @@ export async function updateFestival(formData: FormData) {
     (formData.get("groupCategories") as string) || ""
   ) as string[];
 
+  const socialId = Number(formData.get("socialId"));
+  const facebookLink = (formData.get("facebook") as string) || null;
+  const instagramLink = (formData.get("instagram") as string) || null;
+  const websiteLink = (formData.get("website") as string) || null;
+
   const currentDateSize = Number(formData.get("_currentDateSize"));
   const nextDateSize = Number(formData.get("_nextDateSize"));
 
@@ -1253,6 +1266,33 @@ export async function updateFestival(formData: FormData) {
           "otherTranslatorLanguage",
         ]),
       });
+
+    const [currentSocialMediaLink] = await tx
+      .insert(socialMediaLinks)
+      .values({
+        id: !socialId ? undefined : socialId,
+        facebookLink,
+        instagramLink,
+        websiteLink,
+      })
+      .onConflictDoUpdate({
+        target: socialMediaLinks.id,
+        set: buildConflictUpdateColumns(socialMediaLinks, [
+          "facebookLink",
+          "instagramLink",
+          "websiteLink",
+        ]),
+      })
+      .returning({ id: socialMediaLinks.id });
+
+    if (!currentFestival?.socialMediaLinksId) {
+      await tx
+        .update(festivals)
+        .set({
+          socialMediaLinksId: currentSocialMediaLink.id,
+        })
+        .where(eq(festivals.id, currentFestival.id));
+    }
 
     if (currentDateSize > 0) {
       for (let index = 0; index < currentDateSize; index++) {
