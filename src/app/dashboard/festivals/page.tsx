@@ -188,16 +188,19 @@ export default async function DashboardPage() {
                                   Edit
                                 </Link>
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                {item?.email ? (
-                                  <SendInvitation
-                                    email={item.email}
-                                    festivalId={item.id}
-                                    roleName="Festivals"
-                                    countryId={item.countryId!}
-                                  />
-                                ) : null}
-                              </DropdownMenuItem>
+                              {session?.user.role?.name ===
+                              "National Sections" ? (
+                                <DropdownMenuItem>
+                                  {item?.email ? (
+                                    <SendInvitation
+                                      email={item.email}
+                                      festivalId={item.id}
+                                      roleName="Festivals"
+                                      countryId={item.countryId!}
+                                    />
+                                  ) : null}
+                                </DropdownMenuItem>
+                              ) : null}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
