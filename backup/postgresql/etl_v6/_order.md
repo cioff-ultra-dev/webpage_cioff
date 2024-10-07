@@ -2,15 +2,17 @@
 
 1. Roles
 2. Languages
-3. Countries
-4. Countries Lang
-5. Categories
-6. Categories Lang
-7. Users
-8. NS
-9. Ns lang
-10. NS positions
-11. Festivals
-12. Festival Lang
-13. Festival to categories
-14. Owners
+3. Regions
+4. Regions Lang
+5. Countries
+6. Countries Lang
+7. Categories
+8. Categories Lang
+9. Users
+10. NS
+11. Ns lang
+12. NS positions
+13. Festivals
+14. Festival Lang
+15. Festival to categories
+16. Owners
