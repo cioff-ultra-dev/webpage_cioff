@@ -1133,6 +1133,7 @@ export async function updatePasswordFields(formData: FormData) {
         .update(users)
         .set({
           password: hashedPassword,
+          active: true,
         })
         .where(eq(users.id, session?.user?.id!));
     });
