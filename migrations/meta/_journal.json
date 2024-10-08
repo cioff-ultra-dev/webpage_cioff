@@ -134,6 +134,13 @@
       "when": 1728309462973,
       "tag": "0015_mean_brood",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1728397117860,
+      "tag": "0016_narrow_tattoo",
+      "breakpoints": true
     }
   ]
 }
