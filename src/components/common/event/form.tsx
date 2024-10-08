@@ -1336,20 +1336,30 @@ export default function EventForm({
                         name="socialId"
                         disabled={isNSAccount}
                         type="hidden"
+                        defaultValue={currentFestival?.social?.id || 0}
                       />
                       <Input
                         name="facebook"
                         placeholder="Facebook link"
+                        defaultValue={
+                          currentFestival?.social?.facebookLink || undefined
+                        }
                         disabled={isNSAccount}
                       />
                       <Input
                         name="instagram"
                         placeholder="Instagram Link"
+                        defaultValue={
+                          currentFestival?.social?.instagramLink || undefined
+                        }
                         disabled={isNSAccount}
                       />
                       <Input
                         name="website"
                         placeholder="Website link"
+                        defaultValue={
+                          currentFestival?.social?.websiteLink || undefined
+                        }
                         disabled={isNSAccount}
                       />
                     </div>
