@@ -5,7 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import {
+  SubmitHandler,
+  useFieldArray,
+  useForm,
+  useWatch,
+} from "react-hook-form";
 import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
 import { Label } from "@/components/ui/label";
 import {
@@ -19,7 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button, ButtonProps } from "@/components/ui/button";
-import { createGroup } from "@/app/actions";
+import { createGroup, updateGroup } from "@/app/actions";
 import { useFormState, useFormStatus } from "react-dom";
 import * as RPNInput from "react-phone-number-input";
 import {
@@ -73,12 +78,16 @@ import { useI18nZodErrors } from "@/hooks/use-i18n-zod-errors";
 import { useTranslations } from "next-intl";
 import { DatePickerWithRange } from "@/components/ui/datepicker-with-range";
 import { Session } from "next-auth";
+import { toast } from "sonner";
+import { customRevalidatePath } from "../revalidateTag";
+import { useRouter } from "next/navigation";
+import { RegionsType } from "@/db/queries/regions";
 
 const globalGroupSchema = insertGroupSchema.extend({
   _lang: insertGroupLangSchema,
-  _typeOfGroup: z.string(),
-  _groupAge: z.string(),
-  _styleOfGroup: z.string(),
+  _typeOfGroup: z.array(z.string()),
+  _groupAge: z.array(z.string()),
+  _styleOfGroup: z.array(z.string()),
   _generalDirectorPhoto: z
     .any()
     .refine((item) => item instanceof File || typeof item === "undefined", {
@@ -94,11 +103,15 @@ const globalGroupSchema = insertGroupSchema.extend({
   //   .refine((item) => item instanceof File || typeof item === "undefined", {
   //     params: { i18n: "file_required" },
   //   }),
-  _specificDate: z.object({
-    from: z.string(),
-    to: z.string().optional(),
-  }),
-  _specificRegion: z.string(),
+  _isAbleToTravel: z.boolean().optional(),
+  _isAbleToTravelToLiveMusic: z.boolean().optional(),
+  _specificDate: z
+    .object({
+      from: z.string().optional(),
+      to: z.string().optional(),
+    })
+    .optional(),
+  _specificRegion: z.string().optional(),
   _subgroups: z.array(
     insertSubGroupSchema.extend({
       _lang: insertSubGroupLangSchema,
@@ -208,17 +221,17 @@ const urlToFile = async (url: string) => {
 function Submit({
   label = "Save",
   variant = "default",
+  isLoading = false,
 }: {
   label: string;
   variant?: ButtonProps["variant"];
+  isLoading?: boolean;
 }) {
-  const status = useFormStatus();
-
   return (
     <Button
       type="submit"
-      aria-disabled={status.pending}
-      disabled={status.pending}
+      aria-disabled={isLoading}
+      disabled={isLoading}
       className="space-y-0"
       variant={variant}
     >
@@ -242,13 +255,21 @@ export default function GroupForm({
   ageGroups,
   groupStyles,
   session,
+  locale,
+  currentLang,
+  currentCategoriesSelected,
+  regions,
 }: {
   currentGroup?: GroupDetailsType | undefined;
   id?: string;
   typeOfGroups: TypeOfGroupType;
   ageGroups: AgeGroupsType;
   groupStyles: GroupStyleType;
+  currentLang?: NonNullable<GroupDetailsType>["langs"][number];
   session?: Session;
+  locale?: string;
+  currentCategoriesSelected?: string[];
+  regions?: RegionsType;
 }) {
   useI18nZodErrors("group");
   const isNSAccount = session?.user.role?.name === "National Sections";
@@ -270,6 +291,7 @@ export default function GroupForm({
   );
 
   const t = useTranslations("form.group");
+  const router = useRouter();
 
   useEffect(() => {
     if (directorPhotoUrl.current) {
@@ -311,12 +333,36 @@ export default function GroupForm({
   const form = useForm<z.infer<typeof globalGroupSchema>>({
     resolver: zodResolver(globalGroupSchema),
     defaultValues: {
-      generalDirectorName: "",
-      artisticDirectorName: "",
+      id: currentGroup?.id ?? 0,
+      generalDirectorName: currentGroup?.generalDirectorName || "",
+      artisticDirectorName: currentGroup?.artisticDirectorName || "",
+      phone: currentGroup?.phone || "",
+      _groupAge: currentCategoriesSelected?.filter((item) => {
+        return ageGroups.some((category) => category.id === Number(item));
+      }),
+      _typeOfGroup: currentCategoriesSelected?.filter((item) => {
+        return typeOfGroups.some((category) => category.id === Number(item));
+      }),
+      _styleOfGroup: currentCategoriesSelected?.filter((item) => {
+        return groupStyles.some((category) => category.id === Number(item));
+      }),
+      membersNumber: currentGroup?.membersNumber,
+      _specificRegion: currentGroup?.specificRegion
+        ? String(currentGroup?.specificRegion)
+        : undefined,
+      _isAbleToTravel: currentGroup?.isAbleTravel ?? false,
+      _isAbleToTravelToLiveMusic: currentGroup?.isAbleTravelLiveMusic ?? false,
+      _specificDate: {
+        from: currentGroup?.specificTravelDateFrom?.toUTCString() ?? "",
+        to: currentGroup?.specificTravelDateTo?.toUTCString() ?? "",
+      },
       _lang: {
-        name: "",
-        generalDirectorProfile: "",
-        artisticDirectorProfile: "",
+        id: currentLang?.id ?? 0,
+        name: currentLang?.name || "",
+        address: currentLang?.address || undefined,
+        description: currentLang?.description || undefined,
+        generalDirectorProfile: currentLang?.generalDirectorProfile || "",
+        artisticDirectorProfile: currentLang?.artisticDirectorProfile || "",
       },
     },
   });
@@ -328,21 +374,26 @@ export default function GroupForm({
     }
   );
 
+  const isAbleToTravelWatch = useWatch({
+    control: form.control,
+    name: "_isAbleToTravel",
+  });
+
   const formRef = useRef<HTMLFormElement>(null);
 
   const onSubmitForm: SubmitHandler<z.infer<typeof globalGroupSchema>> = async (
     _data
   ) => {
-    // const result = await updateNationalSection(new FormData(formRef.current!));
+    const result = await updateGroup(new FormData(formRef.current!));
+    if (result.success) {
+      toast.success(result.success);
+    } else if (result.error) {
+      toast.error(result.error);
+    }
+
     // if (result.success) {
-    //   toast.success(result.success);
-    // } else if (result.error) {
-    //   toast.error(result.error);
-    // }
-    // customRevalidatePath(`/dashboard/national-sections/${slug}/edit`);
-    // customRevalidatePath("/dashboard/national-sections");
-    // if (result.success) {
-    //   router.push("/dashboard/national-sections");
+    //   customRevalidatePath("/dashboard/groups");
+    //   router.push("/dashboard/groups");
     // }
   };
 
@@ -354,12 +405,46 @@ export default function GroupForm({
       </p>
       <Form {...form}>
         <form
-          noValidate
           ref={formRef}
           className="space-y-6"
           onSubmit={form.handleSubmit(onSubmitForm)}
         >
-          {id && <input type="hidden" name="_id" value={id} />}
+          <FormField
+            control={form.control}
+            name="id"
+            render={({ field }) => (
+              <FormItem className="space-y-0">
+                <FormControl>
+                  <Input
+                    ref={field.ref}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    value={field.value}
+                    name={field.name}
+                    type="hidden"
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="_lang.id"
+            render={({ field }) => (
+              <FormItem className="space-y-0">
+                <FormControl>
+                  <Input
+                    ref={field.ref}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    value={field.value}
+                    name={field.name}
+                    type="hidden"
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
@@ -461,7 +546,11 @@ export default function GroupForm({
                             ref={field.ref}
                             type="file"
                             accept="image/*"
-                            onChange={field.onChange}
+                            onChange={(event) => {
+                              field.onChange(
+                                event.target.files && event.target.files[0]
+                              );
+                            }}
                             onBlur={field.onBlur}
                             name={field.name}
                             disabled={isNSAccount}
@@ -542,7 +631,11 @@ export default function GroupForm({
                             ref={field.ref}
                             type="file"
                             accept="image/*"
-                            onChange={field.onChange}
+                            onChange={(event) => {
+                              field.onChange(
+                                event.target.files && event.target.files[0]
+                              );
+                            }}
                             onBlur={field.onBlur}
                             name={field.name}
                             disabled={isNSAccount}
@@ -715,30 +808,35 @@ export default function GroupForm({
                               ref={field.ref}
                               options={options}
                               disabled={isNSAccount}
+                              value={field.value as string[]}
+                              defaultValue={
+                                (field.value as string[])?.filter((item) =>
+                                  options.find(
+                                    (option) => option.value === item
+                                  )
+                                ) ?? []
+                              }
                               onValueChange={(values) => {
-                                setSelectedTypeOfGroup(values);
-                                form.setValue(
-                                  "_typeOfGroup",
-                                  JSON.stringify(values)
-                                );
+                                setSelectedGroupAge(values);
+                                field.onChange(values);
                               }}
                             />
                           </FormControl>
                           <FormMessage />
+                          <input
+                            type="hidden"
+                            name="_typeOfGroup"
+                            value={JSON.stringify(field.value) || "[]"}
+                          />
                         </FormItem>
                       );
                     }}
-                  />
-                  <input
-                    type="hidden"
-                    name="_typeOfGroup"
-                    value={JSON.stringify(selectedTypeOfGroup) || "[]"}
                   />
                 </div>
                 <div className="space-y-2">
                   <FormField
                     control={form.control}
-                    name="isAbleTravelLiveMusic"
+                    name="_isAbleToTravelToLiveMusic"
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between">
                         <div className="space-y-0.5">
@@ -748,6 +846,7 @@ export default function GroupForm({
                         </div>
                         <FormControl>
                           <Switch
+                            name={field.name}
                             checked={field.value!}
                             onCheckedChange={field.onChange}
                             disabled={isNSAccount}
@@ -806,24 +905,29 @@ export default function GroupForm({
                               ref={field.ref}
                               options={options}
                               disabled={isNSAccount}
+                              value={field.value as string[]}
+                              defaultValue={
+                                (field.value as string[])?.filter((item) =>
+                                  options.find(
+                                    (option) => option.value === item
+                                  )
+                                ) ?? []
+                              }
                               onValueChange={(values) => {
                                 setSelectedGroupAge(values);
-                                form.setValue(
-                                  "_groupAge",
-                                  JSON.stringify(values)
-                                );
+                                field.onChange(values);
                               }}
                             />
                           </FormControl>
                           <FormMessage />
+                          <input
+                            type="hidden"
+                            name="_groupAge"
+                            value={JSON.stringify(field.value) || "[]"}
+                          />
                         </FormItem>
                       );
                     }}
-                  />
-                  <input
-                    type="hidden"
-                    name="_groupAge"
-                    value={JSON.stringify(selectedGroupAge) || "[]"}
                   />
                 </div>
                 <div className="space-y-2">
@@ -840,7 +944,13 @@ export default function GroupForm({
                             ref={field.ref}
                             type="number"
                             max="40"
-                            onChange={field.onChange}
+                            onChange={(event) => {
+                              field.onChange(
+                                event.target.value
+                                  ? Number(event.target.value)
+                                  : 0
+                              );
+                            }}
                             onBlur={field.onBlur}
                             value={field.value || ""}
                             name={field.name}
@@ -878,24 +988,29 @@ export default function GroupForm({
                               ref={field.ref}
                               options={options}
                               disabled={isNSAccount}
+                              value={field.value as string[]}
+                              defaultValue={
+                                (field.value as string[])?.filter((item) =>
+                                  options.find(
+                                    (option) => option.value === item
+                                  )
+                                ) ?? []
+                              }
                               onValueChange={(values) => {
-                                setSelectedStyleOfGroup(values);
-                                form.setValue(
-                                  "_styleOfGroup",
-                                  JSON.stringify(values)
-                                );
+                                setSelectedGroupAge(values);
+                                field.onChange(values);
                               }}
                             />
                           </FormControl>
                           <FormMessage />
+                          <input
+                            type="hidden"
+                            name="_styleOfGroup"
+                            value={JSON.stringify(field.value) || "[]"}
+                          />
                         </FormItem>
                       );
                     }}
-                  />
-                  <input
-                    type="hidden"
-                    name="_styleOfGroup"
-                    value={JSON.stringify(selectedStyleOfGroup) || "[]"}
                   />
                 </div>
 
@@ -1064,23 +1179,43 @@ export default function GroupForm({
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Are you available for travelling this year?</Label>
-                  <RadioGroup
-                    value={travelAvailability}
-                    onValueChange={setTravelAvailability}
-                    disabled={isNSAccount}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="yes" id="yes-available" />
-                      <Label htmlFor="yes-available">Yes</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="no" id="no-available" />
-                      <Label htmlFor="no-available">No</Label>
-                    </div>
-                  </RadioGroup>
+                  <FormField
+                    control={form.control}
+                    name="_isAbleToTravel"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel>
+                          Are you available for travelling this year?
+                        </FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={(value) => {
+                              field.onChange(value === "yes");
+                            }}
+                            defaultValue={field.value ? "yes" : "no"}
+                            className="flex flex-col space-y-1"
+                            name={field.name}
+                          >
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="yes" />
+                              </FormControl>
+                              <FormLabel className="font-normal">Yes</FormLabel>
+                            </FormItem>
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="no" />
+                              </FormControl>
+                              <FormLabel className="font-normal">No</FormLabel>
+                            </FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-                {travelAvailability === "yes" && (
+                {isAbleToTravelWatch && (
                   <>
                     <div className="space-y-2">
                       <FormField
@@ -1100,7 +1235,9 @@ export default function GroupForm({
                                   defaultDates={{
                                     from: form.getValues(`_specificDate.from`)
                                       ? new Date(
-                                          form.getValues(`_specificDate.from`)
+                                          form.getValues(
+                                            `_specificDate.from`
+                                          ) ?? ""
                                         )
                                       : undefined,
                                     to:
@@ -1118,6 +1255,16 @@ export default function GroupForm({
                                       to: rangeValue?.to?.toUTCString() ?? "",
                                     });
                                   }}
+                                />
+                                <input
+                                  type="hidden"
+                                  name={`_specificDate.from`}
+                                  value={value?.from}
+                                />
+                                <input
+                                  type="hidden"
+                                  name={`_specificDate.to`}
+                                  value={value?.to}
                                 />
                               </>
                             </FormControl>
@@ -1152,6 +1299,7 @@ export default function GroupForm({
                                 defaultValue={
                                   field.value ? `${field.value}` : undefined
                                 }
+                                name={field.name}
                               >
                                 <FormControl>
                                   <SelectTrigger className="font-medium data-[placeholder]:text-muted-foreground">
@@ -1159,18 +1307,20 @@ export default function GroupForm({
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="europe">Europe</SelectItem>
-                                  <SelectItem value="asia">Asia</SelectItem>
-                                  <SelectItem value="africa">Africa</SelectItem>
-                                  <SelectItem value="northAmerica">
-                                    North America
-                                  </SelectItem>
-                                  <SelectItem value="southAmerica">
-                                    South America
-                                  </SelectItem>
-                                  <SelectItem value="oceania">
-                                    Oceania
-                                  </SelectItem>
+                                  {regions?.map((region) => {
+                                    return (
+                                      <SelectItem
+                                        key={`region-${region.id}`}
+                                        value={String(region.id)}
+                                      >
+                                        {
+                                          region.langs.find(
+                                            (lang) => lang.l?.code === locale
+                                          )?.name
+                                        }
+                                      </SelectItem>
+                                    );
+                                  })}
                                 </SelectContent>
                               </Select>
                               <FormMessage />
@@ -1178,7 +1328,6 @@ export default function GroupForm({
                           );
                         }}
                       />
-                      ˇ{" "}
                     </div>
                   </>
                 )}
@@ -1227,21 +1376,41 @@ export default function GroupForm({
                   <Label htmlFor="video">Video</Label>
                   <Input
                     id="video"
+                    name="youtube"
                     placeholder="YouTube Link"
+                    defaultValue={currentGroup?.youtubeId ?? undefined}
                     disabled={isNSAccount}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="facebook">Facebook link</Label>
-                  <Input id="facebook" type="url" disabled={isNSAccount} />
+                  <Input
+                    id="facebook"
+                    name="facebook"
+                    type="url"
+                    defaultValue={currentGroup?.facebookLink ?? undefined}
+                    disabled={isNSAccount}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="instagram">Instagram Link</Label>
-                  <Input id="instagram" type="url" disabled={isNSAccount} />
+                  <Input
+                    id="instagram"
+                    type="url"
+                    name="instagram"
+                    defaultValue={currentGroup?.instagramLink ?? undefined}
+                    disabled={isNSAccount}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="website">Website link</Label>
-                  <Input id="website" type="url" disabled={isNSAccount} />
+                  <Input
+                    id="website"
+                    type="url"
+                    name="website"
+                    defaultValue={currentGroup?.websiteLink ?? undefined}
+                    disabled={isNSAccount}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -1370,7 +1539,10 @@ export default function GroupForm({
                     <Button variant="ghost" asChild>
                       <Link href="/dashboard/national-sections">Cancel</Link>
                     </Button>
-                    <Submit label="Save" />
+                    <Submit
+                      label="Save"
+                      isLoading={form.formState.isSubmitting}
+                    />
                   </div>
                 </CardContent>
               </Card>

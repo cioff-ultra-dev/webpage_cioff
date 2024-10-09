@@ -507,12 +507,20 @@ export const groups = pgTable("groups", {
 
   coverPhotoId: integer("cover_photo_id").references(() => storages.id),
   logoId: integer("logo_id").references(() => storages.id),
-  videoLink: text("video_link"),
   facebookLink: text("facebook_link"),
   instagramLink: text("instagram_link"),
   websiteLink: text("website_link"),
+  youtubeId: text("youtube_id"),
 
+  isAbleTravel: boolean("is_able_travel").default(false),
   isAbleTravelLiveMusic: boolean("is_able_travel_live_music").default(false),
+  specificTravelDateFrom: date("specific_start_date", {
+    mode: "date",
+  }),
+  specificTravelDateTo: date("specific_end_date", {
+    mode: "date",
+  }),
+  specificRegion: integer("region_id").references(() => regions.id),
   membersNumber: integer("members_number"),
   phone: text("phone"),
   generalDirectorPhotoId: integer("general_director_photo_id").references(
@@ -1170,6 +1178,7 @@ export const groupsRelations = relations(groups, ({ one, many }) => ({
   }),
   langs: many(groupsLang),
   owners: many(owners),
+  groupToCategories: many(groupToCategories),
 }));
 
 export const groupLangRelations = relations(groupsLang, ({ one }) => ({
@@ -1182,6 +1191,20 @@ export const groupLangRelations = relations(groupsLang, ({ one }) => ({
     references: [languages.id],
   }),
 }));
+
+export const groupsToCategoriesRelations = relations(
+  groupToCategories,
+  ({ one }) => ({
+    group: one(groups, {
+      fields: [groupToCategories.groupId],
+      references: [groups.id],
+    }),
+    category: one(categories, {
+      fields: [groupToCategories.categoryId],
+      references: [categories.id],
+    }),
+  })
+);
 
 export const nationalSectionRelations = relations(
   nationalSections,
@@ -1323,6 +1346,21 @@ export const typePositionLangRelations = relations(
     }),
   })
 );
+
+export const regionRelations = relations(regions, ({ one, many }) => ({
+  langs: many(regionsLang),
+}));
+
+export const regionLangRelations = relations(regionsLang, ({ one }) => ({
+  region: one(regions, {
+    fields: [regionsLang.regionId],
+    references: [regions.id],
+  }),
+  l: one(languages, {
+    fields: [regionsLang.lang],
+    references: [languages.id],
+  }),
+}));
 
 /* Schema Zod  */
 
