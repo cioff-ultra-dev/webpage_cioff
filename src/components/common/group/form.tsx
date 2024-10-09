@@ -89,11 +89,11 @@ const globalGroupSchema = insertGroupSchema.extend({
     .refine((item) => item instanceof File || typeof item === "undefined", {
       params: { i18n: "file_required" },
     }),
-  _musicalDirectorPhoto: z
-    .any()
-    .refine((item) => item instanceof File || typeof item === "undefined", {
-      params: { i18n: "file_required" },
-    }),
+  // _musicalDirectorPhoto: z
+  //   .any()
+  //   .refine((item) => item instanceof File || typeof item === "undefined", {
+  //     params: { i18n: "file_required" },
+  //   }),
   _specificDate: z.object({
     from: z.string(),
     to: z.string().optional(),
@@ -555,7 +555,7 @@ export default function GroupForm({
                 </div>
 
                 {/* Musical Director */}
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <FormField
                     control={form.control}
                     name={"musicalDirectorName"}
@@ -633,7 +633,7 @@ export default function GroupForm({
                       </FormItem>
                     )}
                   />
-                </div>
+                </div> */}
 
                 <div className="space-y-2">
                   <FormField
@@ -899,7 +899,7 @@ export default function GroupForm({
                   />
                 </div>
 
-                <div className="space-y-4 border-t pt-4">
+                {/* <div className="space-y-4 border-t pt-4">
                   <h2 className="text-lg font-semibold">Sub Groups</h2>
                   {subGroupFields.map((field, index) => (
                     <Card
@@ -1054,12 +1054,7 @@ export default function GroupForm({
                   >
                     <PlusCircle className="mr-2 h-4 w-4" /> Add Event
                   </Button>
-                  {/* <input
-                    type="hidden"
-                    name="_eventSize"
-                    value={eventFields.length}
-                  /> */}
-                </div>
+                </div> */}
               </CardContent>
             </Card>
 
@@ -1345,7 +1340,7 @@ export default function GroupForm({
               </CardContent>
             </Card> */}
 
-            <Card>
+            {/* <Card>
               <CardHeader>
                 <CardTitle>Additional Information</CardTitle>
               </CardHeader>
@@ -1365,7 +1360,7 @@ export default function GroupForm({
                   </p>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
           </div>
           {!isNSAccount ? (
             <div className="sticky bottom-5 mt-4 right-0 flex justify-end px-4">
