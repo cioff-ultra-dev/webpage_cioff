@@ -110,10 +110,8 @@ export async function getAllAgeGroups() {
   return db.query.categories.findMany({
     where(fields, operators) {
       return operators.inArray(fields.slug, [
-        "children",
-        "seniors",
-        "youth_adults",
-        "teenagers",
+        "teenagers-children",
+        "youth-adults-seniors",
       ]);
     },
     with: {
@@ -135,7 +133,7 @@ export async function getAllGroupStyles() {
     where(fields, operators) {
       return operators.inArray(fields.slug, [
         "authentic",
-        "elaborated",
+        "elaborate",
         "stylized",
       ]);
     },
