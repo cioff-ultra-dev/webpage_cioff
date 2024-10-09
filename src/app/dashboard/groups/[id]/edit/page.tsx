@@ -10,6 +10,8 @@ import {
   GroupStyleType,
   TypeOfGroupType,
 } from "@/db/queries/groups";
+import { getAllRegions, RegionsType } from "@/db/queries/regions";
+import { getLocale } from "next-intl/server";
 
 export default async function EditGroup({
   params,
@@ -20,10 +22,21 @@ export default async function EditGroup({
     Number(params.id)
   );
   const session = await auth();
+  const locale = await getLocale();
 
   const typeOfGroups: TypeOfGroupType = await getAllTypeOfGroups();
   const ageGroups: AgeGroupsType = await getAllAgeGroups();
   const groupStyles: GroupStyleType = await getAllGroupStyles();
+
+  const regions: RegionsType = await getAllRegions();
+
+  const currentLang = group?.langs.find((lang) => lang.l?.code === locale);
+  const currentCategoriesSelected =
+    group?.groupToCategories
+      .map((relation) => {
+        return relation?.category?.id ? String(relation?.category?.id) : "";
+      })
+      .filter((id) => Boolean(id)) ?? [];
 
   return (
     <GroupForm
@@ -33,6 +46,10 @@ export default async function EditGroup({
       ageGroups={ageGroups}
       groupStyles={groupStyles}
       session={session!}
+      locale={locale}
+      currentLang={currentLang}
+      currentCategoriesSelected={currentCategoriesSelected}
+      regions={regions}
     />
   );
 }

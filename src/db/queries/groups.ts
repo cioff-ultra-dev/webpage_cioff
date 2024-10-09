@@ -22,10 +22,38 @@ export async function getAllGroups() {
 export type AllGroupType = Awaited<ReturnType<typeof getAllGroups>>;
 
 export async function getGroupById(id: SelectGroup["id"]) {
+  const locale = await getLocale();
+  const localeValue = locale as SelectLanguages["code"];
+  const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
+
+  const pushLocales = [localeValue];
+
+  if (localeValue !== currentDefaultLocale) {
+    pushLocales.push(currentDefaultLocale);
+  }
+
+  const sq = db
+    .select({ id: languages.id })
+    .from(languages)
+    .where(inArray(languages.code, pushLocales));
+
   return db.query.groups.findFirst({
     where: eq(groups.id, id),
     with: {
       directorPhoto: true,
+      groupToCategories: {
+        with: {
+          category: true,
+        },
+      },
+      langs: {
+        where(fields, { inArray }) {
+          return inArray(fields.lang, sq);
+        },
+        with: {
+          l: true,
+        },
+      },
     },
   });
 }

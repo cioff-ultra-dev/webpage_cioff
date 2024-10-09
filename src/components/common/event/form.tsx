@@ -255,10 +255,10 @@ export default function EventForm({
       toast.error(result.error);
     }
 
-    customRevalidatePath("/dashboard/national-sections");
+    customRevalidatePath("/dashboard/festivals");
 
     if (result.success) {
-      router.push("/dashboard/national-sections");
+      router.push("/dashboard/festivals");
     }
   };
 

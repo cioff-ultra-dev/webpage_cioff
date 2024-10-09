@@ -28,9 +28,18 @@ export default auth(async (req) => {
     response.headers.set("x-current-path", req.nextUrl.pathname);
     return response;
   }
-  return NextResponse.next({ headers });
+  return NextResponse.next({ headers, request: { headers } });
 });
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|.*\\.png$|.*\\.jpg$).*)"],
+  matcher: [
+    {
+      source: "/((?!api|_next/static|_next/image|.*\\.png$|.*\\.jpg$).*)",
+      missing: [
+        { type: "header", key: "next-router-prefetch" },
+        { type: "header", key: "next-action" },
+        { type: "header", key: "purpose", value: "prefetch" },
+      ],
+    },
+  ],
 };

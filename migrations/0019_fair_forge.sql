@@ -1,0 +1,1 @@
+ALTER TABLE "groups" RENAME COLUMN "video_link" TO "youtube_id";
