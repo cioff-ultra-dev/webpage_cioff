@@ -104,6 +104,7 @@ const globalGroupSchema = insertGroupSchema.extend({
   //     params: { i18n: "file_required" },
   //   }),
   _isAbleToTravel: z.boolean().optional(),
+  _isAbleToTravelToLiveMusic: z.boolean().optional(),
   _specificDate: z
     .object({
       from: z.string().optional(),
@@ -349,7 +350,8 @@ export default function GroupForm({
       _specificRegion: currentGroup?.specificRegion
         ? String(currentGroup?.specificRegion)
         : undefined,
-      _isAbleToTravel: currentGroup?.isAbleTravelLiveMusic ?? false,
+      _isAbleToTravel: currentGroup?.isAbleTravel ?? false,
+      _isAbleToTravelToLiveMusic: currentGroup?.isAbleTravelLiveMusic ?? false,
       _specificDate: {
         from: currentGroup?.specificTravelDateFrom?.toUTCString() ?? "",
         to: currentGroup?.specificTravelDateTo?.toUTCString() ?? "",
@@ -358,6 +360,7 @@ export default function GroupForm({
         id: currentLang?.id ?? 0,
         name: currentLang?.name || "",
         address: currentLang?.address || undefined,
+        description: currentLang?.description || undefined,
         generalDirectorProfile: currentLang?.generalDirectorProfile || "",
         artisticDirectorProfile: currentLang?.artisticDirectorProfile || "",
       },
@@ -833,7 +836,7 @@ export default function GroupForm({
                 <div className="space-y-2">
                   <FormField
                     control={form.control}
-                    name="isAbleTravelLiveMusic"
+                    name="_isAbleToTravelToLiveMusic"
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between">
                         <div className="space-y-0.5">
@@ -843,6 +846,7 @@ export default function GroupForm({
                         </div>
                         <FormControl>
                           <Switch
+                            name={field.name}
                             checked={field.value!}
                             onCheckedChange={field.onChange}
                             disabled={isNSAccount}

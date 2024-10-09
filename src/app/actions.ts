@@ -1372,6 +1372,7 @@ export async function updateGroup(formData: FormData) {
   const id = Number(formData.get("id"));
   const langId = Number(formData.get("_lang.id"));
   const name = formData.get("_lang.name") as string;
+  const description = formData.get("_lang.description") as string;
   const generalDirectorName = formData.get("generalDirectorName") as string;
   const generalDirectorProfile = formData.get(
     "_lang.generalDirectorProfile"
@@ -1386,6 +1387,8 @@ export async function updateGroup(formData: FormData) {
   const address = formData.get("_lang.address") as string;
   const membersNumber = formData.get("membersNumber") as string;
   const isAbleToTravel = (formData.get("_isAbleToTravel") as string) === "yes";
+  const isAbleToTravelLiveMusic =
+    (formData.get("_isAbleToTravelToLiveMusic") as string) === "on";
 
   const speficifDateFrom = formData.get("_specificDate.from") as string;
   const speficifDateTo = formData.get("_specificDate.to") as string;
@@ -1420,7 +1423,8 @@ export async function updateGroup(formData: FormData) {
         artisticDirectorName,
         artisticDirectorPhotoId,
         phone,
-        isAbleTravelLiveMusic: isAbleToTravel,
+        isAbleTravel: isAbleToTravel,
+        isAbleTravelLiveMusic: isAbleToTravelLiveMusic,
         membersNumber: membersNumber ? Number(membersNumber) : null,
         specificTravelDateFrom: speficifDateFrom
           ? new Date(speficifDateFrom)
@@ -1443,6 +1447,7 @@ export async function updateGroup(formData: FormData) {
         generalDirectorProfile,
         artisticDirectorProfile,
         address,
+        description,
         groupId: currentGroup.id,
         lang: lang?.id,
       })
@@ -1453,6 +1458,7 @@ export async function updateGroup(formData: FormData) {
           "generalDirectorProfile",
           "artisticDirectorProfile",
           "address",
+          "description",
         ]),
       });
 

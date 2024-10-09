@@ -512,6 +512,7 @@ export const groups = pgTable("groups", {
   websiteLink: text("website_link"),
   youtubeId: text("youtube_id"),
 
+  isAbleTravel: boolean("is_able_travel").default(false),
   isAbleTravelLiveMusic: boolean("is_able_travel_live_music").default(false),
   specificTravelDateFrom: date("specific_start_date", {
     mode: "date",
