@@ -1,0 +1,1 @@
+ALTER TABLE "national_section_positions_lang" ADD COLUMN "other_member_name" text;

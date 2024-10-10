@@ -116,38 +116,38 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
         _lang: insertEventLangSchema,
       }),
     ),
-    _festivals: z.array(
-      inserFestivalByNSSchema.merge(
-        z.object({
-          ownerId: z.number().optional(),
-          _lang: insertFestivalLangSchema.pick({ name: true, id: true }),
-          certificationFile: z.any(),
-          // certificationFile: z.any().refine(
-          //   (item) => {
-          //     return item instanceof File || typeof item !== "undefined";
-          //   },
-          //   { params: { i18n: "file_required" } }
-          // ),
-        }),
-      ),
-    ),
+    // _festivals: z.array(
+    //   inserFestivalByNSSchema.merge(
+    //     z.object({
+    //       ownerId: z.number().optional(),
+    //       _lang: insertFestivalLangSchema.pick({ name: true, id: true }),
+    //       certificationFile: z.any(),
+    //       certificationFile: z.any().refine(
+    //         (item) => {
+    //           return item instanceof File || typeof item !== "undefined";
+    //         },
+    //         { params: { i18n: "file_required" } }
+    //       ),
+    //     }),
+    //   ),
+    // ),
     _social: insertSocialMediaLinkSchema,
-    _groups: z.array(
-      insertGroupByNSSchema.merge(
-        z.object({
-          ownerId: z.number().optional(),
-          email: z.string().email(),
-          _lang: insertGroupLangSchema.pick({ name: true, id: true }),
-          certificationFile: z.any(),
-          // certificationFile: z
-          //   .any()
-          //   .refine(
-          //     (item) => item instanceof File || typeof item !== "undefined",
-          //     { params: { i18n: "file_required" } }
-          //   ),
-        }),
-      ),
-    ),
+    // _groups: z.array(
+    //   insertGroupByNSSchema.merge(
+    //     z.object({
+    //       ownerId: z.number().optional(),
+    //       email: z.string().email(),
+    //       _lang: insertGroupLangSchema.pick({ name: true, id: true }),
+    //       certificationFile: z.any(),
+    //       certificationFile: z
+    //         .any()
+    //         .refine(
+    //           (item) => item instanceof File || typeof item !== "undefined",
+    //           { params: { i18n: "file_required" } }
+    //         ),
+    //     }),
+    //   ),
+    // ),
   }),
 );
 
@@ -180,6 +180,7 @@ export default function NationalSectionForm({
   id,
   slug,
   session,
+  locale,
 }: {
   session?: Session;
   currentNationalSection?: NationalSectionDetailsType | undefined;
@@ -187,15 +188,17 @@ export default function NationalSectionForm({
   typePositions?: PositionTypeForNSType;
   id?: string;
   slug?: string;
+  locale?: string;
 }) {
-  // const [state, formAction] = useFormState(, null);
   useI18nZodErrors("ns");
+
   const form = useForm<z.infer<typeof formNationalSectionSchema>>({
     resolver: zodResolver(formNationalSectionSchema),
     defaultValues: {
       id: Number(id),
       slug: currentNationalSection?.slug,
       _lang: {
+        id: currentLang?.id ?? 0,
         name: currentLang?.name,
         about: currentLang?.about,
       },
@@ -231,6 +234,8 @@ export default function NationalSectionForm({
               _lang: {
                 id: position?.langs?.at(0)?.id ?? 0,
                 shortBio: position.langs.at(0)?.shortBio,
+                otherMemberName:
+                  position.langs.at(0)?.otherMemberName ?? undefined,
               },
             };
           })
@@ -243,41 +248,39 @@ export default function NationalSectionForm({
               _lang: { shortBio: "" },
             },
           ],
-      _festivals: currentNationalSection?.festivals.map((festival) => {
-        return {
-          ...festival,
-          email: festival.owners.at(0)?.user?.email ?? "",
-          certificationFile: new File(["foo"], "foo.txt", {
-            type: "application/pdf",
-          }),
-          ownerId: festival.owners.at(0)?.id ?? 0,
-          _lang: {
-            id: festival.langs.at(0)?.id ?? 0,
-            name: festival.langs.at(0)?.name ?? "",
-          },
-        };
-      }),
-      _groups: currentNationalSection?.groups.map((group) => {
-        return {
-          ...group,
-          email: group.owners.at(0)?.user?.email ?? "",
-          certificationFile: new File(["foo"], "foo.txt", {
-            type: "application/pdf",
-          }),
-          ownerId: group.owners.at(0)?.id ?? 0,
-          _lang: {
-            id: group.langs.at(0)?.id ?? 0,
-            name: group.langs.at(0)?.name ?? "",
-          },
-        };
-      }),
+      // _festivals: currentNationalSection?.festivals.map((festival) => {
+      //   return {
+      //     ...festival,
+      //     email: festival.owners.at(0)?.user?.email ?? "",
+      //     certificationFile: new File(["foo"], "foo.txt", {
+      //       type: "application/pdf",
+      //     }),
+      //     ownerId: festival.owners.at(0)?.id ?? 0,
+      //     _lang: {
+      //       id: festival.langs.at(0)?.id ?? 0,
+      //       name: festival.langs.at(0)?.name ?? "",
+      //     },
+      //   };
+      // }),
+      // _groups: currentNationalSection?.groups.map((group) => {
+      //   return {
+      //     ...group,
+      //     email: group.owners.at(0)?.user?.email ?? "",
+      //     certificationFile: new File(["foo"], "foo.txt", {
+      //       type: "application/pdf",
+      //     }),
+      //     ownerId: group.owners.at(0)?.id ?? 0,
+      //     _lang: {
+      //       id: group.langs.at(0)?.id ?? 0,
+      //       name: group.langs.at(0)?.name ?? "",
+      //     },
+      //   };
+      // }),
     },
   });
 
   const t = useTranslations("form.ns");
   const router = useRouter();
-
-  console.log(form.formState.errors);
 
   useEffect(() => {
     form.setValue("_lang.name", currentLang?.name || "");
@@ -314,23 +317,23 @@ export default function NationalSectionForm({
     name: "_events",
   });
 
-  const {
-    fields: festivalFields,
-    append: appendFestival,
-    remove: removeFestival,
-  } = useFieldArray({
-    control: form.control,
-    name: "_festivals",
-  });
+  // const {
+  //   fields: festivalFields,
+  //   append: appendFestival,
+  //   remove: removeFestival,
+  // } = useFieldArray({
+  //   control: form.control,
+  //   name: "_festivals",
+  // });
 
-  const {
-    fields: groupFields,
-    append: appendGroup,
-    remove: removeGroup,
-  } = useFieldArray({
-    control: form.control,
-    name: "_groups",
-  });
+  // const {
+  //   fields: groupFields,
+  //   append: appendGroup,
+  //   remove: removeGroup,
+  // } = useFieldArray({
+  //   control: form.control,
+  //   name: "_groups",
+  // });
 
   const positions = useWatch({
     control: form.control,
@@ -398,6 +401,24 @@ export default function NationalSectionForm({
                 <FormField
                   control={form.control}
                   name="id"
+                  render={({ field }) => (
+                    <FormItem className="space-y-0">
+                      <FormControl>
+                        <Input
+                          ref={field.ref}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          value={field.value}
+                          name={field.name}
+                          type="hidden"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="_lang.id"
                   render={({ field }) => (
                     <FormItem className="space-y-0">
                       <FormControl>
@@ -541,7 +562,9 @@ export default function NationalSectionForm({
                                               String(typePosition.id) ===
                                               field.value,
                                           )
-                                          ?.slug.replaceAll("-", " ")
+                                          ?.langs.find(
+                                            (lang) => lang.l?.code === locale,
+                                          )?.name
                                       : "Select type position"}
                                     <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                   </Button>
@@ -561,29 +584,26 @@ export default function NationalSectionForm({
                                       {typePositions?.map((typePosition) => (
                                         <CommandItem
                                           value={String(
-                                            typePosition.slug.replaceAll(
-                                              "-",
-                                              " ",
-                                            ),
+                                            typePosition.langs.find(
+                                              (lang) => lang.l?.code === locale,
+                                            )?.name,
                                           )}
                                           key={`_positions.${index}._type.${String(
                                             typePosition.id,
                                           )}`}
                                           className="capitalize"
                                           onSelect={() => {
-                                            console.log(
-                                              String(typePosition.id),
-                                            );
                                             form.setValue(
                                               `_positions.${index}._type`,
                                               String(typePosition.id),
                                             );
                                           }}
                                         >
-                                          {typePosition.slug.replaceAll(
-                                            "-",
-                                            " ",
-                                          )}
+                                          {
+                                            typePosition.langs.find(
+                                              (lang) => lang.l?.code === locale,
+                                            )?.name
+                                          }
                                           <CheckIcon
                                             className={cn(
                                               "ml-auto h-4 w-4",
@@ -614,6 +634,34 @@ export default function NationalSectionForm({
                         )}
                       />
                     </div>
+                    {typePositions?.find(
+                      (item) => item.id === Number(positions?.[index]?._type),
+                    )?.slug === "other-member" ? (
+                      <div className="grid w-full items-center gap-1.5 pl-5 border-l">
+                        <FormField
+                          control={form.control}
+                          name={`_positions.${index}._lang.otherMemberName`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Member name</FormLabel>
+                              <FormControl>
+                                <Input
+                                  ref={field.ref}
+                                  onChange={field.onChange}
+                                  onBlur={field.onBlur}
+                                  value={field.value || ""}
+                                  name={field.name}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Enter your custom member name
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    ) : null}
                     <div className="grid w-full items-center gap-1.5">
                       <FormField
                         control={form.control}

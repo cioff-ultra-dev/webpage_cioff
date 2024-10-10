@@ -11,7 +11,6 @@ import {
   useForm,
   useWatch,
 } from "react-hook-form";
-import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -22,10 +21,8 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button, ButtonProps } from "@/components/ui/button";
-import { createGroup, updateGroup } from "@/app/actions";
-import { useFormState, useFormStatus } from "react-dom";
+import { updateGroup } from "@/app/actions";
 import * as RPNInput from "react-phone-number-input";
 import {
   Form,
@@ -46,25 +43,13 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { PhoneInput } from "@/components/ui/phone-input";
 import {
-  insertFestivalSchema,
   insertGroupLangSchema,
   insertGroupSchema,
   insertSubGroupLangSchema,
   insertSubGroupSchema,
-  SelectGroup,
 } from "@/db/schema";
-import { AutocompletePlaces } from "@/components/ui/autocomplete-places";
-import MapHandler from "@/components/common/map-handler";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { cn, formatBytes } from "@/lib/utils";
-import { PlusCircle, X } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
-import { addYears, endOfYear, format, startOfYear, subYears } from "date-fns";
-import { Badge } from "@/components/ui/badge";
+import { X } from "lucide-react";
 import {
   AgeGroupsType,
   GroupDetailsType,
@@ -115,7 +100,7 @@ const globalGroupSchema = insertGroupSchema.extend({
   _subgroups: z.array(
     insertSubGroupSchema.extend({
       _lang: insertSubGroupLangSchema,
-    })
+    }),
   ),
 });
 
@@ -287,7 +272,7 @@ export default function GroupForm({
   const [selectedTypeOfGroup, setSelectedTypeOfGroup] = useState<string[]>([]);
   const [selectedGroupAge, setSelectedGroupAge] = useState<string[]>([]);
   const [selectedStyleOfGroup, setSelectedStyleOfGroup] = useState<string[]>(
-    []
+    [],
   );
 
   const t = useTranslations("form.group");
@@ -321,12 +306,12 @@ export default function GroupForm({
   const updateRepertoireItem = (
     id: number,
     field: keyof RepertoireItem,
-    value: string | FileList | null
+    value: string | FileList | null,
   ) => {
     setRepertoire(
       repertoire.map((item) =>
-        item.id === id ? { ...item, [field]: value } : item
-      )
+        item.id === id ? { ...item, [field]: value } : item,
+      ),
     );
   };
 
@@ -371,7 +356,7 @@ export default function GroupForm({
     {
       control: form.control,
       name: "_subgroups",
-    }
+    },
   );
 
   const isAbleToTravelWatch = useWatch({
@@ -382,7 +367,7 @@ export default function GroupForm({
   const formRef = useRef<HTMLFormElement>(null);
 
   const onSubmitForm: SubmitHandler<z.infer<typeof globalGroupSchema>> = async (
-    _data
+    _data,
   ) => {
     const result = await updateGroup(new FormData(formRef.current!));
     if (result.success) {
@@ -548,7 +533,7 @@ export default function GroupForm({
                             accept="image/*"
                             onChange={(event) => {
                               field.onChange(
-                                event.target.files && event.target.files[0]
+                                event.target.files && event.target.files[0],
                               );
                             }}
                             onBlur={field.onBlur}
@@ -633,7 +618,7 @@ export default function GroupForm({
                             accept="image/*"
                             onChange={(event) => {
                               field.onChange(
-                                event.target.files && event.target.files[0]
+                                event.target.files && event.target.files[0],
                               );
                             }}
                             onBlur={field.onBlur}
@@ -812,8 +797,8 @@ export default function GroupForm({
                               defaultValue={
                                 (field.value as string[])?.filter((item) =>
                                   options.find(
-                                    (option) => option.value === item
-                                  )
+                                    (option) => option.value === item,
+                                  ),
                                 ) ?? []
                               }
                               onValueChange={(values) => {
@@ -909,8 +894,8 @@ export default function GroupForm({
                               defaultValue={
                                 (field.value as string[])?.filter((item) =>
                                   options.find(
-                                    (option) => option.value === item
-                                  )
+                                    (option) => option.value === item,
+                                  ),
                                 ) ?? []
                               }
                               onValueChange={(values) => {
@@ -948,7 +933,7 @@ export default function GroupForm({
                               field.onChange(
                                 event.target.value
                                   ? Number(event.target.value)
-                                  : 0
+                                  : 0,
                               );
                             }}
                             onBlur={field.onBlur}
@@ -992,8 +977,8 @@ export default function GroupForm({
                               defaultValue={
                                 (field.value as string[])?.filter((item) =>
                                   options.find(
-                                    (option) => option.value === item
-                                  )
+                                    (option) => option.value === item,
+                                  ),
                                 ) ?? []
                               }
                               onValueChange={(values) => {
@@ -1236,8 +1221,8 @@ export default function GroupForm({
                                     from: form.getValues(`_specificDate.from`)
                                       ? new Date(
                                           form.getValues(
-                                            `_specificDate.from`
-                                          ) ?? ""
+                                            `_specificDate.from`,
+                                          ) ?? "",
                                         )
                                       : undefined,
                                     to:
@@ -1245,7 +1230,7 @@ export default function GroupForm({
                                       form.getValues(`_specificDate.from`) !==
                                         form.getValues(`_specificDate.to`)
                                         ? new Date(
-                                            form.getValues(`_specificDate.to`)!
+                                            form.getValues(`_specificDate.to`)!,
                                           )
                                         : undefined,
                                   }}
@@ -1272,7 +1257,7 @@ export default function GroupForm({
                               ?.message ? (
                               <p
                                 className={cn(
-                                  "text-sm font-medium text-destructive"
+                                  "text-sm font-medium text-destructive",
                                 )}
                               >
                                 {
@@ -1315,7 +1300,7 @@ export default function GroupForm({
                                       >
                                         {
                                           region.langs.find(
-                                            (lang) => lang.l?.code === locale
+                                            (lang) => lang.l?.code === locale,
                                           )?.name
                                         }
                                       </SelectItem>
