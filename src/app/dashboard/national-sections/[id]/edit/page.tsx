@@ -27,6 +27,7 @@ export default async function EditNationalSection({
       slug={params.id}
       typePositions={typePositions}
       session={session!}
+      locale={locale}
     />
   );
 }
