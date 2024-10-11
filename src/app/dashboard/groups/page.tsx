@@ -133,7 +133,7 @@ export default async function DashboardPage() {
                           {item?.langs.find((item) => item.l?.code === locale)
                             ?.name ||
                             item?.langs.find(
-                              (item) => item.l?.code === defaultLocale,
+                              (item) => item.l?.code === defaultLocale
                             )?.name}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
@@ -145,7 +145,7 @@ export default async function DashboardPage() {
                           {/* {item.country?.id} */}
                         </TableCell>
                         <TableCell>
-                          <MenuActions item={item}>
+                          <MenuActions item={item} roleName="Groups">
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button
@@ -188,9 +188,6 @@ export default async function DashboardPage() {
                                     </DropdownMenuItem>
                                   </DialogTrigger>
                                 ) : null}
-                                <DropdownMenuItem disabled>
-                                  Delete
-                                </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </MenuActions>

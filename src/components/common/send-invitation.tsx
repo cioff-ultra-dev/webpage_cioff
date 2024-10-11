@@ -24,6 +24,7 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
+import { customRevalidatePath } from "./revalidateTag";
 
 const dataSchema = z.object({
   email: z.string().email().optional(),
@@ -62,7 +63,7 @@ export default function SendInvitation({
   const formRef = useRef<HTMLFormElement>(null);
 
   const onSubmitForm: SubmitHandler<z.infer<typeof dataSchema>> = async (
-    data,
+    data
   ) => {
     const result = await (
       await fetch(
@@ -70,7 +71,7 @@ export default function SendInvitation({
           festivalId ?? ""
         }&roleName=${roleName}&countryId=${countryId}&userId=${userId}&groupId=${
           groupId ?? ""
-        }&ownerId=${ownerId ?? ""}`,
+        }&ownerId=${ownerId ?? ""}`
       )
     ).json();
 
@@ -79,7 +80,18 @@ export default function SendInvitation({
       toast.error(result.error);
     }
 
+    if (result.warning) {
+      toast.warning(result.warning);
+      form.resetField("email");
+      if (setOpen) {
+        setOpen(false);
+      }
+    }
+
     if (result.success) {
+      customRevalidatePath(
+        roleName === "Groups" ? "/dashboard/groups" : "/dashboard/festivals"
+      );
       toast.success(result.success);
       form.resetField("email");
       if (setOpen) {
@@ -101,7 +113,7 @@ export default function SendInvitation({
           <DialogHeader>
             <DialogTitle>Confirm Invitation</DialogTitle>
             <DialogDescription>
-              Make changes to your profile here. Click save when you're done.
+              Make changes to your invitation here. Click send when you're done.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-6">

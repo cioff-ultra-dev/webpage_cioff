@@ -11,6 +11,7 @@
   "notification": {
     "success": "Saved Successfully",
     "email_exist": "Email already exist",
+    "user_already_actived": "User account already activated",
     "sent_success": "Sent Successfully",
     "email": {
       "festival_invitation_subject": "Festivals User Invitation - CIOFF",
