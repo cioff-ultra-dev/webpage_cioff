@@ -203,6 +203,10 @@ export async function getAllFestivalsByOwner(locale: string) {
   });
 }
 
+export type FestivalByOwnerType = Awaited<
+  ReturnType<typeof getAllFestivalsByOwner>
+>;
+
 export async function getCategoryForGroups(locale: string, fields: string[]) {
   const session = await auth();
   const localeValue = locale as SelectLanguages["code"];

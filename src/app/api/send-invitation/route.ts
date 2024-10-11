@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import {
-  categoryGroups,
   emailTemplates,
+  festivals,
   owners,
   roles,
   users,
@@ -9,11 +9,30 @@ import {
 } from "@/db/schema";
 import { transport } from "@/lib/mailer";
 import replaceTags from "@codejamboree/replace-tags";
-import { eq, and } from "drizzle-orm";
+import { eq, and, getTableColumns, sql, SQL } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import generator from "generate-password-ts";
 import { NextRequest } from "next/server";
 import { generateHashPassword } from "@/lib/password";
+import { PgTable } from "drizzle-orm/pg-core";
+
+const buildConflictUpdateColumns = <
+  T extends PgTable,
+  Q extends keyof T["_"]["columns"],
+>(
+  table: T,
+  columns: Q[],
+) => {
+  const cls = getTableColumns(table);
+  return columns.reduce(
+    (acc, column) => {
+      const colName = cls[column].name;
+      acc[column] = sql.raw(`excluded.${colName}`);
+      return acc;
+    },
+    {} as Record<Q, SQL>,
+  );
+};
 
 export async function GET(request: NextRequest) {
   const t = await getTranslations("notification");
@@ -29,10 +48,20 @@ export async function GET(request: NextRequest) {
     request.nextUrl.searchParams.get("groupId") || "",
   );
   const roleName: string = request.nextUrl.searchParams.get("roleName") || "";
+  const userId: string | undefined =
+    request.nextUrl.searchParams.get("userId") || undefined;
+  const ownerId: number = Number(
+    request.nextUrl.searchParams.get("ownerId") || "",
+  );
+  const nsId: number = Number(request.nextUrl.searchParams.get("nsId") || "");
 
   const checkEmail = await db.query.users.findFirst({
-    where(fields, operators) {
-      return operators.eq(fields.email, email);
+    where(fields, { eq, ne, and }) {
+      if (userId) {
+        return and(eq(fields.email, email), ne(fields.id, userId));
+      }
+
+      return eq(fields.email, email);
     },
   });
 
@@ -41,7 +70,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    await db.transaction(async (tx) => {
+    const result = await db.transaction(async (tx) => {
       const role = await tx.query.roles.findFirst({
         where: eq(roles.name, roleName),
       });
@@ -63,21 +92,49 @@ export async function GET(request: NextRequest) {
         );
 
       let name = "";
+      let nsName = "";
       const password = generator.generate({ length: 10, numbers: true });
       const hashedPassword = await generateHashPassword(password);
 
       const [user] = await tx
         .insert(users)
         .values({
+          id: userId ? userId : undefined,
           email,
           roleId: role?.id || null,
           countryId: countryId,
           password: hashedPassword,
         })
-        .returning();
+        .onConflictDoUpdate({
+          target: users.id,
+          set: buildConflictUpdateColumns(users, ["email", "password"]),
+          setWhere: eq(users.active, false),
+        })
+        .returning({
+          id: users.id,
+          email: users.email,
+          isActive: users.active,
+        });
+
+      if (!user) {
+        return { warning: t("user_already_actived") };
+      }
+
+      if (nsId) {
+        const data = await tx.query.nationalSectionsLang.findFirst({
+          where(fields, operators) {
+            return operators.and(
+              operators.eq(fields.nsId, nsId),
+              operators.eq(fields.lang, currentCountry?.nativeLang ?? 1),
+            );
+          },
+        });
+
+        nsName = data?.name ?? "";
+      }
 
       if (festivalId) {
-        const data = await db.query.festivalsLang.findFirst({
+        const data = await tx.query.festivalsLang.findFirst({
           where(fields, operators) {
             return operators.and(
               operators.eq(fields.festivalId, festivalId),
@@ -86,17 +143,29 @@ export async function GET(request: NextRequest) {
           },
         });
 
-        name = data?.name ?? "";
         await tx
-          .update(owners)
-          .set({
+          .update(festivals)
+          .set({ email: user.email })
+          .where(eq(festivals.id, festivalId));
+
+        name = data?.name ?? "";
+
+        await tx
+          .insert(owners)
+          .values({
+            id: ownerId ? ownerId : undefined,
             userId: user.id,
+            festivalId,
           })
-          .where(eq(owners.festivalId, festivalId));
+          .onConflictDoUpdate({
+            target: owners.id,
+            set: buildConflictUpdateColumns(owners, ["userId"]),
+            setWhere: eq(owners.festivalId, festivalId),
+          });
       }
 
       if (groupId) {
-        const data = await db.query.groupsLang.findFirst({
+        const data = await tx.query.groupsLang.findFirst({
           where(fields, operators) {
             return operators.and(
               operators.eq(fields.groupId, groupId),
@@ -106,16 +175,23 @@ export async function GET(request: NextRequest) {
         });
 
         name = data?.name ?? "";
+
         await tx
-          .update(owners)
-          .set({
+          .insert(owners)
+          .values({
+            id: ownerId ? ownerId : undefined,
             userId: user.id,
+            groupId,
           })
-          .where(eq(owners.groupId, groupId));
+          .onConflictDoUpdate({
+            target: owners.id,
+            set: buildConflictUpdateColumns(owners, ["userId"]),
+            setWhere: eq(owners.groupId, groupId),
+          });
       }
 
-      if (user.email && !user.isCreationNotified) {
-        const [emailTemplate] = await db
+      if (user.email && !user.isActive) {
+        const [emailTemplate] = await tx
           .select()
           .from(emailTemplates)
           .where(
@@ -133,6 +209,7 @@ export async function GET(request: NextRequest) {
           )}</a>`,
           email: user.email,
           video: `<a target="_blank" href="${video.link}">Video</a>`,
+          nsName: nsName,
         });
 
         await transport.sendMail({
@@ -147,11 +224,13 @@ export async function GET(request: NextRequest) {
           .set({ isCreationNotified: true })
           .where(eq(users.id, user.id));
       }
+
+      return { success: t("sent_success") };
     });
+
+    return Response.json(result);
   } catch (error) {
     console.log(error);
     return Response.json({ error: "Something went wrong" });
   }
-
-  return Response.json({ success: t("sent_success") });
 }

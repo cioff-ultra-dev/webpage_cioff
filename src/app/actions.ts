@@ -862,6 +862,15 @@ export async function generateFestival(formData: FormData) {
           },
         });
 
+        const nsLang = await tx.query.nationalSectionsLang.findFirst({
+          where(fields, operators) {
+            return operators.and(
+              operators.eq(fields.nsId, nsId),
+              operators.eq(fields.lang, currentCountry?.nativeLang ?? 1),
+            );
+          },
+        });
+
         const [video] = await tx
           .select()
           .from(videoTutorialLinks)
@@ -889,6 +898,7 @@ export async function generateFestival(formData: FormData) {
           )}</a>`,
           email: user.email,
           video: `<a target="_blank" href="${video.link}">Video</a>`,
+          nsName: nsLang?.name ?? "",
         });
 
         await transport.sendMail({
@@ -975,10 +985,19 @@ export async function generateGroup(formData: FormData) {
         })
         .returning();
 
-      if (user.email && !user.isCreationNotified && !user.emailVerified) {
+      if (user.email && !user.isCreationNotified) {
         const currentCountry = await tx.query.countries.findFirst({
           where(fields, { eq }) {
             return eq(fields.id, user.countryId!);
+          },
+        });
+
+        const nsLang = await tx.query.nationalSectionsLang.findFirst({
+          where(fields, operators) {
+            return operators.and(
+              operators.eq(fields.nsId, nsId),
+              operators.eq(fields.lang, currentCountry?.nativeLang ?? 1),
+            );
           },
         });
 
@@ -1010,6 +1029,7 @@ export async function generateGroup(formData: FormData) {
           )}</a>`,
           email: user.email,
           video: `<a target="_blank" href="${video.link}">Video</a>`,
+          nsName: nsLang?.name ?? "",
         });
 
         await transport.sendMail({

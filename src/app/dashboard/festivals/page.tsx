@@ -29,6 +29,8 @@ import { getFormatter, getLocale } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
 import { auth } from "@/auth";
 import SendInvitation from "../../../components/common/send-invitation";
+import MenuActions from "@/components/common/menu-actions";
+import { DialogTrigger } from "@/components/ui/dialog";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -155,51 +157,52 @@ export default async function DashboardPage() {
                           {item?.stateMode}
                         </TableCell>
                         <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                aria-haspopup="true"
-                                size="icon"
-                                variant="ghost"
-                              >
-                                <EllipsisVertical className="h-4 w-4" />
-                                <span className="sr-only">Toggle menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem>
-                                <Link
-                                  href={`/event/${item?.id}`}
-                                  target="_blank"
-                                  className="cursor-pointer"
+                          <MenuActions
+                            item={item}
+                            roleName="Festivals"
+                            fallbackEmail={item?.email || undefined}
+                          >
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  aria-haspopup="true"
+                                  size="icon"
+                                  variant="ghost"
                                 >
-                                  Preview
-                                </Link>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem asChild>
-                                <Link
-                                  href={`/dashboard/festivals/${item?.slug}/edit`}
-                                  className="cursor-pointer"
-                                >
-                                  Edit
-                                </Link>
-                              </DropdownMenuItem>
-                              {session?.user.role?.name ===
-                              "National Sections" ? (
+                                  <EllipsisVertical className="h-4 w-4" />
+                                  <span className="sr-only">Toggle menu</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                 <DropdownMenuItem>
-                                  {item?.email ? (
-                                    <SendInvitation
-                                      email={item.email}
-                                      festivalId={item.id}
-                                      roleName="Festivals"
-                                      countryId={item.countryId!}
-                                    />
-                                  ) : null}
+                                  <Link
+                                    href={`/event/${item?.id}`}
+                                    target="_blank"
+                                    className="cursor-pointer"
+                                  >
+                                    Preview
+                                  </Link>
                                 </DropdownMenuItem>
-                              ) : null}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                                <DropdownMenuItem asChild>
+                                  <Link
+                                    href={`/dashboard/festivals/${item?.slug}/edit`}
+                                    className="cursor-pointer"
+                                  >
+                                    Edit
+                                  </Link>
+                                </DropdownMenuItem>
+                                {session?.user.role?.name ===
+                                "National Sections" ? (
+                                  <DialogTrigger asChild>
+                                    <DropdownMenuItem className="cursor-pointer">
+                                      Send Invitation
+                                    </DropdownMenuItem>
+                                  </DialogTrigger>
+                                ) : null}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </MenuActions>
                         </TableCell>
                       </TableRow>
                     );
