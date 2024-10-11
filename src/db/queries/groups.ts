@@ -85,6 +85,11 @@ export async function getAllGroupsByOwner(locale: string) {
         with: {
           groups: {
             with: {
+              owners: {
+                with: {
+                  user: true,
+                },
+              },
               langs: {
                 where(fields, { inArray }) {
                   return inArray(fields.lang, sq);
@@ -99,6 +104,11 @@ export async function getAllGroupsByOwner(locale: string) {
       },
       group: {
         with: {
+          owners: {
+            with: {
+              user: true,
+            },
+          },
           langs: {
             where(fields, { inArray }) {
               return inArray(fields.lang, sq);
@@ -112,6 +122,8 @@ export async function getAllGroupsByOwner(locale: string) {
     },
   });
 }
+
+export type GroupByOwnerType = Awaited<ReturnType<typeof getAllGroupsByOwner>>;
 
 export async function getAllTypeOfGroups() {
   const locale = await getLocale();

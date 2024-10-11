@@ -19,22 +19,18 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { format } from "date-fns";
 import { EllipsisVertical, Send } from "lucide-react";
-import { SelectFestival, SelectGroup } from "@/db/schema";
-import {
-  AllGroupType,
-  getAllGroups,
-  getAllGroupsByOwner,
-} from "@/db/queries/groups";
+import { getAllGroupsByOwner } from "@/db/queries/groups";
 import { getFormatter, getLocale } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
 import { auth } from "@/auth";
+import { DialogTrigger } from "@/components/ui/dialog";
+import MenuActions from "@/components/common/menu-actions";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -137,7 +133,7 @@ export default async function DashboardPage() {
                           {item?.langs.find((item) => item.l?.code === locale)
                             ?.name ||
                             item?.langs.find(
-                              (item) => item.l?.code === defaultLocale
+                              (item) => item.l?.code === defaultLocale,
                             )?.name}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
@@ -149,20 +145,21 @@ export default async function DashboardPage() {
                           {/* {item.country?.id} */}
                         </TableCell>
                         <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                aria-haspopup="true"
-                                size="icon"
-                                variant="ghost"
-                              >
-                                <EllipsisVertical className="h-4 w-4" />
-                                <span className="sr-only">Toggle menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              {/* <DropdownMenuItem
+                          <MenuActions item={item}>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  aria-haspopup="true"
+                                  size="icon"
+                                  variant="ghost"
+                                >
+                                  <EllipsisVertical className="h-4 w-4" />
+                                  <span className="sr-only">Toggle menu</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                {/* <DropdownMenuItem
                                 asChild
                                 className="cursor-pointer"
                               >
@@ -173,21 +170,30 @@ export default async function DashboardPage() {
                                   Preview
                                 </Link>
                               </DropdownMenuItem> */}
-                              <DropdownMenuItem
-                                asChild
-                                className="cursor-pointer"
-                              >
-                                <Link
-                                  href={`/dashboard/groups/${item?.id}/edit`}
+                                <DropdownMenuItem
+                                  asChild
+                                  className="cursor-pointer"
                                 >
-                                  Edit
-                                </Link>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem disabled>
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                                  <Link
+                                    href={`/dashboard/groups/${item?.id}/edit`}
+                                  >
+                                    Edit
+                                  </Link>
+                                </DropdownMenuItem>
+                                {session?.user.role?.name ===
+                                "National Sections" ? (
+                                  <DialogTrigger asChild>
+                                    <DropdownMenuItem className="cursor-pointer">
+                                      Send Invitation
+                                    </DropdownMenuItem>
+                                  </DialogTrigger>
+                                ) : null}
+                                <DropdownMenuItem disabled>
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </MenuActions>
                         </TableCell>
                       </TableRow>
                     );

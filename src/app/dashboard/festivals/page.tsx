@@ -136,7 +136,7 @@ export default async function DashboardPage() {
                           {item?.langs.find((item) => item.l?.code === locale)
                             ?.name ||
                             item?.langs.find(
-                              (item) => item.l?.code === defaultLocale
+                              (item) => item.l?.code === defaultLocale,
                             )?.name}
                         </TableCell>
                         <TableCell className="font-medium">
@@ -188,14 +188,16 @@ export default async function DashboardPage() {
                               {session?.user.role?.name ===
                               "National Sections" ? (
                                 <DropdownMenuItem>
-                                  {item?.email ? (
-                                    <SendInvitation
-                                      email={item.email}
-                                      festivalId={item.id}
-                                      roleName="Festivals"
-                                      countryId={item.countryId!}
-                                    />
-                                  ) : null}
+                                  <SendInvitation
+                                    email={
+                                      item?.owners?.at(0)?.user?.email ||
+                                      item?.email ||
+                                      ""
+                                    }
+                                    festivalId={item?.id!}
+                                    roleName="Festivals"
+                                    countryId={item?.countryId!}
+                                  />
                                 </DropdownMenuItem>
                               ) : null}
                             </DropdownMenuContent>

@@ -1,6 +1,5 @@
 import { db } from "@/db";
 import {
-  categoryGroups,
   emailTemplates,
   owners,
   roles,
@@ -9,36 +8,66 @@ import {
 } from "@/db/schema";
 import { transport } from "@/lib/mailer";
 import replaceTags from "@codejamboree/replace-tags";
-import { eq, and } from "drizzle-orm";
+import { eq, and, getTableColumns, sql, SQL } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import generator from "generate-password-ts";
 import { NextRequest } from "next/server";
 import { generateHashPassword } from "@/lib/password";
+import { PgTable } from "drizzle-orm/pg-core";
+
+const buildConflictUpdateColumns = <
+  T extends PgTable,
+  Q extends keyof T["_"]["columns"],
+>(
+  table: T,
+  columns: Q[],
+) => {
+  const cls = getTableColumns(table);
+  return columns.reduce(
+    (acc, column) => {
+      const colName = cls[column].name;
+      acc[column] = sql.raw(`excluded.${colName}`);
+      return acc;
+    },
+    {} as Record<Q, SQL>,
+  );
+};
 
 export async function GET(request: NextRequest) {
   const t = await getTranslations("notification");
   const email: string = request.nextUrl.searchParams.get("email") || "";
   const festivalId: number = Number(
-    request.nextUrl.searchParams.get("festivalId") || ""
+    request.nextUrl.searchParams.get("festivalId") || "",
   );
   const countryId: number = Number(
-    request.nextUrl.searchParams.get("countryId") || ""
+    request.nextUrl.searchParams.get("countryId") || "",
   );
 
   const groupId: number = Number(
-    request.nextUrl.searchParams.get("groupId") || ""
+    request.nextUrl.searchParams.get("groupId") || "",
   );
   const roleName: string = request.nextUrl.searchParams.get("roleName") || "";
+  const userId: string | undefined =
+    request.nextUrl.searchParams.get("userId") || undefined;
+  const ownerId: number = Number(
+    request.nextUrl.searchParams.get("ownerId") || "",
+  );
 
   const checkEmail = await db.query.users.findFirst({
-    where(fields, operators) {
-      return operators.eq(fields.email, email);
+    where(fields, { eq, ne, and }) {
+      if (userId) {
+        return and(eq(fields.email, email), ne(fields.id, userId));
+      }
+
+      return eq(fields.email, email);
     },
   });
 
   if (checkEmail) {
     return Response.json({ error: t("email_exist") });
   }
+
+  console.log({ userId, ownerId, groupId, email });
 
   try {
     await db.transaction(async (tx) => {
@@ -58,8 +87,8 @@ export async function GET(request: NextRequest) {
         .where(
           and(
             eq(videoTutorialLinks.lang, currentCountry?.nativeLang! ?? 1),
-            eq(videoTutorialLinks.role, role?.id!)
-          )
+            eq(videoTutorialLinks.role, role?.id!),
+          ),
         );
 
       let name = "";
@@ -69,67 +98,84 @@ export async function GET(request: NextRequest) {
       const [user] = await tx
         .insert(users)
         .values({
+          id: userId ? userId : undefined,
           email,
           roleId: role?.id || null,
           countryId: countryId,
           password: hashedPassword,
         })
-        .returning();
-
-      if (festivalId) {
-        const data = await db.query.festivalsLang.findFirst({
-          where(fields, operators) {
-            return operators.and(
-              operators.eq(fields.festivalId, festivalId),
-              operators.eq(fields.lang, currentCountry?.nativeLang ?? 1)
-            );
-          },
+        .onConflictDoUpdate({
+          target: users.id,
+          set: buildConflictUpdateColumns(users, ["email", "password"]),
+          setWhere: eq(users.active, false),
+        })
+        .returning({
+          id: users.id,
+          email: users.email,
+          isActive: users.active,
         });
 
-        name = data?.name ?? "";
-        await tx
-          .update(owners)
-          .set({
-            userId: user.id,
-          })
-          .where(eq(owners.festivalId, festivalId));
-      }
+      // if (festivalId) {
+      //   const data = await tx.query.festivalsLang.findFirst({
+      //     where(fields, operators) {
+      //       return operators.and(
+      //         operators.eq(fields.festivalId, festivalId),
+      //         operators.eq(fields.lang, currentCountry?.nativeLang ?? 1),
+      //       );
+      //     },
+      //   });
+      //
+      //   name = data?.name ?? "";
+      //   await tx
+      //     .update(owners)
+      //     .set({
+      //       userId: user.id,
+      //     })
+      //     .where(eq(owners.festivalId, festivalId));
+      // }
 
       if (groupId) {
-        const data = await db.query.groupsLang.findFirst({
+        const data = await tx.query.groupsLang.findFirst({
           where(fields, operators) {
             return operators.and(
               operators.eq(fields.groupId, groupId),
-              operators.eq(fields.lang, currentCountry?.nativeLang ?? 1)
+              operators.eq(fields.lang, currentCountry?.nativeLang ?? 1),
             );
           },
         });
 
         name = data?.name ?? "";
+
         await tx
-          .update(owners)
-          .set({
+          .insert(owners)
+          .values({
+            id: ownerId ? ownerId : undefined,
             userId: user.id,
+            groupId,
           })
-          .where(eq(owners.groupId, groupId));
+          .onConflictDoUpdate({
+            target: owners.id,
+            set: buildConflictUpdateColumns(owners, ["userId"]),
+            setWhere: eq(owners.groupId, groupId),
+          });
       }
 
-      if (user.email && !user.isCreationNotified) {
-        const [emailTemplate] = await db
+      if (user.email && !user.isActive) {
+        const [emailTemplate] = await tx
           .select()
           .from(emailTemplates)
           .where(
             and(
               eq(emailTemplates.lang, currentCountry?.nativeLang! ?? 1),
-              eq(emailTemplates.tag, "festival-group")
-            )
+              eq(emailTemplates.tag, "festival-group"),
+            ),
           );
 
         const message = replaceTags(emailTemplate.template, {
           name: name,
           password: password,
           url: `<a target="_blank" href="${process.env.HOSTNAME_URL}/login">${t(
-            "email.login_to"
+            "email.login_to",
           )}</a>`,
           email: user.email,
           video: `<a target="_blank" href="${video.link}">Video</a>`,
