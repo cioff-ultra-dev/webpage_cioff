@@ -19,14 +19,14 @@ export async function GET(request: NextRequest) {
   const t = await getTranslations("notification");
   const email: string = request.nextUrl.searchParams.get("email") || "";
   const festivalId: number = Number(
-    request.nextUrl.searchParams.get("festivalId") || ""
+    request.nextUrl.searchParams.get("festivalId") || "",
   );
   const countryId: number = Number(
-    request.nextUrl.searchParams.get("countryId") || ""
+    request.nextUrl.searchParams.get("countryId") || "",
   );
 
   const groupId: number = Number(
-    request.nextUrl.searchParams.get("groupId") || ""
+    request.nextUrl.searchParams.get("groupId") || "",
   );
   const roleName: string = request.nextUrl.searchParams.get("roleName") || "";
 
@@ -58,8 +58,8 @@ export async function GET(request: NextRequest) {
         .where(
           and(
             eq(videoTutorialLinks.lang, currentCountry?.nativeLang! ?? 1),
-            eq(videoTutorialLinks.role, role?.id!)
-          )
+            eq(videoTutorialLinks.role, role?.id!),
+          ),
         );
 
       let name = "";
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
           where(fields, operators) {
             return operators.and(
               operators.eq(fields.festivalId, festivalId),
-              operators.eq(fields.lang, currentCountry?.nativeLang ?? 1)
+              operators.eq(fields.lang, currentCountry?.nativeLang ?? 1),
             );
           },
         });
@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
           where(fields, operators) {
             return operators.and(
               operators.eq(fields.groupId, groupId),
-              operators.eq(fields.lang, currentCountry?.nativeLang ?? 1)
+              operators.eq(fields.lang, currentCountry?.nativeLang ?? 1),
             );
           },
         });
@@ -121,15 +121,15 @@ export async function GET(request: NextRequest) {
           .where(
             and(
               eq(emailTemplates.lang, currentCountry?.nativeLang! ?? 1),
-              eq(emailTemplates.tag, "festival-group")
-            )
+              eq(emailTemplates.tag, "festival-group"),
+            ),
           );
 
         const message = replaceTags(emailTemplate.template, {
           name: name,
           password: password,
           url: `<a target="_blank" href="${process.env.HOSTNAME_URL}/login">${t(
-            "email.login_to"
+            "email.login_to",
           )}</a>`,
           email: user.email,
           video: `<a target="_blank" href="${video.link}">Video</a>`,
