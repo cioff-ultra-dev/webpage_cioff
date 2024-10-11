@@ -26,7 +26,7 @@ export default function MenuActions({
     (value: boolean) => {
       setOpen(value);
     },
-    [setOpen]
+    [setOpen],
   );
 
   return (
@@ -41,6 +41,7 @@ export default function MenuActions({
         festivalId={roleName === "Festivals" ? item?.id! : undefined}
         roleName={roleName}
         countryId={item?.countryId!}
+        nsId={item?.nsId || undefined}
         open={open}
         setOpen={handleSetOpen}
       />

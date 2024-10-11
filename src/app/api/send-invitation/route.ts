@@ -18,38 +18,42 @@ import { PgTable } from "drizzle-orm/pg-core";
 
 const buildConflictUpdateColumns = <
   T extends PgTable,
-  Q extends keyof T["_"]["columns"]
+  Q extends keyof T["_"]["columns"],
 >(
   table: T,
-  columns: Q[]
+  columns: Q[],
 ) => {
   const cls = getTableColumns(table);
-  return columns.reduce((acc, column) => {
-    const colName = cls[column].name;
-    acc[column] = sql.raw(`excluded.${colName}`);
-    return acc;
-  }, {} as Record<Q, SQL>);
+  return columns.reduce(
+    (acc, column) => {
+      const colName = cls[column].name;
+      acc[column] = sql.raw(`excluded.${colName}`);
+      return acc;
+    },
+    {} as Record<Q, SQL>,
+  );
 };
 
 export async function GET(request: NextRequest) {
   const t = await getTranslations("notification");
   const email: string = request.nextUrl.searchParams.get("email") || "";
   const festivalId: number = Number(
-    request.nextUrl.searchParams.get("festivalId") || ""
+    request.nextUrl.searchParams.get("festivalId") || "",
   );
   const countryId: number = Number(
-    request.nextUrl.searchParams.get("countryId") || ""
+    request.nextUrl.searchParams.get("countryId") || "",
   );
 
   const groupId: number = Number(
-    request.nextUrl.searchParams.get("groupId") || ""
+    request.nextUrl.searchParams.get("groupId") || "",
   );
   const roleName: string = request.nextUrl.searchParams.get("roleName") || "";
   const userId: string | undefined =
     request.nextUrl.searchParams.get("userId") || undefined;
   const ownerId: number = Number(
-    request.nextUrl.searchParams.get("ownerId") || ""
+    request.nextUrl.searchParams.get("ownerId") || "",
   );
+  const nsId: number = Number(request.nextUrl.searchParams.get("nsId") || "");
 
   const checkEmail = await db.query.users.findFirst({
     where(fields, { eq, ne, and }) {
@@ -83,11 +87,12 @@ export async function GET(request: NextRequest) {
         .where(
           and(
             eq(videoTutorialLinks.lang, currentCountry?.nativeLang! ?? 1),
-            eq(videoTutorialLinks.role, role?.id!)
-          )
+            eq(videoTutorialLinks.role, role?.id!),
+          ),
         );
 
       let name = "";
+      let nsName = "";
       const password = generator.generate({ length: 10, numbers: true });
       const hashedPassword = await generateHashPassword(password);
 
@@ -115,12 +120,25 @@ export async function GET(request: NextRequest) {
         return { warning: t("user_already_actived") };
       }
 
+      if (nsId) {
+        const data = await tx.query.nationalSectionsLang.findFirst({
+          where(fields, operators) {
+            return operators.and(
+              operators.eq(fields.nsId, nsId),
+              operators.eq(fields.lang, currentCountry?.nativeLang ?? 1),
+            );
+          },
+        });
+
+        nsName = data?.name ?? "";
+      }
+
       if (festivalId) {
         const data = await tx.query.festivalsLang.findFirst({
           where(fields, operators) {
             return operators.and(
               operators.eq(fields.festivalId, festivalId),
-              operators.eq(fields.lang, currentCountry?.nativeLang ?? 1)
+              operators.eq(fields.lang, currentCountry?.nativeLang ?? 1),
             );
           },
         });
@@ -151,7 +169,7 @@ export async function GET(request: NextRequest) {
           where(fields, operators) {
             return operators.and(
               operators.eq(fields.groupId, groupId),
-              operators.eq(fields.lang, currentCountry?.nativeLang ?? 1)
+              operators.eq(fields.lang, currentCountry?.nativeLang ?? 1),
             );
           },
         });
@@ -179,18 +197,19 @@ export async function GET(request: NextRequest) {
           .where(
             and(
               eq(emailTemplates.lang, currentCountry?.nativeLang! ?? 1),
-              eq(emailTemplates.tag, "festival-group")
-            )
+              eq(emailTemplates.tag, "festival-group"),
+            ),
           );
 
         const message = replaceTags(emailTemplate.template, {
           name: name,
           password: password,
           url: `<a target="_blank" href="${process.env.HOSTNAME_URL}/login">${t(
-            "email.login_to"
+            "email.login_to",
           )}</a>`,
           email: user.email,
           video: `<a target="_blank" href="${video.link}">Video</a>`,
+          nsName: nsName,
         });
 
         await transport.sendMail({

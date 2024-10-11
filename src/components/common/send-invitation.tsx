@@ -39,6 +39,7 @@ export default function SendInvitation({
   userId,
   ownerId,
   groupId,
+  nsId,
   open,
   setOpen,
 }: {
@@ -50,6 +51,7 @@ export default function SendInvitation({
   entityId?: number;
   festivalId?: number;
   groupId?: number;
+  nsId?: number;
   open?: boolean;
   setOpen?: (value: boolean) => void;
 }) {
@@ -63,7 +65,7 @@ export default function SendInvitation({
   const formRef = useRef<HTMLFormElement>(null);
 
   const onSubmitForm: SubmitHandler<z.infer<typeof dataSchema>> = async (
-    data
+    data,
   ) => {
     const result = await (
       await fetch(
@@ -71,7 +73,7 @@ export default function SendInvitation({
           festivalId ?? ""
         }&roleName=${roleName}&countryId=${countryId}&userId=${userId}&groupId=${
           groupId ?? ""
-        }&ownerId=${ownerId ?? ""}`
+        }&ownerId=${ownerId ?? ""}&nsId=${nsId ?? ""}`,
       )
     ).json();
 
@@ -90,7 +92,7 @@ export default function SendInvitation({
 
     if (result.success) {
       customRevalidatePath(
-        roleName === "Groups" ? "/dashboard/groups" : "/dashboard/festivals"
+        roleName === "Groups" ? "/dashboard/groups" : "/dashboard/festivals",
       );
       toast.success(result.success);
       form.resetField("email");
