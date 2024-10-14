@@ -197,7 +197,7 @@ export default async function DashboardPage() {
                                 "National Sections" ? (
                                   <DialogTrigger asChild>
                                     <DropdownMenuItem className="cursor-pointer">
-                                      Send Invitation
+                                      {t("send_invitation")}
                                     </DropdownMenuItem>
                                   </DialogTrigger>
                                 ) : null}
