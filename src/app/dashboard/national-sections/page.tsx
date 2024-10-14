@@ -32,13 +32,14 @@ import {
   getAllNationalSectionsByOwner,
   LangWithNationalSection,
 } from "@/db/queries/national-sections";
-import { getFormatter, getLocale } from "next-intl/server";
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
 import { auth } from "@/auth";
 
 export default async function DashboardPage() {
   const session = await auth();
   const locale = await getLocale();
+  const t = await getTranslations("page");
   const formatter = await getFormatter();
   const nationalSections = (await getAllNationalSectionsByOwner(locale))
     .filter((item) => item.ns)
@@ -48,7 +49,7 @@ export default async function DashboardPage() {
     <Tabs defaultValue="all">
       <div className="flex items-center">
         <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="all">{t("all")}</TabsTrigger>
           {/* <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
           <TabsTrigger value="past">Past</TabsTrigger> */}
         </TabsList>

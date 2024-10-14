@@ -3,6 +3,9 @@
   "locale_switch": {
     "select": "Sélectionner la langue"
   },
+  "page":{
+    "all": "Tous"
+  },
   "notification": {
     "success": "Saved Successfully",
     "email_exist": "Email already exist",

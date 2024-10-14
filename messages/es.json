@@ -2,6 +2,9 @@
   "home": {
     "title": "Hola mundo!"
   },
+  "page":{
+    "all": "Todos"
+  },
   "locale_switch": {
     "select": "Seleccionar idioma"
   },
