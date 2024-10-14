@@ -87,7 +87,21 @@
     },
     "ns": {
       "title": "AGREGAR UNA SECCIÓN NACIONAL",
-      "disclaimer": "Los campos con * son obligatorios.",
+      "disclaimer": "Los campos con (*) son obligatorios.",
+      "organi_registra_form": "Formulario de inscripción",
+      "please_fill_out_details": "Por favor ingrese los datos de su organización",
+      "module_1_profile": "Módulo 1: Perfil",
+      "enter_associ_name": "Ingrese el nombre de la asociación",
+      "about_national_secti": "Información de la Sección Nacional",
+      "Tell_public_about_NS_etc":"Informe al público sobre las principales actividades o proyectos de la SN, año de creación, etc.",
+      "You_can_use_max_500_words":"Puede utilizar un máximo de 500 palabras para esta información",
+      "position": "Posición",
+      "name": "Nombre",
+      "enter_current_name": "Introduzca su nombre actual",
+      "type_position": "Tipo Posición",
+      "select_type_positi": "Seleccione el tipo de posición",
+      "search_type": "Tipo de búsqueda...",
+      "no_type_position_found": "No se ha encontrado información.",
       "_lang": {
         "name": "Nombre de la asociacion",
         "about": "Acerca de"

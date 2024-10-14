@@ -89,7 +89,8 @@
     },
     "ns": {
       "title": "AJOUTER UNE SECTION NATIONALE",
-      "disclaimer": "Les champs avec * sont obligatoires.",
+      "disclaimer": "Les champs avec (*) sont obligatoires.",
+      "organi_registra_form": "Formulaire d'inscription d'une organisation",
       "_lang": {
         "name": "Nom de l'association",
         "about": "A propos de"

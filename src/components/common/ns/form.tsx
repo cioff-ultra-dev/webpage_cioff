@@ -312,14 +312,14 @@ export default function NationalSectionForm({
         <form ref={formRef} onSubmit={form.handleSubmit(onSubmitForm)}>
           <Card className="w-full mx-auto">
             <CardHeader>
-              <CardTitle>Organization Registration Form</CardTitle>
+              <CardTitle>{t("organi_registra_form")}</CardTitle>
               <CardDescription>
-                Please fill out the details for your organization
+                {t("please_fill_out_details")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
               <div className="space-y-4">
-                <h2 className="text-lg font-semibold">Module 1: Profile</h2>
+                <h2 className="text-lg font-semibold">{t("module_1_profile")}</h2>
                 <FormField
                   control={form.control}
                   name="slug"
@@ -393,7 +393,7 @@ export default function NationalSectionForm({
                           />
                         </FormControl>
                         <FormDescription>
-                          Enter association name
+                          {t("enter_associ_name")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -407,11 +407,11 @@ export default function NationalSectionForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          About National Section
+                          {t("about_national_secti")}
                         </FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Tell the public about the NS main activities or projects, year of creation, etc."
+                            placeholder={t("Tell_public_about_NS_etc")}
                             className="resize-none"
                             name={field.name}
                             onChange={field.onChange}
@@ -421,7 +421,7 @@ export default function NationalSectionForm({
                           />
                         </FormControl>
                         <FormDescription>
-                          You can use max. 500 words for this input
+                          {t("You_can_use_max_500_words")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -433,7 +433,7 @@ export default function NationalSectionForm({
                 const positionIndex = index + 1;
                 return (
                   <div key={field.id} className="space-y-4 border-t pt-4">
-                    <h3 className="font-medium">Position {positionIndex}</h3>
+                    <h3 className="font-medium"> {t("position")} {positionIndex}</h3>
                     <FormField
                       control={form.control}
                       name={`_positions.${index}.id`}
@@ -455,7 +455,7 @@ export default function NationalSectionForm({
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                              Name
+                              {t("name")}
                             </FormLabel>
                             <FormControl>
                               <Input
@@ -469,7 +469,7 @@ export default function NationalSectionForm({
                               />
                             </FormControl>
                             <FormDescription>
-                              Enter your current name
+                              {t("enter_current_name")}
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -482,7 +482,7 @@ export default function NationalSectionForm({
                         name={`_positions.${index}._type`}
                         render={({ field }) => (
                           <FormItem className="flex flex-col">
-                            <FormLabel>Type Position</FormLabel>
+                            <FormLabel>{t("type_position")}</FormLabel>
                             <Popover>
                               <PopoverTrigger asChild>
                                 <FormControl>
@@ -505,7 +505,7 @@ export default function NationalSectionForm({
                                           ?.langs.find(
                                             (lang) => lang.l?.code === locale,
                                           )?.name
-                                      : "Select type position"}
+                                      : t("select_type_positi") }
                                     <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                   </Button>
                                 </FormControl>
@@ -513,12 +513,12 @@ export default function NationalSectionForm({
                               <PopoverContent className="w-full p-0">
                                 <Command>
                                   <CommandInput
-                                    placeholder="Search type..."
+                                    placeholder= {t("search_type")}
                                     className="h-9"
                                   />
                                   <CommandList>
                                     <CommandEmpty>
-                                      No type position found.
+                                      {t("no_type_position_found")}
                                     </CommandEmpty>
                                     <CommandGroup>
                                       {typePositions?.map((typePosition) => (

@@ -89,7 +89,21 @@
     },
     "ns": {
       "title": "ADD A NATIONAL SECTION",
-      "disclaimer": "The fields with * are mandatory.",
+      "disclaimer": "The fields with (*) are mandatory.",
+      "organi_registra_form": "Organization Registration Form",
+      "please_fill_out_details": "Please fill out the details for your organization",
+      "module_1_profile": "Module 1: Profile",
+      "enter_associ_name": "Enter association name",
+      "about_national_secti": "About National Section",
+      "Tell_public_about_NS_etc":"Tell the public about the NS main activities or projects, year of creation, etc.",
+      "You_can_use_max_500_words":"You can use max. 500 words for this input",
+      "position": "Position",
+      "name": "Name",
+      "enter_current_name": "Enter your current name",
+      "type_position": "Type Position",
+      "select_type_positi": "Select type position",
+      "search_type": "Search type...",
+      "no_type_position_found": "No type position found.",
       "_lang": {
         "name": "Name of the association",
         "about": "About"
