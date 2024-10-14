@@ -1,40 +1,89 @@
 {
-  "home": {},
-  "locale_switch": {
-    "select": "Sélectionner la langue"
-  },
+  "home": {
+    "title": "Hello world!"
+  },  
   "page":{
-    "all": "Tous"
+    "all": "Tous",
+    "add_national_section": "Ajouter section nationale",
+    "add_festival": "Ajouter festival",
+    "add_group": "Ajouter groupe",
+    "national_sections": "Sections nationales",
+    "festivals": "Festivals",
+    "groups": "Groupes",
+    "Manage_your_ns": "Gérez vos NS et consultez leurs coordonnées.",
+    "Manage_your_fest_details": "Gérez vos festivals et consultez leurs détails.",
+    "Manage_your_groups_details": "Gérez vos groupes et consultez leurs détails.",
+    "name": "Nom",
+    "owner": "propriétaire",
+    "date": "Date",
+    "country": "Pays",
+    "state": "État",
+    "description": "Description",
+    "actions": "Actions",
+    "edit": "Éditer",
+    "delete": "Supprimer",
+    "preview": "Prévisualisation",
+    "not_found_groups": "Groupes non trouvés...",
+    "not_found_festivals": "Festivals non trouvés...",
+    "gener_fest_invit": "Générer une invitation à un festival",
+    "Gener_group_invitat": "Générer une invitation de groupe",
+    "send_invitation": "Send Invitation"  
+    
   },
+  "locale_switch": {
+    "select": "Sélectionner la langue",
+    "es": "Español",
+    "fr": "Français",
+    "en": "English"
+  },  
   "notification": {
-    "success": "Saved Successfully",
-    "email_exist": "Email already exist",
+    "success": "Sauvegardé avec succès",
+    "email_exist": "Email déjà existant",
+    "user_already_actived": "Compte utilisateur déjà activé",
+    "sent_success": "Envoyé avec succès",
     "email": {
+      "festival_invitation_subject": "Festivals Invitation des utilisateurs - CIOFF",
+      "group_invitation_subject": "Invitation des utilisateurs du groupe - CIOFF",
+      "login_to": "Se connecter au CIOFF",
       "activation_account": "Activation de l'intranet CIOFF"
     }
   },
+  "link": {
+    "dashboard": "Tableau de bord",
+    "national-sections": "Sections nationales",
+    "festivals": "Festivals",
+    "groups": "Groupes",
+    "edit": "Editer",
+    "settings": "Paramètres"
+  },
   "form": {
-    "name": "Name",
-    "phone": "Phone Number",
+    "name": "Nom",
+    "phone": "Numéro de téléphone",
     "contact": "Contact",
     "description": "Description",
-    "location": "Location",
-    "directorName": "Name of director",
-    "_currentDates": "Current datest",
-    "_ageOfParticipants": "Age of participants",
-    "_styleOfFestival": "Style of festival",
-    "_typeOfFestival": "Type of festival",
-    "_status": "Status",
+    "location": "Localisation",
+    "directorName": "Nom du directeur",
+    "_currentDates": "Date actuelle",
+    "_ageOfParticipants": "Âge des participants",
+    "_styleOfFestival": "Style de festival",
+    "_typeOfFestival": "Type de festival",
+    "_status": "Statut",
     "festival": {
+      "tag": {
+        "typeOfFestival": "Type de festival",
+        "ageOfParticipants": "Âge des participants",
+        "styleOfFestival": "Style de festival",
+        "typeOfAccomodation": "Type de logement"
+      },
       "name": "Nom",
-      "phone": "Phone Number",
+      "phone": "Numéro de téléphone",
       "contact": "Contact",
       "description": "Description",
-      "location": "Location",
+      "location": "Localisation",
       "directorName": "Nom du directeur",
-      "_currentDates": "Current datest",
-      "_ageOfParticipants": "Age of participants",
-      "_styleOfFestival": "Style of festival",
+      "_currentDates": "Date actuelle",
+      "_ageOfParticipants": "Âge des participants",
+      "_styleOfFestival": "Style de festival",
       "_typeOfFestival": "Type of festival",
       "_status": "Status"
     },
@@ -42,8 +91,31 @@
       "title": "AJOUTER UNE SECTION NATIONALE",
       "disclaimer": "Les champs avec * sont obligatoires.",
       "_lang": {
-        "name": "Nom de l'association"
-      }
+        "name": "Nom de l'association",
+        "about": "A propos de"
+      },
+      "_festivals": [
+        {
+          "name": "Nom du festival"
+        }
+      ],
+      "_positionsSize": "Liste des postes",
+      "_positions": [
+        {
+          "name": "Non",
+          "email": "Adresse électronique",
+          "phone": "Numéro de téléphone (code pays)",
+          "_lang": {
+            "shortBio": "Brève biographie"
+          }
+        }
+      ]      
+    },
+    "profile": {
+      "password_match": "Le mot de passe ne correspond pas",
+      "currentPassword": "Mot de passe actuel",
+      "newPassword": "Nouveau mot de passe",
+      "confirmPassword": "Confirmer le mot de passe"
     },
     "group": {
       "_lang": {
@@ -52,6 +124,8 @@
     }
   },
   "customErrors": {
-    "invalid_phone_number": "Numéro de téléphone invalide"
+    "file_required": "Le fichier est requis",
+    "invalid_phone_number": "Numéro de téléphone invalide",
+    "password_match": "Le mot de passe ne correspond pas"
   }
 }
