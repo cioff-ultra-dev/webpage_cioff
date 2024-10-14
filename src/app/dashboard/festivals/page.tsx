@@ -25,7 +25,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getAllFestivalsByOwner } from "@/db/queries/events";
 import { EllipsisVertical, Send } from "lucide-react";
-import { getFormatter, getLocale } from "next-intl/server";
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
 import { auth } from "@/auth";
 import SendInvitation from "../../../components/common/send-invitation";
@@ -35,6 +35,7 @@ import { DialogTrigger } from "@/components/ui/dialog";
 export default async function DashboardPage() {
   const session = await auth();
   const locale = await getLocale();
+  const t = await getTranslations("page");
   const formatter = await getFormatter();
   const response = await getAllFestivalsByOwner(locale);
   let festivals = response
@@ -51,7 +52,7 @@ export default async function DashboardPage() {
     <Tabs defaultValue="all">
       <div className="flex items-center">
         <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="all">{t("all")}</TabsTrigger>
           {/* <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
           <TabsTrigger value="past">Past</TabsTrigger> */}
         </TabsList>
@@ -86,7 +87,7 @@ export default async function DashboardPage() {
                 <Button size="sm" variant="secondary" className="h-8 gap-1">
                   <Send className="h-3.5 w-3.5" />
                   <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                    Generate Festival Invitation
+                    {t("gener_fest_invit")}
                   </span>
                 </Button>
               </Link>
@@ -96,7 +97,7 @@ export default async function DashboardPage() {
                 <Button size="sm" variant="default" className="h-8 gap-1">
                   <CirclePlusIcon className="h-3.5 w-3.5" />
                   <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                    Add Festival
+                    {t("add_festival")}
                   </span>
                 </Button>
               </Link>
@@ -107,9 +108,9 @@ export default async function DashboardPage() {
       <TabsContent value="all">
         <Card x-chunk="dashboard-06-chunk-0">
           <CardHeader>
-            <CardTitle>Festivals</CardTitle>
+            <CardTitle>{t("festivals")}</CardTitle>
             <CardDescription>
-              Manage your festivals and view their details.
+              {t("Manage_your_fest_details")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -117,16 +118,16 @@ export default async function DashboardPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
+                    <TableHead>{t("name")}</TableHead>
                     <TableHead className="hidden md:table-cell">
-                      Owner
+                      {t("owner")}
                     </TableHead>
-                    <TableHead className="hidden md:table-cell">Date</TableHead>
+                    <TableHead className="hidden md:table-cell">{t("date")}</TableHead>
                     <TableHead className="hidden md:table-cell">
-                      State
+                      {t("state")}
                     </TableHead>
                     <TableHead>
-                      <span className="sr-only">Actions</span>
+                      <span className="sr-only">{t("actions")}</span>
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -174,14 +175,14 @@ export default async function DashboardPage() {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuLabel>{t("actions")}</DropdownMenuLabel>
                                 <DropdownMenuItem>
                                   <Link
                                     href={`/event/${item?.id}`}
                                     target="_blank"
                                     className="cursor-pointer"
                                   >
-                                    Preview
+                                    {t("preview")}
                                   </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem asChild>
@@ -189,7 +190,7 @@ export default async function DashboardPage() {
                                     href={`/dashboard/festivals/${item?.slug}/edit`}
                                     className="cursor-pointer"
                                   >
-                                    Edit
+                                    {t("edit")}
                                   </Link>
                                 </DropdownMenuItem>
                                 {session?.user.role?.name ===
@@ -212,7 +213,7 @@ export default async function DashboardPage() {
             ) : (
               <div className="w-full flex justify-center">
                 <span className="text-muted-foreground text-sm">
-                  Not found festivals...
+                  {t("not_found_festivals")}
                 </span>
               </div>
             )}

@@ -3,7 +3,32 @@
     "title": "Hello world!"
   },
   "page":{
-    "all": "All"
+    "all": "All",
+    "add_national_section": "Add National Section",
+    "add_festival": "Add Festival",
+    "add_group": "Add Group",
+    "national_sections": "National Sections",
+    "festivals": "Festivals",
+    "groups": "Groups",
+    "Manage_your_ns": "Manage your NS and view their details.",
+    "Manage_your_fest_details": "Manage your festivals and view their details.",
+    "Manage_your_groups_details": "Manage your groups and view their details.",
+    "name": "Name",
+    "owner": "Owner",
+    "date": "Date",
+    "country": "Country",
+    "state": "State",
+    "description": "Description",
+    "actions": "Actions",
+    "edit": "Edit",
+    "delete": "Delete",
+    "preview": "Preview",
+    "not_found_groups": "Not found groups...",
+    "not_found_festivals": "Not found festivals...",
+    "gener_fest_invit": "Generate Festival Invitation",
+    "Gener_group_invitat": "Generate Group Invitation",
+    "send_invitation": "Send Invitation"    
+
   },
   "locale_switch": {
     "select": "Select language",
@@ -66,7 +91,8 @@
       "title": "ADD A NATIONAL SECTION",
       "disclaimer": "The fields with * are mandatory.",
       "_lang": {
-        "name": "Name of the association"
+        "name": "Name of the association",
+        "about": "About"
       },
       "_festivals": [
         {
