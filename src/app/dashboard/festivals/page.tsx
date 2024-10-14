@@ -138,7 +138,7 @@ export default async function DashboardPage() {
                           {item?.langs.find((item) => item.l?.code === locale)
                             ?.name ||
                             item?.langs.find(
-                              (item) => item.l?.code === defaultLocale,
+                              (item) => item.l?.code === defaultLocale
                             )?.name}
                         </TableCell>
                         <TableCell className="font-medium">
