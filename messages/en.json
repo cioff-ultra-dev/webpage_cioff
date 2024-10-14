@@ -29,7 +29,7 @@
     "Gener_group_invitat": "Generate Group Invitation",
     "send_invitation": "Send Invitation"
   },
-  "page":{
+  "page": {
     "all": "All",
     "add_national_section": "Add National Section",
     "add_festival": "Add Festival",
@@ -54,8 +54,7 @@
     "not_found_festivals": "Not found festivals...",
     "gener_fest_invit": "Generate Festival Invitation",
     "Gener_group_invitat": "Generate Group Invitation",
-    "send_invitation": "Send Invitation"    
-
+    "send_invitation": "Send Invitation"
   },
   "locale_switch": {
     "select": "Select language",
