@@ -35,6 +35,9 @@
     "fr": "Français",
     "en": "English"
   },
+  "page":{
+    "all": "Tous"
+  },
   "notification": {
     "success": "Sauvegardé avec succès",
     "email_exist": "Email déjà existant",

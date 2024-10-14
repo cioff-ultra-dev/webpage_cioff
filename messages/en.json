@@ -29,6 +29,9 @@
     "Gener_group_invitat": "Generate Group Invitation",
     "send_invitation": "Send Invitation"
   },
+  "page":{
+    "all": "All"
+  },
   "locale_switch": {
     "select": "Select language",
     "es": "Español",
