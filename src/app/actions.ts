@@ -1,12 +1,14 @@
 "use server";
 
 import {
-  categories,
   emailTemplates,
   events,
   eventsLang,
   festivals,
   festivalsLang,
+  festivalsToComponents,
+  festivalsToConnected,
+  festivalsToStatuses,
   festivalToCategories,
   groups,
   groupsLang,
@@ -15,9 +17,11 @@ import {
   InsertEventLang,
   InsertFestival,
   insertFestivalSchema,
+  InsertFestivalToConnected,
   InsertGroup,
   InsertNationalSectionPositions,
   InsertNationalSectionPositionsLang,
+  InsertTransportLocations,
   nationalSectionPositionsLang,
   nationalSections,
   nationalSectionsLang,
@@ -26,6 +30,7 @@ import {
   roles,
   socialMediaLinks,
   storages,
+  transportLocations,
   users,
   videoTutorialLinks,
 } from "@/db/schema";
@@ -110,7 +115,6 @@ export async function authenticate(
   }
 
   revalidatePath("/dashboard");
-  redirect("/dashboard");
 }
 
 export async function createFestival(prevState: unknown, formData: FormData) {
@@ -1190,6 +1194,7 @@ export async function updateFestival(formData: FormData) {
   const id = Number(formData.get("id"));
   const langId = Number(formData.get("_lang.id"));
   const name = formData.get("_lang.name") as string;
+  const description = formData.get("_lang.description") as string;
   const directorName = formData.get("directorName") as string;
   const phone = formData.get("phone") as string;
   const location = formData.get("location") as string;
@@ -1213,7 +1218,25 @@ export async function updateFestival(formData: FormData) {
   const currentDateSize = Number(formData.get("_currentDateSize"));
   const nextDateSize = Number(formData.get("_nextDateSize"));
 
+  const transportLocationSize = Number(formData.get("_transportLocationSize"));
+  const festivalListSelectedSize = Number(
+    formData.get("_festivalListSelectedSize"),
+  );
+
+  const recognizedSince = formData.get("_recognizedSince") as string;
+  const recognizedRange = formData.get("_recognizedRange") as string;
+  const typeOfCompensation = formData.get("_typeOfCompensation") as string;
+  const financialCompensation = formData.get(
+    "_financialCompensation",
+  ) as string;
+  const inKindCompensation = formData.get("_inKindCompensation") as string;
+  const components = JSON.parse(
+    (formData.get("_components") as string) || "[]",
+  ) as string[];
+
   const currentDates: InsertEvent[] = [];
+  const currentTransportLocations: InsertTransportLocations[] = [];
+  const currentFestivalToConnected: InsertFestivalToConnected[] = [];
 
   const lang = await preparedLanguagesByCode.execute({ locale });
   const t = await getTranslations("notification");
@@ -1252,6 +1275,7 @@ export async function updateFestival(formData: FormData) {
       .values({
         id: langId === 0 ? undefined : langId,
         name,
+        description,
         otherTranslatorLanguage,
         festivalId: currentFestival.id,
         lang: lang?.id,
@@ -1260,6 +1284,7 @@ export async function updateFestival(formData: FormData) {
         target: festivalsLang.id,
         set: buildConflictUpdateColumns(festivalsLang, [
           "name",
+          "description",
           "otherTranslatorLanguage",
         ]),
       });
@@ -1289,6 +1314,98 @@ export async function updateFestival(formData: FormData) {
           socialMediaLinksId: currentSocialMediaLink.id,
         })
         .where(eq(festivals.id, currentFestival.id));
+    }
+
+    if (statusId) {
+      await tx
+        .insert(festivalsToStatuses)
+        .values({
+          festivalId: currentFestival.id,
+          statusId: statusId,
+          recognizedSince,
+          recognizedRange,
+          typeOfCompensation,
+          financialCompensation,
+          inKindCompensation,
+        })
+        .onConflictDoUpdate({
+          target: [
+            festivalsToStatuses.festivalId,
+            festivalsToStatuses.statusId,
+          ],
+          set: buildConflictUpdateColumns(festivalsToStatuses, [
+            "recognizedRange",
+            "recognizedSince",
+            "typeOfCompensation",
+            "financialCompensation",
+            "inKindCompensation",
+          ]),
+        });
+
+      if (components.length) {
+        await tx
+          .delete(festivalsToComponents)
+          .where(eq(festivalsToComponents.festivalId, currentFestival.id));
+
+        await tx.insert(festivalsToComponents).values(
+          components.map((componentId) => ({
+            componentId: Number(componentId),
+            festivalId: currentFestival.id,
+          })),
+        );
+      }
+    }
+
+    if (transportLocationSize === 0) {
+      await tx
+        .delete(transportLocations)
+        .where(eq(transportLocations.festivalId, currentFestival.id));
+    }
+
+    if (transportLocationSize > 0) {
+      for (let index = 0; index < transportLocationSize; index++) {
+        const lat = formData.get(`_transportLocations.${index}.lat`) as string;
+        const lng = formData.get(`_transportLocations.${index}.lng`) as string;
+        const location = formData.get(
+          `_transportLocations.${index}.location`,
+        ) as string;
+
+        currentTransportLocations.push({
+          lat,
+          lng,
+          location,
+          festivalId: currentFestival.id,
+        });
+      }
+
+      if (currentTransportLocations.length) {
+        await tx
+          .delete(transportLocations)
+          .where(eq(transportLocations.festivalId, currentFestival.id));
+
+        await tx.insert(transportLocations).values(currentTransportLocations);
+      }
+    }
+
+    if (festivalListSelectedSize > 0) {
+      for (let index = 0; index < festivalListSelectedSize; index++) {
+        const id = Number(formData.get(`_festivalListSelected.${index}.id`));
+
+        currentFestivalToConnected.push({
+          sourceFestivalId: currentFestival.id,
+          targetFestivalId: id,
+        });
+      }
+
+      if (currentFestivalToConnected.length) {
+        await tx
+          .delete(festivalsToConnected)
+          .where(eq(festivalsToConnected.sourceFestivalId, currentFestival.id));
+
+        await tx
+          .insert(festivalsToConnected)
+          .values(currentFestivalToConnected);
+      }
     }
 
     if (currentDateSize > 0) {

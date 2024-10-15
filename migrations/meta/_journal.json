@@ -176,6 +176,48 @@
       "when": 1728521793342,
       "tag": "0021_cloudy_storm",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1728900494275,
+      "tag": "0022_overjoyed_microchip",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1728902831346,
+      "tag": "0023_moaning_radioactive_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1728903782111,
+      "tag": "0024_misty_squirrel_girl",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1728928216965,
+      "tag": "0025_chief_cloak",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1728939350066,
+      "tag": "0026_long_ultron",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1728940238459,
+      "tag": "0027_remarkable_harry_osborn",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,7 @@
 import { db } from "@/db";
-import { countries, festivals } from "@/db/schema";
-import { and, count, eq, isNotNull } from "drizzle-orm";
+import { countries, festivals, languages, SelectLanguages } from "@/db/schema";
+import { defaultLocale } from "@/i18n/config";
+import { and, count, eq, inArray, isNotNull } from "drizzle-orm";
 
 export type CountryCastFestivals = {
   id: number;
@@ -25,3 +26,37 @@ export async function getAllCountryCastFestivals(): Promise<CountryCastFestivals
     .groupBy(countries.id)
     .orderBy(countries.slug);
 }
+
+export async function getallCountries(locale: string) {
+  const localeValue = locale as SelectLanguages["code"];
+  const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
+
+  const pushLocales = [localeValue];
+
+  if (localeValue !== currentDefaultLocale) {
+    pushLocales.push(currentDefaultLocale);
+  }
+
+  const sq = db
+    .select({ id: languages.id })
+    .from(languages)
+    .where(inArray(languages.code, pushLocales));
+
+  return db.query.countries.findMany({
+    orderBy(fields, { asc }) {
+      return [asc(fields.slug)];
+    },
+    with: {
+      langs: {
+        where(fields, { inArray }) {
+          return inArray(fields.lang, sq);
+        },
+        with: {
+          l: true,
+        },
+      },
+    },
+  });
+}
+
+export type CountryByLocaleType = Awaited<ReturnType<typeof getallCountries>>;

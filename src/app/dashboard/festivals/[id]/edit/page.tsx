@@ -1,15 +1,16 @@
 import { auth } from "@/auth";
 import EventForm from "@/components/common/event/form";
 import { getCategoryGroupsWithCategories } from "@/db/queries/category-group";
+import { getallCountries } from "@/db/queries/countries";
 import {
   FestivalBySlugType,
   getCategoryForGroups,
+  getComponentForGroups,
   getFestivalBySlug,
 } from "@/db/queries/events";
 import { getAllLanguages } from "@/db/queries/languages";
 import { getAllStatuses } from "@/db/queries/statuses";
 import { getLocale, getTranslations } from "next-intl/server";
-import slug from "slug";
 
 export default async function EditFestival({
   params,
@@ -24,6 +25,7 @@ export default async function EditFestival({
     locale
   );
   const languages = await getAllLanguages();
+  const countries = await getallCountries(locale);
   const statuses = await getAllStatuses();
 
   const typeOfFestival = await getCategoryForGroups(locale, ["music", "dance"]);
@@ -42,6 +44,24 @@ export default async function EditFestival({
     "schools-gym-halls",
   ]);
 
+  const componentsRecognized = await getComponentForGroups(locale, [
+    "arts-crafts-market",
+    "traditional-cuisine",
+    "other-exhibitions",
+    "traditional-games",
+    "workshops",
+    "activities-disabled-people",
+  ]);
+  const componentsPartner = await getComponentForGroups(locale, [
+    "live-music-required",
+    "traditional-trade",
+    "traditional-food",
+    "exhibitions",
+    "traditional-games",
+    "workshops",
+    "activities-disabled-people",
+  ]);
+
   const currentCategoriesSelected =
     festival?.festivalsToCategories
       .map((relation) => {
@@ -52,6 +72,7 @@ export default async function EditFestival({
   const currentOwner = festival?.owners.find(
     (owner) => owner.user?.role?.name === "Festivals"
   );
+  const currentStatus = festival?.festivalsToStatuses.at(0);
 
   return (
     <EventForm
@@ -86,7 +107,11 @@ export default async function EditFestival({
       currentLang={currentLang}
       currentFestival={festival}
       currentOwner={currentOwner}
+      currentStatus={currentStatus}
       currentCategoriesSelected={currentCategoriesSelected}
+      componentsRecognized={componentsRecognized}
+      componentsPartner={componentsPartner}
+      countries={countries}
       id={`${festival?.id}`}
       slug={params.id}
       locale={locale}

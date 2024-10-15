@@ -9,6 +9,7 @@ import {
   categories,
   SelectLanguages,
   languages,
+  components,
 } from "@/db/schema";
 import { db } from "@/db";
 import { eq, inArray } from "drizzle-orm";
@@ -109,8 +110,33 @@ export async function getFestivalBySlug(
           },
         },
       },
+      festivalsToStatuses: true,
+      festivalsToComponents: true,
+      transports: true,
       social: true,
       status: true,
+      connections: {
+        with: {
+          target: {
+            with: {
+              langs: {
+                with: {
+                  l: true,
+                },
+              },
+              country: {
+                with: {
+                  langs: {
+                    with: {
+                      l: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
       owners: {
         with: {
           user: {
@@ -230,6 +256,55 @@ export async function getCategoryForGroups(locale: string, fields: string[]) {
         where(fields, { inArray }) {
           return inArray(fields.lang, sq);
         },
+        with: {
+          l: true,
+        },
+      },
+    },
+  });
+}
+
+export async function getComponentForGroups(locale: string, fields: string[]) {
+  const localeValue = locale as SelectLanguages["code"];
+  const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
+
+  const pushLocales = [localeValue];
+
+  if (localeValue !== currentDefaultLocale) {
+    pushLocales.push(currentDefaultLocale);
+  }
+
+  const sq = db
+    .select({ id: languages.id })
+    .from(languages)
+    .where(inArray(languages.code, pushLocales));
+
+  return db.query.components.findMany({
+    where: inArray(components.slug, fields),
+    with: {
+      langs: {
+        where(fields, { inArray }) {
+          return inArray(fields.lang, sq);
+        },
+        with: {
+          l: true,
+        },
+      },
+    },
+  });
+}
+
+export type ComponentsForGroupType = Awaited<
+  ReturnType<typeof getComponentForGroups>
+>;
+
+export async function buildFestival(countryId: number) {
+  return await db.query.festivals.findMany({
+    where(fields, { eq }) {
+      return eq(fields.countryId, countryId);
+    },
+    with: {
+      langs: {
         with: {
           l: true,
         },
