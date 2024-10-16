@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -98,6 +98,8 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { CountryByLocaleType } from "@/db/queries/countries";
 import useSWR from "swr";
+import { RegionsType } from "@/db/queries/regions";
+import { buildGroup } from "@/db/queries/groups";
 
 const dateRangeSchema = z.object({
   id: z.string().optional(),
@@ -134,7 +136,11 @@ const globalEventSchema = insertFestivalSchema
         })
       ),
       _isFestivalsConnected: z.boolean().default(false).optional(),
+      _isLookingForGroups: z.boolean().default(false).optional(),
+      _isGroupsConfirmed: z.boolean().default(false).optional(),
       _countrySelected: z.string().optional(),
+      _countryGroupSelected: z.string().optional(),
+      _groupRegionSelected: z.string().optional(),
       _festivalListSelected: z.array(
         z.object({
           name: z.string().optional(),
@@ -143,6 +149,15 @@ const globalEventSchema = insertFestivalSchema
           festivalId: z.string().optional(),
         })
       ),
+      _groupListSelected: z.array(
+        z.object({
+          name: z.string().optional(),
+          id: z.string().optional(),
+          countryName: z.string().optional(),
+          groupId: z.string().optional(),
+        })
+      ),
+      _stagePhotos: z.array(z.any().optional()),
     })
   )
   .refine(
@@ -200,6 +215,7 @@ export default function EventForm({
   componentsRecognized,
   componentsPartner,
   countries,
+  regions,
   slug,
   locale,
   session,
@@ -215,6 +231,7 @@ export default function EventForm({
   componentsRecognized?: ComponentsForGroupType;
   componentsPartner?: ComponentsForGroupType;
   countries?: CountryByLocaleType;
+  regions?: RegionsType;
   id?: string;
   slug?: string;
   locale?: string;
@@ -333,6 +350,24 @@ export default function EventForm({
           )?.name,
         };
       }),
+      _isGroupsConfirmed: Boolean(
+        currentFestival?.festivalsToGroups.length || undefined
+      ),
+      _groupListSelected: currentFestival?.festivalsToGroups.map((item) => {
+        return {
+          groupId: String(item.groupId),
+          name: item.group?.langs.find((lang) => lang?.l?.code === locale)
+            ?.name,
+          countryName: item.group?.country?.langs.find(
+            (lang) => lang?.l?.code === locale
+          )?.name,
+        };
+      }),
+      _isLookingForGroups: Boolean(currentFestival?.regionForGroupsId),
+      _groupRegionSelected: currentFestival?.regionForGroupsId
+        ? String(currentFestival?.regionForGroupsId)
+        : undefined,
+      linkConditions: currentFestival?.linkConditions ?? undefined,
     },
   });
 
@@ -351,7 +386,7 @@ export default function EventForm({
     customRevalidatePath("/dashboard/festivals");
 
     if (result.success) {
-      router.push("/dashboard/festivals");
+      // router.push("/dashboard/festivals");
     }
   };
 
@@ -379,10 +414,18 @@ export default function EventForm({
     fields: festivalListFields,
     append: appendFestivalList,
     remove: removeFestivalList,
-    replace: replaceFestivalList,
   } = useFieldArray({
     control: form.control,
     name: "_festivalListSelected",
+  });
+
+  const {
+    fields: groupListFields,
+    append: appendGroupList,
+    remove: removeGroupList,
+  } = useFieldArray({
+    control: form.control,
+    name: "_groupListSelected",
   });
 
   const currentStatusId = useWatch({
@@ -400,15 +443,36 @@ export default function EventForm({
     name: "_isFestivalsConnected",
   });
 
+  const currentIsLookingForGroups = useWatch({
+    control: form.control,
+    name: "_isLookingForGroups",
+  });
+
+  const currentIsGroupsConfirmed = useWatch({
+    control: form.control,
+    name: "_isGroupsConfirmed",
+  });
+
   const currentCountrySelected = useWatch({
     control: form.control,
     name: "_countrySelected",
   });
 
-  type CurrentFestival = Awaited<ReturnType<typeof buildFestival>>;
+  const currentCountryGroupSelected = useWatch({
+    control: form.control,
+    name: "_countryGroupSelected",
+  });
 
-  const stateFestivalFetch = useSWR<{ results: CurrentFestival }>(
+  type CurrentFestivals = Awaited<ReturnType<typeof buildFestival>>;
+  type CurrentGroups = Awaited<ReturnType<typeof buildGroup>>;
+
+  const stateFestivalFetch = useSWR<{ results: CurrentFestivals }>(
     `/api/festival?countryId=${currentCountrySelected ?? ""}`,
+    fetcher
+  );
+
+  const stateGroupFetch = useSWR<{ results: CurrentGroups }>(
+    `/api/group?countryId=${currentCountryGroupSelected ?? ""}`,
     fetcher
   );
 
@@ -1378,7 +1442,10 @@ export default function EventForm({
                             const options: MultiSelectProps["options"] =
                               data?.map((item) => ({
                                 value: String(item.id) || "",
-                                label: item.slug || "",
+                                label:
+                                  item.langs.find(
+                                    (lang) => lang.l?.code === locale
+                                  )?.name || "",
                                 caption: "",
                               })) ?? [];
                             return (
@@ -1420,6 +1487,28 @@ export default function EventForm({
                                             )?.name,
                                         };
                                       });
+
+                                      const deprecateContents =
+                                        festivalListFields.filter((item) => {
+                                          return !values.some(
+                                            (value) => value === item.festivalId
+                                          );
+                                        });
+
+                                      if (deprecateContents.length) {
+                                        const nextDeprecate: number[] = [];
+                                        for (const deprecate of deprecateContents) {
+                                          const index =
+                                            festivalListFields.findIndex(
+                                              (item) =>
+                                                item.festivalId ===
+                                                deprecate.festivalId
+                                            );
+                                          nextDeprecate.push(index);
+                                        }
+
+                                        removeFestivalList(nextDeprecate);
+                                      }
 
                                       const nextContents = contents.filter(
                                         (value) =>
@@ -1892,39 +1981,321 @@ export default function EventForm({
                 </CardContent>
               </Card>
             </div>
-            {/* <Card>
+            <Card>
               <CardHeader>
                 <CardTitle>Additional Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="cioffGroups">
-                    Do you have any CIOFF groups confirmed so far?
-                  </Label>
-                  <Select name="cioffGroups" disabled={isNSAccount}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="yes">Yes</SelectItem>
-                      <SelectItem value="no">No</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormField
+                    control={form.control}
+                    name="linkConditions"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Link Conditions and Applications</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value || ""}
+                            placeholder="Provide your URL of your conditions here"
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Link to document with conditions and application
+                          procedure.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
                 <div>
-                  <Label htmlFor="lookingForGroups">
-                    Are you looking for groups?
-                  </Label>
-                  <Select name="lookingForGroups" disabled={isNSAccount}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="yes">Yes</SelectItem>
-                      <SelectItem value="no">No</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormField
+                    control={form.control}
+                    name="_stagePhotos"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Pictures of your stages</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="file"
+                            accept="image/*"
+                            multiple
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Max 5 photos - min 600x600px
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
+                <div>
+                  <FormField
+                    control={form.control}
+                    name="_isGroupsConfirmed"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                        <div className="space-y-0.5">
+                          <FormLabel>Groups Confirmed</FormLabel>
+                          <FormDescription>
+                            Do you have any CIOFF groups confirmed so far?
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                {currentIsGroupsConfirmed ? (
+                  <div className="pl-5 border-l space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="_countryGroupSelected"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Select Country</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a verified country to display" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {countries?.map((item) => {
+                                return (
+                                  <SelectItem
+                                    key={item.id}
+                                    value={String(item.id)}
+                                  >
+                                    {
+                                      item.langs.find(
+                                        (itemLang) =>
+                                          itemLang.l?.code === locale
+                                      )?.name
+                                    }
+                                  </SelectItem>
+                                );
+                              })}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {currentCountryGroupSelected ? (
+                      <FormField
+                        control={form.control}
+                        name="_groupListSelected"
+                        render={({ field }) => {
+                          const data = stateGroupFetch?.data?.results || [];
+                          const options: MultiSelectProps["options"] =
+                            data?.map((item) => ({
+                              value: String(item.id) || "",
+                              label:
+                                item.langs.find(
+                                  (lang) => lang.l?.code === locale
+                                )?.name || "",
+                              caption: "",
+                            })) ?? [];
+                          return (
+                            <FormItem>
+                              <FormLabel>Select Groups</FormLabel>
+                              <FormControl>
+                                <MultiSelect
+                                  options={options}
+                                  defaultValue={
+                                    field.value.map((item) =>
+                                      String(item.groupId)
+                                    ) || []
+                                  }
+                                  disabled={
+                                    isNSAccount || stateGroupFetch.isLoading
+                                  }
+                                  hideSelectedValues
+                                  onValueChange={(values) => {
+                                    const contents = values.map((item) => {
+                                      return {
+                                        groupId: item,
+                                        name: data
+                                          ?.find(
+                                            (value) => value.id === Number(item)
+                                          )
+                                          ?.langs.find(
+                                            (lang) => lang?.l?.code === locale
+                                          )?.name,
+                                        countryName: countries
+                                          ?.find(
+                                            (country) =>
+                                              country.id ===
+                                              Number(
+                                                currentCountryGroupSelected
+                                              )
+                                          )
+                                          ?.langs.find(
+                                            (lang) => lang?.l?.code === locale
+                                          )?.name,
+                                      };
+                                    });
+
+                                    const deprecateContents =
+                                      groupListFields.filter((item) => {
+                                        return !values.some(
+                                          (value) => value === item.groupId
+                                        );
+                                      });
+
+                                    if (deprecateContents.length) {
+                                      const nextDeprecate: number[] = [];
+                                      for (const deprecate of deprecateContents) {
+                                        const index = groupListFields.findIndex(
+                                          (item) =>
+                                            item.groupId === deprecate.groupId
+                                        );
+                                        nextDeprecate.push(index);
+                                      }
+
+                                      removeGroupList(nextDeprecate);
+                                    }
+
+                                    const nextContents = contents.filter(
+                                      (value) =>
+                                        !groupListFields.some(
+                                          (festival) =>
+                                            festival.groupId === value.groupId
+                                        )
+                                    );
+                                    appendGroupList(nextContents);
+                                  }}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                {/* Enter the correct location place */}
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          );
+                        }}
+                      />
+                    ) : null}
+                    {groupListFields.length ? (
+                      <div className="space-y-4">
+                        {groupListFields.map((field, index) => {
+                          return (
+                            <div key={field.id} className="space-y-6">
+                              <Card>
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 gap-1">
+                                  <div>
+                                    <CardTitle className="text-base truncate max-w-[550px]">
+                                      {field.name}
+                                    </CardTitle>
+                                    <CardDescription>
+                                      {field.countryName}
+                                    </CardDescription>
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => void removeGroupList(index)}
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </CardHeader>
+                              </Card>
+                              <input
+                                type="hidden"
+                                name={`_groupListSelected.${index}.id`}
+                                value={field.groupId}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : null}
+                    <input
+                      type="hidden"
+                      name="_groupListSelectedSize"
+                      value={groupListFields.length}
+                    />
+                  </div>
+                ) : null}
+                <div>
+                  <FormField
+                    control={form.control}
+                    name="_isLookingForGroups"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                        <div className="space-y-0.5">
+                          <FormLabel>Search Groups</FormLabel>
+                          <FormDescription>
+                            Are you looking for groups?
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                {currentIsLookingForGroups ? (
+                  <div className="pl-5 border-l space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="_groupRegionSelected"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Select a Region</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            name={field.name}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a verified region to display" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {regions?.map((region) => {
+                                return (
+                                  <SelectItem
+                                    key={`group-region-${region.id}`}
+                                    value={String(region.id)}
+                                  >
+                                    {
+                                      region.langs.find(
+                                        (lang) => lang?.l?.code === locale
+                                      )?.name
+                                    }
+                                  </SelectItem>
+                                );
+                              })}
+                            </SelectContent>
+                          </Select>
+                          <FormDescription>
+                            This region will help you for groups of interest on
+                            selected region.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                ) : null}
               </CardContent>
             </Card>
             <Card>
@@ -1944,7 +2315,7 @@ export default function EventForm({
                   />
                 </div>
               </CardContent>
-            </Card> */}
+            </Card>
             {!isNSAccount ? (
               <div className="sticky bottom-5 right-0 flex justify-end px-4">
                 <Card className="flex justify-end gap-4 w-full">

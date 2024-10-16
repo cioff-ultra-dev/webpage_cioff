@@ -427,6 +427,7 @@ export const festivals = pgTable("festivals", {
   directorName: text("director_name").notNull().default(""),
   categories: text("categories"),
   published: boolean("publish"),
+  linkConditions: text("link_conditions"),
   statusId: integer("status_id").references(() => statuses.id),
   nsId: integer("ns_id").references(() => nationalSections.id),
   certificationMemberId: integer("certification_member_id").references(
@@ -435,6 +436,7 @@ export const festivals = pgTable("festivals", {
   socialMediaLinksId: integer("socia_media_links_id").references(
     () => socialMediaLinks.id
   ),
+  regionForGroupsId: integer("region_for_groups").references(() => regions.id),
   countryId: integer("country_id").references(() => countries.id),
   logoId: integer("logo_id").references(() => storages.id),
   coverId: integer("cover_id").references(() => storages.id),
@@ -512,6 +514,13 @@ export const festivalsToConnected = pgTable("festival_to_connected", {
   targetFestivalId: integer("target_component_id").references(
     () => festivals.id
   ),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const festivalsToGroups = pgTable("festival_to_groups", {
+  id: serial("id").primaryKey(),
+  festivalId: integer("festival_id").references(() => festivals.id),
+  groupId: integer("group_id").references(() => groups.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -1141,6 +1150,7 @@ export const festivalRelations = relations(festivals, ({ many, one }) => ({
   festivalsToCategories: many(festivalToCategories),
   festivalsToStatuses: many(festivalsToStatuses),
   festivalsToComponents: many(festivalsToComponents),
+  festivalsToGroups: many(festivalsToGroups),
   connections: many(festivalsToConnected, { relationName: "source" }),
   target: many(festivalsToConnected, { relationName: "target" }),
   country: one(countries, {
@@ -1287,6 +1297,20 @@ export const festivalsToConnectedRelations = relations(
   })
 );
 
+export const festivalsToGroupsRelations = relations(
+  festivalsToGroups,
+  ({ one }) => ({
+    festival: one(festivals, {
+      fields: [festivalsToGroups.festivalId],
+      references: [festivals.id],
+    }),
+    group: one(groups, {
+      fields: [festivalsToGroups.groupId],
+      references: [groups.id],
+    }),
+  })
+);
+
 export const componentRelations = relations(components, ({ many }) => ({
   festivalsToComponents: many(festivalsToComponents),
   langs: many(componentsLang),
@@ -1319,6 +1343,7 @@ export const groupsRelations = relations(groups, ({ one, many }) => ({
   langs: many(groupsLang),
   owners: many(owners),
   groupToCategories: many(groupToCategories),
+  festivalsToGroups: many(festivalsToGroups),
 }));
 
 export const groupLangRelations = relations(groupsLang, ({ one }) => ({
@@ -1552,6 +1577,7 @@ export const insertFestivalSchema = createInsertSchema(festivals, {
       },
       { params: { i18n: "invalid_phone_number" } }
     ),
+  linkConditions: (schema) => schema.linkConditions.url(),
 });
 
 export const insertFestivalLangSchema = createInsertSchema(festivalsLang, {
@@ -1735,3 +1761,6 @@ export type InsertFestivalToConnected =
   typeof festivalsToConnected.$inferInsert;
 export type SelectFestivalToConnected =
   typeof festivalsToConnected.$inferSelect;
+
+export type InsertFestivalToGroups = typeof festivalsToGroups.$inferInsert;
+export type SelectFestivalToGroups = typeof festivalsToGroups.$inferSelect;

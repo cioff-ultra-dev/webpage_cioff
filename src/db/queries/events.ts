@@ -112,6 +112,28 @@ export async function getFestivalBySlug(
       },
       festivalsToStatuses: true,
       festivalsToComponents: true,
+      festivalsToGroups: {
+        with: {
+          group: {
+            with: {
+              langs: {
+                with: {
+                  l: true,
+                },
+              },
+              country: {
+                with: {
+                  langs: {
+                    with: {
+                      l: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
       transports: true,
       social: true,
       status: true,
@@ -304,6 +326,15 @@ export async function buildFestival(countryId: number) {
       return eq(fields.countryId, countryId);
     },
     with: {
+      country: {
+        with: {
+          langs: {
+            with: {
+              l: true,
+            },
+          },
+        },
+      },
       langs: {
         with: {
           l: true,

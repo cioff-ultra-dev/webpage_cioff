@@ -54,8 +54,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         const { email, password } = parsedCredentials.data;
+
         const user = await getUserAuth(email);
+
         if (!user) return null;
+
         const passwordMatch = await isSamePassword(
           password || "",
           user?.password || "",

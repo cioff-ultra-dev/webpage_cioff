@@ -1,7 +1,6 @@
 import { auth } from "@/auth";
 import EventForm from "@/components/common/event/form";
-import { getCategoryGroupsWithCategories } from "@/db/queries/category-group";
-import { getallCountries } from "@/db/queries/countries";
+import { getAllCountries } from "@/db/queries/countries";
 import {
   FestivalBySlugType,
   getCategoryForGroups,
@@ -9,6 +8,7 @@ import {
   getFestivalBySlug,
 } from "@/db/queries/events";
 import { getAllLanguages } from "@/db/queries/languages";
+import { getAllRegions } from "@/db/queries/regions";
 import { getAllStatuses } from "@/db/queries/statuses";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -22,10 +22,11 @@ export default async function EditFestival({
   const t = await getTranslations("form.festival.tag");
   const festival: FestivalBySlugType | undefined = await getFestivalBySlug(
     params.id,
-    locale
+    locale,
   );
   const languages = await getAllLanguages();
-  const countries = await getallCountries(locale);
+  const countries = await getAllCountries();
+  const regions = await getAllRegions();
   const statuses = await getAllStatuses();
 
   const typeOfFestival = await getCategoryForGroups(locale, ["music", "dance"]);
@@ -70,7 +71,7 @@ export default async function EditFestival({
       .filter((id) => Boolean(id)) ?? [];
   const currentLang = festival?.langs.find((lang) => lang.l?.code === locale);
   const currentOwner = festival?.owners.find(
-    (owner) => owner.user?.role?.name === "Festivals"
+    (owner) => owner.user?.role?.name === "Festivals",
   );
   const currentStatus = festival?.festivalsToStatuses.at(0);
 
@@ -78,25 +79,21 @@ export default async function EditFestival({
     <EventForm
       categoryGroups={[
         {
-          // name: t("typeOfFestival"),
           slug: "type-of-festival",
           title: t("typeOfFestival"),
           categories: typeOfFestival,
         },
         {
-          // name: t("ageOfParticipants"),
           slug: "age-of-participants",
           title: t("ageOfParticipants"),
           categories: ageOfParticipants,
         },
         {
-          // name: t("styleOfFestival"),
           slug: "style-of-festival",
           title: t("styleOfFestival"),
           categories: styleOfFestival,
         },
         {
-          // name: t("typeOfAccomodation"),
           slug: "type-of-accomodation",
           title: t("typeOfAccomodation"),
           categories: typeOfAccomodation,
@@ -112,6 +109,7 @@ export default async function EditFestival({
       componentsRecognized={componentsRecognized}
       componentsPartner={componentsPartner}
       countries={countries}
+      regions={regions}
       id={`${festival?.id}`}
       slug={params.id}
       locale={locale}

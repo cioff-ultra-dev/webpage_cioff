@@ -2,6 +2,7 @@ import { db } from "@/db";
 import { countries, festivals, languages, SelectLanguages } from "@/db/schema";
 import { defaultLocale } from "@/i18n/config";
 import { and, count, eq, inArray, isNotNull } from "drizzle-orm";
+import { getLocale } from "next-intl/server";
 
 export type CountryCastFestivals = {
   id: number;
@@ -27,7 +28,8 @@ export async function getAllCountryCastFestivals(): Promise<CountryCastFestivals
     .orderBy(countries.slug);
 }
 
-export async function getallCountries(locale: string) {
+export async function getAllCountries() {
+  const locale = await getLocale();
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
 
@@ -59,4 +61,4 @@ export async function getallCountries(locale: string) {
   });
 }
 
-export type CountryByLocaleType = Awaited<ReturnType<typeof getallCountries>>;
+export type CountryByLocaleType = Awaited<ReturnType<typeof getAllCountries>>;

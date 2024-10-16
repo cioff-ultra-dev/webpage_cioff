@@ -188,3 +188,27 @@ export async function getAllGroupStyles() {
 }
 
 export type GroupStyleType = Awaited<ReturnType<typeof getAllAgeGroups>>;
+
+export async function buildGroup(countryId: number) {
+  return await db.query.groups.findMany({
+    where(fields, { eq }) {
+      return eq(fields.countryId, countryId);
+    },
+    with: {
+      country: {
+        with: {
+          langs: {
+            with: {
+              l: true,
+            },
+          },
+        },
+      },
+      langs: {
+        with: {
+          l: true,
+        },
+      },
+    },
+  });
+}
