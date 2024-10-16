@@ -104,6 +104,13 @@
       "select_type_positi": "Select type position",
       "search_type": "Search type...",
       "no_type_position_found": "No type position found.",
+      "this_type_posi_used_nationalsec": "This is the type position that will be used in the NationalSection.",
+      "member_name": "Member name",
+      "enter_custom_me_name": "Enter your custom member name",
+      "email_address": "Email Address",
+      "enter_current_email_addre": "Enter your current email address",
+      "phone_number": "Phone Number (country code)",
+      "enter_phone_number": "Enter a phone number",
       "_lang": {
         "name": "Name of the association",
         "about": "About"

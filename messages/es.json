@@ -102,6 +102,13 @@
       "select_type_positi": "Seleccione el tipo de posición",
       "search_type": "Tipo de búsqueda...",
       "no_type_position_found": "No se ha encontrado información.",
+      "this_type_posi_used_nationalsec": "Este es el tipo de puesto que se utilizará en la Sección Nacional.",
+      "member_name": "Nombre del integrante",
+      "enter_custom_me_name": "Introduzca su nombre de usuario personalizado",
+      "email_address": "Correo Electrónico",
+      "enter_current_email_addre": "Introduzca su dirección de correo electrónico",
+      "phone_number": "Número de teléfono (Indicativo del país)",
+      "enter_phone_number": "Ingrese su número de teléfono",
       "_lang": {
         "name": "Nombre de la asociacion",
         "about": "Acerca de"

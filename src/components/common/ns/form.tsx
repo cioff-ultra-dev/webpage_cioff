@@ -279,7 +279,7 @@ export default function NationalSectionForm({
     },
   });
 
-  const t = useTranslations("form.ns");
+  const t = useTranslations("form.ns");  
   const router = useRouter();
 
   useEffect(() => {
@@ -621,8 +621,7 @@ export default function NationalSectionForm({
                               </PopoverContent>
                             </Popover>
                             <FormDescription>
-                              This is the type position that will be used in the
-                              NationalSection.
+                              {t("this_type_posi_used_nationalsec")}
                             </FormDescription>
                             <FormMessage />
                             <input
@@ -643,7 +642,7 @@ export default function NationalSectionForm({
                           name={`_positions.${index}._lang.otherMemberName`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Member name</FormLabel>
+                              <FormLabel>{t("member_name")}</FormLabel>
                               <FormControl>
                                 <Input
                                   ref={field.ref}
@@ -654,7 +653,7 @@ export default function NationalSectionForm({
                                 />
                               </FormControl>
                               <FormDescription>
-                                Enter your custom member name
+                                {("enter_custom_me_name")} 
                               </FormDescription>
                               <FormMessage />
                             </FormItem>
@@ -669,7 +668,8 @@ export default function NationalSectionForm({
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                              Email Address
+
+                              {t("email_address")}
                             </FormLabel>
                             <FormControl>
                               <Input
@@ -681,7 +681,7 @@ export default function NationalSectionForm({
                               />
                             </FormControl>
                             <FormDescription>
-                              Enter your current email address
+                              {t("enter_current_email_addre")}
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -695,7 +695,7 @@ export default function NationalSectionForm({
                         render={({ field: { value, ...fieldRest } }) => (
                           <FormItem>
                             <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                              Phone Number (country code)
+                              {t("phone_number")}
                             </FormLabel>
                             <FormControl>
                               <PhoneInput
@@ -706,7 +706,7 @@ export default function NationalSectionForm({
                               />
                             </FormControl>
                             <FormDescription>
-                              Enter a phone number
+                              {t("enter_phone_number")}
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
