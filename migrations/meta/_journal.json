@@ -246,6 +246,13 @@
       "when": 1729077638127,
       "tag": "0031_mixed_thunderbolt",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1729080185924,
+      "tag": "0032_tan_talos",
+      "breakpoints": true
     }
   ]
 }

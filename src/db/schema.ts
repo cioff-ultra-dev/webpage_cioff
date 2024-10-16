@@ -669,6 +669,24 @@ export const subgroupToCategories = pgTable(
   })
 );
 
+export const repertories = pgTable("repertories", {
+  id: serial("id").primaryKey(),
+  gallery: text("gallery"),
+  youtubeId: text("youtube_id"),
+  groupId: integer("group_id").references(() => groups.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const repertoriesLang = pgTable("repertories_lang", {
+  id: serial("id").primaryKey(),
+  name: text("name"),
+  description: text("description"),
+  repertoryId: integer("repertory_id").references(() => repertories.id),
+  lang: integer("lang").references(() => languages.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
 /*
 8. TIMELINE
 Timeline
@@ -1348,6 +1366,7 @@ export const groupsRelations = relations(groups, ({ one, many }) => ({
   groupToCategories: many(groupToCategories),
   festivalsToGroups: many(festivalsToGroups),
   subgroups: many(subgroups),
+  repertories: many(repertories),
 }));
 
 export const groupLangRelations = relations(groupsLang, ({ one }) => ({
@@ -1552,6 +1571,28 @@ export const subgroupsLangRelations = relations(subgroupsLang, ({ one }) => ({
   }),
 }));
 
+export const repertoryRelations = relations(repertories, ({ many, one }) => ({
+  langs: many(repertoriesLang),
+  group: one(groups, {
+    fields: [repertories.groupId],
+    references: [groups.id],
+  }),
+}));
+
+export const repertoriesLangRelations = relations(
+  repertoriesLang,
+  ({ one }) => ({
+    repertory: one(repertories, {
+      fields: [repertoriesLang.repertoryId],
+      references: [repertories.id],
+    }),
+    l: one(languages, {
+      fields: [repertoriesLang.lang],
+      references: [languages.id],
+    }),
+  })
+);
+
 export const subgroupsToCategoriesRelations = relations(
   subgroupToCategories,
   ({ one }) => ({
@@ -1727,6 +1768,10 @@ export const insertSocialMediaLinkSchema = createInsertSchema(
 export const insertSubGroupSchema = createInsertSchema(subgroups);
 
 export const insertSubGroupLangSchema = createInsertSchema(subgroupsLang);
+
+export const insertRepertorySchema = createInsertSchema(repertories);
+
+export const insertRepertoryLangSchema = createInsertSchema(repertoriesLang);
 
 /* Infered Types */
 

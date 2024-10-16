@@ -45,6 +45,8 @@ import { PhoneInput } from "@/components/ui/phone-input";
 import {
   insertGroupLangSchema,
   insertGroupSchema,
+  insertRepertoryLangSchema,
+  insertRepertorySchema,
   insertSubGroupLangSchema,
   insertSubGroupSchema,
 } from "@/db/schema";
@@ -102,6 +104,11 @@ const globalGroupSchema = insertGroupSchema.extend({
       _lang: insertSubGroupLangSchema,
       _groupAge: z.array(z.string()),
       _hasAnotherContact: z.boolean().default(false).optional(),
+    })
+  ),
+  _repertories: z.array(
+    insertRepertorySchema.extend({
+      _lang: insertRepertoryLangSchema,
     })
   ),
 });
@@ -368,6 +375,20 @@ export default function GroupForm({
           },
         };
       }),
+      _repertories: currentGroup?.repertories.map((item) => {
+        const currentRepertoryLang = item.langs.find(
+          (lang) => lang?.l?.code === locale
+        );
+        return {
+          id: item.id,
+          youtubeId: item.youtubeId,
+          _lang: {
+            id: currentRepertoryLang?.id,
+            name: currentRepertoryLang?.name,
+            description: currentRepertoryLang?.description,
+          },
+        };
+      }),
     },
   });
 
@@ -378,6 +399,11 @@ export default function GroupForm({
     }
   );
 
+  const { fields: repertoryFields, append: appendRepertory } = useFieldArray({
+    control: form.control,
+    name: "_repertories",
+  });
+
   const isAbleToTravelWatch = useWatch({
     control: form.control,
     name: "_isAbleToTravel",
@@ -387,6 +413,8 @@ export default function GroupForm({
     control: form.control,
     name: "_subgroups",
   });
+
+  console.log(currentGroup?.repertories);
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -1533,12 +1561,44 @@ export default function GroupForm({
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {repertoire.map((item, index) => (
+                {repertoryFields.map((item, index) => (
                   <div
                     key={item.id}
                     className="space-y-4 p-4 border rounded-lg relative"
                   >
-                    <Button
+                    <FormField
+                      control={form.control}
+                      name={`_repertories.${index}.id`}
+                      render={({ field }) => (
+                        <FormControl>
+                          <Input
+                            ref={field.ref}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            value={field.value}
+                            name={field.name}
+                            type="hidden"
+                          />
+                        </FormControl>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`_repertories.${index}._lang.id`}
+                      render={({ field }) => (
+                        <FormControl>
+                          <Input
+                            ref={field.ref}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            value={field.value}
+                            name={field.name}
+                            type="hidden"
+                          />
+                        </FormControl>
+                      )}
+                    />
+                    {/* <Button
                       type="button"
                       variant="ghost"
                       size="icon"
@@ -1546,9 +1606,9 @@ export default function GroupForm({
                       onClick={() => removeRepertoireItem(item.id)}
                     >
                       <X className="h-4 w-4" />
-                    </Button>
+                    </Button> */}
                     <div className="space-y-2">
-                      <Label htmlFor={`section${item.id}Name`}>
+                      {/* <Label htmlFor={`section${item.id}Name`}>
                         Section {index + 1} Name
                       </Label>
                       <Input
@@ -1557,23 +1617,53 @@ export default function GroupForm({
                         onChange={(e) =>
                           updateRepertoireItem(item.id, "name", e.target.value)
                         }
+                      /> */}
+                      <FormField
+                        control={form.control}
+                        name={`_repertories.${index}._lang.name`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Name</FormLabel>
+                            <FormControl>
+                              <Input
+                                ref={field.ref}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                value={field.value ?? ""}
+                                name={field.name}
+                                disabled={isNSAccount}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Enter your current section name of the repertory
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor={`section${item.id}Description`}>
-                        Description
-                      </Label>
-                      <Textarea
-                        id={`section${item.id}Description`}
-                        className="min-h-[100px]"
-                        value={item.description}
-                        onChange={(e) =>
-                          updateRepertoireItem(
-                            item.id,
-                            "description",
-                            e.target.value
-                          )
-                        }
+                      <FormField
+                        control={form.control}
+                        name={`_repertories.${index}._lang.description`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Description</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                className="resize-none"
+                                name={field.name}
+                                onChange={field.onChange}
+                                value={field.value || ""}
+                                onBlur={field.onBlur}
+                                ref={field.ref}
+                                disabled={isNSAccount}
+                              />
+                            </FormControl>
+                            <FormDescription>Max 500 words</FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
                     </div>
                     <div className="space-y-2">
@@ -1595,27 +1685,44 @@ export default function GroupForm({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor={`section${item.id}Video`}>
-                        Video (YouTube Link)
-                      </Label>
-                      <Input
-                        id={`section${item.id}Video`}
-                        placeholder="YouTube Link"
-                        value={item.video}
-                        onChange={(e) =>
-                          updateRepertoireItem(item.id, "video", e.target.value)
-                        }
+                      <FormField
+                        control={form.control}
+                        name={`_repertories.${index}.youtubeId`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Video (Youtube Link)</FormLabel>
+                            <FormControl>
+                              <Input
+                                ref={field.ref}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                value={field.value ?? ""}
+                                name={field.name}
+                                disabled={isNSAccount}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Enter your video link by Youtube
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
                     </div>
                   </div>
                 ))}
+                <input
+                  type="hidden"
+                  name="_repertorySize"
+                  value={repertoryFields.length}
+                />
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={addRepertoireItem}
+                  onClick={() => appendRepertory({ _lang: {} })}
                   className="w-full"
                 >
-                  <PlusCircle className="mr-2 h-4 w-4" /> Add Repertoire Section
+                  <PlusCircle className="mr-2 h-4 w-4" /> Add Repertoire
                 </Button>
               </CardContent>
             </Card>

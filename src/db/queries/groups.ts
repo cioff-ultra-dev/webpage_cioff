@@ -54,6 +54,18 @@ export async function getGroupById(id: SelectGroup["id"]) {
           },
         },
       },
+      repertories: {
+        with: {
+          langs: {
+            where(fields, { inArray }) {
+              return inArray(fields.lang, sq);
+            },
+            with: {
+              l: true,
+            },
+          },
+        },
+      },
       groupToCategories: {
         with: {
           category: true,

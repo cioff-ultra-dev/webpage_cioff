@@ -29,6 +29,8 @@ import {
   nationalSectionsLang,
   nationalSectionsPositions,
   owners,
+  repertories,
+  repertoriesLang,
   roles,
   socialMediaLinks,
   storages,
@@ -1590,6 +1592,7 @@ export async function updateGroup(formData: FormData) {
   const youtubeId = (formData.get("youtube") as string) || null;
 
   const subgroupSize = Number(formData.get("_subgroupSize"));
+  const repertorySize = Number(formData.get("_repertorySize"));
 
   const typeGroups = JSON.parse(
     (formData.get("_typeOfGroup") as string) || "[]"
@@ -1733,6 +1736,50 @@ export async function updateGroup(formData: FormData) {
         //   location,
         //   festivalId: currentFestival.id,
         // });
+      }
+    }
+
+    if (repertorySize > 0) {
+      for (let index = 0; index < repertorySize; index++) {
+        const id = Number(formData.get(`_repertories.${index}.id`));
+        const langId = Number(formData.get(`_repertories.${index}._lang.id`));
+        const name = formData.get(`_repertories.${index}._lang.name`) as string;
+        const description = formData.get(
+          `_repertories.${index}._lang.description`
+        ) as string;
+        const youtubeId = formData.get(
+          `_repertories.${index}.youtubeId`
+        ) as string;
+
+        const [currentRepertory] = await tx
+          .insert(repertories)
+          .values({
+            id: id === 0 ? undefined : id,
+            youtubeId,
+            groupId: currentGroup.id,
+          })
+          .onConflictDoUpdate({
+            target: subgroups.id,
+            set: buildConflictUpdateColumns(repertories, ["youtubeId"]),
+          })
+          .returning();
+
+        await tx
+          .insert(repertoriesLang)
+          .values({
+            id: langId === 0 ? undefined : langId,
+            name,
+            description,
+            repertoryId: currentRepertory.id,
+            lang: lang?.id,
+          })
+          .onConflictDoUpdate({
+            target: subgroups.id,
+            set: buildConflictUpdateColumns(repertoriesLang, [
+              "name",
+              "description",
+            ]),
+          });
       }
     }
 
