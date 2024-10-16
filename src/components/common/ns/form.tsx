@@ -608,7 +608,7 @@ export default function NationalSectionForm({
                                 />
                               </FormControl>
                               <FormDescription>
-                                {"enter_custom_me_name"}
+                                {t("enter_custom_me_name")}
                               </FormDescription>
                               <FormMessage />
                             </FormItem>
