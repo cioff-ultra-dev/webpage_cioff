@@ -639,8 +639,10 @@ export const groupToCategories = pgTable(
 export const subgroups = pgTable("subgroups", {
   id: serial("id").primaryKey(),
   membersNumber: integer("members_number"),
+  hasAnotherContact: boolean("has_another_contact").default(false),
   contactName: text("contact_name"),
   contactPhone: text("contact_phone"),
+  contactMail: text("contact_mail"),
   groupId: integer("group_id").references(() => groups.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
@@ -650,6 +652,7 @@ export const subgroupsLang = pgTable("subgroups_lang", {
   name: text("name"),
   contactAddress: text("contact_address"),
   subgroupId: integer("subgroup_id").references(() => subgroups.id),
+  lang: integer("lang").references(() => languages.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -1344,6 +1347,7 @@ export const groupsRelations = relations(groups, ({ one, many }) => ({
   owners: many(owners),
   groupToCategories: many(groupToCategories),
   festivalsToGroups: many(festivalsToGroups),
+  subgroups: many(subgroups),
 }));
 
 export const groupLangRelations = relations(groupsLang, ({ one }) => ({
@@ -1527,6 +1531,40 @@ export const regionLangRelations = relations(regionsLang, ({ one }) => ({
     references: [languages.id],
   }),
 }));
+
+export const subgroupRelations = relations(subgroups, ({ many, one }) => ({
+  langs: many(subgroupsLang),
+  group: one(groups, {
+    fields: [subgroups.groupId],
+    references: [groups.id],
+  }),
+  subgroupsToCategories: many(subgroupToCategories),
+}));
+
+export const subgroupsLangRelations = relations(subgroupsLang, ({ one }) => ({
+  subgroup: one(subgroups, {
+    fields: [subgroupsLang.subgroupId],
+    references: [subgroups.id],
+  }),
+  l: one(languages, {
+    fields: [subgroupsLang.lang],
+    references: [languages.id],
+  }),
+}));
+
+export const subgroupsToCategoriesRelations = relations(
+  subgroupToCategories,
+  ({ one }) => ({
+    subgroup: one(subgroups, {
+      fields: [subgroupToCategories.subgroupId],
+      references: [subgroups.id],
+    }),
+    category: one(categories, {
+      fields: [subgroupToCategories.categoryId],
+      references: [categories.id],
+    }),
+  })
+);
 
 /* Schema Zod  */
 

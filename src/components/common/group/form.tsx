@@ -49,7 +49,7 @@ import {
   insertSubGroupSchema,
 } from "@/db/schema";
 import { cn, formatBytes } from "@/lib/utils";
-import { X } from "lucide-react";
+import { PlusCircle, X } from "lucide-react";
 import {
   AgeGroupsType,
   GroupDetailsType,
@@ -100,7 +100,9 @@ const globalGroupSchema = insertGroupSchema.extend({
   _subgroups: z.array(
     insertSubGroupSchema.extend({
       _lang: insertSubGroupLangSchema,
-    }),
+      _groupAge: z.array(z.string()),
+      _hasAnotherContact: z.boolean().default(false).optional(),
+    })
   ),
 });
 
@@ -272,7 +274,7 @@ export default function GroupForm({
   const [selectedTypeOfGroup, setSelectedTypeOfGroup] = useState<string[]>([]);
   const [selectedGroupAge, setSelectedGroupAge] = useState<string[]>([]);
   const [selectedStyleOfGroup, setSelectedStyleOfGroup] = useState<string[]>(
-    [],
+    []
   );
 
   const t = useTranslations("form.group");
@@ -306,12 +308,12 @@ export default function GroupForm({
   const updateRepertoireItem = (
     id: number,
     field: keyof RepertoireItem,
-    value: string | FileList | null,
+    value: string | FileList | null
   ) => {
     setRepertoire(
       repertoire.map((item) =>
-        item.id === id ? { ...item, [field]: value } : item,
-      ),
+        item.id === id ? { ...item, [field]: value } : item
+      )
     );
   };
 
@@ -349,6 +351,23 @@ export default function GroupForm({
         generalDirectorProfile: currentLang?.generalDirectorProfile || "",
         artisticDirectorProfile: currentLang?.artisticDirectorProfile || "",
       },
+      _subgroups: currentGroup?.subgroups.map((item) => {
+        return {
+          id: item.id,
+          _hasAnotherContact: item.hasAnotherContact ?? false,
+          contactName: item.contactName,
+          contactPhone: item.contactPhone,
+          contactMail: item.contactMail,
+          membersNumber: item.membersNumber,
+          _groupAge:
+            item.subgroupsToCategories.map((item) => String(item.categoryId)) ??
+            [],
+          _lang: {
+            id: item.langs.find((lang) => lang?.l?.code === locale)?.id,
+            name: item.langs.find((lang) => lang?.l?.code === locale)?.name,
+          },
+        };
+      }),
     },
   });
 
@@ -356,7 +375,7 @@ export default function GroupForm({
     {
       control: form.control,
       name: "_subgroups",
-    },
+    }
   );
 
   const isAbleToTravelWatch = useWatch({
@@ -364,10 +383,15 @@ export default function GroupForm({
     name: "_isAbleToTravel",
   });
 
+  const currentSubgroups = useWatch({
+    control: form.control,
+    name: "_subgroups",
+  });
+
   const formRef = useRef<HTMLFormElement>(null);
 
   const onSubmitForm: SubmitHandler<z.infer<typeof globalGroupSchema>> = async (
-    _data,
+    _data
   ) => {
     const result = await updateGroup(new FormData(formRef.current!));
     if (result.success) {
@@ -533,7 +557,7 @@ export default function GroupForm({
                             accept="image/*"
                             onChange={(event) => {
                               field.onChange(
-                                event.target.files && event.target.files[0],
+                                event.target.files && event.target.files[0]
                               );
                             }}
                             onBlur={field.onBlur}
@@ -618,7 +642,7 @@ export default function GroupForm({
                             accept="image/*"
                             onChange={(event) => {
                               field.onChange(
-                                event.target.files && event.target.files[0],
+                                event.target.files && event.target.files[0]
                               );
                             }}
                             onBlur={field.onBlur}
@@ -797,8 +821,8 @@ export default function GroupForm({
                               defaultValue={
                                 (field.value as string[])?.filter((item) =>
                                   options.find(
-                                    (option) => option.value === item,
-                                  ),
+                                    (option) => option.value === item
+                                  )
                                 ) ?? []
                               }
                               onValueChange={(values) => {
@@ -894,8 +918,8 @@ export default function GroupForm({
                               defaultValue={
                                 (field.value as string[])?.filter((item) =>
                                   options.find(
-                                    (option) => option.value === item,
-                                  ),
+                                    (option) => option.value === item
+                                  )
                                 ) ?? []
                               }
                               onValueChange={(values) => {
@@ -933,7 +957,7 @@ export default function GroupForm({
                               field.onChange(
                                 event.target.value
                                   ? Number(event.target.value)
-                                  : 0,
+                                  : 0
                               );
                             }}
                             onBlur={field.onBlur}
@@ -977,8 +1001,8 @@ export default function GroupForm({
                               defaultValue={
                                 (field.value as string[])?.filter((item) =>
                                   options.find(
-                                    (option) => option.value === item,
-                                  ),
+                                    (option) => option.value === item
+                                  )
                                 ) ?? []
                               }
                               onValueChange={(values) => {
@@ -998,8 +1022,7 @@ export default function GroupForm({
                     }}
                   />
                 </div>
-
-                {/* <div className="space-y-4 border-t pt-4">
+                <div className="space-y-4 border-t pt-4">
                   <h2 className="text-lg font-semibold">Sub Groups</h2>
                   {subGroupFields.map((field, index) => (
                     <Card
@@ -1035,7 +1058,6 @@ export default function GroupForm({
                               value={field.value}
                               name={field.name}
                               type="hidden"
-                              disabled={isNSAccount}
                             />
                           </FormControl>
                         )}
@@ -1082,9 +1104,13 @@ export default function GroupForm({
                                     ref={field.ref}
                                     type="number"
                                     max="40"
-                                    onChange={field.onChange}
+                                    onChange={(event) =>
+                                      void field.onChange(
+                                        Number(event.target.value)
+                                      )
+                                    }
                                     onBlur={field.onBlur}
-                                    value={field.value || ""}
+                                    value={field.value ?? undefined}
                                     name={field.name}
                                     disabled={isNSAccount}
                                   />
@@ -1100,7 +1126,7 @@ export default function GroupForm({
                         <div className="grid w-full items-center gap-1.5">
                           <FormField
                             control={form.control}
-                            name="_groupAge"
+                            name={`_subgroups.${index}._groupAge`}
                             render={({ field }) => {
                               const options: MultiSelectProps["options"] =
                                 ageGroups.map((type) => {
@@ -1120,41 +1146,141 @@ export default function GroupForm({
                                       ref={field.ref}
                                       options={options}
                                       disabled={isNSAccount}
+                                      defaultValue={field.value}
                                       onValueChange={(values) => {
-                                        setSelectedGroupAge(values);
-                                        form.setValue(
-                                          "_groupAge",
-                                          JSON.stringify(values)
-                                        );
+                                        field.onChange(values);
                                       }}
                                     />
                                   </FormControl>
                                   <FormMessage />
+                                  <input
+                                    type="hidden"
+                                    name={`_subgroups.${index}._groupAge`}
+                                    value={JSON.stringify(field.value) || "[]"}
+                                  />
                                 </FormItem>
                               );
                             }}
                           />
-                          <input
-                            type="hidden"
-                            name="_groupAge"
-                            value={JSON.stringify(selectedGroupAge) || "[]"}
+                        </div>
+                        <div className="grid w-full items-center gap-1.5">
+                          <FormField
+                            control={form.control}
+                            name={`_subgroups.${index}._hasAnotherContact`}
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                <div className="space-y-0.5">
+                                  <FormLabel className="text-base">
+                                    Another Contact
+                                  </FormLabel>
+                                  <FormDescription>
+                                    Do you have another contact person for your
+                                    other group?
+                                  </FormDescription>
+                                </div>
+                                <FormControl>
+                                  <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                    name={field.name}
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
                           />
                         </div>
+                        {currentSubgroups[index]?._hasAnotherContact ? (
+                          <div className="pl-5 border-l space-y-4 w-full">
+                            <div className="grid w-full items-center gap-1.5">
+                              <FormField
+                                control={form.control}
+                                name={`_subgroups.${index}.contactName`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Contact Name</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        value={field.value ?? ""}
+                                      />
+                                    </FormControl>
+                                    <FormDescription>
+                                      Provide the current main contact name
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <div className="grid w-full items-center gap-1.5">
+                              <FormField
+                                control={form.control}
+                                name={`_subgroups.${index}.contactMail`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Contact Email</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        value={field.value ?? ""}
+                                      />
+                                    </FormControl>
+                                    <FormDescription>
+                                      Provide the current main contact email
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <div className="grid w-full items-center gap-1.5">
+                              <FormField
+                                control={form.control}
+                                name={`_subgroups.${index}.contactPhone`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Contact Phone</FormLabel>
+                                    <FormControl>
+                                      <PhoneInput
+                                        placeholder="Enter a phone number"
+                                        international
+                                        {...field}
+                                        value={field.value as RPNInput.Value}
+                                        disabled={isNSAccount}
+                                      />
+                                    </FormControl>
+                                    <FormDescription>
+                                      Provide the current main contact phone
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
+                        ) : null}
                       </CardContent>
                     </Card>
                   ))}
+                  <input
+                    type="hidden"
+                    name="_subgroupSize"
+                    value={subGroupFields.length}
+                  />
                   <Button
                     type="button"
+                    variant="outline"
                     disabled={isNSAccount}
                     onClick={(_) =>
                       appendSubGroupEvent({
                         _lang: {},
+                        _groupAge: [],
                       })
                     }
                   >
                     <PlusCircle className="mr-2 h-4 w-4" /> Add Event
                   </Button>
-                </div> */}
+                </div>
               </CardContent>
             </Card>
 
@@ -1221,8 +1347,8 @@ export default function GroupForm({
                                     from: form.getValues(`_specificDate.from`)
                                       ? new Date(
                                           form.getValues(
-                                            `_specificDate.from`,
-                                          ) ?? "",
+                                            `_specificDate.from`
+                                          ) ?? ""
                                         )
                                       : undefined,
                                     to:
@@ -1230,7 +1356,7 @@ export default function GroupForm({
                                       form.getValues(`_specificDate.from`) !==
                                         form.getValues(`_specificDate.to`)
                                         ? new Date(
-                                            form.getValues(`_specificDate.to`)!,
+                                            form.getValues(`_specificDate.to`)!
                                           )
                                         : undefined,
                                   }}
@@ -1257,7 +1383,7 @@ export default function GroupForm({
                               ?.message ? (
                               <p
                                 className={cn(
-                                  "text-sm font-medium text-destructive",
+                                  "text-sm font-medium text-destructive"
                                 )}
                               >
                                 {
@@ -1300,7 +1426,7 @@ export default function GroupForm({
                                       >
                                         {
                                           region.langs.find(
-                                            (lang) => lang.l?.code === locale,
+                                            (lang) => lang.l?.code === locale
                                           )?.name
                                         }
                                       </SelectItem>
@@ -1399,7 +1525,7 @@ export default function GroupForm({
                 </div>
               </CardContent>
             </Card>
-            {/* <Card>
+            <Card>
               <CardHeader>
                 <CardTitle>Repertoire</CardTitle>
                 <CardDescription>
@@ -1492,7 +1618,7 @@ export default function GroupForm({
                   <PlusCircle className="mr-2 h-4 w-4" /> Add Repertoire Section
                 </Button>
               </CardContent>
-            </Card> */}
+            </Card>
 
             {/* <Card>
               <CardHeader>

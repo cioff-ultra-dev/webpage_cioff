@@ -32,6 +32,9 @@ import {
   roles,
   socialMediaLinks,
   storages,
+  subgroups,
+  subgroupsLang,
+  subgroupToCategories,
   transportLocations,
   users,
   videoTutorialLinks,
@@ -1586,6 +1589,8 @@ export async function updateGroup(formData: FormData) {
   const websiteLink = (formData.get("website") as string) || null;
   const youtubeId = (formData.get("youtube") as string) || null;
 
+  const subgroupSize = Number(formData.get("_subgroupSize"));
+
   const typeGroups = JSON.parse(
     (formData.get("_typeOfGroup") as string) || "[]"
   );
@@ -1648,6 +1653,88 @@ export async function updateGroup(formData: FormData) {
           "description",
         ]),
       });
+
+    if (subgroupSize > 0) {
+      for (let index = 0; index < subgroupSize; index++) {
+        const id = Number(formData.get(`_subgroups.${index}.id`));
+        const langId = Number(formData.get(`_subgroups.${index}._lang.id`));
+        const name = formData.get(`_subgroups.${index}._lang.name`) as string;
+        const membersNumber = Number(
+          formData.get(`_subgroups.${index}.membersNumber`) || ""
+        );
+        const subgroupAge = JSON.parse(
+          (formData.get(`_subgroups.${index}._groupAge`) as string) || "[]"
+        ) as string[];
+        const hasAnotherContact =
+          (formData.get(`_subgroups.${index}._hasAnotherContact`) as string) ===
+          "on";
+        const contactName = formData.get(
+          `_subgroups.${index}.contactName`
+        ) as string;
+        const contactMail = formData.get(
+          `_subgroups.${index}.contactMail`
+        ) as string;
+        const contactPhone = formData.get(
+          `_subgroups.${index}.contactPhone`
+        ) as string;
+
+        const [currentSubgroup] = await tx
+          .insert(subgroups)
+          .values({
+            id: id === 0 ? undefined : id,
+            membersNumber,
+            hasAnotherContact,
+            contactName,
+            contactPhone,
+            contactMail,
+            groupId: currentGroup.id,
+          })
+          .onConflictDoUpdate({
+            target: subgroups.id,
+            set: buildConflictUpdateColumns(subgroups, [
+              "membersNumber",
+              "hasAnotherContact",
+              "contactName",
+              "contactMail",
+              "contactPhone",
+            ]),
+          })
+          .returning();
+
+        await tx
+          .insert(subgroupsLang)
+          .values({
+            id: langId === 0 ? undefined : langId,
+            name,
+            subgroupId: currentSubgroup.id,
+            lang: lang?.id,
+          })
+          .onConflictDoUpdate({
+            target: subgroups.id,
+            set: buildConflictUpdateColumns(subgroupsLang, ["name"]),
+          });
+
+        if (subgroupAge.length) {
+          await tx
+            .delete(subgroupToCategories)
+            .where(eq(subgroupToCategories.subgroupId, currentSubgroup.id));
+
+          await tx.insert(subgroupToCategories).values(
+            subgroupAge.map((categoryId) => ({
+              categoryId: Number(categoryId),
+              subgroupId: currentSubgroup.id,
+            }))
+          );
+        }
+
+        // currentTransportLocations.push({
+        //   lat,
+        //   lng,
+        //   location,
+        //   festivalId: currentFestival.id,
+        // });
+      }
+    }
 
     if (groupCategories.length) {
       await tx
