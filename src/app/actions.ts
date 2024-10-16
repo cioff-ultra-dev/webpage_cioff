@@ -1575,6 +1575,11 @@ export async function updateGroup(formData: FormData) {
     "_lang.artisticDirectorProfile"
   ) as string;
   const artisticDirectorPhoto = formData.get("_artisticDirectorPhoto") as File;
+  const musicalDirectorName = formData.get("musicalDirectorName") as string;
+  const musicalDirectorProfile = formData.get(
+    "_lang.musicalDirectorProfile"
+  ) as string;
+  const musicalDirectorPhoto = formData.get("_musicalDirectorPhoto") as File;
   const phone = formData.get("phone") as string;
   const address = formData.get("_lang.address") as string;
   const membersNumber = formData.get("membersNumber") as string;
@@ -1590,6 +1595,8 @@ export async function updateGroup(formData: FormData) {
   const instagramLink = (formData.get("instagram") as string) || null;
   const websiteLink = (formData.get("website") as string) || null;
   const youtubeId = (formData.get("youtube") as string) || null;
+
+  const linkPortfolio = formData.get("linkPortfolio") as string;
 
   const subgroupSize = Number(formData.get("_subgroupSize"));
   const repertorySize = Number(formData.get("_repertorySize"));
@@ -1609,6 +1616,7 @@ export async function updateGroup(formData: FormData) {
   await db.transaction(async (tx) => {
     const generalDirectorPhotoId = await uploadFile(generalDirectorPhoto, tx);
     const artisticDirectorPhotoId = await uploadFile(artisticDirectorPhoto, tx);
+    const musicalDirectorPhotoId = await uploadFile(musicalDirectorPhoto, tx);
 
     const [currentGroup] = await tx
       .update(groups)
@@ -1617,6 +1625,8 @@ export async function updateGroup(formData: FormData) {
         generalDirectorPhotoId,
         artisticDirectorName,
         artisticDirectorPhotoId,
+        musicalDirectorName,
+        musicalDirectorPhotoId,
         phone,
         isAbleTravel: isAbleToTravel,
         isAbleTravelLiveMusic: isAbleToTravelLiveMusic,
@@ -1630,6 +1640,7 @@ export async function updateGroup(formData: FormData) {
         instagramLink,
         websiteLink,
         youtubeId,
+        linkPortfolio,
       })
       .where(eq(groups.id, id))
       .returning();
@@ -1641,6 +1652,7 @@ export async function updateGroup(formData: FormData) {
         name,
         generalDirectorProfile,
         artisticDirectorProfile,
+        musicalDirectorProfile,
         address,
         description,
         groupId: currentGroup.id,
@@ -1652,6 +1664,7 @@ export async function updateGroup(formData: FormData) {
           "name",
           "generalDirectorProfile",
           "artisticDirectorProfile",
+          "musicalDirectorProfile",
           "address",
           "description",
         ]),

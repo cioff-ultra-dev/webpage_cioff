@@ -566,14 +566,12 @@ export const groups = pgTable("groups", {
   artisticDirectorPhoto: text("artistic_director_photo"),
   musicalDirectorName: text("musical_director_name"),
   musicalDirectorPhoto: text("musical_director_photo"),
-
   coverPhotoId: integer("cover_photo_id").references(() => storages.id),
   logoId: integer("logo_id").references(() => storages.id),
   facebookLink: text("facebook_link"),
   instagramLink: text("instagram_link"),
   websiteLink: text("website_link"),
   youtubeId: text("youtube_id"),
-
   isAbleTravel: boolean("is_able_travel").default(false),
   isAbleTravelLiveMusic: boolean("is_able_travel_live_music").default(false),
   specificTravelDateFrom: date("specific_start_date", {
@@ -594,6 +592,7 @@ export const groups = pgTable("groups", {
   musicalDirectorPhotoId: integer("musical_director_photo_id").references(
     () => storages.id
   ),
+  linkPortfolio: text("link_portfolio"),
   nsId: integer("ns_id").references(() => nationalSections.id),
   countryId: integer("country_id").references(() => countries.id),
   certificationMemberId: integer("certification_member_id").references(

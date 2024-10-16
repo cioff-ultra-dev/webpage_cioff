@@ -85,11 +85,11 @@ const globalGroupSchema = insertGroupSchema.extend({
     .refine((item) => item instanceof File || typeof item === "undefined", {
       params: { i18n: "file_required" },
     }),
-  // _musicalDirectorPhoto: z
-  //   .any()
-  //   .refine((item) => item instanceof File || typeof item === "undefined", {
-  //     params: { i18n: "file_required" },
-  //   }),
+  _musicalDirectorPhoto: z
+    .any()
+    .refine((item) => item instanceof File || typeof item === "undefined", {
+      params: { i18n: "file_required" },
+    }),
   _isAbleToTravel: z.boolean().optional(),
   _isAbleToTravelToLiveMusic: z.boolean().optional(),
   _specificDate: z
@@ -330,6 +330,7 @@ export default function GroupForm({
       id: currentGroup?.id ?? 0,
       generalDirectorName: currentGroup?.generalDirectorName || "",
       artisticDirectorName: currentGroup?.artisticDirectorName || "",
+      musicalDirectorName: currentGroup?.musicalDirectorName || "",
       phone: currentGroup?.phone || "",
       _groupAge: currentCategoriesSelected?.filter((item) => {
         return ageGroups.some((category) => category.id === Number(item));
@@ -357,6 +358,7 @@ export default function GroupForm({
         description: currentLang?.description || undefined,
         generalDirectorProfile: currentLang?.generalDirectorProfile || "",
         artisticDirectorProfile: currentLang?.artisticDirectorProfile || "",
+        musicalDirectorProfile: currentLang?.musicalDirectorProfile || "",
       },
       _subgroups: currentGroup?.subgroups.map((item) => {
         return {
@@ -685,7 +687,7 @@ export default function GroupForm({
                 </div>
 
                 {/* Musical Director */}
-                {/* <div className="space-y-2">
+                <div className="space-y-2">
                   <FormField
                     control={form.control}
                     name={"musicalDirectorName"}
@@ -763,7 +765,7 @@ export default function GroupForm({
                       </FormItem>
                     )}
                   />
-                </div> */}
+                </div>
 
                 <div className="space-y-2">
                   <FormField
@@ -1608,16 +1610,6 @@ export default function GroupForm({
                       <X className="h-4 w-4" />
                     </Button> */}
                     <div className="space-y-2">
-                      {/* <Label htmlFor={`section${item.id}Name`}>
-                        Section {index + 1} Name
-                      </Label>
-                      <Input
-                        id={`section${item.id}Name`}
-                        value={item.name}
-                        onChange={(e) =>
-                          updateRepertoireItem(item.id, "name", e.target.value)
-                        }
-                      /> */}
                       <FormField
                         control={form.control}
                         name={`_repertories.${index}._lang.name`}
@@ -1727,27 +1719,57 @@ export default function GroupForm({
               </CardContent>
             </Card>
 
-            {/* <Card>
+            <Card>
               <CardHeader>
                 <CardTitle>Additional Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="groupPortfolio">
-                    Upload group portfolio/brochure
-                  </Label>
-                  <Input
-                    id="groupPortfolio"
-                    type="file"
-                    accept=".pdf"
-                    disabled={isNSAccount}
+                  <FormField
+                    control={form.control}
+                    name="linkPortfolio"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Upload group portfolio/brochure</FormLabel>
+                        <FormControl>
+                          <Input
+                            ref={field.ref}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            value={field.value ?? ""}
+                            name={field.name}
+                            disabled={isNSAccount}
+                            placeholder="Provide the link of your portfolio/brochure"
+                          />
+                        </FormControl>
+                        <FormDescription>Only PDF - max 10MB</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                  <p className="text-sm text-muted-foreground">
-                    Only PDF - max 10MB
-                  </p>
                 </div>
               </CardContent>
-            </Card> */}
+            </Card>
+            {isNSAccount ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recognition Certification</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="recognitionCertificate">
+                      Upload recognition certificate
+                    </Label>
+                    <Input
+                      id="recognitionCertificate"
+                      name="recognitionCertificate"
+                      type="file"
+                      disabled={isNSAccount}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            ) : null}
           </div>
           {!isNSAccount ? (
             <div className="sticky bottom-5 mt-4 right-0 flex justify-end px-4">

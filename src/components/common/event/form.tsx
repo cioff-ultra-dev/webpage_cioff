@@ -2298,24 +2298,26 @@ export default function EventForm({
                 ) : null}
               </CardContent>
             </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Recognition Certification</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="recognitionCertificate">
-                    Upload recognition certificate
-                  </Label>
-                  <Input
-                    id="recognitionCertificate"
-                    name="recognitionCertificate"
-                    type="file"
-                    disabled={isNSAccount}
-                  />
-                </div>
-              </CardContent>
-            </Card>
+            {isNSAccount ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recognition Certification</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="recognitionCertificate">
+                      Upload recognition certificate
+                    </Label>
+                    <Input
+                      id="recognitionCertificate"
+                      name="recognitionCertificate"
+                      type="file"
+                      disabled={isNSAccount}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            ) : null}
             {!isNSAccount ? (
               <div className="sticky bottom-5 right-0 flex justify-end px-4">
                 <Card className="flex justify-end gap-4 w-full">

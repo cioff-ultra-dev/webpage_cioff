@@ -253,6 +253,13 @@
       "when": 1729080185924,
       "tag": "0032_tan_talos",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1729083742230,
+      "tag": "0033_fantastic_blue_shield",
+      "breakpoints": true
     }
   ]
 }
