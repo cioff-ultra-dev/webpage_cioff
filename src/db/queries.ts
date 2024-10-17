@@ -49,5 +49,3 @@ export async function deleteUser(id: SelectUser["id"]) {
     deletedName: users.name,
   });
 }
-
-export async function bulkInsertUsers(users: InsertUser[]) {}
