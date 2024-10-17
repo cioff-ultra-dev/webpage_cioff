@@ -28,6 +28,7 @@ export default auth(async (req) => {
     response.headers.set("x-current-path", req.nextUrl.pathname);
     return response;
   }
+
   return NextResponse.next({ headers, request: { headers } });
 });
 
