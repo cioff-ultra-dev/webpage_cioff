@@ -1,3 +1,4 @@
+import { showHomePage } from "@/flags";
 import type { NextAuthConfig } from "next-auth";
 
 export const authConfig = {
@@ -5,10 +6,11 @@ export const authConfig = {
     signIn: "/login",
   },
   callbacks: {
-    authorized({ auth, request: { nextUrl, url } }) {
+    async authorized({ auth, request: { nextUrl, url } }) {
       const isLoggedIn = !!auth?.user;
       const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
       const isLoginPage = nextUrl.pathname === "/login";
+      const homepage = await showHomePage();
 
       if (isLoggedIn && nextUrl.pathname === "/") {
         return Response.redirect(new URL("/dashboard", url));
@@ -19,7 +21,9 @@ export const authConfig = {
         return Response.redirect(new URL("/login", url));
       }
 
-      if (!isLoggedIn && !isLoginPage) {
+      console.log({ homepage });
+
+      if (!isLoggedIn && !isLoginPage && !homepage) {
         return Response.redirect(new URL("/login", url));
       }
 
