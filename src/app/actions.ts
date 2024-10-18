@@ -66,22 +66,25 @@ const preparedLanguagesByCode = db.query.languages
 
 const buildConflictUpdateColumns = <
   T extends PgTable,
-  Q extends keyof T["_"]["columns"]
+  Q extends keyof T["_"]["columns"],
 >(
   table: T,
-  columns: Q[]
+  columns: Q[],
 ) => {
   const cls = getTableColumns(table);
-  return columns.reduce((acc, column) => {
-    const colName = cls[column].name;
-    acc[column] = sql.raw(`excluded.${colName}`);
-    return acc;
-  }, {} as Record<Q, SQL>);
+  return columns.reduce(
+    (acc, column) => {
+      const colName = cls[column].name;
+      acc[column] = sql.raw(`excluded.${colName}`);
+      return acc;
+    },
+    {} as Record<Q, SQL>,
+  );
 };
 
 export async function uploadFile(
   file: File,
-  tx: Parameters<Parameters<typeof db.transaction>[0]>[0]
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
 ) {
   if (!file || file?.size === 0) {
     return undefined;
@@ -101,7 +104,7 @@ export async function uploadFile(
 
 export async function authenticate(
   _prevState: string | undefined,
-  formData: FormData
+  formData: FormData,
 ) {
   formData.set("redirectTo", "/dashboard");
   try {
@@ -268,23 +271,23 @@ export async function updateNationalSection(formData: FormData) {
         const email = formData.get(`_positions.${index}.email`) as string;
         const phone = formData.get(`_positions.${index}.phone`) as string;
         const positionLangId = Number(
-          formData.get(`_positions.${index}._lang.id`)
+          formData.get(`_positions.${index}._lang.id`),
         );
         const typeId = Number(formData.get(`_positions.${index}._type`));
         const otherMemberName = formData.get(
-          `_positions.${index}._lang.otherMemberName`
+          `_positions.${index}._lang.otherMemberName`,
         ) as string;
         const shortBio = formData.get(
-          `_positions.${index}._lang.shortBio`
+          `_positions.${index}._lang.shortBio`,
         ) as string;
         const photo = formData.get(`_positions.${index}._photo`) as File;
         const isHonorable =
           (formData.get(`_positions.${index}._isHonorable`) as string) === "on";
         const birthDate = formData.get(
-          `_positions.${index}._birthDate`
+          `_positions.${index}._birthDate`,
         ) as string;
         const deathDate = formData.get(
-          `_positions.${index}._deathDate`
+          `_positions.${index}._deathDate`,
         ) as string;
 
         const storagePhotoId = await uploadFile(photo, tx);
@@ -352,11 +355,11 @@ export async function updateNationalSection(formData: FormData) {
         const id = Number(formData.get(`_events.${index}.id`));
         const name = formData.get(`_events.${index}._lang.name`) as string;
         const description = formData.get(
-          `_events.${index}._lang.description`
+          `_events.${index}._lang.description`,
         ) as string;
         const eventLangId = Number(formData.get(`_events.${index}._lang.id`));
         const fromDate = formData.get(
-          `_events.${index}._rangeDate.from`
+          `_events.${index}._rangeDate.from`,
         ) as string;
         const toDate = formData.get(`_events.${index}._rangeDate.to`) as string;
 
@@ -408,16 +411,16 @@ export async function updateNationalSection(formData: FormData) {
         const name = formData.get(`_festivals.${index}._lang.name`) as string;
         const email = formData.get(`_festivals.${index}.email`) as string;
         const festivalLangId = Number(
-          formData.get(`_festivals.${index}._lang.id`)
+          formData.get(`_festivals.${index}._lang.id`),
         );
         const ownerId = Number(formData.get(`_festivals.${index}.ownerId`));
         const certificationFile = formData.get(
-          `_festivals.${index}.certificationFile`
+          `_festivals.${index}.certificationFile`,
         ) as File;
 
         const storageCertificationFileId = await uploadFile(
           certificationFile,
-          tx
+          tx,
         );
 
         const role = await tx.query.roles.findFirst({
@@ -453,8 +456,8 @@ export async function updateNationalSection(formData: FormData) {
             .where(
               and(
                 eq(emailTemplates.lang, currentCountry?.nativeLang! ?? 1),
-                eq(emailTemplates.tag, "festival-group")
-              )
+                eq(emailTemplates.tag, "festival-group"),
+              ),
             );
 
           const message = replaceTags(emailTemplate.template, {
@@ -531,12 +534,12 @@ export async function updateNationalSection(formData: FormData) {
         const groupLangId = Number(formData.get(`_groups.${index}._lang.id`));
         const ownerId = Number(formData.get(`_groups.${index}.ownerId`));
         const certificationFile = formData.get(
-          `_groups.${index}.certificationFile`
+          `_groups.${index}.certificationFile`,
         ) as File;
 
         const storageCertificationFileId = await uploadFile(
           certificationFile,
-          tx
+          tx,
         );
 
         const role = await tx.query.roles.findFirst({
@@ -569,8 +572,8 @@ export async function updateNationalSection(formData: FormData) {
             .where(
               and(
                 eq(emailTemplates.lang, currentCountry?.nativeLang! ?? 1),
-                eq(emailTemplates.tag, "festival-group")
-              )
+                eq(emailTemplates.tag, "festival-group"),
+              ),
             );
 
           const message = replaceTags(emailTemplate.template, {
@@ -664,12 +667,12 @@ export async function createNationalSection(formData: FormData) {
       const name = formData.get(`_festivals.${index}.name`) as string;
       const email = formData.get(`_festivals.${index}.email`) as string;
       const certificationFile = formData.get(
-        `_festivals.${index}.certificationFile`
+        `_festivals.${index}.certificationFile`,
       ) as File;
 
       const storageCertificationFileId = await uploadFile(
         certificationFile,
-        tx
+        tx,
       );
 
       const role = await tx.query.roles.findFirst({
@@ -702,8 +705,8 @@ export async function createNationalSection(formData: FormData) {
           .where(
             and(
               eq(emailTemplates.lang, currentCountry?.nativeLang! ?? 1),
-              eq(emailTemplates.tag, "festival-group")
-            )
+              eq(emailTemplates.tag, "festival-group"),
+            ),
           );
 
         const message = replaceTags(emailTemplate.template, {
@@ -711,7 +714,7 @@ export async function createNationalSection(formData: FormData) {
           // password: password,
           email: user.email,
           url: `<a target="_blank" href="${process.env.HOSTNAME_URL}/login">${t(
-            "email.login_to"
+            "email.login_to",
           )}</a>`,
         });
 
@@ -737,12 +740,12 @@ export async function createNationalSection(formData: FormData) {
       const name = formData.get(`_groups.${index}.name`) as string;
       const email = formData.get(`_groups.${index}.email`) as string;
       const certificationFile = formData.get(
-        `_groups.${index}.certificationFile`
+        `_groups.${index}.certificationFile`,
       ) as File;
 
       const storageCertificationFileId = await uploadFile(
         certificationFile,
-        tx
+        tx,
       );
 
       const role = await tx.query.roles.findFirst({
@@ -775,15 +778,15 @@ export async function createNationalSection(formData: FormData) {
           .where(
             and(
               eq(emailTemplates.lang, currentCountry?.nativeLang! ?? 1),
-              eq(emailTemplates.tag, "festival-group")
-            )
+              eq(emailTemplates.tag, "festival-group"),
+            ),
           );
 
         const message = replaceTags(emailTemplate.template, {
           name: name,
           // password: password,
           url: `<a target="_blank" href="${process.env.HOSTNAME_URL}/login">${t(
-            "email.login_to"
+            "email.login_to",
           )}</a>`,
         });
 
@@ -874,7 +877,7 @@ export async function generateFestival(formData: FormData) {
           where(fields, operators) {
             return operators.and(
               operators.eq(fields.nsId, nsId),
-              operators.eq(fields.lang, currentCountry?.nativeLang ?? 1)
+              operators.eq(fields.lang, currentCountry?.nativeLang ?? 1),
             );
           },
         });
@@ -885,8 +888,8 @@ export async function generateFestival(formData: FormData) {
           .where(
             and(
               eq(videoTutorialLinks.lang, currentCountry?.nativeLang! ?? 1),
-              eq(videoTutorialLinks.role, role?.id!)
-            )
+              eq(videoTutorialLinks.role, role?.id!),
+            ),
           );
 
         const [emailTemplate] = await db
@@ -895,14 +898,14 @@ export async function generateFestival(formData: FormData) {
           .where(
             and(
               eq(emailTemplates.lang, currentCountry?.nativeLang! ?? 1),
-              eq(emailTemplates.tag, "festival-group")
-            )
+              eq(emailTemplates.tag, "festival-group"),
+            ),
           );
         const message = replaceTags(emailTemplate.template, {
           name: name,
           password: password,
           url: `<a target="_blank" href="${process.env.HOSTNAME_URL}/login">${t(
-            "email.login_to"
+            "email.login_to",
           )}</a>`,
           email: user.email,
           video: `<a target="_blank" href="${video.link}">Video</a>`,
@@ -1004,7 +1007,7 @@ export async function generateGroup(formData: FormData) {
           where(fields, operators) {
             return operators.and(
               operators.eq(fields.nsId, nsId),
-              operators.eq(fields.lang, currentCountry?.nativeLang ?? 1)
+              operators.eq(fields.lang, currentCountry?.nativeLang ?? 1),
             );
           },
         });
@@ -1015,8 +1018,8 @@ export async function generateGroup(formData: FormData) {
           .where(
             and(
               eq(videoTutorialLinks.lang, currentCountry?.nativeLang! ?? 1),
-              eq(videoTutorialLinks.role, role?.id!)
-            )
+              eq(videoTutorialLinks.role, role?.id!),
+            ),
           );
 
         const [emailTemplate] = await db
@@ -1025,15 +1028,15 @@ export async function generateGroup(formData: FormData) {
           .where(
             and(
               eq(emailTemplates.lang, currentCountry?.nativeLang! ?? 1),
-              eq(emailTemplates.tag, "festival-group")
-            )
+              eq(emailTemplates.tag, "festival-group"),
+            ),
           );
 
         const message = replaceTags(emailTemplate.template, {
           name: name,
           password: password,
           url: `<a target="_blank" href="${process.env.HOSTNAME_URL}/login">${t(
-            "email.login_to"
+            "email.login_to",
           )}</a>`,
           email: user.email,
           video: `<a target="_blank" href="${video.link}">Video</a>`,
@@ -1160,7 +1163,7 @@ export async function updatePasswordFields(formData: FormData) {
 
       const isMatchPassword = await isSamePassword(
         currentPassword,
-        currentUser?.password!
+        currentUser?.password!,
       );
 
       if (!isMatchPassword) {
@@ -1209,10 +1212,10 @@ export async function updateFestival(formData: FormData) {
   const linkConditions = formData.get("linkConditions") as string;
   const statusId = Number((formData.get("_status") as string) ?? "") || null;
   const otherTranslatorLanguage = formData.get(
-    "_lang.otherTranslatorLanguage"
+    "_lang.otherTranslatorLanguage",
   ) as string;
   const groupCategories = JSON.parse(
-    (formData.get("groupCategories") as string) || ""
+    (formData.get("groupCategories") as string) || "",
   ) as string[];
 
   const socialId = Number(formData.get("socialId"));
@@ -1227,7 +1230,7 @@ export async function updateFestival(formData: FormData) {
 
   const transportLocationSize = Number(formData.get("_transportLocationSize"));
   const festivalListSelectedSize = Number(
-    formData.get("_festivalListSelectedSize")
+    formData.get("_festivalListSelectedSize"),
   );
   const groupListSelectedSize = Number(formData.get("_groupListSelectedSize"));
 
@@ -1235,12 +1238,16 @@ export async function updateFestival(formData: FormData) {
   const recognizedRange = formData.get("_recognizedRange") as string;
   const typeOfCompensation = formData.get("_typeOfCompensation") as string;
   const financialCompensation = formData.get(
-    "_financialCompensation"
+    "_financialCompensation",
   ) as string;
   const inKindCompensation = formData.get("_inKindCompensation") as string;
   const components = JSON.parse(
-    (formData.get("_components") as string) || "[]"
+    (formData.get("_components") as string) || "[]",
   ) as string[];
+
+  const cover = formData.get("coverPhoto") as File;
+
+  console.log(cover);
 
   const currentDates: InsertEvent[] = [];
   const currentTransportLocations: InsertTransportLocations[] = [];
@@ -1364,7 +1371,7 @@ export async function updateFestival(formData: FormData) {
           components.map((componentId) => ({
             componentId: Number(componentId),
             festivalId: currentFestival.id,
-          }))
+          })),
         );
       }
     }
@@ -1380,7 +1387,7 @@ export async function updateFestival(formData: FormData) {
         const lat = formData.get(`_transportLocations.${index}.lat`) as string;
         const lng = formData.get(`_transportLocations.${index}.lng`) as string;
         const location = formData.get(
-          `_transportLocations.${index}.location`
+          `_transportLocations.${index}.location`,
         ) as string;
 
         currentTransportLocations.push({
@@ -1450,10 +1457,10 @@ export async function updateFestival(formData: FormData) {
       for (let index = 0; index < currentDateSize; index++) {
         const id = Number(formData.get(`_currentDates.${index}._rangeDate.id`));
         const fromDate = formData.get(
-          `_currentDates.${index}._rangeDate.from`
+          `_currentDates.${index}._rangeDate.from`,
         ) as string;
         const toDate = formData.get(
-          `_currentDates.${index}._rangeDate.to`
+          `_currentDates.${index}._rangeDate.to`,
         ) as string;
 
         if (fromDate) {
@@ -1471,10 +1478,10 @@ export async function updateFestival(formData: FormData) {
       for (let index = 0; index < currentDateSize; index++) {
         const id = Number(formData.get(`_nextDates.${index}._rangeDate.id`));
         const fromDate = formData.get(
-          `_nextDates.${index}._rangeDate.from`
+          `_nextDates.${index}._rangeDate.from`,
         ) as string;
         const toDate = formData.get(
-          `_nextDates.${index}._rangeDate.to`
+          `_nextDates.${index}._rangeDate.to`,
         ) as string;
 
         if (fromDate) {
@@ -1507,7 +1514,7 @@ export async function updateFestival(formData: FormData) {
         groupCategories.map((categoryId) => ({
           categoryId: Number(categoryId),
           festivalId: currentFestival.id,
-        }))
+        })),
       );
     }
   });
@@ -1519,19 +1526,19 @@ export async function createGroup(prevState: unknown, formData: FormData) {
   const id = Number(formData.get("_id"));
   const generalDirectorName = formData.get("generalDirectorName") as string;
   const generalDirectorProfile = formData.get(
-    "generalDirectorProfile"
+    "generalDirectorProfile",
   ) as string;
   const generalDirectorPhoto = formData.get("_generalDirectorPhoto") as File;
 
   const artisticDirectorName = formData.get("artisticDirectorName") as string;
   const artisticDirectorProfile = formData.get(
-    "artisticDirectorProfile"
+    "artisticDirectorProfile",
   ) as string;
   const artisticDirectorPhoto = formData.get("_artisticDirectorPhoto") as File;
 
   const musicalDirectorName = formData.get("musicalDirectorName") as string;
   const musicalDirectorProfile = formData.get(
-    "musicalDirectorProfile"
+    "musicalDirectorProfile",
   ) as string;
   const musicalDirectorPhoto = formData.get("_musicalDirectorPhoto") as File;
 
@@ -1567,17 +1574,17 @@ export async function updateGroup(formData: FormData) {
   const description = formData.get("_lang.description") as string;
   const generalDirectorName = formData.get("generalDirectorName") as string;
   const generalDirectorProfile = formData.get(
-    "_lang.generalDirectorProfile"
+    "_lang.generalDirectorProfile",
   ) as string;
   const generalDirectorPhoto = formData.get("_generalDirectorPhoto") as File;
   const artisticDirectorName = formData.get("artisticDirectorName") as string;
   const artisticDirectorProfile = formData.get(
-    "_lang.artisticDirectorProfile"
+    "_lang.artisticDirectorProfile",
   ) as string;
   const artisticDirectorPhoto = formData.get("_artisticDirectorPhoto") as File;
   const musicalDirectorName = formData.get("musicalDirectorName") as string;
   const musicalDirectorProfile = formData.get(
-    "_lang.musicalDirectorProfile"
+    "_lang.musicalDirectorProfile",
   ) as string;
   const musicalDirectorPhoto = formData.get("_musicalDirectorPhoto") as File;
   const phone = formData.get("phone") as string;
@@ -1602,11 +1609,11 @@ export async function updateGroup(formData: FormData) {
   const repertorySize = Number(formData.get("_repertorySize"));
 
   const typeGroups = JSON.parse(
-    (formData.get("_typeOfGroup") as string) || "[]"
+    (formData.get("_typeOfGroup") as string) || "[]",
   );
   const groupAge = JSON.parse((formData.get("_groupAge") as string) || "[]");
   const styleGroup = JSON.parse(
-    (formData.get("_styleOfGroup") as string) || "[]"
+    (formData.get("_styleOfGroup") as string) || "[]",
   );
 
   const groupCategories = [...typeGroups, ...groupAge, ...styleGroup];
@@ -1676,22 +1683,22 @@ export async function updateGroup(formData: FormData) {
         const langId = Number(formData.get(`_subgroups.${index}._lang.id`));
         const name = formData.get(`_subgroups.${index}._lang.name`) as string;
         const membersNumber = Number(
-          formData.get(`_subgroups.${index}.membersNumber`) || ""
+          formData.get(`_subgroups.${index}.membersNumber`) || "",
         );
         const subgroupAge = JSON.parse(
-          (formData.get(`_subgroups.${index}._groupAge`) as string) || "[]"
+          (formData.get(`_subgroups.${index}._groupAge`) as string) || "[]",
         ) as string[];
         const hasAnotherContact =
           (formData.get(`_subgroups.${index}._hasAnotherContact`) as string) ===
           "on";
         const contactName = formData.get(
-          `_subgroups.${index}.contactName`
+          `_subgroups.${index}.contactName`,
         ) as string;
         const contactMail = formData.get(
-          `_subgroups.${index}.contactMail`
+          `_subgroups.${index}.contactMail`,
         ) as string;
         const contactPhone = formData.get(
-          `_subgroups.${index}.contactPhone`
+          `_subgroups.${index}.contactPhone`,
         ) as string;
 
         const [currentSubgroup] = await tx
@@ -1739,7 +1746,7 @@ export async function updateGroup(formData: FormData) {
             subgroupAge.map((categoryId) => ({
               categoryId: Number(categoryId),
               subgroupId: currentSubgroup.id,
-            }))
+            })),
           );
         }
 
@@ -1758,10 +1765,10 @@ export async function updateGroup(formData: FormData) {
         const langId = Number(formData.get(`_repertories.${index}._lang.id`));
         const name = formData.get(`_repertories.${index}._lang.name`) as string;
         const description = formData.get(
-          `_repertories.${index}._lang.description`
+          `_repertories.${index}._lang.description`,
         ) as string;
         const youtubeId = formData.get(
-          `_repertories.${index}.youtubeId`
+          `_repertories.${index}.youtubeId`,
         ) as string;
 
         const [currentRepertory] = await tx
@@ -1805,7 +1812,7 @@ export async function updateGroup(formData: FormData) {
         groupCategories.map((categoryId) => ({
           categoryId: Number(categoryId),
           groupId: currentGroup.id,
-        }))
+        })),
       );
     }
   });
