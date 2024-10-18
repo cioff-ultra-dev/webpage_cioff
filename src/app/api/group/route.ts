@@ -1,4 +1,3 @@
-import { buildFestival } from "@/db/queries/events";
 import { buildGroup } from "@/db/queries/groups";
 import { NextRequest } from "next/server";
 

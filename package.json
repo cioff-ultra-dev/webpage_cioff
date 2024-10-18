@@ -13,6 +13,7 @@
     "@auth/drizzle-adapter": "^1.5.0",
     "@codejamboree/replace-tags": "^1.2.2",
     "@formatjs/intl-localematcher": "^0.5.4",
+    "@google-cloud/translate": "^8.5.0",
     "@googlemaps/markerclusterer": "^2.5.3",
     "@hookform/resolvers": "^3.9.0",
     "@next/env": "^14.2.5",
