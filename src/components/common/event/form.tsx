@@ -1943,6 +1943,7 @@ export default function EventForm({
                       id="youtubeId"
                       name="youtubeId"
                       placeholder="YouTube Link"
+                      defaultValue={currentFestival?.youtubeId ?? undefined}
                       disabled={isNSAccount}
                     />
                   </div>

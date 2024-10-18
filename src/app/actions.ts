@@ -1247,8 +1247,6 @@ export async function updateFestival(formData: FormData) {
 
   const cover = formData.get("coverPhoto") as File;
 
-  console.log(cover);
-
   const currentDates: InsertEvent[] = [];
   const currentTransportLocations: InsertTransportLocations[] = [];
   const currentFestivalToConnected: InsertFestivalToConnected[] = [];
@@ -1258,6 +1256,10 @@ export async function updateFestival(formData: FormData) {
   const t = await getTranslations("notification");
 
   await db.transaction(async (tx) => {
+    const coverPhotoId = await uploadFile(cover, tx);
+
+    console.log({ coverPhotoId });
+
     const [currentFestival] = await tx
       .insert(festivals)
       .values({
@@ -1272,6 +1274,7 @@ export async function updateFestival(formData: FormData) {
         lng,
         regionForGroupsId,
         linkConditions,
+        coverId: coverPhotoId,
       })
       .onConflictDoUpdate({
         target: festivals.id,
@@ -1286,6 +1289,7 @@ export async function updateFestival(formData: FormData) {
           "statusId",
           "regionForGroupsId",
           "linkConditions",
+          "coverId",
         ]),
       })
       .returning();
