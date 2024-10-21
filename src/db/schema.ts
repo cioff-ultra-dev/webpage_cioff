@@ -5,7 +5,6 @@ import {
   date,
   integer,
   pgEnum,
-  pgSchema,
   pgTable,
   primaryKey,
   serial,
@@ -120,6 +119,21 @@ export const statusesLang = pgTable("statuses_lang", {
   id: serial("id").primaryKey(),
   name: text("name"),
   statusId: integer("status_id").references(() => statuses.id),
+  lang: integer("lang_id").references(() => languages.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const components = pgTable("components", {
+  id: serial("id").primaryKey(),
+  name: text("name"),
+  slug: text("slug"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const componentsLang = pgTable("components_lang", {
+  id: serial("id").primaryKey(),
+  name: text("name"),
+  componentId: integer("component_id").references(() => components.id),
   lang: integer("lang_id").references(() => languages.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
@@ -383,6 +397,15 @@ export const categoriesLang = pgTable("categories_lang", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
+export const transportLocations = pgTable("transport_locations", {
+  id: serial("id").primaryKey(),
+  location: text("location"),
+  lat: text("lat"),
+  lng: text("lng"),
+  festivalId: integer("festival_id").references(() => festivals.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
 export const festivals = pgTable("festivals", {
   id: serial("id").primaryKey(),
   slug: text("slug").default(""),
@@ -403,6 +426,7 @@ export const festivals = pgTable("festivals", {
   directorName: text("director_name").notNull().default(""),
   categories: text("categories"),
   published: boolean("publish"),
+  linkConditions: text("link_conditions"),
   statusId: integer("status_id").references(() => statuses.id),
   nsId: integer("ns_id").references(() => nationalSections.id),
   certificationMemberId: integer("certification_member_id").references(
@@ -411,6 +435,7 @@ export const festivals = pgTable("festivals", {
   socialMediaLinksId: integer("socia_media_links_id").references(
     () => socialMediaLinks.id,
   ),
+  regionForGroupsId: integer("region_for_groups").references(() => regions.id),
   countryId: integer("country_id").references(() => countries.id),
   logoId: integer("logo_id").references(() => storages.id),
   coverId: integer("cover_id").references(() => storages.id),
@@ -437,6 +462,13 @@ export const festivalPhotos = pgTable("festival_photos", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
+export const festivalStagePhotos = pgTable("festival_stage_photos", {
+  id: serial("id").primaryKey(),
+  festivalId: integer("festival_id").references(() => festivals.id),
+  photoId: integer("photo_id").references(() => storages.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
 export const festivalToCategories = pgTable(
   "festival_to_categories",
   {
@@ -456,6 +488,11 @@ export const festivalsToStatuses = pgTable(
     statusId: integer("status_id").references(() => statuses.id),
     question: text("question"),
     answer: text("text"),
+    recognizedSince: text("recognized_since"),
+    recognizedRange: text("recognized_range"),
+    typeOfCompensation: text("type_of_compensation"),
+    financialCompensation: text("financial_compensation"),
+    inKindCompensation: text("in_kind_compnesation"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   },
@@ -463,6 +500,49 @@ export const festivalsToStatuses = pgTable(
     pk: primaryKey({ columns: [t.festivalId, t.statusId] }),
   }),
 );
+export const festivalsToComponents = pgTable(
+  "festival_to_components",
+  {
+    festivalId: integer("festival_id").references(() => festivals.id),
+    componentId: integer("component_id").references(() => components.id),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.festivalId, t.componentId] }),
+  }),
+);
+
+export const festivalsGroupToRegions = pgTable(
+  "festival_group_to_regions",
+  {
+    festivalId: integer("festival_id").references(() => festivals.id),
+    regionId: integer("region_id").references(() => regions.id),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.festivalId, t.regionId] }),
+  }),
+);
+export const festivalsToConnected = pgTable("festival_to_connected", {
+  id: serial("id").primaryKey(),
+  sourceFestivalId: integer("source_festival_id").references(
+    () => festivals.id,
+  ),
+  targetFestivalId: integer("target_component_id").references(
+    () => festivals.id,
+  ),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const festivalsToGroups = pgTable("festival_to_groups", {
+  id: serial("id").primaryKey(),
+  festivalId: integer("festival_id").references(() => festivals.id),
+  groupId: integer("group_id").references(() => groups.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
 export const events = pgTable("events", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull().default(""),
@@ -505,14 +585,12 @@ export const groups = pgTable("groups", {
   artisticDirectorPhoto: text("artistic_director_photo"),
   musicalDirectorName: text("musical_director_name"),
   musicalDirectorPhoto: text("musical_director_photo"),
-
   coverPhotoId: integer("cover_photo_id").references(() => storages.id),
   logoId: integer("logo_id").references(() => storages.id),
   facebookLink: text("facebook_link"),
   instagramLink: text("instagram_link"),
   websiteLink: text("website_link"),
   youtubeId: text("youtube_id"),
-
   isAbleTravel: boolean("is_able_travel").default(false),
   isAbleTravelLiveMusic: boolean("is_able_travel_live_music").default(false),
   specificTravelDateFrom: date("specific_start_date", {
@@ -533,6 +611,7 @@ export const groups = pgTable("groups", {
   musicalDirectorPhotoId: integer("musical_director_photo_id").references(
     () => storages.id,
   ),
+  linkPortfolio: text("link_portfolio"),
   nsId: integer("ns_id").references(() => nationalSections.id),
   countryId: integer("country_id").references(() => countries.id),
   certificationMemberId: integer("certification_member_id").references(
@@ -578,8 +657,10 @@ export const groupToCategories = pgTable(
 export const subgroups = pgTable("subgroups", {
   id: serial("id").primaryKey(),
   membersNumber: integer("members_number"),
+  hasAnotherContact: boolean("has_another_contact").default(false),
   contactName: text("contact_name"),
   contactPhone: text("contact_phone"),
+  contactMail: text("contact_mail"),
   groupId: integer("group_id").references(() => groups.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
@@ -589,6 +670,7 @@ export const subgroupsLang = pgTable("subgroups_lang", {
   name: text("name"),
   contactAddress: text("contact_address"),
   subgroupId: integer("subgroup_id").references(() => subgroups.id),
+  lang: integer("lang").references(() => languages.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -604,6 +686,30 @@ export const subgroupToCategories = pgTable(
     pk: primaryKey({ columns: [t.subgroupId, t.categoryId] }),
   }),
 );
+export const groupPhotos = pgTable("group_photos", {
+  id: serial("id").primaryKey(),
+  groupId: integer("group_id").references(() => groups.id),
+  photoId: integer("photo_id").references(() => storages.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const repertories = pgTable("repertories", {
+  id: serial("id").primaryKey(),
+  gallery: text("gallery"),
+  youtubeId: text("youtube_id"),
+  groupId: integer("group_id").references(() => groups.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const repertoriesLang = pgTable("repertories_lang", {
+  id: serial("id").primaryKey(),
+  name: text("name"),
+  description: text("description"),
+  repertoryId: integer("repertory_id").references(() => repertories.id),
+  lang: integer("lang").references(() => languages.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
 
 /*
 8. TIMELINE
@@ -1087,6 +1193,14 @@ export const userRelations = relations(users, ({ one }) => ({
 
 export const festivalRelations = relations(festivals, ({ many, one }) => ({
   festivalsToCategories: many(festivalToCategories),
+  festivalsToStatuses: many(festivalsToStatuses),
+  festivalsToComponents: many(festivalsToComponents),
+  festivalsGroupToRegions: many(festivalsGroupToRegions),
+  festivalsToGroups: many(festivalsToGroups),
+  connections: many(festivalsToConnected, { relationName: "source" }),
+  target: many(festivalsToConnected, { relationName: "target" }),
+  photos: many(festivalPhotos),
+  stagePhotos: many(festivalStagePhotos),
   country: one(countries, {
     fields: [festivals.countryId],
     references: [countries.id],
@@ -1103,10 +1217,33 @@ export const festivalRelations = relations(festivals, ({ many, one }) => ({
     fields: [festivals.socialMediaLinksId],
     references: [socialMediaLinks.id],
   }),
+  transports: many(transportLocations),
   langs: many(festivalsLang),
   owners: many(owners),
   events: many(events),
+  coverPhoto: one(storages, {
+    fields: [festivals.coverId],
+    references: [storages.id],
+  }),
+  logo: one(storages, {
+    fields: [festivals.logoId],
+    references: [storages.id],
+  }),
+  certification: one(storages, {
+    fields: [festivals.logoId],
+    references: [storages.id],
+  }),
 }));
+
+export const transportLocationRelations = relations(
+  transportLocations,
+  ({ one }) => ({
+    festival: one(festivals, {
+      fields: [transportLocations.festivalId],
+      references: [festivals.id],
+    }),
+  }),
+);
 
 export const festivalLangRelations = relations(festivalsLang, ({ one }) => ({
   festival: one(festivals, {
@@ -1148,6 +1285,18 @@ export const categoryGroupsRealtions = relations(
 
 export const countriesRelations = relations(countries, ({ many }) => ({
   festivals: many(festivals),
+  langs: many(countriesLang),
+}));
+
+export const countriesLangRelations = relations(countriesLang, ({ one }) => ({
+  country: one(countries, {
+    fields: [countriesLang.countryId],
+    references: [countries.id],
+  }),
+  l: one(languages, {
+    fields: [countriesLang.lang],
+    references: [languages.id],
+  }),
 }));
 
 export const festivalsToCategoriesRelations = relations(
@@ -1164,6 +1313,130 @@ export const festivalsToCategoriesRelations = relations(
   }),
 );
 
+export const festivalPhotosRelations = relations(festivalPhotos, ({ one }) => ({
+  festival: one(festivals, {
+    fields: [festivalPhotos.festivalId],
+    references: [festivals.id],
+  }),
+  photo: one(storages, {
+    fields: [festivalPhotos.photoId],
+    references: [storages.id],
+  }),
+}));
+
+export const groupPhotosRelations = relations(groupPhotos, ({ one }) => ({
+  group: one(groups, {
+    fields: [groupPhotos.groupId],
+    references: [groups.id],
+  }),
+  photo: one(storages, {
+    fields: [groupPhotos.photoId],
+    references: [storages.id],
+  }),
+}));
+
+export const festivalStagePhotosRelations = relations(
+  festivalStagePhotos,
+  ({ one }) => ({
+    festival: one(festivals, {
+      fields: [festivalStagePhotos.festivalId],
+      references: [festivals.id],
+    }),
+    photo: one(storages, {
+      fields: [festivalStagePhotos.photoId],
+      references: [storages.id],
+    }),
+  }),
+);
+
+export const festivalsToStatusesRelations = relations(
+  festivalsToStatuses,
+  ({ one }) => ({
+    festival: one(festivals, {
+      fields: [festivalsToStatuses.festivalId],
+      references: [festivals.id],
+    }),
+    status: one(statuses, {
+      fields: [festivalsToStatuses.statusId],
+      references: [statuses.id],
+    }),
+  }),
+);
+
+export const festivalsToComponentsRelations = relations(
+  festivalsToComponents,
+  ({ one }) => ({
+    festival: one(festivals, {
+      fields: [festivalsToComponents.festivalId],
+      references: [festivals.id],
+    }),
+    component: one(components, {
+      fields: [festivalsToComponents.componentId],
+      references: [components.id],
+    }),
+  }),
+);
+
+export const festivalsGroupToRegionsRelations = relations(
+  festivalsGroupToRegions,
+  ({ one }) => ({
+    festival: one(festivals, {
+      fields: [festivalsGroupToRegions.festivalId],
+      references: [festivals.id],
+    }),
+    region: one(regions, {
+      fields: [festivalsGroupToRegions.regionId],
+      references: [regions.id],
+    }),
+  }),
+);
+
+export const festivalsToConnectedRelations = relations(
+  festivalsToConnected,
+  ({ one }) => ({
+    source: one(festivals, {
+      fields: [festivalsToConnected.sourceFestivalId],
+      references: [festivals.id],
+      relationName: "source",
+    }),
+    target: one(festivals, {
+      fields: [festivalsToConnected.targetFestivalId],
+      references: [festivals.id],
+      relationName: "target",
+    }),
+  }),
+);
+
+export const festivalsToGroupsRelations = relations(
+  festivalsToGroups,
+  ({ one }) => ({
+    festival: one(festivals, {
+      fields: [festivalsToGroups.festivalId],
+      references: [festivals.id],
+    }),
+    group: one(groups, {
+      fields: [festivalsToGroups.groupId],
+      references: [groups.id],
+    }),
+  }),
+);
+
+export const componentRelations = relations(components, ({ many }) => ({
+  festivalsToComponents: many(festivalsToComponents),
+  langs: many(componentsLang),
+}));
+
+export const componentLangRelations = relations(componentsLang, ({ one }) => ({
+  component: one(components, {
+    fields: [componentsLang.componentId],
+    references: [components.id],
+  }),
+  l: one(languages, {
+    fields: [componentsLang.lang],
+    references: [languages.id],
+  }),
+}));
+
 export const groupsRelations = relations(groups, ({ one, many }) => ({
   country: one(countries, {
     fields: [groups.countryId],
@@ -1173,6 +1446,14 @@ export const groupsRelations = relations(groups, ({ one, many }) => ({
     fields: [groups.generalDirectorPhotoId],
     references: [storages.id],
   }),
+  artisticPhoto: one(storages, {
+    fields: [groups.artisticDirectorPhotoId],
+    references: [storages.id],
+  }),
+  musicalPhoto: one(storages, {
+    fields: [groups.musicalDirectorPhotoId],
+    references: [storages.id],
+  }),
   ns: one(nationalSections, {
     fields: [groups.nsId],
     references: [nationalSections.id],
@@ -1180,6 +1461,18 @@ export const groupsRelations = relations(groups, ({ one, many }) => ({
   langs: many(groupsLang),
   owners: many(owners),
   groupToCategories: many(groupToCategories),
+  festivalsToGroups: many(festivalsToGroups),
+  subgroups: many(subgroups),
+  repertories: many(repertories),
+  photos: many(groupPhotos),
+  coverPhoto: one(storages, {
+    fields: [groups.coverPhotoId],
+    references: [storages.id],
+  }),
+  logo: one(storages, {
+    fields: [groups.logoId],
+    references: [storages.id],
+  }),
 }));
 
 export const groupLangRelations = relations(groupsLang, ({ one }) => ({
@@ -1248,6 +1541,10 @@ export const nationalSectionPositionRelations = relations(
     type: one(typePosition, {
       fields: [nationalSectionsPositions.typePositionId],
       references: [typePosition.id],
+    }),
+    photo: one(storages, {
+      fields: [nationalSectionsPositions.photoId],
+      references: [storages.id],
     }),
   }),
 );
@@ -1327,6 +1624,7 @@ export const eventLangRelations = relations(eventsLang, ({ one }) => ({
 
 export const statusRelations = relations(statuses, ({ many }) => ({
   festivals: many(festivals),
+  festivalsToStatuses: many(festivalsToStatuses),
 }));
 
 export const typePositionRelations = relations(typePosition, ({ many }) => ({
@@ -1348,7 +1646,7 @@ export const typePositionLangRelations = relations(
   }),
 );
 
-export const regionRelations = relations(regions, ({ one, many }) => ({
+export const regionRelations = relations(regions, ({ many }) => ({
   langs: many(regionsLang),
 }));
 
@@ -1362,6 +1660,62 @@ export const regionLangRelations = relations(regionsLang, ({ one }) => ({
     references: [languages.id],
   }),
 }));
+
+export const subgroupRelations = relations(subgroups, ({ many, one }) => ({
+  langs: many(subgroupsLang),
+  group: one(groups, {
+    fields: [subgroups.groupId],
+    references: [groups.id],
+  }),
+  subgroupsToCategories: many(subgroupToCategories),
+}));
+
+export const subgroupsLangRelations = relations(subgroupsLang, ({ one }) => ({
+  subgroup: one(subgroups, {
+    fields: [subgroupsLang.subgroupId],
+    references: [subgroups.id],
+  }),
+  l: one(languages, {
+    fields: [subgroupsLang.lang],
+    references: [languages.id],
+  }),
+}));
+
+export const repertoryRelations = relations(repertories, ({ many, one }) => ({
+  langs: many(repertoriesLang),
+  group: one(groups, {
+    fields: [repertories.groupId],
+    references: [groups.id],
+  }),
+}));
+
+export const repertoriesLangRelations = relations(
+  repertoriesLang,
+  ({ one }) => ({
+    repertory: one(repertories, {
+      fields: [repertoriesLang.repertoryId],
+      references: [repertories.id],
+    }),
+    l: one(languages, {
+      fields: [repertoriesLang.lang],
+      references: [languages.id],
+    }),
+  }),
+);
+
+export const subgroupsToCategoriesRelations = relations(
+  subgroupToCategories,
+  ({ one }) => ({
+    subgroup: one(subgroups, {
+      fields: [subgroupToCategories.subgroupId],
+      references: [subgroups.id],
+    }),
+    category: one(categories, {
+      fields: [subgroupToCategories.categoryId],
+      references: [categories.id],
+    }),
+  }),
+);
 
 /* Schema Zod  */
 
@@ -1412,6 +1766,7 @@ export const insertFestivalSchema = createInsertSchema(festivals, {
       },
       { params: { i18n: "invalid_phone_number" } },
     ),
+  linkConditions: (schema) => schema.linkConditions.url(),
 });
 
 export const insertFestivalLangSchema = createInsertSchema(festivalsLang, {
@@ -1524,6 +1879,16 @@ export const insertSubGroupSchema = createInsertSchema(subgroups);
 
 export const insertSubGroupLangSchema = createInsertSchema(subgroupsLang);
 
+export const insertRepertorySchema = createInsertSchema(repertories);
+
+export const insertRepertoryLangSchema = createInsertSchema(repertoriesLang);
+
+export const insertfestivalPhotosSchema = createInsertSchema(festivalPhotos);
+
+export const insertFestivalPhotosSchema = createInsertSchema(festivalPhotos);
+
+export const selectFestivalPhotosSchema = createSelectSchema(festivalPhotos);
+
 /* Infered Types */
 
 export type InsertUser = typeof users.$inferInsert;
@@ -1587,3 +1952,23 @@ export type InsertNationalSectionPositionsLang =
   typeof nationalSectionPositionsLang.$inferInsert;
 export type SelectNationalSectionPositionsLang =
   typeof nationalSectionPositionsLang.$inferSelect;
+
+export type InsertTransportLocations = typeof transportLocations.$inferInsert;
+export type SelectTransportLocations = typeof transportLocations.$inferSelect;
+
+export type InsertFestivalToConnected =
+  typeof festivalsToConnected.$inferInsert;
+export type SelectFestivalToConnected =
+  typeof festivalsToConnected.$inferSelect;
+
+export type InsertFestivalToGroups = typeof festivalsToGroups.$inferInsert;
+export type SelectFestivalToGroups = typeof festivalsToGroups.$inferSelect;
+
+export type InsertFestivalPhotos = typeof festivalPhotos.$inferInsert;
+export type SelectFestivalPhotos = typeof festivalPhotos.$inferSelect;
+
+export type InsertGroupPhotos = typeof groupPhotos.$inferInsert;
+export type SelectGroupPhotos = typeof groupPhotos.$inferSelect;
+
+export type InsertFestivalStagePhotos = typeof festivalStagePhotos.$inferInsert;
+export type SelectFestivalStagePhotos = typeof festivalStagePhotos.$inferSelect;

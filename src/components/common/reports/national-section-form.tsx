@@ -43,10 +43,11 @@ import { PlusCircle } from "lucide-react";
 import useSWRMutation from "swr/mutation";
 import { useRouter } from "next/navigation";
 import { customRevalidateTag } from "../revalidateTag";
+import { useTranslations } from "next-intl";
 
 async function insertReport(
   url: string,
-  { arg }: { arg: z.infer<typeof formReportNationalSectionSchema> }
+  { arg }: { arg: z.infer<typeof formReportNationalSectionSchema> },
 ) {
   return await fetch(url, {
     method: "POST",
@@ -62,7 +63,7 @@ export const formReportNationalSectionSchema =
     z.object({
       _activities: z.array(insertActivitySchema),
       _lang: insertReportNationalSectionLangSchema,
-    })
+    }),
   );
 
 function Submit({
@@ -96,6 +97,7 @@ export default function ReportNationalSectionForm({
 }) {
   const router = useRouter();
 
+  // React Hook Form + Zod + Shadcn
   const form = useForm<z.infer<typeof formReportNationalSectionSchema>>({
     resolver: zodResolver(formReportNationalSectionSchema),
     defaultValues: {
@@ -104,6 +106,8 @@ export default function ReportNationalSectionForm({
       _activities: [{}],
     },
   });
+
+  const t = useTranslations("form.festival");
 
   const { fields, append } = useFieldArray({
     control: form.control,
@@ -121,11 +125,11 @@ export default function ReportNationalSectionForm({
           console.log({ data });
         }
       },
-    }
+    },
   );
 
   async function onSubmit(
-    values: z.infer<typeof formReportNationalSectionSchema>
+    values: z.infer<typeof formReportNationalSectionSchema>,
   ) {
     trigger(values);
   }
@@ -135,6 +139,7 @@ export default function ReportNationalSectionForm({
       <h1 className="text-2xl font-bold">ADD A REPORT FROM NATIONAL SECTION</h1>
       <p className="text-sm text-muted-foreground pb-10">
         The fields with * are mandatory.
+        {t("directorName")}
       </p>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>

@@ -1,0 +1,2 @@
+ALTER TABLE "festival_to_connected" DROP CONSTRAINT "festival_to_connected_source_festival_id_target_component_id_pk";--> statement-breakpoint
+ALTER TABLE "festival_to_connected" ADD COLUMN "id" serial PRIMARY KEY NOT NULL;

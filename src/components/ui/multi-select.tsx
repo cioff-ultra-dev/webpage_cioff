@@ -81,6 +81,8 @@ export interface MultiSelectProps
   /** The default selected values when the component mounts. */
   defaultValue?: string[];
 
+  hideSelectedValues?: boolean;
+
   /**
    * Placeholder text to be displayed when no values are selected.
    * Optional, defaults to "Select options".
@@ -135,6 +137,7 @@ export const MultiSelect = React.forwardRef<
       modalPopover = false,
       asChild = false,
       className,
+      hideSelectedValues = false,
       ...props
     },
     ref
@@ -206,7 +209,7 @@ export const MultiSelect = React.forwardRef<
               className
             )}
           >
-            {selectedValues.length > 0 ? (
+            {selectedValues.length > 0 && !hideSelectedValues ? (
               <div className="flex justify-between items-center w-full">
                 <div className="flex flex-wrap items-center">
                   {selectedValues.slice(0, maxCount).map((value) => {

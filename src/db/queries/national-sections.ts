@@ -31,7 +31,7 @@ export async function getAllNationalSections(): Promise<
 
 export async function getNationalSectionBySlug(
   slug: SelectNationalSection["slug"],
-  currentLocale: string = defaultLocale as SelectLanguages["code"]
+  currentLocale: string = defaultLocale as SelectLanguages["code"],
 ) {
   const sq = db
     .select({ id: languages.id })
@@ -44,6 +44,7 @@ export async function getNationalSectionBySlug(
       positions: {
         with: {
           type: true,
+          photo: true,
           langs: {
             where(fields, { eq }) {
               return eq(fields.lang, sq);
@@ -128,7 +129,7 @@ export type NationalSectionDetailsType = Awaited<
 >;
 
 export async function getCurrentNationalSection(
-  countryId: SelectNationalSection["countryId"]
+  countryId: SelectNationalSection["countryId"],
 ) {
   return db.query.nationalSections.findFirst({
     where(fields, { eq }) {
