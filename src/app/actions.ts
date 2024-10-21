@@ -6,6 +6,7 @@ import {
   eventsLang,
   festivalPhotos,
   festivals,
+  festivalsGroupToRegions,
   festivalsLang,
   festivalStagePhotos,
   festivalsToComponents,
@@ -1342,6 +1343,10 @@ export async function updateFestival(formData: FormData) {
     (formData.get("_components") as string) || "[]",
   ) as string[];
 
+  const groupRegions = JSON.parse(
+    (formData.get("_groupRegions") as string) || "[]",
+  ) as string[];
+
   const cover = formData.get("coverPhoto") as string;
   const coverId = Number(formData.get("coverPhotoId"));
 
@@ -1393,7 +1398,6 @@ export async function updateFestival(formData: FormData) {
         statusId,
         lat,
         lng,
-        regionForGroupsId,
         linkConditions,
         coverId: coverNextId,
         logoId: logoNextId,
@@ -1413,7 +1417,6 @@ export async function updateFestival(formData: FormData) {
           "translatorLanguages",
           "peoples",
           "statusId",
-          "regionForGroupsId",
           "linkConditions",
           "coverId",
           "logoId",
@@ -1597,6 +1600,19 @@ export async function updateFestival(formData: FormData) {
           })),
         );
       }
+    }
+
+    if (groupRegions.length) {
+      await tx
+        .delete(festivalsGroupToRegions)
+        .where(eq(festivalsGroupToRegions.festivalId, currentFestival.id));
+
+      await tx.insert(festivalsGroupToRegions).values(
+        groupRegions.map((regionId) => ({
+          regionId: Number(regionId),
+          festivalId: currentFestival.id,
+        })),
+      );
     }
 
     if (transportLocationSize === 0) {

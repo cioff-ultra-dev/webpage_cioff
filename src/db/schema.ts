@@ -512,6 +512,19 @@ export const festivalsToComponents = pgTable(
     pk: primaryKey({ columns: [t.festivalId, t.componentId] }),
   }),
 );
+
+export const festivalsGroupToRegions = pgTable(
+  "festival_group_to_regions",
+  {
+    festivalId: integer("festival_id").references(() => festivals.id),
+    regionId: integer("region_id").references(() => regions.id),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.festivalId, t.regionId] }),
+  }),
+);
 export const festivalsToConnected = pgTable("festival_to_connected", {
   id: serial("id").primaryKey(),
   sourceFestivalId: integer("source_festival_id").references(
@@ -1182,6 +1195,7 @@ export const festivalRelations = relations(festivals, ({ many, one }) => ({
   festivalsToCategories: many(festivalToCategories),
   festivalsToStatuses: many(festivalsToStatuses),
   festivalsToComponents: many(festivalsToComponents),
+  festivalsGroupToRegions: many(festivalsGroupToRegions),
   festivalsToGroups: many(festivalsToGroups),
   connections: many(festivalsToConnected, { relationName: "source" }),
   target: many(festivalsToConnected, { relationName: "target" }),
@@ -1359,6 +1373,20 @@ export const festivalsToComponentsRelations = relations(
     component: one(components, {
       fields: [festivalsToComponents.componentId],
       references: [components.id],
+    }),
+  }),
+);
+
+export const festivalsGroupToRegionsRelations = relations(
+  festivalsGroupToRegions,
+  ({ one }) => ({
+    festival: one(festivals, {
+      fields: [festivalsGroupToRegions.festivalId],
+      references: [festivals.id],
+    }),
+    region: one(regions, {
+      fields: [festivalsGroupToRegions.regionId],
+      references: [regions.id],
     }),
   }),
 );

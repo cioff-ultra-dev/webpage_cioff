@@ -138,7 +138,7 @@ export default async function DashboardPage() {
                           {item?.langs.find((item) => item.l?.code === locale)
                             ?.name ||
                             item?.langs.find(
-                              (item) => item.l?.code === defaultLocale
+                              (item) => item.l?.code === defaultLocale,
                             )?.name}
                         </TableCell>
                         <TableCell className="font-medium">
@@ -175,7 +175,7 @@ export default async function DashboardPage() {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem>
+                                <DropdownMenuItem disabled>
                                   <Link
                                     href={`/event/${item?.id}`}
                                     target="_blank"

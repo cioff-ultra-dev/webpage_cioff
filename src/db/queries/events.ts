@@ -147,6 +147,7 @@ export async function getFestivalBySlug(
           },
         },
       },
+      festivalsGroupToRegions: true,
       transports: true,
       social: true,
       status: true,

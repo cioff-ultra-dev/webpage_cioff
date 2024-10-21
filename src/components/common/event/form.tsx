@@ -114,14 +114,14 @@ const globalEventSchema = insertFestivalSchema
       _styleOfFestival: z.array(z.string()).nonempty(),
       _typeOfAccomodation: z.string().optional(),
       _typeOfFestival: z.array(z.string()).nonempty(),
-      _status: z.string(),
+      _status: z.string().optional(),
       _recognizedSince: z.string(),
       _recognizedRange: z.string(),
       _typeOfCompensation: z.string().optional(),
       _financialCompensation: z.string().optional(),
       _inKindCompensation: z.string().optional(),
-      _componentsRecognized: z.array(z.string()),
-      _componentsPartner: z.array(z.string()),
+      _componentsRecognized: z.array(z.string()).optional(),
+      _componentsPartner: z.array(z.string()).optional(),
       _email: z.string().email(),
       _lang: insertFestivalLangSchema,
       _accomodationPhoto: z.any().optional(),
@@ -138,6 +138,7 @@ const globalEventSchema = insertFestivalSchema
       _countrySelected: z.string().optional(),
       _countryGroupSelected: z.string().optional(),
       _groupRegionSelected: z.string().optional(),
+      _groupRegionsSelected: z.array(z.string()).optional(),
       _festivalListSelected: z.array(
         z.object({
           name: z.string().optional(),
@@ -360,10 +361,18 @@ export default function EventForm({
           )?.name,
         };
       }),
-      _isLookingForGroups: Boolean(currentFestival?.regionForGroupsId),
+      _isLookingForGroups: Boolean(
+        currentFestival?.festivalsGroupToRegions.length,
+      ),
       _groupRegionSelected: currentFestival?.regionForGroupsId
         ? String(currentFestival?.regionForGroupsId)
         : undefined,
+      _groupRegionsSelected:
+        currentFestival?.festivalsGroupToRegions
+          ?.filter((item) => {
+            return regions?.some((comp) => comp.id === item.regionId);
+          })
+          ?.map((item) => String(item.regionId)) ?? [],
       linkConditions: currentFestival?.linkConditions ?? undefined,
     },
   });
@@ -1168,7 +1177,7 @@ export default function EventForm({
                     <FormField
                       control={form.control}
                       name="_transportLocation"
-                      render={({ field, formState }) => (
+                      render={({ field }) => (
                         <FormItem>
                           <FormLabel>Transport</FormLabel>
                           <FormControl>
@@ -1209,6 +1218,7 @@ export default function EventForm({
                                   <Button
                                     variant="ghost"
                                     size="icon"
+                                    disabled={isNSAccount}
                                     onClick={() =>
                                       void removeTransportLocation(index)
                                     }
@@ -1380,6 +1390,7 @@ export default function EventForm({
                             <Switch
                               checked={field.value}
                               onCheckedChange={field.onChange}
+                              disabled={isNSAccount}
                             />
                           </FormControl>
                         </FormItem>
@@ -1397,6 +1408,7 @@ export default function EventForm({
                             <Select
                               onValueChange={field.onChange}
                               defaultValue={field.value}
+                              disabled={isNSAccount}
                             >
                               <FormControl>
                                 <SelectTrigger>
@@ -1550,6 +1562,7 @@ export default function EventForm({
                                     <Button
                                       variant="ghost"
                                       size="icon"
+                                      disabled={isNSAccount}
                                       onClick={() =>
                                         void removeFestivalList(index)
                                       }
@@ -1578,7 +1591,7 @@ export default function EventForm({
                 </CardContent>
               </Card>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid-cols-1 lg:grid-cols-2 gap-6 hidden">
               <Card>
                 <CardHeader>
                   <CardTitle>Status and Details</CardTitle>
@@ -1597,7 +1610,7 @@ export default function EventForm({
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                             name={field.name}
-                            disabled={isNSAccount}
+                            disabled={!isNSAccount}
                           >
                             <FormControl>
                               <SelectTrigger>
@@ -1615,9 +1628,9 @@ export default function EventForm({
                               ))}
                             </SelectContent>
                           </Select>
-                          <FormDescription>
-                            This is your current festival name
-                          </FormDescription>
+                          {/* <FormDescription> */}
+                          {/*   This is your current festival name */}
+                          {/* </FormDescription> */}
                           <FormMessage />
                         </FormItem>
                       )}
@@ -1647,9 +1660,6 @@ export default function EventForm({
                                   <FormControl>
                                     <Input {...field} disabled={isNSAccount} />
                                   </FormControl>
-                                  {/* <FormDescription> */}
-                                  {/**/}
-                                  {/* </FormDescription> */}
                                   <FormMessage />
                                 </FormItem>
                               )}
@@ -1698,6 +1708,7 @@ export default function EventForm({
                                     onValueChange={field.onChange}
                                     defaultValue={field.value}
                                     name={field.name}
+                                    disabled={isNSAccount}
                                   >
                                     <FormControl>
                                       <SelectTrigger>
@@ -1729,11 +1740,12 @@ export default function EventForm({
                                 name="_financialCompensation"
                                 render={({ field }) => (
                                   <FormItem>
-                                    {/* <FormLabel>Username</FormLabel> */}
                                     <FormControl>
                                       <Input
                                         placeholder="How much?"
                                         {...field}
+                                        type="number"
+                                        disabled={isNSAccount}
                                       />
                                     </FormControl>
                                     <FormDescription>
@@ -1753,32 +1765,18 @@ export default function EventForm({
                                 name="_inKindCompensation"
                                 render={({ field }) => (
                                   <FormItem className="space-y-3">
-                                    <FormLabel>Select your option...</FormLabel>
                                     <FormControl>
-                                      <RadioGroup
-                                        onValueChange={field.onChange}
-                                        defaultValue={field.value}
-                                        name={field.name}
-                                        className="flex flex-col space-y-1"
-                                      >
-                                        <FormItem className="flex items-center space-x-3 space-y-0">
-                                          <FormControl>
-                                            <RadioGroupItem value="in-kind-compensation" />
-                                          </FormControl>
-                                          <FormLabel className="font-normal">
-                                            In Kind
-                                          </FormLabel>
-                                        </FormItem>
-                                        <FormItem className="flex items-center space-x-3 space-y-0">
-                                          <FormControl>
-                                            <RadioGroupItem value="in-cash-compensation" />
-                                          </FormControl>
-                                          <FormLabel className="font-normal">
-                                            Cash
-                                          </FormLabel>
-                                        </FormItem>
-                                      </RadioGroup>
+                                      <Input
+                                        {...field}
+                                        value={field.value || ""}
+                                        placeholder="Provide your in-kind compensation"
+                                        disabled={isNSAccount}
+                                      />
                                     </FormControl>
+                                    <FormDescription>
+                                      Please, provide the value required on this
+                                      field.
+                                    </FormDescription>
                                     <FormMessage />
                                   </FormItem>
                                 )}
@@ -1907,6 +1905,7 @@ export default function EventForm({
                       allowMultiple
                       acceptedFileTypes={["image/*"]}
                       maxFiles={5}
+                      disabled={isNSAccount}
                       defaultFiles={
                         currentFestival?.photos.length
                           ? currentFestival.photos.map((item) => {
@@ -1929,6 +1928,7 @@ export default function EventForm({
                     <FilepondImageUploader
                       id="coverPhoto"
                       name="coverPhoto"
+                      disabled={isNSAccount}
                       acceptedFileTypes={["image/*"]}
                       defaultFiles={
                         currentFestival?.coverPhoto?.url
@@ -1956,6 +1956,7 @@ export default function EventForm({
                       id="logo"
                       name="logo"
                       allowImageCrop
+                      disabled={isNSAccount}
                       acceptedFileTypes={["image/*"]}
                       imageCropAspectRatio="1:1"
                       defaultFiles={
@@ -2320,51 +2321,91 @@ export default function EventForm({
                   <div className="pl-5 border-l space-y-4">
                     <FormField
                       control={form.control}
-                      name="_groupRegionSelected"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Select a Region</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            name={field.name}
-                            disabled={isNSAccount}
-                          >
+                      name="_groupRegionsSelected"
+                      render={({ field }) => {
+                        const options: MultiSelectProps["options"] =
+                          regions?.map((item) => ({
+                            value: String(item.id) || "",
+                            label:
+                              item.langs.find(
+                                (lang) => lang?.l?.code === locale,
+                              )?.name ?? "",
+                            caption: "",
+                          })) ?? [];
+                        return (
+                          <FormItem>
+                            <FormLabel>Select Regions</FormLabel>
                             <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a verified region to display" />
-                              </SelectTrigger>
+                              <MultiSelect
+                                options={options}
+                                defaultValue={field.value}
+                                disabled={isNSAccount}
+                                onValueChange={(values) => {
+                                  field.onChange(values);
+                                }}
+                              />
                             </FormControl>
-                            <SelectContent>
-                              {regions?.map((region) => {
-                                return (
-                                  <SelectItem
-                                    key={`group-region-${region.id}`}
-                                    value={String(region.id)}
-                                  >
-                                    {
-                                      region.langs.find(
-                                        (lang) => lang?.l?.code === locale,
-                                      )?.name
-                                    }
-                                  </SelectItem>
-                                );
-                              })}
-                            </SelectContent>
-                          </Select>
-                          <FormDescription>
-                            This region will help you for groups of interest on
-                            selected region.
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                            <FormDescription>
+                              This region will help you for groups of interest
+                              on selected region.
+                            </FormDescription>
+                            <FormMessage />
+                            <input
+                              type="hidden"
+                              name="_groupRegions"
+                              value={JSON.stringify(field.value ?? [])}
+                            />
+                          </FormItem>
+                        );
+                      }}
                     />
+                    {/* <FormField */}
+                    {/*   control={form.control} */}
+                    {/*   name="_groupRegionSelected" */}
+                    {/*   render={({ field }) => ( */}
+                    {/*     <FormItem> */}
+                    {/*       <FormLabel>Select a Region</FormLabel> */}
+                    {/*       <Select */}
+                    {/*         onValueChange={field.onChange} */}
+                    {/*         defaultValue={field.value} */}
+                    {/*         name={field.name} */}
+                    {/*         disabled={isNSAccount} */}
+                    {/*       > */}
+                    {/*         <FormControl> */}
+                    {/*           <SelectTrigger> */}
+                    {/*             <SelectValue placeholder="Select a verified region to display" /> */}
+                    {/*           </SelectTrigger> */}
+                    {/*         </FormControl> */}
+                    {/*         <SelectContent> */}
+                    {/*           {regions?.map((region) => { */}
+                    {/*             return ( */}
+                    {/*               <SelectItem */}
+                    {/*                 key={`group-region-${region.id}`} */}
+                    {/*                 value={String(region.id)} */}
+                    {/*               > */}
+                    {/*                 { */}
+                    {/*                   region.langs.find( */}
+                    {/*                     (lang) => lang?.l?.code === locale, */}
+                    {/*                   )?.name */}
+                    {/*                 } */}
+                    {/*               </SelectItem> */}
+                    {/*             ); */}
+                    {/*           })} */}
+                    {/*         </SelectContent> */}
+                    {/*       </Select> */}
+                    {/*       <FormDescription> */}
+                    {/*         This region will help you for groups of interest on */}
+                    {/*         selected region. */}
+                    {/*       </FormDescription> */}
+                    {/*       <FormMessage /> */}
+                    {/*     </FormItem> */}
+                    {/*   )} */}
+                    {/* /> */}
                   </div>
                 ) : null}
               </CardContent>
             </Card>
-            <Card className={cn(!isNSAccount && "hidden")}>
+            <Card className={cn("hidden")}>
               <CardHeader>
                 <CardTitle>Recognition Certification</CardTitle>
               </CardHeader>
