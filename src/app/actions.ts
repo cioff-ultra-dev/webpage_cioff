@@ -969,10 +969,10 @@ export async function generateFestival(formData: FormData) {
           },
         });
 
-        const nsLang = await tx.query.nationalSectionsLang.findFirst({
+        const countryLang = await tx.query.countriesLang.findFirst({
           where(fields, operators) {
             return operators.and(
-              operators.eq(fields.nsId, nsId),
+              operators.eq(fields.id, currentCountry?.id!),
               operators.eq(fields.lang, currentCountry?.nativeLang ?? 1),
             );
           },
@@ -1005,7 +1005,7 @@ export async function generateFestival(formData: FormData) {
           )}</a>`,
           email: user.email,
           video: `<a target="_blank" href="${video.link}">Video</a>`,
-          nsName: nsLang?.name ?? "",
+          nsName: countryLang?.name ?? "",
         });
 
         await transport.sendMail({
@@ -1099,10 +1099,10 @@ export async function generateGroup(formData: FormData) {
           },
         });
 
-        const nsLang = await tx.query.nationalSectionsLang.findFirst({
+        const countryLang = await tx.query.countriesLang.findFirst({
           where(fields, operators) {
             return operators.and(
-              operators.eq(fields.nsId, nsId),
+              operators.eq(fields.id, currentCountry?.id!),
               operators.eq(fields.lang, currentCountry?.nativeLang ?? 1),
             );
           },
@@ -1136,7 +1136,7 @@ export async function generateGroup(formData: FormData) {
           )}</a>`,
           email: user.email,
           video: `<a target="_blank" href="${video.link}">Video</a>`,
-          nsName: nsLang?.name ?? "",
+          nsName: countryLang?.name ?? "",
         });
 
         await transport.sendMail({
