@@ -4,23 +4,29 @@ import {
   emailTemplates,
   events,
   eventsLang,
+  festivalPhotos,
   festivals,
   festivalsLang,
+  festivalStagePhotos,
   festivalsToComponents,
   festivalsToConnected,
   festivalsToGroups,
   festivalsToStatuses,
   festivalToCategories,
+  groupPhotos,
   groups,
   groupsLang,
   groupToCategories,
   InsertEvent,
   InsertEventLang,
   InsertFestival,
+  InsertFestivalPhotos,
   insertFestivalSchema,
+  InsertFestivalStagePhotos,
   InsertFestivalToConnected,
   InsertFestivalToGroups,
   InsertGroup,
+  InsertGroupPhotos,
   InsertNationalSectionPositions,
   InsertNationalSectionPositionsLang,
   InsertTransportLocations,
@@ -32,6 +38,7 @@ import {
   repertories,
   repertoriesLang,
   roles,
+  SelectFestivalPhotos,
   socialMediaLinks,
   storages,
   subgroups,
@@ -42,21 +49,24 @@ import {
   videoTutorialLinks,
 } from "@/db/schema";
 import { transport } from "@/lib/mailer";
-import { put } from "@vercel/blob";
+import { put, del } from "@vercel/blob";
 import { AuthError } from "next-auth";
 import { auth, signIn } from "@/auth";
 import { redirect } from "next/navigation";
 import { newFestival } from "@/db/queries/events";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { and, eq, getTableColumns, SQL, sql } from "drizzle-orm";
+import { and, eq, getTableColumns, inArray, SQL, sql } from "drizzle-orm";
 import { getLocale, getTranslations } from "next-intl/server";
 import { PgTable } from "drizzle-orm/pg-core";
 import { replaceTags } from "@codejamboree/replace-tags";
 import generator from "generate-password-ts";
 import { generateHashPassword, isSamePassword } from "@/lib/password";
 import slug from "slug";
-import build from "next/dist/build";
+import { z } from "zod";
+import { readFile, unlink } from "fs/promises";
+
+const urlStringSchema = z.string().trim().url();
 
 const preparedLanguagesByCode = db.query.languages
   .findFirst({
@@ -85,12 +95,15 @@ const buildConflictUpdateColumns = <
 export async function uploadFile(
   file: File,
   tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  rootPath: string = "root",
 ) {
   if (!file || file?.size === 0) {
     return undefined;
   }
 
-  const blob = await put(`logos/${file.name}`, file, { access: "public" });
+  const blob = await put(`media/${rootPath}/${file.name}`, file, {
+    access: "public",
+  });
 
   const [result] = await tx
     .insert(storages)
@@ -100,6 +113,81 @@ export async function uploadFile(
     });
 
   return result.id;
+}
+
+export async function uploadFileStreams(
+  value: string,
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  rootPath: string = "root",
+  storageId?: number,
+) {
+  if (!value && !storageId) {
+    return undefined;
+  }
+
+  const isUrl = urlStringSchema.safeParse(value);
+
+  if (storageId && (!value || typeof value !== "string")) {
+    const currentStorage = await tx.query.storages.findFirst({
+      where(fields, { eq }) {
+        return eq(fields.id, storageId);
+      },
+    });
+
+    await tx
+      .update(storages)
+      .set({
+        url: "",
+        name: null,
+      })
+      .where(eq(storages.id, storageId));
+
+    if (currentStorage && currentStorage.url) {
+      await del(currentStorage.url);
+    }
+
+    return currentStorage?.id!;
+  }
+
+  if (!isUrl.success && value && typeof value === "string") {
+    const currentPath = `/tmp/${value}`;
+    const fileBuffer = await readFile(currentPath);
+    const pathname = value.split("|").at(-1);
+
+    const _file = await put(`media/${rootPath}/${pathname}`, fileBuffer, {
+      access: "public",
+    });
+
+    await unlink(currentPath);
+
+    const [result] = await tx
+      .insert(storages)
+      .values({
+        id: storageId ? storageId : undefined,
+        url: _file.url,
+        name: _file.pathname.split("/").at(-1),
+      })
+      .onConflictDoUpdate({
+        target: [storages.id],
+        set: buildConflictUpdateColumns(storages, ["url", "name"]),
+      })
+      .returning();
+
+    return result.id;
+  }
+
+  if (!storageId && isUrl.success && value && typeof value === "string") {
+    const [newStorage] = await tx
+      .insert(storages)
+      .values({
+        url: value,
+        name: value.split("/").at(-1),
+      })
+      .returning();
+
+    return newStorage.id;
+  }
+  return storageId!;
 }
 
 export async function authenticate(
@@ -280,7 +368,8 @@ export async function updateNationalSection(formData: FormData) {
         const shortBio = formData.get(
           `_positions.${index}._lang.shortBio`,
         ) as string;
-        const photo = formData.get(`_positions.${index}._photo`) as File;
+        const photo = formData.get(`_positions.${index}._photo`) as string;
+        const photoId = Number(formData.get(`_positions.${index}._photo.id`));
         const isHonorable =
           (formData.get(`_positions.${index}._isHonorable`) as string) === "on";
         const birthDate = formData.get(
@@ -290,14 +379,21 @@ export async function updateNationalSection(formData: FormData) {
           `_positions.${index}._deathDate`,
         ) as string;
 
-        const storagePhotoId = await uploadFile(photo, tx);
+        console.log({ photo, photoId });
+
+        const storagePhotoId = await uploadFileStreams(
+          photo,
+          tx,
+          "ns",
+          photoId,
+        );
 
         positions.push({
           id: id === 0 ? undefined : id,
           name,
           email,
           phone,
-          photoId: storagePhotoId,
+          photoId: storagePhotoId ? storagePhotoId : undefined,
           nsId: nsId,
           isHonorable,
           typePositionId: !typeId ? undefined : typeId,
@@ -1222,6 +1318,7 @@ export async function updateFestival(formData: FormData) {
   const facebookLink = (formData.get("facebook") as string) || null;
   const instagramLink = (formData.get("instagram") as string) || null;
   const websiteLink = (formData.get("website") as string) || null;
+  const youtubeId = (formData.get("youtubeId") as string) || null;
 
   const regionForGroupsId = Number(formData.get("_groupRegionSelected"));
 
@@ -1245,20 +1342,44 @@ export async function updateFestival(formData: FormData) {
     (formData.get("_components") as string) || "[]",
   ) as string[];
 
-  const cover = formData.get("coverPhoto") as File;
+  const cover = formData.get("coverPhoto") as string;
+  const coverId = Number(formData.get("coverPhotoId"));
+
+  const logo = formData.get("logo") as string;
+  const logoId = Number(formData.get("logoId"));
+
+  const certification = formData.get("recognitionCertificate") as string;
+  const certificationId = Number(formData.get("recognitionCertificateId"));
+
+  const photos = formData.getAll("photos") as string[];
+  const stagePhotos = formData.getAll("stagePhotos") as string[];
 
   const currentDates: InsertEvent[] = [];
   const currentTransportLocations: InsertTransportLocations[] = [];
   const currentFestivalToConnected: InsertFestivalToConnected[] = [];
   const currentFestivalToGroups: InsertFestivalToGroups[] = [];
+  const currentPhotos: InsertFestivalPhotos[] = [];
+  const currentStagePhotos: InsertFestivalStagePhotos[] = [];
 
   const lang = await preparedLanguagesByCode.execute({ locale });
   const t = await getTranslations("notification");
 
   await db.transaction(async (tx) => {
-    const coverPhotoId = await uploadFile(cover, tx);
+    const coverNextId = await uploadFileStreams(
+      cover,
+      tx,
+      "festivals",
+      coverId,
+    );
 
-    console.log({ coverPhotoId });
+    const logoNextId = await uploadFileStreams(logo, tx, "festivals", logoId);
+
+    const certificationNextId = await uploadFileStreams(
+      certification,
+      tx,
+      "festivals",
+      certificationId,
+    );
 
     const [currentFestival] = await tx
       .insert(festivals)
@@ -1274,7 +1395,12 @@ export async function updateFestival(formData: FormData) {
         lng,
         regionForGroupsId,
         linkConditions,
-        coverId: coverPhotoId,
+        coverId: coverNextId,
+        logoId: logoNextId,
+        youtubeId,
+        ...(certificationNextId
+          ? { certificationMemberId: certificationNextId }
+          : {}),
       })
       .onConflictDoUpdate({
         target: festivals.id,
@@ -1290,6 +1416,9 @@ export async function updateFestival(formData: FormData) {
           "regionForGroupsId",
           "linkConditions",
           "coverId",
+          "logoId",
+          "youtubeId",
+          "certificationMemberId",
         ]),
       })
       .returning();
@@ -1338,6 +1467,96 @@ export async function updateFestival(formData: FormData) {
           socialMediaLinksId: currentSocialMediaLink.id,
         })
         .where(eq(festivals.id, currentFestival.id));
+    }
+
+    if (photos.length) {
+      const storagePhotoIds = await tx
+        .delete(festivalPhotos)
+        .where(eq(festivalPhotos.festivalId, currentFestival.id))
+        .returning({ deletedStorageId: festivalPhotos.photoId });
+
+      if (storagePhotoIds.length) {
+        const storageUrls = await tx
+          .delete(storages)
+          .where(
+            inArray(
+              storages.id,
+              storagePhotoIds.map((item) => item.deletedStorageId!),
+            ),
+          )
+          .returning({ urlToRemove: storages.url });
+
+        if (storageUrls.length) {
+          const remoteUrls = storageUrls
+            .filter((item) => {
+              return !photos.includes(item.urlToRemove);
+            })
+            .map((item) => item.urlToRemove!);
+
+          if (remoteUrls.length) {
+            await del(remoteUrls);
+          }
+        }
+      }
+
+      for await (const photo of photos) {
+        const newStorageId = await uploadFileStreams(photo, tx, "festivals");
+        if (newStorageId && currentFestival.id) {
+          currentPhotos.push({
+            festivalId: currentFestival.id,
+            photoId: newStorageId,
+          });
+        }
+      }
+
+      if (currentPhotos.length) {
+        await tx.insert(festivalPhotos).values(currentPhotos);
+      }
+    }
+
+    if (stagePhotos.length) {
+      const storagePhotoIds = await tx
+        .delete(festivalStagePhotos)
+        .where(eq(festivalStagePhotos.festivalId, currentFestival.id))
+        .returning({ deletedStorageId: festivalPhotos.photoId });
+
+      if (storagePhotoIds.length) {
+        const storageUrls = await tx
+          .delete(storages)
+          .where(
+            inArray(
+              storages.id,
+              storagePhotoIds.map((item) => item.deletedStorageId!),
+            ),
+          )
+          .returning({ urlToRemove: storages.url });
+
+        if (storageUrls.length) {
+          const remoteUrls = storageUrls
+            .filter((item) => {
+              return !stagePhotos.includes(item.urlToRemove);
+            })
+            .map((item) => item.urlToRemove!);
+
+          if (remoteUrls.length) {
+            await del(remoteUrls);
+          }
+        }
+      }
+
+      for await (const photo of stagePhotos) {
+        const newStorageId = await uploadFileStreams(photo, tx, "festivals");
+        if (newStorageId && currentFestival.id) {
+          currentStagePhotos.push({
+            festivalId: currentFestival.id,
+            photoId: newStorageId,
+          });
+        }
+      }
+
+      if (currentStagePhotos.length) {
+        await tx.insert(festivalStagePhotos).values(currentStagePhotos);
+      }
     }
 
     if (statusId) {
@@ -1529,21 +1748,12 @@ export async function updateFestival(formData: FormData) {
 export async function createGroup(prevState: unknown, formData: FormData) {
   const id = Number(formData.get("_id"));
   const generalDirectorName = formData.get("generalDirectorName") as string;
-  const generalDirectorProfile = formData.get(
-    "generalDirectorProfile",
-  ) as string;
   const generalDirectorPhoto = formData.get("_generalDirectorPhoto") as File;
 
   const artisticDirectorName = formData.get("artisticDirectorName") as string;
-  const artisticDirectorProfile = formData.get(
-    "artisticDirectorProfile",
-  ) as string;
   const artisticDirectorPhoto = formData.get("_artisticDirectorPhoto") as File;
 
   const musicalDirectorName = formData.get("musicalDirectorName") as string;
-  const musicalDirectorProfile = formData.get(
-    "musicalDirectorProfile",
-  ) as string;
   const musicalDirectorPhoto = formData.get("_musicalDirectorPhoto") as File;
 
   await db.transaction(async (tx) => {
@@ -1580,17 +1790,28 @@ export async function updateGroup(formData: FormData) {
   const generalDirectorProfile = formData.get(
     "_lang.generalDirectorProfile",
   ) as string;
-  const generalDirectorPhoto = formData.get("_generalDirectorPhoto") as File;
+  const generalDirectorPhoto = formData.get("_generalDirectorPhoto") as string;
+  const generalDirectorPhotoId = Number(
+    formData.get("_generalDirectorPhotoId"),
+  );
   const artisticDirectorName = formData.get("artisticDirectorName") as string;
   const artisticDirectorProfile = formData.get(
     "_lang.artisticDirectorProfile",
   ) as string;
-  const artisticDirectorPhoto = formData.get("_artisticDirectorPhoto") as File;
+  const artisticDirectorPhoto = formData.get(
+    "_artisticDirectorPhoto",
+  ) as string;
+  const artisticDirectorPhotoId = Number(
+    formData.get("_artisticDirectorPhotoId"),
+  );
   const musicalDirectorName = formData.get("musicalDirectorName") as string;
   const musicalDirectorProfile = formData.get(
     "_lang.musicalDirectorProfile",
   ) as string;
-  const musicalDirectorPhoto = formData.get("_musicalDirectorPhoto") as File;
+  const musicalDirectorPhoto = formData.get("_musicalDirectorPhoto") as string;
+  const musicalDirectorPhotoId = Number(
+    formData.get("_musicalDirectorPhotoId"),
+  );
   const phone = formData.get("phone") as string;
   const address = formData.get("_lang.address") as string;
   const membersNumber = formData.get("membersNumber") as string;
@@ -1620,24 +1841,61 @@ export async function updateGroup(formData: FormData) {
     (formData.get("_styleOfGroup") as string) || "[]",
   );
 
+  const cover = formData.get("coverPhoto") as string;
+  const coverId = Number(formData.get("coverPhotoId"));
+
+  const logo = formData.get("logo") as string;
+  const logoId = Number(formData.get("logoId"));
+
+  const photos = formData.getAll("photos") as string[];
+
   const groupCategories = [...typeGroups, ...groupAge, ...styleGroup];
+
+  const currentPhotos: InsertGroupPhotos[] = [];
 
   const lang = await preparedLanguagesByCode.execute({ locale });
 
   await db.transaction(async (tx) => {
-    const generalDirectorPhotoId = await uploadFile(generalDirectorPhoto, tx);
-    const artisticDirectorPhotoId = await uploadFile(artisticDirectorPhoto, tx);
-    const musicalDirectorPhotoId = await uploadFile(musicalDirectorPhoto, tx);
+    // const generalDirectorPhotoId = await uploadFile(generalDirectorPhoto, tx);
+    // const artisticDirectorPhotoId = await uploadFile(artisticDirectorPhoto, tx);
+    // const musicalDirectorPhotoId = await uploadFile(musicalDirectorPhoto, tx);
+
+    const generaltDirectorPhotoNextId = await uploadFileStreams(
+      generalDirectorPhoto,
+      tx,
+      "groups",
+      generalDirectorPhotoId,
+    );
+
+    const artisticDirectorPhotoNextId = await uploadFileStreams(
+      artisticDirectorPhoto,
+      tx,
+      "groups",
+      artisticDirectorPhotoId,
+    );
+
+    const musicalDirectorPhotoNextId = await uploadFileStreams(
+      musicalDirectorPhoto,
+      tx,
+      "groups",
+      musicalDirectorPhotoId,
+    );
+
+    const coverNextId = await uploadFileStreams(cover, tx, "groups", coverId);
+
+    const logoNextId = await uploadFileStreams(logo, tx, "groups", logoId);
+
+    console.log({ cover, logo, coverNextId, logoNextId });
 
     const [currentGroup] = await tx
       .update(groups)
       .set({
         generalDirectorName,
-        generalDirectorPhotoId,
+        generalDirectorPhotoId: generaltDirectorPhotoNextId,
         artisticDirectorName,
-        artisticDirectorPhotoId,
+        artisticDirectorPhotoId: artisticDirectorPhotoNextId,
         musicalDirectorName,
-        musicalDirectorPhotoId,
+        musicalDirectorPhotoId: musicalDirectorPhotoNextId,
         phone,
         isAbleTravel: isAbleToTravel,
         isAbleTravelLiveMusic: isAbleToTravelLiveMusic,
@@ -1652,6 +1910,8 @@ export async function updateGroup(formData: FormData) {
         websiteLink,
         youtubeId,
         linkPortfolio,
+        coverPhotoId: coverNextId ? coverNextId : undefined,
+        logoId: logoNextId ? logoNextId : undefined,
       })
       .where(eq(groups.id, id))
       .returning();
@@ -1680,6 +1940,51 @@ export async function updateGroup(formData: FormData) {
           "description",
         ]),
       });
+
+    if (photos.length) {
+      const storagePhotoIds = await tx
+        .delete(groupPhotos)
+        .where(eq(groupPhotos.groupId, currentGroup.id))
+        .returning({ deletedStorageId: groupPhotos.photoId });
+
+      if (storagePhotoIds.length) {
+        const storageUrls = await tx
+          .delete(storages)
+          .where(
+            inArray(
+              storages.id,
+              storagePhotoIds.map((item) => item.deletedStorageId!),
+            ),
+          )
+          .returning({ urlToRemove: storages.url });
+
+        if (storageUrls.length) {
+          const remoteUrls = storageUrls
+            .filter((item) => {
+              return !photos.includes(item.urlToRemove);
+            })
+            .map((item) => item.urlToRemove!);
+
+          if (remoteUrls.length) {
+            await del(remoteUrls);
+          }
+        }
+      }
+
+      for await (const photo of photos) {
+        const newStorageId = await uploadFileStreams(photo, tx, "groups");
+        if (newStorageId && currentGroup.id) {
+          currentPhotos.push({
+            groupId: currentGroup.id,
+            photoId: newStorageId,
+          });
+        }
+      }
+
+      if (currentPhotos.length) {
+        await tx.insert(groupPhotos).values(currentPhotos);
+      }
+    }
 
     if (subgroupSize > 0) {
       for (let index = 0; index < subgroupSize; index++) {

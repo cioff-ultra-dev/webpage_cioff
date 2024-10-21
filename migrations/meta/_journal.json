@@ -260,6 +260,20 @@
       "when": 1729083742230,
       "tag": "0033_fantastic_blue_shield",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1729528336947,
+      "tag": "0034_heavy_the_hood",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1729532821261,
+      "tag": "0035_numerous_human_torch",
+      "breakpoints": true
     }
   ]
 }

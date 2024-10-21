@@ -84,6 +84,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Session } from "next-auth";
+import { FilepondImageUploader } from "@/components/extension/filepond-image-uploader";
 
 const positionsSchema = insertNationalSectionPositionsSchema.merge(
   z.object({
@@ -93,10 +94,14 @@ const positionsSchema = insertNationalSectionPositionsSchema.merge(
     _deathDate: z.string().optional(),
     _type: z.string(),
     _photo: z
-      .any()
-      .refine((item) => item instanceof File || typeof item === "undefined", {
-        params: { i18n: "file_required" },
-      }),
+      .object({
+        id: z.number(),
+        url: z.string(),
+      })
+      .optional(),
+    // .refine((item) => item instanceof File || typeof item === "undefined", {
+    //   params: { i18n: "file_required" },
+    // }),
   }),
 );
 
@@ -236,6 +241,10 @@ export default function NationalSectionForm({
                 shortBio: position.langs.at(0)?.shortBio,
                 otherMemberName:
                   position.langs.at(0)?.otherMemberName ?? undefined,
+              },
+              _photo: {
+                id: position.photo?.id ?? 0,
+                url: position.photo?.url ?? "",
               },
             };
           })
@@ -717,25 +726,34 @@ export default function NationalSectionForm({
                       <FormField
                         control={form.control}
                         name={`_positions.${index}._photo`}
-                        render={({
-                          field: { value, onChange, ...fieldProps },
-                        }) => (
+                        render={({ field }) => (
                           <FormItem>
                             <FormLabel>Picture</FormLabel>
                             <FormControl>
-                              <Input
-                                {...fieldProps}
-                                placeholder="Picture"
-                                type="file"
-                                accept="image/*, application/pdf"
-                                onChange={(event) =>
-                                  onChange(
-                                    event.target.files && event.target.files[0],
-                                  )
+                              <FilepondImageUploader
+                                id={field.name}
+                                name={field.name}
+                                acceptedFileTypes={["image/*"]}
+                                defaultFiles={
+                                  field.value?.url
+                                    ? [
+                                        {
+                                          source: field.value?.url!,
+                                          options: {
+                                            type: "local",
+                                          },
+                                        },
+                                      ]
+                                    : []
                                 }
                               />
                             </FormControl>
                             <FormMessage />
+                            <input
+                              name={`_positions.${index}._photo.id`}
+                              value={field.value?.id ?? undefined}
+                              type="hidden"
+                            />
                           </FormItem>
                         )}
                       />

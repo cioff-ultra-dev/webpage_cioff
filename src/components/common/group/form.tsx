@@ -69,6 +69,7 @@ import { toast } from "sonner";
 import { customRevalidatePath } from "../revalidateTag";
 import { useRouter } from "next/navigation";
 import { RegionsType } from "@/db/queries/regions";
+import { FilepondImageUploader } from "@/components/extension/filepond-image-uploader";
 
 const globalGroupSchema = insertGroupSchema.extend({
   _lang: insertGroupLangSchema,
@@ -104,12 +105,12 @@ const globalGroupSchema = insertGroupSchema.extend({
       _lang: insertSubGroupLangSchema,
       _groupAge: z.array(z.string()),
       _hasAnotherContact: z.boolean().default(false).optional(),
-    })
+    }),
   ),
   _repertories: z.array(
     insertRepertorySchema.extend({
       _lang: insertRepertoryLangSchema,
-    })
+    }),
   ),
 });
 
@@ -281,7 +282,7 @@ export default function GroupForm({
   const [selectedTypeOfGroup, setSelectedTypeOfGroup] = useState<string[]>([]);
   const [selectedGroupAge, setSelectedGroupAge] = useState<string[]>([]);
   const [selectedStyleOfGroup, setSelectedStyleOfGroup] = useState<string[]>(
-    []
+    [],
   );
 
   const t = useTranslations("form.group");
@@ -315,12 +316,12 @@ export default function GroupForm({
   const updateRepertoireItem = (
     id: number,
     field: keyof RepertoireItem,
-    value: string | FileList | null
+    value: string | FileList | null,
   ) => {
     setRepertoire(
       repertoire.map((item) =>
-        item.id === id ? { ...item, [field]: value } : item
-      )
+        item.id === id ? { ...item, [field]: value } : item,
+      ),
     );
   };
 
@@ -379,7 +380,7 @@ export default function GroupForm({
       }),
       _repertories: currentGroup?.repertories.map((item) => {
         const currentRepertoryLang = item.langs.find(
-          (lang) => lang?.l?.code === locale
+          (lang) => lang?.l?.code === locale,
         );
         return {
           id: item.id,
@@ -398,7 +399,7 @@ export default function GroupForm({
     {
       control: form.control,
       name: "_subgroups",
-    }
+    },
   );
 
   const { fields: repertoryFields, append: appendRepertory } = useFieldArray({
@@ -416,12 +417,10 @@ export default function GroupForm({
     name: "_subgroups",
   });
 
-  console.log(currentGroup?.repertories);
-
   const formRef = useRef<HTMLFormElement>(null);
 
   const onSubmitForm: SubmitHandler<z.infer<typeof globalGroupSchema>> = async (
-    _data
+    _data,
   ) => {
     const result = await updateGroup(new FormData(formRef.current!));
     if (result.success) {
@@ -430,10 +429,12 @@ export default function GroupForm({
       toast.error(result.error);
     }
 
-    // if (result.success) {
-    //   customRevalidatePath("/dashboard/groups");
-    //   router.push("/dashboard/groups");
-    // }
+    customRevalidatePath(`/dashboard/groups/${currentGroup?.id}/edit`);
+    customRevalidatePath("/dashboard/groups");
+
+    if (result.success) {
+      router.push("/dashboard/groups");
+    }
   };
 
   return (
@@ -581,21 +582,35 @@ export default function GroupForm({
                           President/General Director's photo
                         </FormLabel>
                         <FormControl>
-                          <Input
-                            ref={field.ref}
-                            type="file"
-                            accept="image/*"
-                            onChange={(event) => {
-                              field.onChange(
-                                event.target.files && event.target.files[0]
-                              );
-                            }}
-                            onBlur={field.onBlur}
+                          <FilepondImageUploader
+                            id={field.name}
                             name={field.name}
+                            allowImageCrop
                             disabled={isNSAccount}
+                            acceptedFileTypes={["image/*"]}
+                            imageCropAspectRatio="1:1"
+                            defaultFiles={
+                              currentGroup?.directorPhoto?.url
+                                ? [
+                                    {
+                                      source: currentGroup.directorPhoto?.url!,
+                                      options: {
+                                        type: "local",
+                                      },
+                                    },
+                                  ]
+                                : []
+                            }
                           />
                         </FormControl>
                         <FormMessage />
+                        <input
+                          name="_generalDirectorPhotoId"
+                          type="hidden"
+                          value={
+                            currentGroup?.generalDirectorPhotoId ?? undefined
+                          }
+                        />
                       </FormItem>
                     )}
                   />
@@ -666,21 +681,35 @@ export default function GroupForm({
                           Artistic Director's photo
                         </FormLabel>
                         <FormControl>
-                          <Input
-                            ref={field.ref}
-                            type="file"
-                            accept="image/*"
-                            onChange={(event) => {
-                              field.onChange(
-                                event.target.files && event.target.files[0]
-                              );
-                            }}
-                            onBlur={field.onBlur}
+                          <FilepondImageUploader
+                            id={field.name}
                             name={field.name}
+                            allowImageCrop
                             disabled={isNSAccount}
+                            acceptedFileTypes={["image/*"]}
+                            imageCropAspectRatio="1:1"
+                            defaultFiles={
+                              currentGroup?.artisticPhoto?.url
+                                ? [
+                                    {
+                                      source: currentGroup.artisticPhoto?.url!,
+                                      options: {
+                                        type: "local",
+                                      },
+                                    },
+                                  ]
+                                : []
+                            }
                           />
                         </FormControl>
                         <FormMessage />
+                        <input
+                          name="_artisticDirectorPhotoId"
+                          type="hidden"
+                          value={
+                            currentGroup?.artisticDirectorPhotoId ?? undefined
+                          }
+                        />
                       </FormItem>
                     )}
                   />
@@ -751,17 +780,35 @@ export default function GroupForm({
                           Musical Director's photo
                         </FormLabel>
                         <FormControl>
-                          <Input
-                            ref={field.ref}
-                            type="file"
-                            accept="image/*"
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
+                          <FilepondImageUploader
+                            id={field.name}
                             name={field.name}
+                            allowImageCrop
                             disabled={isNSAccount}
+                            acceptedFileTypes={["image/*"]}
+                            imageCropAspectRatio="1:1"
+                            defaultFiles={
+                              currentGroup?.musicalPhoto?.url
+                                ? [
+                                    {
+                                      source: currentGroup.musicalPhoto?.url!,
+                                      options: {
+                                        type: "local",
+                                      },
+                                    },
+                                  ]
+                                : []
+                            }
                           />
                         </FormControl>
                         <FormMessage />
+                        <input
+                          name="_musicalDirectorPhotoId"
+                          type="hidden"
+                          value={
+                            currentGroup?.musicalDirectorPhotoId ?? undefined
+                          }
+                        />
                       </FormItem>
                     )}
                   />
@@ -851,8 +898,8 @@ export default function GroupForm({
                               defaultValue={
                                 (field.value as string[])?.filter((item) =>
                                   options.find(
-                                    (option) => option.value === item
-                                  )
+                                    (option) => option.value === item,
+                                  ),
                                 ) ?? []
                               }
                               onValueChange={(values) => {
@@ -948,8 +995,8 @@ export default function GroupForm({
                               defaultValue={
                                 (field.value as string[])?.filter((item) =>
                                   options.find(
-                                    (option) => option.value === item
-                                  )
+                                    (option) => option.value === item,
+                                  ),
                                 ) ?? []
                               }
                               onValueChange={(values) => {
@@ -987,7 +1034,7 @@ export default function GroupForm({
                               field.onChange(
                                 event.target.value
                                   ? Number(event.target.value)
-                                  : 0
+                                  : 0,
                               );
                             }}
                             onBlur={field.onBlur}
@@ -1031,8 +1078,8 @@ export default function GroupForm({
                               defaultValue={
                                 (field.value as string[])?.filter((item) =>
                                   options.find(
-                                    (option) => option.value === item
-                                  )
+                                    (option) => option.value === item,
+                                  ),
                                 ) ?? []
                               }
                               onValueChange={(values) => {
@@ -1136,7 +1183,7 @@ export default function GroupForm({
                                     max="40"
                                     onChange={(event) =>
                                       void field.onChange(
-                                        Number(event.target.value)
+                                        Number(event.target.value),
                                       )
                                     }
                                     onBlur={field.onBlur}
@@ -1377,8 +1424,8 @@ export default function GroupForm({
                                     from: form.getValues(`_specificDate.from`)
                                       ? new Date(
                                           form.getValues(
-                                            `_specificDate.from`
-                                          ) ?? ""
+                                            `_specificDate.from`,
+                                          ) ?? "",
                                         )
                                       : undefined,
                                     to:
@@ -1386,7 +1433,7 @@ export default function GroupForm({
                                       form.getValues(`_specificDate.from`) !==
                                         form.getValues(`_specificDate.to`)
                                         ? new Date(
-                                            form.getValues(`_specificDate.to`)!
+                                            form.getValues(`_specificDate.to`)!,
                                           )
                                         : undefined,
                                   }}
@@ -1413,7 +1460,7 @@ export default function GroupForm({
                               ?.message ? (
                               <p
                                 className={cn(
-                                  "text-sm font-medium text-destructive"
+                                  "text-sm font-medium text-destructive",
                                 )}
                               >
                                 {
@@ -1456,7 +1503,7 @@ export default function GroupForm({
                                       >
                                         {
                                           region.langs.find(
-                                            (lang) => lang.l?.code === locale
+                                            (lang) => lang.l?.code === locale,
                                           )?.name
                                         }
                                       </SelectItem>
@@ -1482,36 +1529,82 @@ export default function GroupForm({
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="photos">Photos</Label>
-                  <Input
+                  <FilepondImageUploader
                     id="photos"
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    disabled={isNSAccount}
+                    name="photos"
+                    allowMultiple
+                    acceptedFileTypes={["image/*"]}
+                    maxFiles={5}
+                    defaultFiles={
+                      currentGroup?.photos.length
+                        ? currentGroup.photos.map((item) => {
+                            return {
+                              source: item.photo?.url!,
+                              options: {
+                                type: "local",
+                              },
+                            };
+                          })
+                        : []
+                    }
                   />
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-gray-500">
                     Max 5 photos x 3MB each
                   </p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="coverPhoto">Cover photo</Label>
-                  <Input
+                  <FilepondImageUploader
                     id="coverPhoto"
-                    type="file"
-                    accept="image/*"
-                    disabled={isNSAccount}
+                    name="coverPhoto"
+                    acceptedFileTypes={["image/*"]}
+                    defaultFiles={
+                      currentGroup?.coverPhoto?.url
+                        ? [
+                            {
+                              source: currentGroup.coverPhoto?.url!,
+                              options: {
+                                type: "local",
+                              },
+                            },
+                          ]
+                        : []
+                    }
                   />
-                  <p className="text-sm text-muted-foreground">Size TBC</p>
+                  <p className="text-sm text-gray-500">Size TBC</p>
+                  <input
+                    name="coverPhotoId"
+                    type="hidden"
+                    value={currentGroup?.coverPhotoId ?? undefined}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="logo">Logo</Label>
-                  <Input
+                  <FilepondImageUploader
                     id="logo"
-                    type="file"
-                    accept="image/*"
-                    disabled={isNSAccount}
+                    name="logo"
+                    allowImageCrop
+                    acceptedFileTypes={["image/*"]}
+                    imageCropAspectRatio="1:1"
+                    defaultFiles={
+                      currentGroup?.logo?.url
+                        ? [
+                            {
+                              source: currentGroup.logo?.url!,
+                              options: {
+                                type: "local",
+                              },
+                            },
+                          ]
+                        : []
+                    }
                   />
-                  <p className="text-sm text-muted-foreground">Size TBC</p>
+                  <p className="text-sm text-gray-500">Size TBC</p>
+                  <input
+                    name="logoId"
+                    type="hidden"
+                    value={currentGroup?.logoId ?? undefined}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="video">Video</Label>
@@ -1671,7 +1764,7 @@ export default function GroupForm({
                           updateRepertoireItem(
                             item.id,
                             "photos",
-                            e.target.files
+                            e.target.files,
                           )
                         }
                       />

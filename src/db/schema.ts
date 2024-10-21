@@ -5,7 +5,6 @@ import {
   date,
   integer,
   pgEnum,
-  pgSchema,
   pgTable,
   primaryKey,
   serial,
@@ -463,6 +462,13 @@ export const festivalPhotos = pgTable("festival_photos", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
+export const festivalStagePhotos = pgTable("festival_stage_photos", {
+  id: serial("id").primaryKey(),
+  festivalId: integer("festival_id").references(() => festivals.id),
+  photoId: integer("photo_id").references(() => storages.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
 export const festivalToCategories = pgTable(
   "festival_to_categories",
   {
@@ -667,7 +673,13 @@ export const subgroupToCategories = pgTable(
     pk: primaryKey({ columns: [t.subgroupId, t.categoryId] }),
   }),
 );
-
+export const groupPhotos = pgTable("group_photos", {
+  id: serial("id").primaryKey(),
+  groupId: integer("group_id").references(() => groups.id),
+  photoId: integer("photo_id").references(() => storages.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
 export const repertories = pgTable("repertories", {
   id: serial("id").primaryKey(),
   gallery: text("gallery"),
@@ -1173,6 +1185,8 @@ export const festivalRelations = relations(festivals, ({ many, one }) => ({
   festivalsToGroups: many(festivalsToGroups),
   connections: many(festivalsToConnected, { relationName: "source" }),
   target: many(festivalsToConnected, { relationName: "target" }),
+  photos: many(festivalPhotos),
+  stagePhotos: many(festivalStagePhotos),
   country: one(countries, {
     fields: [festivals.countryId],
     references: [countries.id],
@@ -1193,6 +1207,18 @@ export const festivalRelations = relations(festivals, ({ many, one }) => ({
   langs: many(festivalsLang),
   owners: many(owners),
   events: many(events),
+  coverPhoto: one(storages, {
+    fields: [festivals.coverId],
+    references: [storages.id],
+  }),
+  logo: one(storages, {
+    fields: [festivals.logoId],
+    references: [storages.id],
+  }),
+  certification: one(storages, {
+    fields: [festivals.logoId],
+    references: [storages.id],
+  }),
 }));
 
 export const transportLocationRelations = relations(
@@ -1269,6 +1295,42 @@ export const festivalsToCategoriesRelations = relations(
     category: one(categories, {
       fields: [festivalToCategories.categoryId],
       references: [categories.id],
+    }),
+  }),
+);
+
+export const festivalPhotosRelations = relations(festivalPhotos, ({ one }) => ({
+  festival: one(festivals, {
+    fields: [festivalPhotos.festivalId],
+    references: [festivals.id],
+  }),
+  photo: one(storages, {
+    fields: [festivalPhotos.photoId],
+    references: [storages.id],
+  }),
+}));
+
+export const groupPhotosRelations = relations(groupPhotos, ({ one }) => ({
+  group: one(groups, {
+    fields: [groupPhotos.groupId],
+    references: [groups.id],
+  }),
+  photo: one(storages, {
+    fields: [groupPhotos.photoId],
+    references: [storages.id],
+  }),
+}));
+
+export const festivalStagePhotosRelations = relations(
+  festivalStagePhotos,
+  ({ one }) => ({
+    festival: one(festivals, {
+      fields: [festivalStagePhotos.festivalId],
+      references: [festivals.id],
+    }),
+    photo: one(storages, {
+      fields: [festivalStagePhotos.photoId],
+      references: [storages.id],
     }),
   }),
 );
@@ -1356,6 +1418,14 @@ export const groupsRelations = relations(groups, ({ one, many }) => ({
     fields: [groups.generalDirectorPhotoId],
     references: [storages.id],
   }),
+  artisticPhoto: one(storages, {
+    fields: [groups.artisticDirectorPhotoId],
+    references: [storages.id],
+  }),
+  musicalPhoto: one(storages, {
+    fields: [groups.musicalDirectorPhotoId],
+    references: [storages.id],
+  }),
   ns: one(nationalSections, {
     fields: [groups.nsId],
     references: [nationalSections.id],
@@ -1366,6 +1436,15 @@ export const groupsRelations = relations(groups, ({ one, many }) => ({
   festivalsToGroups: many(festivalsToGroups),
   subgroups: many(subgroups),
   repertories: many(repertories),
+  photos: many(groupPhotos),
+  coverPhoto: one(storages, {
+    fields: [groups.coverPhotoId],
+    references: [storages.id],
+  }),
+  logo: one(storages, {
+    fields: [groups.logoId],
+    references: [storages.id],
+  }),
 }));
 
 export const groupLangRelations = relations(groupsLang, ({ one }) => ({
@@ -1434,6 +1513,10 @@ export const nationalSectionPositionRelations = relations(
     type: one(typePosition, {
       fields: [nationalSectionsPositions.typePositionId],
       references: [typePosition.id],
+    }),
+    photo: one(storages, {
+      fields: [nationalSectionsPositions.photoId],
+      references: [storages.id],
     }),
   }),
 );
@@ -1535,7 +1618,7 @@ export const typePositionLangRelations = relations(
   }),
 );
 
-export const regionRelations = relations(regions, ({ one, many }) => ({
+export const regionRelations = relations(regions, ({ many }) => ({
   langs: many(regionsLang),
 }));
 
@@ -1774,6 +1857,10 @@ export const insertRepertoryLangSchema = createInsertSchema(repertoriesLang);
 
 export const insertfestivalPhotosSchema = createInsertSchema(festivalPhotos);
 
+export const insertFestivalPhotosSchema = createInsertSchema(festivalPhotos);
+
+export const selectFestivalPhotosSchema = createSelectSchema(festivalPhotos);
+
 /* Infered Types */
 
 export type InsertUser = typeof users.$inferInsert;
@@ -1848,3 +1935,12 @@ export type SelectFestivalToConnected =
 
 export type InsertFestivalToGroups = typeof festivalsToGroups.$inferInsert;
 export type SelectFestivalToGroups = typeof festivalsToGroups.$inferSelect;
+
+export type InsertFestivalPhotos = typeof festivalPhotos.$inferInsert;
+export type SelectFestivalPhotos = typeof festivalPhotos.$inferSelect;
+
+export type InsertGroupPhotos = typeof groupPhotos.$inferInsert;
+export type SelectGroupPhotos = typeof groupPhotos.$inferSelect;
+
+export type InsertFestivalStagePhotos = typeof festivalStagePhotos.$inferInsert;
+export type SelectFestivalStagePhotos = typeof festivalStagePhotos.$inferSelect;

@@ -86,20 +86,17 @@ import {
   FestivalBySlugType,
 } from "@/db/queries/events";
 import { toast } from "sonner";
-import {
-  DatePickerWithRange,
-  DateRangeProps,
-} from "@/components/ui/datepicker-with-range";
+import { DatePickerWithRange } from "@/components/ui/datepicker-with-range";
 import { Session } from "next-auth";
 import { customRevalidatePath } from "../revalidateTag";
 import { useRouter } from "next/navigation";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { CountryByLocaleType } from "@/db/queries/countries";
 import useSWR from "swr";
 import { RegionsType } from "@/db/queries/regions";
 import { buildGroup } from "@/db/queries/groups";
+import { FilepondImageUploader } from "@/components/extension/filepond-image-uploader";
 
 const dateRangeSchema = z.object({
   id: z.string().optional(),
@@ -157,7 +154,7 @@ const globalEventSchema = insertFestivalSchema
           groupId: z.string().optional(),
         }),
       ),
-      _stagePhotos: z.array(z.any().optional()).optional(),
+      stagePhotos: z.array(z.any().optional()).optional(),
     }),
   )
   .refine(
@@ -383,10 +380,11 @@ export default function EventForm({
       toast.error(result.error);
     }
 
+    customRevalidatePath(`/dashboard/national-sections/${slug}/edit`);
     customRevalidatePath("/dashboard/festivals");
 
     if (result.success) {
-      // router.push("/dashboard/festivals");
+      router.push("/dashboard/festivals");
     }
   };
 
@@ -1903,13 +1901,24 @@ export default function EventForm({
                 <CardContent className="space-y-4">
                   <div>
                     <Label htmlFor="photos">Photos</Label>
-                    <Input
+                    <FilepondImageUploader
                       id="photos"
                       name="photos"
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      disabled={isNSAccount}
+                      allowMultiple
+                      acceptedFileTypes={["image/*"]}
+                      maxFiles={5}
+                      defaultFiles={
+                        currentFestival?.photos.length
+                          ? currentFestival.photos.map((item) => {
+                              return {
+                                source: item.photo?.url!,
+                                options: {
+                                  type: "local",
+                                },
+                              };
+                            })
+                          : []
+                      }
                     />
                     <p className="text-sm text-gray-500">
                       Max 5 photos x 3MB each
@@ -1917,25 +1926,57 @@ export default function EventForm({
                   </div>
                   <div>
                     <Label htmlFor="coverPhoto">Cover photo</Label>
-                    <Input
+                    <FilepondImageUploader
                       id="coverPhoto"
                       name="coverPhoto"
-                      type="file"
-                      accept="image/*"
-                      disabled={isNSAccount}
+                      acceptedFileTypes={["image/*"]}
+                      defaultFiles={
+                        currentFestival?.coverPhoto?.url
+                          ? [
+                              {
+                                source: currentFestival.coverPhoto?.url!,
+                                options: {
+                                  type: "local",
+                                },
+                              },
+                            ]
+                          : []
+                      }
                     />
                     <p className="text-sm text-gray-500">Size TBC</p>
+                    <input
+                      name="coverPhotoId"
+                      type="hidden"
+                      value={currentFestival?.coverId ?? undefined}
+                    />
                   </div>
                   <div>
                     <Label htmlFor="logo">Logo</Label>
-                    <Input
+                    <FilepondImageUploader
                       id="logo"
                       name="logo"
-                      type="file"
-                      accept="image/*"
-                      disabled={isNSAccount}
+                      allowImageCrop
+                      acceptedFileTypes={["image/*"]}
+                      imageCropAspectRatio="1:1"
+                      defaultFiles={
+                        currentFestival?.logo?.url
+                          ? [
+                              {
+                                source: currentFestival.logo?.url!,
+                                options: {
+                                  type: "local",
+                                },
+                              },
+                            ]
+                          : []
+                      }
                     />
                     <p className="text-sm text-gray-500">Size TBC</p>
+                    <input
+                      name="logoId"
+                      type="hidden"
+                      value={currentFestival?.logoId ?? undefined}
+                    />
                   </div>
                   <div>
                     <Label htmlFor="youtubeId">Youtube</Label>
@@ -2016,18 +2057,28 @@ export default function EventForm({
                 <div>
                   <FormField
                     control={form.control}
-                    name="_stagePhotos"
+                    name="stagePhotos"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Pictures of your stages</FormLabel>
                         <FormControl>
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            multiple
+                          <FilepondImageUploader
+                            id="stagePhotos"
                             name={field.name}
-                            onChange={(event) =>
-                              field.onChange(event.target.files)
+                            allowMultiple
+                            acceptedFileTypes={["image/*"]}
+                            maxFiles={5}
+                            defaultFiles={
+                              currentFestival?.stagePhotos.length
+                                ? currentFestival.stagePhotos.map((item) => {
+                                    return {
+                                      source: item.photo?.url!,
+                                      options: {
+                                        type: "local",
+                                      },
+                                    };
+                                  })
+                                : []
                             }
                           />
                         </FormControl>
@@ -2306,26 +2357,41 @@ export default function EventForm({
                 ) : null}
               </CardContent>
             </Card>
-            {isNSAccount ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recognition Certification</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="recognitionCertificate">
-                      Upload recognition certificate
-                    </Label>
-                    <Input
-                      id="recognitionCertificate"
-                      name="recognitionCertificate"
-                      type="file"
-                      disabled={isNSAccount}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            ) : null}
+            <Card className={cn(!isNSAccount && "hidden")}>
+              <CardHeader>
+                <CardTitle>Recognition Certification</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="recognitionCertificate">
+                    Upload recognition certificate
+                  </Label>
+                  <FilepondImageUploader
+                    id="recognitionCertificate"
+                    name="recognitionCertificate"
+                    acceptedFileTypes={["application/pdf"]}
+                    defaultFiles={
+                      currentFestival?.certification?.url
+                        ? [
+                            {
+                              source: currentFestival.certification?.url!,
+                              options: {
+                                type: "local",
+                              },
+                            },
+                          ]
+                        : []
+                    }
+                  />
+                </div>
+                <input
+                  name="recognitionCertificateId"
+                  type="hidden"
+                  value={currentFestival?.certificationMemberId ?? undefined}
+                />
+              </CardContent>
+            </Card>
+
             {!isNSAccount ? (
               <div className="sticky bottom-5 right-0 flex justify-end px-4">
                 <Card className="flex justify-end gap-4 w-full">

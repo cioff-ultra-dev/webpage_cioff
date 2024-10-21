@@ -41,6 +41,15 @@ export async function getGroupById(id: SelectGroup["id"]) {
     where: eq(groups.id, id),
     with: {
       directorPhoto: true,
+      musicalPhoto: true,
+      artisticPhoto: true,
+      coverPhoto: true,
+      logo: true,
+      photos: {
+        with: {
+          photo: true,
+        },
+      },
       subgroups: {
         with: {
           subgroupsToCategories: true,
