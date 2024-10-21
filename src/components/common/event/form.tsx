@@ -1591,8 +1591,8 @@ export default function EventForm({
                 </CardContent>
               </Card>
             </div>
-            <div className="grid-cols-1 lg:grid-cols-2 gap-6 hidden">
-              <Card>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="hidden">
                 <CardHeader>
                   <CardTitle>Status and Details</CardTitle>
                 </CardHeader>
