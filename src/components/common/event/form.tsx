@@ -2043,6 +2043,7 @@ export default function EventForm({
                             {...field}
                             value={field.value || ""}
                             placeholder="Provide your URL of your conditions here"
+                            disabled={isNSAccount}
                           />
                         </FormControl>
                         <FormDescription>
@@ -2068,6 +2069,7 @@ export default function EventForm({
                             allowMultiple
                             acceptedFileTypes={["image/*"]}
                             maxFiles={5}
+                            disabled={isNSAccount}
                             defaultFiles={
                               currentFestival?.stagePhotos.length
                                 ? currentFestival.stagePhotos.map((item) => {
@@ -2106,6 +2108,7 @@ export default function EventForm({
                           <Switch
                             checked={field.value}
                             onCheckedChange={field.onChange}
+                            disabled={isNSAccount}
                           />
                         </FormControl>
                       </FormItem>
@@ -2123,6 +2126,7 @@ export default function EventForm({
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
+                            disabled={isNSAccount}
                           >
                             <FormControl>
                               <SelectTrigger>
@@ -2266,6 +2270,7 @@ export default function EventForm({
                                     variant="ghost"
                                     size="icon"
                                     onClick={() => void removeGroupList(index)}
+                                    disabled={isNSAccount}
                                   >
                                     <X className="h-4 w-4" />
                                   </Button>
@@ -2303,6 +2308,7 @@ export default function EventForm({
                         <FormControl>
                           <Switch
                             checked={field.value}
+                            disabled={isNSAccount}
                             onCheckedChange={field.onChange}
                           />
                         </FormControl>
@@ -2322,6 +2328,7 @@ export default function EventForm({
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                             name={field.name}
+                            disabled={isNSAccount}
                           >
                             <FormControl>
                               <SelectTrigger>
