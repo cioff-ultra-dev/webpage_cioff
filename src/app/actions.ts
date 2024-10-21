@@ -1399,8 +1399,8 @@ export async function updateFestival(formData: FormData) {
         lat,
         lng,
         linkConditions,
-        coverId: coverNextId,
-        logoId: logoNextId,
+        coverId: coverNextId ? coverNextId : undefined,
+        logoId: logoNextId ? logoNextId : undefined,
         youtubeId,
         ...(certificationNextId
           ? { certificationMemberId: certificationNextId }
@@ -1907,11 +1907,17 @@ export async function updateGroup(formData: FormData) {
       .update(groups)
       .set({
         generalDirectorName,
-        generalDirectorPhotoId: generaltDirectorPhotoNextId,
+        generalDirectorPhotoId: generaltDirectorPhotoNextId
+          ? generaltDirectorPhotoNextId
+          : undefined,
         artisticDirectorName,
-        artisticDirectorPhotoId: artisticDirectorPhotoNextId,
+        artisticDirectorPhotoId: artisticDirectorPhotoNextId
+          ? artisticDirectorPhotoNextId
+          : undefined,
         musicalDirectorName,
-        musicalDirectorPhotoId: musicalDirectorPhotoNextId,
+        musicalDirectorPhotoId: musicalDirectorPhotoNextId
+          ? musicalDirectorPhotoNextId
+          : undefined,
         phone,
         isAbleTravel: isAbleToTravel,
         isAbleTravelLiveMusic: isAbleToTravelLiveMusic,
