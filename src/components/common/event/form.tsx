@@ -104,69 +104,68 @@ const dateRangeSchema = z.object({
   to: z.string().optional(),
 });
 
-const globalEventSchema = insertFestivalSchema
-  .merge(
-    z.object({
-      _currentDates: z.array(z.object({ _rangeDate: dateRangeSchema })),
-      _nextDates: z.array(z.object({ _rangeDate: dateRangeSchema })),
-      _transportLocation: z.string().optional(),
-      _ageOfParticipants: z.array(z.string()).nonempty(),
-      _styleOfFestival: z.array(z.string()).nonempty(),
-      _typeOfAccomodation: z.string().optional(),
-      _typeOfFestival: z.array(z.string()).nonempty(),
-      _status: z.string().optional(),
-      _recognizedSince: z.string(),
-      _recognizedRange: z.string(),
-      _typeOfCompensation: z.string().optional(),
-      _financialCompensation: z.string().optional(),
-      _inKindCompensation: z.string().optional(),
-      _componentsRecognized: z.array(z.string()).optional(),
-      _componentsPartner: z.array(z.string()).optional(),
-      _email: z.string().email(),
-      _lang: insertFestivalLangSchema,
-      _accomodationPhoto: z.any().optional(),
-      _transportLocations: z.array(
-        z.object({
-          lat: z.string().optional(),
-          lng: z.string().optional(),
-          location: z.string().optional(),
-        }),
-      ),
-      _isFestivalsConnected: z.boolean().default(false).optional(),
-      _isLookingForGroups: z.boolean().default(false).optional(),
-      _isGroupsConfirmed: z.boolean().default(false).optional(),
-      _countrySelected: z.string().optional(),
-      _countryGroupSelected: z.string().optional(),
-      _groupRegionSelected: z.string().optional(),
-      _groupRegionsSelected: z.array(z.string()).optional(),
-      _festivalListSelected: z.array(
-        z.object({
-          name: z.string().optional(),
-          id: z.string().optional(),
-          countryName: z.string().optional(),
-          festivalId: z.string().optional(),
-        }),
-      ),
-      _groupListSelected: z.array(
-        z.object({
-          name: z.string().optional(),
-          id: z.string().optional(),
-          countryName: z.string().optional(),
-          groupId: z.string().optional(),
-        }),
-      ),
-      stagePhotos: z.array(z.any().optional()).optional(),
-    }),
-  )
-  .refine(
-    (data) => {
-      return !data._typeOfAccomodation || data._accomodationPhoto;
-    },
-    {
-      path: ["_accomodationPhoto"],
-      params: { i18n: "file_required" },
-    },
-  );
+const globalEventSchema = insertFestivalSchema.merge(
+  z.object({
+    _currentDates: z.array(z.object({ _rangeDate: dateRangeSchema })),
+    _nextDates: z.array(z.object({ _rangeDate: dateRangeSchema })),
+    _transportLocation: z.string().optional(),
+    _ageOfParticipants: z.array(z.string()).nonempty(),
+    _styleOfFestival: z.array(z.string()).nonempty(),
+    _typeOfAccomodation: z.string().optional(),
+    _typeOfFestival: z.array(z.string()).nonempty(),
+    _status: z.string().optional(),
+    _recognizedSince: z.string(),
+    _recognizedRange: z.string(),
+    _typeOfCompensation: z.string().optional(),
+    _financialCompensation: z.string().optional(),
+    _inKindCompensation: z.string().optional(),
+    _componentsRecognized: z.array(z.string()).optional(),
+    _componentsPartner: z.array(z.string()).optional(),
+    _email: z.string().email(),
+    _lang: insertFestivalLangSchema,
+    _accomodationPhoto: z.any().optional(),
+    _transportLocations: z.array(
+      z.object({
+        lat: z.string().optional(),
+        lng: z.string().optional(),
+        location: z.string().optional(),
+      }),
+    ),
+    _isFestivalsConnected: z.boolean().default(false).optional(),
+    _isLookingForGroups: z.boolean().default(false).optional(),
+    _isGroupsConfirmed: z.boolean().default(false).optional(),
+    _countrySelected: z.string().optional(),
+    _countryGroupSelected: z.string().optional(),
+    _groupRegionSelected: z.string().optional(),
+    _groupRegionsSelected: z.array(z.string()).optional(),
+    _festivalListSelected: z.array(
+      z.object({
+        name: z.string().optional(),
+        id: z.string().optional(),
+        countryName: z.string().optional(),
+        festivalId: z.string().optional(),
+      }),
+    ),
+    _groupListSelected: z.array(
+      z.object({
+        name: z.string().optional(),
+        id: z.string().optional(),
+        countryName: z.string().optional(),
+        groupId: z.string().optional(),
+      }),
+    ),
+    stagePhotos: z.array(z.any().optional()).optional(),
+  }),
+);
+// .refine(
+//   (data) => {
+//     return !data._typeOfAccomodation || data._accomodationPhoto;
+//   },
+//   {
+//     path: ["_accomodationPhoto"],
+//     params: { i18n: "file_required" },
+//   },
+// );
 
 function removeDuplicates(data: string[]) {
   return Array.from(new Set(Array.from(data)));
@@ -1152,22 +1151,38 @@ export default function EventForm({
                           <FormItem>
                             <FormLabel>Upload a picture</FormLabel>
                             <FormControl>
-                              <Input
-                                onChange={(event) => {
-                                  field.onChange(
-                                    event.target.files && event.target.files[0],
-                                  );
-                                }}
-                                accept="image/*"
-                                ref={field.ref}
-                                type="file"
+                              <FilepondImageUploader
+                                name={field.name}
                                 disabled={isNSAccount}
+                                acceptedFileTypes={["image/*"]}
+                                defaultFiles={
+                                  currentFestival?.accomodationPhoto?.url
+                                    ? [
+                                        {
+                                          source:
+                                            currentFestival.accomodationPhoto
+                                              ?.url!,
+                                          options: {
+                                            type: "local",
+                                          },
+                                        },
+                                      ]
+                                    : []
+                                }
                               />
                             </FormControl>
                             <FormDescription>
                               Only available for users
                             </FormDescription>
                             <FormMessage />
+                            <input
+                              name="_accomodationPhotoId"
+                              type="hidden"
+                              value={
+                                currentFestival?.accomodationPhotoId ??
+                                undefined
+                              }
+                            />
                           </FormItem>
                         )}
                       />

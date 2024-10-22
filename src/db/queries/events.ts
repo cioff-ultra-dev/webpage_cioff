@@ -112,6 +112,7 @@ export async function getFestivalBySlug(
       },
       coverPhoto: true,
       logo: true,
+      accomodationPhoto: true,
       certification: true,
       photos: {
         with: {
