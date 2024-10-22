@@ -66,6 +66,8 @@ import { generateHashPassword, isSamePassword } from "@/lib/password";
 import slug from "slug";
 import { z } from "zod";
 import { readFile, unlink } from "fs/promises";
+import path from "path";
+import { tmpdir } from "os";
 
 const urlStringSchema = z.string().trim().url();
 
@@ -151,7 +153,7 @@ export async function uploadFileStreams(
   }
 
   if (!isUrl.success && value && typeof value === "string") {
-    const currentPath = `/tmp/${value}`;
+    const currentPath = path.join(tmpdir(), value);
     const fileBuffer = await readFile(currentPath);
     const pathname = value.split("|").at(-1);
 
