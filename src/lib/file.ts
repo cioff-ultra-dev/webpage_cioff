@@ -1,5 +1,7 @@
 import { writeFile } from "fs/promises";
 import { v4 } from "uuid";
+import { tmpdir } from "os";
+import path from "path";
 
 type FileLocallyType = {
   id: string;
@@ -16,9 +18,9 @@ export async function storeFileLocally(
   const uuid = v4();
   const indexPath = `${uuid}|${fileName}`;
 
-  const path = `/tmp/${indexPath}`;
+  const nextPath = path.join(tmpdir(), indexPath);
 
-  await writeFile(path, data);
+  await writeFile(nextPath, data);
 
   return { id: uuid, path: indexPath };
 }

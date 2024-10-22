@@ -2168,7 +2168,9 @@ export default function EventForm({
                               label:
                                 item.langs.find(
                                   (lang) => lang.l?.code === locale,
-                                )?.name || "",
+                                )?.name ||
+                                item.langs.at(0)?.name ||
+                                "",
                               caption: "",
                             })) ?? [];
                           return (
