@@ -1,5 +1,5 @@
 import { storeFileLocally } from "@/lib/file";
-import { head } from "@vercel/blob";
+import { del, head, put } from "@vercel/blob";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: Request): Promise<NextResponse> {
@@ -8,9 +8,11 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   const file = body.getAll(customField!).at(-1) as File;
 
-  const { path } = await storeFileLocally(file, file.name);
+  const { url } = await put(`media/${file.name}`, file, {
+    access: "public",
+  });
 
-  const response = new NextResponse(path);
+  const response = new NextResponse(url);
 
   response.headers.set("Content-Type", "text/plain");
 
@@ -31,4 +33,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   response.headers.set("Content-Disposition", _head.contentDisposition);
 
   return response;
+}
+
+export async function DELETE(request: NextRequest): Promise<NextResponse> {
+  const data = await request.arrayBuffer();
+
+  const url = Buffer.from(data).toString();
+
+  if (url) {
+    await del(url);
+  }
+
+  return new NextResponse(null, {
+    status: 200,
+  });
 }
