@@ -1337,8 +1337,6 @@ export async function updateFestival(formData: FormData) {
   const websiteLink = (formData.get("website") as string) || null;
   const youtubeId = (formData.get("youtubeId") as string) || null;
 
-  const regionForGroupsId = Number(formData.get("_groupRegionSelected"));
-
   const currentDateSize = Number(formData.get("_currentDateSize"));
   const nextDateSize = Number(formData.get("_nextDateSize"));
 
@@ -1368,6 +1366,9 @@ export async function updateFestival(formData: FormData) {
 
   const logo = formData.get("logo") as string;
   const logoId = Number(formData.get("logoId"));
+
+  const accomodationPhoto = formData.get("_accomodationPhoto") as string;
+  const accomodationPhotoId = Number(formData.get("_accomodationPhotoId"));
 
   const certification = formData.get("recognitionCertificate") as string;
   const certificationId = Number(formData.get("recognitionCertificateId"));
@@ -1402,6 +1403,13 @@ export async function updateFestival(formData: FormData) {
       certificationId,
     );
 
+    const accomodationNextId = await uploadFileStreams(
+      accomodationPhoto,
+      tx,
+      "festivals",
+      accomodationPhotoId,
+    );
+
     const [currentFestival] = await tx
       .insert(festivals)
       .values({
@@ -1417,6 +1425,9 @@ export async function updateFestival(formData: FormData) {
         linkConditions,
         coverId: coverNextId ? coverNextId : undefined,
         logoId: logoNextId ? logoNextId : undefined,
+        accomodationPhotoId: accomodationNextId
+          ? accomodationNextId
+          : undefined,
         youtubeId,
         ...(certificationNextId
           ? { certificationMemberId: certificationNextId }
@@ -1438,6 +1449,7 @@ export async function updateFestival(formData: FormData) {
           "logoId",
           "youtubeId",
           "certificationMemberId",
+          "accomodationPhotoId",
         ]),
       })
       .returning();

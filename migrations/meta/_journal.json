@@ -281,6 +281,13 @@
       "when": 1729552499240,
       "tag": "0036_hesitant_wild_child",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1729561138714,
+      "tag": "0037_red_captain_cross",
+      "breakpoints": true
     }
   ]
 }

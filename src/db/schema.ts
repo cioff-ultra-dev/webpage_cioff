@@ -439,6 +439,7 @@ export const festivals = pgTable("festivals", {
   countryId: integer("country_id").references(() => countries.id),
   logoId: integer("logo_id").references(() => storages.id),
   coverId: integer("cover_id").references(() => storages.id),
+  accomodationPhotoId: integer("accomodation_id").references(() => storages.id),
   createdBy: text("created_by").references(() => users.id),
   updatedBy: text("updated_by").references(() => users.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -1227,6 +1228,10 @@ export const festivalRelations = relations(festivals, ({ many, one }) => ({
   }),
   logo: one(storages, {
     fields: [festivals.logoId],
+    references: [storages.id],
+  }),
+  accomodationPhoto: one(storages, {
+    fields: [festivals.accomodationPhotoId],
     references: [storages.id],
   }),
   certification: one(storages, {
