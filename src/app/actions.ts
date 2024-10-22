@@ -130,6 +130,7 @@ export async function uploadFileStreams(
 
   const isUrl = urlStringSchema.safeParse(value);
 
+  console.log({ storageId, value });
   if (storageId && (!value || typeof value !== "string")) {
     const currentStorage = await tx.query.storages.findFirst({
       where(fields, { eq }) {
@@ -150,6 +151,19 @@ export async function uploadFileStreams(
     }
 
     return currentStorage?.id!;
+  }
+
+  if (storageId && isUrl.success && value && typeof value === "string") {
+    const [updatedStorage] = await tx
+      .update(storages)
+      .set({
+        url: value,
+        name: value.split("/").at(-1),
+      })
+      .where(eq(storages.id, storageId))
+      .returning();
+
+    return updatedStorage.id;
   }
 
   if (!isUrl.success && value && typeof value === "string") {
