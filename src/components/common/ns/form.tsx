@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -11,12 +11,10 @@ import {
   useWatch,
 } from "react-hook-form";
 import * as RPNInput from "react-phone-number-input";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button, ButtonProps } from "@/components/ui/button";
-import { createNationalSection, updateNationalSection } from "@/app/actions";
-import { useFormState, useFormStatus } from "react-dom";
+import { updateNationalSection } from "@/app/actions";
 import {
   Form,
   FormControl,
@@ -34,19 +32,15 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import {
-  inserFestivalByNSSchema,
   inserNationalSectionLangSchema,
   insertEventLangSchema,
   insertEventSchema,
-  insertFestivalLangSchema,
-  insertGroupByNSSchema,
-  insertGroupLangSchema,
   insertNationalSectionPositionsLangSchema,
   insertNationalSectionPositionsSchema,
   insertNationalSectionSchema,
   insertSocialMediaLinkSchema,
 } from "@/db/schema";
-import { CalendarIcon, PlusCircle, Trash2 } from "lucide-react";
+import { CalendarIcon, PlusCircle } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
   Popover,
@@ -58,7 +52,6 @@ import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { PhoneInput } from "@/components/ui/phone-input";
 import {
-  getCurrentNationalSection,
   NationalSectionDetailsType,
   PositionTypeForNSType,
 } from "@/db/queries/national-sections";
@@ -68,13 +61,6 @@ import { toast } from "sonner";
 import { customRevalidatePath, customRevalidateTag } from "../revalidateTag";
 import { useRouter } from "next/navigation";
 import { DatePickerWithRange } from "@/components/ui/datepicker-with-range";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import {
   Command,
@@ -260,6 +246,7 @@ export default function NationalSectionForm({
         `_events.${index}._lang.name`,
         event.langs.at(0)?.name || "",
       );
+
       form.setValue(
         `_events.${index}._lang.description`,
         event.langs.at(0)?.description || "",
@@ -288,24 +275,6 @@ export default function NationalSectionForm({
     name: "_events",
   });
 
-  // const {
-  //   fields: festivalFields,
-  //   append: appendFestival,
-  //   remove: removeFestival,
-  // } = useFieldArray({
-  //   control: form.control,
-  //   name: "_festivals",
-  // });
-
-  // const {
-  //   fields: groupFields,
-  //   append: appendGroup,
-  //   remove: removeGroup,
-  // } = useFieldArray({
-  //   control: form.control,
-  //   name: "_groups",
-  // });
-
   const positions = useWatch({
     control: form.control,
     name: "_positions",
@@ -331,7 +300,7 @@ export default function NationalSectionForm({
     customRevalidatePath("/dashboard/national-sections");
 
     if (result.success) {
-      // router.push("/dashboard/national-sections");
+      router.push("/dashboard/national-sections");
     }
   };
 
@@ -1139,7 +1108,7 @@ export default function NationalSectionForm({
                                   className="resize-none"
                                   name={field.name}
                                   onChange={field.onChange}
-                                  defaultValue={field.value ?? ""}
+                                  value={field.value || ""}
                                   onBlur={field.onBlur}
                                   ref={field.ref}
                                 />

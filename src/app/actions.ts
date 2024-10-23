@@ -604,41 +604,94 @@ export async function updateNationalSection(formData: FormData) {
         const toDate = formData.get(`_events.${index}._rangeDate.to`) as string;
 
         if (fromDate) {
-          otherEvents.push({
-            id: id === 0 ? undefined : id,
-            nsId,
-            startDate: new Date(fromDate),
-            endDate: toDate ? new Date(toDate) : new Date(fromDate),
-          });
-        }
+          const [currentOtherEvent] = await tx
+            .insert(events)
+            .values({
+              id: id === 0 ? undefined : id,
+              nsId,
+              startDate: new Date(fromDate),
+              endDate: toDate ? new Date(toDate) : new Date(fromDate),
+            })
+            .onConflictDoUpdate({
+              target: events.id,
+              set: buildConflictUpdateColumns(events, ["startDate", "endDate"]),
+            })
+            .returning({ id: events.id });
 
-        otherEventLangs.push({
-          id: eventLangId === 0 ? undefined : eventLangId,
-          name,
-          description,
-        });
+          if (currentCountry?.nativeLang?.code === locale) {
+            const currentEventLangs = await tx.query.eventsLang.findMany({
+              where(fields, { eq }) {
+                return eq(fields.eventId, id);
+              },
+              with: {
+                l: true,
+              },
+            });
+
+            const nameTranslateResults = await getTranslateText(
+              name,
+              locale as Locale,
+            );
+            const descriptionTranslateResults = await getTranslateText(
+              description,
+              locale as Locale,
+            );
+
+            const pickedLocales = pickLocales(locale);
+
+            for await (const _currentLocale of pickedLocales) {
+              const newLang = await preparedLanguagesByCode.execute({
+                locale: _currentLocale,
+              });
+              const newName = nameTranslateResults.find(
+                (item) => item.locale === _currentLocale,
+              );
+
+              const newDescription = descriptionTranslateResults.find(
+                (item) => item.locale === _currentLocale,
+              );
+
+              otherEventLangs.push({
+                id:
+                  currentEventLangs.find(
+                    (item) => item.l?.code === _currentLocale,
+                  )?.id || undefined,
+                name: newName?.result,
+                description: newDescription?.result,
+                eventId: currentOtherEvent.id,
+                lang:
+                  currentEventLangs.find(
+                    (item) => item.l?.code === _currentLocale,
+                  )?.lang ||
+                  newLang?.id ||
+                  undefined,
+              });
+            }
+
+            otherEventLangs.push({
+              id: eventLangId === 0 ? undefined : eventLangId,
+              name,
+              description,
+              eventId: currentOtherEvent.id,
+              lang: lang.id,
+            });
+          } else {
+            otherEventLangs.push({
+              id: eventLangId === 0 ? undefined : eventLangId,
+              name,
+              description,
+              eventId: currentOtherEvent.id,
+              lang: lang.id,
+            });
+          }
+        }
       }
 
-      const otherEventsElements = await tx
-        .insert(events)
-        .values(otherEvents)
-        .onConflictDoUpdate({
-          target: events.id,
-          set: buildConflictUpdateColumns(events, ["startDate", "endDate"]),
-        })
-        .returning({ id: events.id });
-
-      const outputEvents = otherEventsElements.map((item, index) => ({
-        id: otherEventLangs.at(index)?.id,
-        eventId: item.id,
-        name: otherEventLangs.at(index)?.name!,
-        description: otherEventLangs.at(index)?.description!,
-        lang: lang.id,
-      }));
+      console.log({ otherEventLangs });
 
       await tx
         .insert(eventsLang)
-        .values(outputEvents)
+        .values(otherEventLangs)
         .onConflictDoUpdate({
           target: eventsLang.id,
           set: buildConflictUpdateColumns(eventsLang, ["name", "description"]),
