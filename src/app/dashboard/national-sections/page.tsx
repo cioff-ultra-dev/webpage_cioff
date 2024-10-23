@@ -32,13 +32,14 @@ import {
   getAllNationalSectionsByOwner,
   LangWithNationalSection,
 } from "@/db/queries/national-sections";
-import { getFormatter, getLocale } from "next-intl/server";
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
 import { auth } from "@/auth";
 
 export default async function DashboardPage() {
   const session = await auth();
   const locale = await getLocale();
+  const t = await getTranslations("page");
   const formatter = await getFormatter();
   const nationalSections = (await getAllNationalSectionsByOwner(locale))
     .filter((item) => item.ns)
@@ -48,7 +49,7 @@ export default async function DashboardPage() {
     <Tabs defaultValue="all">
       <div className="flex items-center">
         <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="all">{t("all")}</TabsTrigger>
           {/* <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
           <TabsTrigger value="past">Past</TabsTrigger> */}
         </TabsList>
@@ -82,7 +83,7 @@ export default async function DashboardPage() {
               <Button size="sm" className="h-8 gap-1">
                 <CirclePlusIcon className="h-3.5 w-3.5" />
                 <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  Add National Section
+                  {t("add_national_section")}
                 </span>
               </Button>
             </Link>
@@ -92,9 +93,9 @@ export default async function DashboardPage() {
       <TabsContent value="all">
         <Card x-chunk="dashboard-06-chunk-0">
           <CardHeader>
-            <CardTitle>National Sections</CardTitle>
+            <CardTitle>{t("national_sections")}</CardTitle>
             <CardDescription>
-              Manage your NS and view their details.
+              {t("Manage_your_ns")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -102,13 +103,13 @@ export default async function DashboardPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead className="hidden md:table-cell">Date</TableHead>
+                    <TableHead>{t("name")}</TableHead>
+                    <TableHead className="hidden md:table-cell">{t("date")}</TableHead>
                     <TableHead className="hidden md:table-cell">
-                      Description
+                      {t("description")}
                     </TableHead>
                     <TableHead>
-                      <span className="sr-only">Actions</span>
+                      <span className="sr-only">{t("actions")}</span>
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -152,7 +153,7 @@ export default async function DashboardPage() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuLabel>{t("actions")}</DropdownMenuLabel>
                               <DropdownMenuItem
                                 asChild
                                 className="cursor-pointer"
@@ -160,11 +161,11 @@ export default async function DashboardPage() {
                                 <Link
                                   href={`/dashboard/national-sections/${item?.slug}/edit`}
                                 >
-                                  Edit
+                                  {t("edit")}
                                 </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem disabled>
-                                Delete
+                              {t("delete")}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -177,7 +178,7 @@ export default async function DashboardPage() {
             ) : (
               <div className="w-full flex justify-center">
                 <span className="text-muted-foreground text-sm">
-                  Not found groups...
+                {t("not_found_groups")}
                 </span>
               </div>
             )}

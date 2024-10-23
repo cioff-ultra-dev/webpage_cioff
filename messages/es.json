@@ -2,12 +2,48 @@
   "home": {
     "title": "Hola mundo!"
   },
+  "page":{
+    "all": "Todos",
+    "add_national_section": "Agregar sección nacional",
+    "add_festival": "Agregar Festival",
+    "add_group": "Agregar Grupo",
+    "national_sections": "Secciones nacionales",
+    "festivals": "Festivales",
+    "groups": "Grupos",
+    "Manage_your_ns": "Gestiona tus NS y consulta sus datos.",
+    "Manage_your_fest_details": "Gestiona tus festivales y consulta sus detalles.",
+    "Manage_your_groups_details": "Gestiona tus grupos y consulta sus datos.",
+    "name": "Nombre",
+    "owner": "Dueño",
+    "date": "Fecha",
+    "country": "País",
+    "state": "Estado",
+    "description": "Descripción",
+    "actions": "Acciones",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "preview": "Vista previa",
+    "not_found_groups": "Grupos no encontrados...",
+    "not_found_festivals": "Festivales no encontrados...",
+    "gener_fest_invit": "Generar invitación a festival",
+    "Gener_group_invitat": "Generate Group Invitation"
+  },
+
   "locale_switch": {
-    "select": "Seleccionar idioma"
+    "select": "Seleccionar idioma",
+    "es": "Español",
+    "fr": "Français",
+    "en": "English"
   },
   "notification": {
     "success": "Guardado Exitosamente",
+    "email_exist": "El correo electrónico ya existe",
+    "user_already_actived": "Cuenta de usuario ya activada",
+    "sent_success": "Enviado con éxito",
     "email": {
+      "festival_invitation_subject": "Invitación para Participar en los Festivales - CIOFF",
+      "group_invitation_subject": "Grupos Invitación de usuarios - CIOFF",
+      "login_to": "Conectarse a CIOFF",
       "activation_account": "Activación Intranet CIOFF"
     }
   },
@@ -31,6 +67,12 @@
     "_typeOfFestival": "Tipo de festival",
     "_status": "Estado",
     "festival": {
+      "tag": {
+        "typeOfFestival": "Tipo de festival",
+        "ageOfParticipants": "Edad de los participantes",
+        "styleOfFestival": "Estilo del festival",
+        "typeOfAccomodation": "Tipo de alojamiento"
+      },
       "name": "Nombre del festival",
       "phone": "Número de teléfono",
       "contact": "Contacto",
@@ -45,15 +87,64 @@
     },
     "ns": {
       "title": "AGREGAR UNA SECCIÓN NACIONAL",
-      "disclaimer": "Los campos con * son obligatorios.",
+      "disclaimer": "Los campos con (*) son obligatorios.",
+      "organi_registra_form": "Formulario de inscripción",
+      "please_fill_out_details": "Por favor ingrese los datos de su organización",
+      "module_1_profile": "Módulo 1: Perfil",
+      "enter_associ_name": "Ingrese el nombre de la asociación",
+      "about_national_secti": "Información de la Sección Nacional",
+      "Tell_public_about_NS_etc":"Informe al público sobre las principales actividades o proyectos de la SN, año de creación, etc.",
+      "You_can_use_max_500_words":"Puede utilizar un máximo de 500 palabras para esta información",
+      "position": "Posición",
+      "name": "Nombre",
+      "enter_current_name": "Introduzca su nombre actual",
+      "type_position": "Tipo Posición",
+      "select_type_positi": "Seleccione el tipo de posición",
+      "search_type": "Tipo de búsqueda...",
+      "no_type_position_found": "No se ha encontrado información.",
+      "this_type_posi_used_nationalsec": "Este es el tipo de puesto que se utilizará en la Sección Nacional.",
+      "member_name": "Nombre del integrante",
+      "enter_custom_me_name": "Introduzca su nombre de usuario personalizado",
+      "email_address": "Correo Electrónico",
+      "enter_current_email_addre": "Introduzca su dirección de correo electrónico",
+      "phone_number": "Número de teléfono (Indicativo del país)",
+      "enter_phone_number": "Ingrese su número de teléfono",
       "_lang": {
         "name": "Nombre de la asociacion",
         "about": "Acerca de"
+      },
+      "_festivals": [
+        {
+          "name": "Nombre del festival"
+        }
+      ],
+      "_positionsSize": "Lista de puestos",
+      "_positions": [
+        {
+          "name": "Nombre",
+          "email": "Correo electrónico",
+          "phone": "Número celular (prefijo del país)",
+          "_lang": {
+            "shortBio": "Breve biografía"
+          }
+        }
+      ]
+    },
+    "profile": {
+      "password_match": "La contraseña no coincide",
+      "currentPassword": "Contraseña actual",
+      "newPassword": "Nueva contraseña",
+      "confirmPassword": "Confirmar contraseña"
+    },
+    "group": {
+      "_lang": {
+        "name": "Nombre del grupo"
       }
     }
   },
   "customErrors": {
     "file_required": "Archivo es requerido",
-    "invalid_phone_number": "Número de teléfono inválido"
+    "invalid_phone_number": "Número de teléfono inválido",
+    "password_match": "Password does not match"
   }
 }
