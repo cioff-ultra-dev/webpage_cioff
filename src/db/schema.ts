@@ -1288,9 +1288,13 @@ export const categoryGroupsRealtions = relations(
   }),
 );
 
-export const countriesRelations = relations(countries, ({ many }) => ({
+export const countriesRelations = relations(countries, ({ one, many }) => ({
   festivals: many(festivals),
   langs: many(countriesLang),
+  nativeLang: one(languages, {
+    fields: [countries.nativeLang],
+    references: [languages.id],
+  }),
 }));
 
 export const countriesLangRelations = relations(countriesLang, ({ one }) => ({

@@ -1,26 +1,16 @@
-import { db } from "@/db";
-import { storages } from "@/db/schema";
 import { Locale } from "@/i18n/config";
 import { getTranslateText } from "@/lib/translate";
-import { eq, sql } from "drizzle-orm";
+import { getLocale } from "next-intl/server";
 import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
-  const query = db
-    .update(storages)
-    .set({ name: "container" })
-    .where(eq(storages.id, 198))
-    .returning({
-      name: storages.name,
-      foo: sql`${db
-        .select({ oldName: storages.name })
-        .from(storages)
-        .where(eq(storages.id, 198))}`,
-    });
+  const search: string = request.nextUrl.searchParams.get("search") || "";
+  const currentLocale = (await getLocale()) as Locale;
 
-  console.log(query.toSQL());
-
-  const results = await query;
+  const results = await getTranslateText(
+    search || "hola mundo de mierda",
+    currentLocale,
+  );
 
   return Response.json({ results });
 }

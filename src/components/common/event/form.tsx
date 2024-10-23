@@ -392,7 +392,7 @@ export default function EventForm({
     customRevalidatePath("/dashboard/festivals");
 
     if (result.success) {
-      router.push("/dashboard/festivals");
+      // router.push("/dashboard/festivals");
     }
   };
 
@@ -469,6 +469,14 @@ export default function EventForm({
     name: "_countryGroupSelected",
   });
 
+  useEffect(() => {
+    if (currentLang?.id) {
+      form.setValue("_lang", {
+        ...currentLang,
+      });
+    }
+  }, [currentLang?.id, currentLang, form]);
+
   type CurrentFestivals = Awaited<ReturnType<typeof buildFestival>>;
   type CurrentGroups = Awaited<ReturnType<typeof buildGroup>>;
 
@@ -541,13 +549,17 @@ export default function EventForm({
                     <FormField
                       control={form.control}
                       name="_lang.name"
-                      render={({ field }) => (
+                      render={({ field, fieldState }) => (
                         <FormItem>
                           <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
                             {t("name")}
                           </FormLabel>
                           <FormControl>
-                            <Input {...field} disabled={isNSAccount} />
+                            <Input
+                              {...field}
+                              disabled={isNSAccount}
+                              data-dirty={fieldState.isDirty}
+                            />
                           </FormControl>
                           <FormDescription>
                             This is your current festival name
