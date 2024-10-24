@@ -15,6 +15,7 @@ import {
   festivalsToStatuses,
   festivalToCategories,
   groupPhotos,
+  groupPhotosRelations,
   groups,
   groupsLang,
   groupToCategories,
@@ -1118,11 +1119,21 @@ export async function generateFestival(formData: FormData) {
   const email = formData.get("email") as string;
   const nsId = Number(formData.get("_nsId"));
 
+  const festivalLangs: InsertFestivalLang[] = [];
+
   const t = await getTranslations("notification");
   const lang = await preparedLanguagesByCode.execute({ locale });
   const currentNationalSection = await db.query.nationalSections.findFirst({
     where(fields, { eq }) {
       return eq(fields.id, nsId);
+    },
+  });
+  const currentCountry = await db.query.countries.findFirst({
+    where(fields, { eq }) {
+      return eq(fields.id, currentNationalSection?.countryId!);
+    },
+    with: {
+      nativeLang: true,
     },
   });
 
@@ -1154,11 +1165,44 @@ export async function generateFestival(formData: FormData) {
         })
         .returning();
 
-      await tx.insert(festivalsLang).values({
-        name,
-        festivalId: currentFestival.id,
-        lang: lang?.id,
-      });
+      if (currentCountry?.nativeLang?.code === locale) {
+        const nameTranslateResults = await getTranslateText(
+          name,
+          locale as Locale,
+        );
+
+        const pickedLocales = pickLocales(locale);
+
+        for await (const _currentLocale of pickedLocales) {
+          const newLang = await preparedLanguagesByCode.execute({
+            locale: _currentLocale,
+          });
+
+          const newName = nameTranslateResults.find(
+            (item) => item.locale === _currentLocale,
+          );
+
+          festivalLangs.push({
+            festivalId: currentFestival.id,
+            name: newName?.result,
+            lang: newLang?.id || undefined,
+          });
+        }
+
+        festivalLangs.push({
+          name,
+          festivalId: currentFestival.id,
+          lang: lang?.id,
+        });
+      } else {
+        festivalLangs.push({
+          name,
+          festivalId: currentFestival.id,
+          lang: lang?.id,
+        });
+      }
+
+      await tx.insert(festivalsLang).values(festivalLangs);
 
       if (user.email && !user.isCreationNotified) {
         const currentCountry = await tx.query.countries.findFirst({
@@ -1263,11 +1307,21 @@ export async function generateGroup(formData: FormData) {
   const email = formData.get("email") as string;
   const nsId = Number(formData.get("_nsId"));
 
+  const groupLangs: InsertGroupLang[] = [];
+
   const t = await getTranslations("notification");
   const lang = await preparedLanguagesByCode.execute({ locale });
   const currentNationalSection = await db.query.nationalSections.findFirst({
     where(fields, { eq }) {
       return eq(fields.id, nsId);
+    },
+  });
+  const currentCountry = await db.query.countries.findFirst({
+    where(fields, { eq }) {
+      return eq(fields.id, currentNationalSection?.countryId!);
+    },
+    with: {
+      nativeLang: true,
     },
   });
 
@@ -1358,11 +1412,44 @@ export async function generateGroup(formData: FormData) {
         })
         .returning();
 
-      await tx.insert(groupsLang).values({
-        name,
-        groupId: currentGroup.id,
-        lang: lang?.id,
-      });
+      if (currentCountry?.nativeLang?.code === locale) {
+        const nameTranslateResults = await getTranslateText(
+          name,
+          locale as Locale,
+        );
+
+        const pickedLocales = pickLocales(locale);
+
+        for await (const _currentLocale of pickedLocales) {
+          const newLang = await preparedLanguagesByCode.execute({
+            locale: _currentLocale,
+          });
+
+          const newName = nameTranslateResults.find(
+            (item) => item.locale === _currentLocale,
+          );
+
+          groupLangs.push({
+            groupId: currentGroup.id,
+            name: newName?.result ?? "",
+            lang: newLang?.id || undefined,
+          });
+        }
+
+        groupLangs.push({
+          name,
+          groupId: currentGroup.id,
+          lang: lang?.id,
+        });
+      } else {
+        groupLangs.push({
+          name,
+          groupId: currentGroup.id,
+          lang: lang?.id,
+        });
+      }
+
+      await tx.insert(groupsLang).values(groupLangs);
 
       const ownerList: (typeof owners.$inferInsert)[] = [
         {
