@@ -1,50 +1,79 @@
 "use server";
 
 import {
-  categories,
   emailTemplates,
   events,
   eventsLang,
+  festivalPhotos,
   festivals,
+  festivalsGroupToRegions,
   festivalsLang,
+  festivalStagePhotos,
+  festivalsToComponents,
+  festivalsToConnected,
+  festivalsToGroups,
+  festivalsToStatuses,
   festivalToCategories,
+  groupPhotos,
   groups,
   groupsLang,
   groupToCategories,
   InsertEvent,
   InsertEventLang,
   InsertFestival,
+  InsertFestivalLang,
+  InsertFestivalPhotos,
   insertFestivalSchema,
+  InsertFestivalStagePhotos,
+  InsertFestivalToConnected,
+  InsertFestivalToGroups,
   InsertGroup,
+  InsertGroupPhotos,
+  InsertNationalSectionLang,
   InsertNationalSectionPositions,
   InsertNationalSectionPositionsLang,
+  InsertTransportLocations,
   nationalSectionPositionsLang,
   nationalSections,
   nationalSectionsLang,
   nationalSectionsPositions,
   owners,
+  repertories,
+  repertoriesLang,
   roles,
+  SelectFestivalPhotos,
   socialMediaLinks,
   storages,
+  subgroups,
+  subgroupsLang,
+  subgroupToCategories,
+  transportLocations,
   users,
   videoTutorialLinks,
 } from "@/db/schema";
 import { transport } from "@/lib/mailer";
-import { put } from "@vercel/blob";
+import { put, del } from "@vercel/blob";
 import { AuthError } from "next-auth";
 import { auth, signIn } from "@/auth";
 import { redirect } from "next/navigation";
 import { newFestival } from "@/db/queries/events";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { and, eq, getTableColumns, SQL, sql } from "drizzle-orm";
+import { and, eq, getTableColumns, inArray, SQL, sql } from "drizzle-orm";
 import { getLocale, getTranslations } from "next-intl/server";
 import { PgTable } from "drizzle-orm/pg-core";
 import { replaceTags } from "@codejamboree/replace-tags";
 import generator from "generate-password-ts";
 import { generateHashPassword, isSamePassword } from "@/lib/password";
 import slug from "slug";
-import build from "next/dist/build";
+import { z } from "zod";
+import { readFile, unlink } from "fs/promises";
+import path from "path";
+import { tmpdir } from "os";
+import { getTranslateText } from "@/lib/translate";
+import { Locale, pickLocales } from "@/i18n/config";
+
+const urlStringSchema = z.string().trim().url();
 
 const preparedLanguagesByCode = db.query.languages
   .findFirst({
@@ -73,12 +102,15 @@ const buildConflictUpdateColumns = <
 export async function uploadFile(
   file: File,
   tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  rootPath: string = "root",
 ) {
   if (!file || file?.size === 0) {
     return undefined;
   }
 
-  const blob = await put(`logos/${file.name}`, file, { access: "public" });
+  const blob = await put(`media/${rootPath}/${file.name}`, file, {
+    access: "public",
+  });
 
   const [result] = await tx
     .insert(storages)
@@ -88,6 +120,94 @@ export async function uploadFile(
     });
 
   return result.id;
+}
+
+export async function uploadFileStreams(
+  value: string,
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  rootPath: string = "root",
+  storageId?: number,
+) {
+  if (!value && !storageId) {
+    return undefined;
+  }
+
+  const isUrl = urlStringSchema.safeParse(value);
+
+  if (storageId && (!value || typeof value !== "string")) {
+    const currentStorage = await tx.query.storages.findFirst({
+      where(fields, { eq }) {
+        return eq(fields.id, storageId);
+      },
+    });
+
+    await tx
+      .update(storages)
+      .set({
+        url: "",
+        name: null,
+      })
+      .where(eq(storages.id, storageId));
+
+    if (currentStorage && currentStorage.url) {
+      await del(currentStorage.url);
+    }
+
+    return currentStorage?.id!;
+  }
+
+  if (storageId && isUrl.success && value && typeof value === "string") {
+    const [updatedStorage] = await tx
+      .update(storages)
+      .set({
+        url: value,
+        name: value.split("/").at(-1),
+      })
+      .where(eq(storages.id, storageId))
+      .returning();
+
+    return updatedStorage.id;
+  }
+
+  if (!isUrl.success && value && typeof value === "string") {
+    const currentPath = path.join(tmpdir(), value);
+    const fileBuffer = await readFile(currentPath);
+    const pathname = value.split("|").at(-1);
+
+    const _file = await put(`media/${rootPath}/${pathname}`, fileBuffer, {
+      access: "public",
+    });
+
+    await unlink(currentPath);
+
+    const [result] = await tx
+      .insert(storages)
+      .values({
+        id: storageId ? storageId : undefined,
+        url: _file.url,
+        name: _file.pathname.split("/").at(-1),
+      })
+      .onConflictDoUpdate({
+        target: [storages.id],
+        set: buildConflictUpdateColumns(storages, ["url", "name"]),
+      })
+      .returning();
+
+    return result.id;
+  }
+
+  if (!storageId && isUrl.success && value && typeof value === "string") {
+    const [newStorage] = await tx
+      .insert(storages)
+      .values({
+        url: value,
+        name: value.split("/").at(-1),
+      })
+      .returning();
+
+    return newStorage.id;
+  }
+  return storageId!;
 }
 
 export async function authenticate(
@@ -110,7 +230,6 @@ export async function authenticate(
   }
 
   revalidatePath("/dashboard");
-  redirect("/dashboard");
 }
 
 export async function createFestival(prevState: unknown, formData: FormData) {
@@ -196,6 +315,9 @@ export async function updateNationalSection(formData: FormData) {
   const otherEvents: InsertEvent[] = [];
   const otherEventLangs: InsertEventLang[] = [];
 
+  const currentNationaSectionLangTranslates: Array<InsertNationalSectionLang> =
+    [];
+
   const lang = await preparedLanguagesByCode.execute({ locale });
   const currentNationalSection = await db.query.nationalSections.findFirst({
     where(fields, { eq }) {
@@ -208,23 +330,94 @@ export async function updateNationalSection(formData: FormData) {
   }
 
   await db.transaction(async (tx) => {
-    const [currentNationaSectionLang] = await tx
-      .insert(nationalSectionsLang)
-      .values({
-        id: !langId ? undefined : langId,
+    const currentCountry = await tx.query.countries.findFirst({
+      where(fields, { eq }) {
+        return eq(fields.id, currentNationalSection?.countryId!);
+      },
+      with: {
+        nativeLang: true,
+      },
+    });
+
+    if (currentCountry?.nativeLang?.code === locale) {
+      const currentNationaSectionLangs =
+        await tx.query.nationalSectionsLang.findMany({
+          where(fields, { eq }) {
+            return eq(fields.nsId, currentNationalSection?.id!);
+          },
+          with: {
+            l: true,
+          },
+        });
+
+      const nameTranslateResults = await getTranslateText(
+        name,
+        locale as Locale,
+      );
+      const aboutTranslateResults = await getTranslateText(
+        about,
+        locale as Locale,
+      );
+
+      const pickedLocales = pickLocales(locale);
+
+      for await (const _currentLocale of pickedLocales) {
+        const newLang = await preparedLanguagesByCode.execute({
+          locale: _currentLocale,
+        });
+
+        const newName = nameTranslateResults.find(
+          (item) => item.locale === _currentLocale,
+        );
+
+        const newAbout = aboutTranslateResults.find(
+          (item) => item.locale === _currentLocale,
+        );
+
+        currentNationaSectionLangTranslates.push({
+          id:
+            currentNationaSectionLangs.find(
+              (item) => item.l?.code === _currentLocale,
+            )?.id || undefined,
+          name: newName?.result!,
+          about: newAbout?.result,
+          nsId: currentNationalSection?.id,
+          lang:
+            currentNationaSectionLangs.find(
+              (item) => item.l?.code === _currentLocale,
+            )?.lang ||
+            newLang?.id ||
+            undefined,
+        });
+      }
+
+      currentNationaSectionLangTranslates.push({
+        id: langId === 0 ? undefined : langId,
         name,
         about,
-        lang: lang.id,
-        nsId,
-      })
+        nsId: currentNationalSection?.id,
+        lang: lang?.id,
+      });
+    } else {
+      currentNationaSectionLangTranslates.push({
+        id: langId === 0 ? undefined : langId,
+        name,
+        about,
+        nsId: currentNationalSection?.id,
+        lang: lang?.id,
+      });
+    }
+
+    await tx
+      .insert(nationalSectionsLang)
+      .values(currentNationaSectionLangTranslates)
       .onConflictDoUpdate({
         target: nationalSectionsLang.id,
         set: buildConflictUpdateColumns(nationalSectionsLang, [
           "name",
           "about",
         ]),
-      })
-      .returning();
+      });
 
     const [currentSocialMediaLink] = await tx
       .insert(socialMediaLinks)
@@ -269,7 +462,8 @@ export async function updateNationalSection(formData: FormData) {
         const shortBio = formData.get(
           `_positions.${index}._lang.shortBio`,
         ) as string;
-        const photo = formData.get(`_positions.${index}._photo`) as File;
+        const photo = formData.get(`_positions.${index}._photo`) as string;
+        const photoId = Number(formData.get(`_positions.${index}._photo.id`));
         const isHonorable =
           (formData.get(`_positions.${index}._isHonorable`) as string) === "on";
         const birthDate = formData.get(
@@ -279,57 +473,114 @@ export async function updateNationalSection(formData: FormData) {
           `_positions.${index}._deathDate`,
         ) as string;
 
-        const storagePhotoId = await uploadFile(photo, tx);
+        const storagePhotoId = await uploadFileStreams(
+          photo,
+          tx,
+          "ns",
+          photoId,
+        );
 
-        positions.push({
-          id: id === 0 ? undefined : id,
-          name,
-          email,
-          phone,
-          photoId: storagePhotoId,
-          nsId: nsId,
-          isHonorable,
-          typePositionId: !typeId ? undefined : typeId,
-          birthDate: birthDate ? new Date(birthDate) : undefined,
-          deadDate: deathDate ? new Date(deathDate) : undefined,
-        });
+        const [currentNationaSectionPosition] = await tx
+          .insert(nationalSectionsPositions)
+          .values({
+            id: id === 0 ? undefined : id,
+            name,
+            email,
+            phone,
+            photoId: storagePhotoId ? storagePhotoId : undefined,
+            nsId: nsId,
+            isHonorable,
+            typePositionId: !typeId ? undefined : typeId,
+            birthDate: birthDate ? new Date(birthDate) : undefined,
+            deadDate: deathDate ? new Date(deathDate) : undefined,
+          })
+          .onConflictDoUpdate({
+            target: nationalSectionsPositions.id,
+            set: buildConflictUpdateColumns(nationalSectionsPositions, [
+              "name",
+              "email",
+              "phone",
+              "photoId",
+              "isHonorable",
+              "birthDate",
+              "deadDate",
+              "typePositionId",
+            ]),
+          })
+          .returning({ id: nationalSectionsPositions.id });
 
-        positionLangs.push({
-          id: positionLangId === 0 ? undefined : positionLangId,
-          shortBio,
-          otherMemberName,
-        });
+        if (currentCountry?.nativeLang?.code === locale) {
+          const currentPositionLangs =
+            await tx.query.nationalSectionPositionsLang.findMany({
+              where(fields, { eq }) {
+                return eq(fields.nsPositionsId, id);
+              },
+              with: {
+                l: true,
+              },
+            });
+
+          const shortBioTranslateResults = await getTranslateText(
+            shortBio,
+            locale as Locale,
+          );
+          const otherMemberNameTranslateResults = await getTranslateText(
+            otherMemberName,
+            locale as Locale,
+          );
+
+          const pickedLocales = pickLocales(locale);
+
+          for await (const _currentLocale of pickedLocales) {
+            const newLang = await preparedLanguagesByCode.execute({
+              locale: _currentLocale,
+            });
+            const newShortBio = shortBioTranslateResults.find(
+              (item) => item.locale === _currentLocale,
+            );
+
+            const newOtherMemeberName = otherMemberNameTranslateResults.find(
+              (item) => item.locale === _currentLocale,
+            );
+
+            positionLangs.push({
+              id:
+                currentPositionLangs.find(
+                  (item) => item.l?.code === _currentLocale,
+                )?.id || undefined,
+              shortBio: newShortBio?.result ?? "",
+              otherMemberName: newOtherMemeberName?.result,
+              nsPositionsId: currentNationaSectionPosition.id,
+              lang:
+                currentPositionLangs.find(
+                  (item) => item.l?.code === _currentLocale,
+                )?.lang ||
+                newLang?.id ||
+                undefined,
+            });
+          }
+
+          positionLangs.push({
+            id: positionLangId === 0 ? undefined : positionLangId,
+            shortBio,
+            otherMemberName,
+            nsPositionsId: currentNationaSectionPosition.id,
+            lang: lang.id,
+          });
+        } else {
+          positionLangs.push({
+            id: positionLangId === 0 ? undefined : positionLangId,
+            shortBio,
+            otherMemberName,
+            nsPositionsId: currentNationaSectionPosition.id,
+            lang: lang.id,
+          });
+        }
       }
-
-      const nationalSectionsElements = await tx
-        .insert(nationalSectionsPositions)
-        .values(positions)
-        .onConflictDoUpdate({
-          target: nationalSectionsPositions.id,
-          set: buildConflictUpdateColumns(nationalSectionsPositions, [
-            "name",
-            "email",
-            "phone",
-            "photoId",
-            "isHonorable",
-            "birthDate",
-            "deadDate",
-            "typePositionId",
-          ]),
-        })
-        .returning({ id: nationalSectionsPositions.id });
-
-      const outputNS = nationalSectionsElements.map((item, index) => ({
-        id: positionLangs.at(index)?.id,
-        nsPositionsId: item.id,
-        shortBio: positionLangs.at(index)?.shortBio!,
-        otherMemberName: positionLangs.at(index)?.otherMemberName,
-        lang: lang.id,
-      }));
 
       await tx
         .insert(nationalSectionPositionsLang)
-        .values(outputNS)
+        .values(positionLangs)
         .onConflictDoUpdate({
           target: nationalSectionPositionsLang.id,
           set: buildConflictUpdateColumns(nationalSectionPositionsLang, [
@@ -353,41 +604,94 @@ export async function updateNationalSection(formData: FormData) {
         const toDate = formData.get(`_events.${index}._rangeDate.to`) as string;
 
         if (fromDate) {
-          otherEvents.push({
-            id: id === 0 ? undefined : id,
-            nsId,
-            startDate: new Date(fromDate),
-            endDate: toDate ? new Date(toDate) : new Date(fromDate),
-          });
-        }
+          const [currentOtherEvent] = await tx
+            .insert(events)
+            .values({
+              id: id === 0 ? undefined : id,
+              nsId,
+              startDate: new Date(fromDate),
+              endDate: toDate ? new Date(toDate) : new Date(fromDate),
+            })
+            .onConflictDoUpdate({
+              target: events.id,
+              set: buildConflictUpdateColumns(events, ["startDate", "endDate"]),
+            })
+            .returning({ id: events.id });
 
-        otherEventLangs.push({
-          id: eventLangId === 0 ? undefined : eventLangId,
-          name,
-          description,
-        });
+          if (currentCountry?.nativeLang?.code === locale) {
+            const currentEventLangs = await tx.query.eventsLang.findMany({
+              where(fields, { eq }) {
+                return eq(fields.eventId, id);
+              },
+              with: {
+                l: true,
+              },
+            });
+
+            const nameTranslateResults = await getTranslateText(
+              name,
+              locale as Locale,
+            );
+            const descriptionTranslateResults = await getTranslateText(
+              description,
+              locale as Locale,
+            );
+
+            const pickedLocales = pickLocales(locale);
+
+            for await (const _currentLocale of pickedLocales) {
+              const newLang = await preparedLanguagesByCode.execute({
+                locale: _currentLocale,
+              });
+              const newName = nameTranslateResults.find(
+                (item) => item.locale === _currentLocale,
+              );
+
+              const newDescription = descriptionTranslateResults.find(
+                (item) => item.locale === _currentLocale,
+              );
+
+              otherEventLangs.push({
+                id:
+                  currentEventLangs.find(
+                    (item) => item.l?.code === _currentLocale,
+                  )?.id || undefined,
+                name: newName?.result,
+                description: newDescription?.result,
+                eventId: currentOtherEvent.id,
+                lang:
+                  currentEventLangs.find(
+                    (item) => item.l?.code === _currentLocale,
+                  )?.lang ||
+                  newLang?.id ||
+                  undefined,
+              });
+            }
+
+            otherEventLangs.push({
+              id: eventLangId === 0 ? undefined : eventLangId,
+              name,
+              description,
+              eventId: currentOtherEvent.id,
+              lang: lang.id,
+            });
+          } else {
+            otherEventLangs.push({
+              id: eventLangId === 0 ? undefined : eventLangId,
+              name,
+              description,
+              eventId: currentOtherEvent.id,
+              lang: lang.id,
+            });
+          }
+        }
       }
 
-      const otherEventsElements = await tx
-        .insert(events)
-        .values(otherEvents)
-        .onConflictDoUpdate({
-          target: events.id,
-          set: buildConflictUpdateColumns(events, ["startDate", "endDate"]),
-        })
-        .returning({ id: events.id });
-
-      const outputEvents = otherEventsElements.map((item, index) => ({
-        id: otherEventLangs.at(index)?.id,
-        eventId: item.id,
-        name: otherEventLangs.at(index)?.name!,
-        description: otherEventLangs.at(index)?.description!,
-        lang: lang.id,
-      }));
+      console.log({ otherEventLangs });
 
       await tx
         .insert(eventsLang)
-        .values(outputEvents)
+        .values(otherEventLangs)
         .onConflictDoUpdate({
           target: eventsLang.id,
           set: buildConflictUpdateColumns(eventsLang, ["name", "description"]),
@@ -862,10 +1166,10 @@ export async function generateFestival(formData: FormData) {
           },
         });
 
-        const nsLang = await tx.query.nationalSectionsLang.findFirst({
+        const countryLang = await tx.query.countriesLang.findFirst({
           where(fields, operators) {
             return operators.and(
-              operators.eq(fields.nsId, nsId),
+              operators.eq(fields.id, currentCountry?.id!),
               operators.eq(fields.lang, currentCountry?.nativeLang ?? 1),
             );
           },
@@ -898,7 +1202,7 @@ export async function generateFestival(formData: FormData) {
           )}</a>`,
           email: user.email,
           video: `<a target="_blank" href="${video.link}">Video</a>`,
-          nsName: nsLang?.name ?? "",
+          nsName: countryLang?.name ?? "",
         });
 
         await transport.sendMail({
@@ -992,10 +1296,10 @@ export async function generateGroup(formData: FormData) {
           },
         });
 
-        const nsLang = await tx.query.nationalSectionsLang.findFirst({
+        const countryLang = await tx.query.countriesLang.findFirst({
           where(fields, operators) {
             return operators.and(
-              operators.eq(fields.nsId, nsId),
+              operators.eq(fields.id, currentCountry?.id!),
               operators.eq(fields.lang, currentCountry?.nativeLang ?? 1),
             );
           },
@@ -1029,7 +1333,7 @@ export async function generateGroup(formData: FormData) {
           )}</a>`,
           email: user.email,
           video: `<a target="_blank" href="${video.link}">Video</a>`,
-          nsName: nsLang?.name ?? "",
+          nsName: countryLang?.name ?? "",
         });
 
         await transport.sendMail({
@@ -1190,6 +1494,7 @@ export async function updateFestival(formData: FormData) {
   const id = Number(formData.get("id"));
   const langId = Number(formData.get("_lang.id"));
   const name = formData.get("_lang.name") as string;
+  const description = formData.get("_lang.description") as string;
   const directorName = formData.get("directorName") as string;
   const phone = formData.get("phone") as string;
   const location = formData.get("location") as string;
@@ -1197,6 +1502,7 @@ export async function updateFestival(formData: FormData) {
   const lng = formData.get("lng") as string;
   const translatorLanguages = formData.get("translatorLanguages") as string;
   const peoples = Number(formData.get("peoples"));
+  const linkConditions = formData.get("linkConditions") as string;
   const statusId = Number((formData.get("_status") as string) ?? "") || null;
   const otherTranslatorLanguage = formData.get(
     "_lang.otherTranslatorLanguage",
@@ -1209,16 +1515,73 @@ export async function updateFestival(formData: FormData) {
   const facebookLink = (formData.get("facebook") as string) || null;
   const instagramLink = (formData.get("instagram") as string) || null;
   const websiteLink = (formData.get("website") as string) || null;
+  const youtubeId = (formData.get("youtubeId") as string) || null;
 
   const currentDateSize = Number(formData.get("_currentDateSize"));
   const nextDateSize = Number(formData.get("_nextDateSize"));
 
+  const transportLocationSize = Number(formData.get("_transportLocationSize"));
+  const festivalListSelectedSize = Number(
+    formData.get("_festivalListSelectedSize"),
+  );
+  const groupListSelectedSize = Number(formData.get("_groupListSelectedSize"));
+
+  const recognizedSince = formData.get("_recognizedSince") as string;
+  const recognizedRange = formData.get("_recognizedRange") as string;
+  const typeOfCompensation = formData.get("_typeOfCompensation") as string;
+  const financialCompensation = formData.get(
+    "_financialCompensation",
+  ) as string;
+  const inKindCompensation = formData.get("_inKindCompensation") as string;
+  const components = JSON.parse(
+    (formData.get("_components") as string) || "[]",
+  ) as string[];
+
+  const groupRegions = JSON.parse(
+    (formData.get("_groupRegions") as string) || "[]",
+  ) as string[];
+
+  const cover = formData.get("coverPhoto") as string;
+  const coverId = Number(formData.get("coverPhotoId"));
+
+  const logo = formData.get("logo") as string;
+  const logoId = Number(formData.get("logoId"));
+
+  const accomodationPhoto = formData.get("_accomodationPhoto") as string;
+  const accomodationPhotoId = Number(formData.get("_accomodationPhotoId"));
+
+  const photos = formData.getAll("photos") as string[];
+  const stagePhotos = formData.getAll("stagePhotos") as string[];
+
   const currentDates: InsertEvent[] = [];
+  const currentTransportLocations: InsertTransportLocations[] = [];
+  const currentFestivalToConnected: InsertFestivalToConnected[] = [];
+  const currentFestivalToGroups: InsertFestivalToGroups[] = [];
+  const currentPhotos: InsertFestivalPhotos[] = [];
+  const currentStagePhotos: InsertFestivalStagePhotos[] = [];
+
+  const currentFestivalLangsTranslates: Array<InsertFestivalLang> = [];
 
   const lang = await preparedLanguagesByCode.execute({ locale });
   const t = await getTranslations("notification");
 
   await db.transaction(async (tx) => {
+    const coverNextId = await uploadFileStreams(
+      cover,
+      tx,
+      "festivals",
+      coverId,
+    );
+
+    const logoNextId = await uploadFileStreams(logo, tx, "festivals", logoId);
+
+    const accomodationNextId = await uploadFileStreams(
+      accomodationPhoto,
+      tx,
+      "festivals",
+      accomodationPhotoId,
+    );
+
     const [currentFestival] = await tx
       .insert(festivals)
       .values({
@@ -1231,6 +1594,13 @@ export async function updateFestival(formData: FormData) {
         statusId,
         lat,
         lng,
+        linkConditions,
+        coverId: coverNextId ? coverNextId : undefined,
+        logoId: logoNextId ? logoNextId : undefined,
+        accomodationPhotoId: accomodationNextId
+          ? accomodationNextId
+          : undefined,
+        youtubeId,
       })
       .onConflictDoUpdate({
         target: festivals.id,
@@ -1243,23 +1613,108 @@ export async function updateFestival(formData: FormData) {
           "translatorLanguages",
           "peoples",
           "statusId",
+          "linkConditions",
+          "coverId",
+          "logoId",
+          "youtubeId",
+          "accomodationPhotoId",
         ]),
       })
       .returning();
 
-    await tx
-      .insert(festivalsLang)
-      .values({
+    const currentCountry = await tx.query.countries.findFirst({
+      where(fields, { eq }) {
+        return eq(fields.id, currentFestival.countryId!);
+      },
+      with: {
+        nativeLang: true,
+      },
+    });
+
+    if (currentCountry?.nativeLang?.code === locale) {
+      const currentFestivalLangs = await tx.query.festivalsLang.findMany({
+        where(fields, { eq }) {
+          return eq(fields.festivalId, currentFestival.id!);
+        },
+        with: {
+          l: true,
+        },
+      });
+
+      const descriptionTranslateResults = await getTranslateText(
+        description,
+        locale as Locale,
+      );
+      const nameTranslateResults = await getTranslateText(
+        name,
+        locale as Locale,
+      );
+      const otherTranslatorLanguateTranslateResults = await getTranslateText(
+        otherTranslatorLanguage,
+        locale as Locale,
+      );
+
+      const pickedLocales = pickLocales(locale);
+
+      for await (const _currentLocale of pickedLocales) {
+        const newLang = await preparedLanguagesByCode.execute({
+          locale: _currentLocale,
+        });
+        const newDescription = descriptionTranslateResults.find(
+          (item) => item.locale === _currentLocale,
+        );
+
+        const newName = nameTranslateResults.find(
+          (item) => item.locale === _currentLocale,
+        );
+
+        const newOtherTranslator = otherTranslatorLanguateTranslateResults.find(
+          (item) => item.locale === _currentLocale,
+        );
+
+        currentFestivalLangsTranslates.push({
+          id:
+            currentFestivalLangs.find((item) => item.l?.code === _currentLocale)
+              ?.id || undefined,
+          festivalId: currentFestival.id,
+          description: newDescription?.result,
+          otherTranslatorLanguage: newOtherTranslator?.result,
+          name: newName?.result,
+          lang:
+            currentFestivalLangs.find((item) => item.l?.code === _currentLocale)
+              ?.lang ||
+            newLang?.id ||
+            undefined,
+        });
+      }
+
+      currentFestivalLangsTranslates.push({
         id: langId === 0 ? undefined : langId,
         name,
+        description,
         otherTranslatorLanguage,
         festivalId: currentFestival.id,
         lang: lang?.id,
-      })
+      });
+    } else {
+      currentFestivalLangsTranslates.push({
+        id: langId === 0 ? undefined : langId,
+        name,
+        description,
+        otherTranslatorLanguage,
+        festivalId: currentFestival.id,
+        lang: lang?.id,
+      });
+    }
+
+    await tx
+      .insert(festivalsLang)
+      .values(currentFestivalLangsTranslates)
       .onConflictDoUpdate({
         target: festivalsLang.id,
         set: buildConflictUpdateColumns(festivalsLang, [
           "name",
+          "description",
           "otherTranslatorLanguage",
         ]),
       });
@@ -1289,6 +1744,226 @@ export async function updateFestival(formData: FormData) {
           socialMediaLinksId: currentSocialMediaLink.id,
         })
         .where(eq(festivals.id, currentFestival.id));
+    }
+
+    if (photos.length) {
+      const storagePhotoIds = await tx
+        .delete(festivalPhotos)
+        .where(eq(festivalPhotos.festivalId, currentFestival.id))
+        .returning({ deletedStorageId: festivalPhotos.photoId });
+
+      if (storagePhotoIds.length) {
+        const storageUrls = await tx
+          .delete(storages)
+          .where(
+            inArray(
+              storages.id,
+              storagePhotoIds.map((item) => item.deletedStorageId!),
+            ),
+          )
+          .returning({ urlToRemove: storages.url });
+
+        if (storageUrls.length) {
+          const remoteUrls = storageUrls
+            .filter((item) => {
+              return !photos.includes(item.urlToRemove);
+            })
+            .map((item) => item.urlToRemove!);
+
+          if (remoteUrls.length) {
+            await del(remoteUrls);
+          }
+        }
+      }
+
+      for await (const photo of photos) {
+        const newStorageId = await uploadFileStreams(photo, tx, "festivals");
+        if (newStorageId && currentFestival.id) {
+          currentPhotos.push({
+            festivalId: currentFestival.id,
+            photoId: newStorageId,
+          });
+        }
+      }
+
+      if (currentPhotos.length) {
+        await tx.insert(festivalPhotos).values(currentPhotos);
+      }
+    }
+
+    if (stagePhotos.length) {
+      const storagePhotoIds = await tx
+        .delete(festivalStagePhotos)
+        .where(eq(festivalStagePhotos.festivalId, currentFestival.id))
+        .returning({ deletedStorageId: festivalPhotos.photoId });
+
+      if (storagePhotoIds.length) {
+        const storageUrls = await tx
+          .delete(storages)
+          .where(
+            inArray(
+              storages.id,
+              storagePhotoIds.map((item) => item.deletedStorageId!),
+            ),
+          )
+          .returning({ urlToRemove: storages.url });
+
+        if (storageUrls.length) {
+          const remoteUrls = storageUrls
+            .filter((item) => {
+              return !stagePhotos.includes(item.urlToRemove);
+            })
+            .map((item) => item.urlToRemove!);
+
+          if (remoteUrls.length) {
+            await del(remoteUrls);
+          }
+        }
+      }
+
+      for await (const photo of stagePhotos) {
+        const newStorageId = await uploadFileStreams(photo, tx, "festivals");
+        if (newStorageId && currentFestival.id) {
+          currentStagePhotos.push({
+            festivalId: currentFestival.id,
+            photoId: newStorageId,
+          });
+        }
+      }
+
+      if (currentStagePhotos.length) {
+        await tx.insert(festivalStagePhotos).values(currentStagePhotos);
+      }
+    }
+
+    if (statusId) {
+      await tx
+        .insert(festivalsToStatuses)
+        .values({
+          festivalId: currentFestival.id,
+          statusId: statusId,
+          recognizedSince,
+          recognizedRange,
+          typeOfCompensation,
+          financialCompensation,
+          inKindCompensation,
+        })
+        .onConflictDoUpdate({
+          target: [
+            festivalsToStatuses.festivalId,
+            festivalsToStatuses.statusId,
+          ],
+          set: buildConflictUpdateColumns(festivalsToStatuses, [
+            "recognizedRange",
+            "recognizedSince",
+            "typeOfCompensation",
+            "financialCompensation",
+            "inKindCompensation",
+          ]),
+        });
+
+      if (components.length) {
+        await tx
+          .delete(festivalsToComponents)
+          .where(eq(festivalsToComponents.festivalId, currentFestival.id));
+
+        await tx.insert(festivalsToComponents).values(
+          components.map((componentId) => ({
+            componentId: Number(componentId),
+            festivalId: currentFestival.id,
+          })),
+        );
+      }
+    }
+
+    if (groupRegions.length) {
+      await tx
+        .delete(festivalsGroupToRegions)
+        .where(eq(festivalsGroupToRegions.festivalId, currentFestival.id));
+
+      await tx.insert(festivalsGroupToRegions).values(
+        groupRegions.map((regionId) => ({
+          regionId: Number(regionId),
+          festivalId: currentFestival.id,
+        })),
+      );
+    }
+
+    if (transportLocationSize === 0) {
+      await tx
+        .delete(transportLocations)
+        .where(eq(transportLocations.festivalId, currentFestival.id));
+    }
+
+    if (transportLocationSize > 0) {
+      for (let index = 0; index < transportLocationSize; index++) {
+        const lat = formData.get(`_transportLocations.${index}.lat`) as string;
+        const lng = formData.get(`_transportLocations.${index}.lng`) as string;
+        const location = formData.get(
+          `_transportLocations.${index}.location`,
+        ) as string;
+
+        currentTransportLocations.push({
+          lat,
+          lng,
+          location,
+          festivalId: currentFestival.id,
+        });
+      }
+
+      if (currentTransportLocations.length) {
+        await tx
+          .delete(transportLocations)
+          .where(eq(transportLocations.festivalId, currentFestival.id));
+
+        await tx.insert(transportLocations).values(currentTransportLocations);
+      }
+    }
+
+    if (festivalListSelectedSize > 0) {
+      for (let index = 0; index < festivalListSelectedSize; index++) {
+        const id = Number(formData.get(`_festivalListSelected.${index}.id`));
+
+        currentFestivalToConnected.push({
+          sourceFestivalId: currentFestival.id,
+          targetFestivalId: id,
+        });
+      }
+
+      if (currentFestivalToConnected.length) {
+        await tx
+          .delete(festivalsToConnected)
+          .where(eq(festivalsToConnected.sourceFestivalId, currentFestival.id));
+
+        await tx
+          .insert(festivalsToConnected)
+          .values(currentFestivalToConnected);
+      }
+    }
+
+    if (groupListSelectedSize === 0) {
+      await tx
+        .delete(festivalsToGroups)
+        .where(eq(festivalsToGroups.festivalId, currentFestival.id));
+    }
+
+    if (groupListSelectedSize > 0) {
+      for (let index = 0; index < groupListSelectedSize; index++) {
+        const id = Number(formData.get(`_groupListSelected.${index}.id`));
+
+        currentFestivalToGroups.push({
+          festivalId: currentFestival.id,
+          groupId: id,
+        });
+      }
+
+      if (currentFestivalToGroups.length) {
+        await tx
+          .delete(festivalsToGroups)
+          .where(eq(festivalsToGroups.festivalId, currentFestival.id));
+
+        await tx.insert(festivalsToGroups).values(currentFestivalToGroups);
+      }
     }
 
     if (currentDateSize > 0) {
@@ -1363,21 +2038,12 @@ export async function updateFestival(formData: FormData) {
 export async function createGroup(prevState: unknown, formData: FormData) {
   const id = Number(formData.get("_id"));
   const generalDirectorName = formData.get("generalDirectorName") as string;
-  const generalDirectorProfile = formData.get(
-    "generalDirectorProfile",
-  ) as string;
   const generalDirectorPhoto = formData.get("_generalDirectorPhoto") as File;
 
   const artisticDirectorName = formData.get("artisticDirectorName") as string;
-  const artisticDirectorProfile = formData.get(
-    "artisticDirectorProfile",
-  ) as string;
   const artisticDirectorPhoto = formData.get("_artisticDirectorPhoto") as File;
 
   const musicalDirectorName = formData.get("musicalDirectorName") as string;
-  const musicalDirectorProfile = formData.get(
-    "musicalDirectorProfile",
-  ) as string;
   const musicalDirectorPhoto = formData.get("_musicalDirectorPhoto") as File;
 
   await db.transaction(async (tx) => {
@@ -1414,12 +2080,28 @@ export async function updateGroup(formData: FormData) {
   const generalDirectorProfile = formData.get(
     "_lang.generalDirectorProfile",
   ) as string;
-  const generalDirectorPhoto = formData.get("_generalDirectorPhoto") as File;
+  const generalDirectorPhoto = formData.get("_generalDirectorPhoto") as string;
+  const generalDirectorPhotoId = Number(
+    formData.get("_generalDirectorPhotoId"),
+  );
   const artisticDirectorName = formData.get("artisticDirectorName") as string;
   const artisticDirectorProfile = formData.get(
     "_lang.artisticDirectorProfile",
   ) as string;
-  const artisticDirectorPhoto = formData.get("_artisticDirectorPhoto") as File;
+  const artisticDirectorPhoto = formData.get(
+    "_artisticDirectorPhoto",
+  ) as string;
+  const artisticDirectorPhotoId = Number(
+    formData.get("_artisticDirectorPhotoId"),
+  );
+  const musicalDirectorName = formData.get("musicalDirectorName") as string;
+  const musicalDirectorProfile = formData.get(
+    "_lang.musicalDirectorProfile",
+  ) as string;
+  const musicalDirectorPhoto = formData.get("_musicalDirectorPhoto") as string;
+  const musicalDirectorPhotoId = Number(
+    formData.get("_musicalDirectorPhotoId"),
+  );
   const phone = formData.get("phone") as string;
   const address = formData.get("_lang.address") as string;
   const membersNumber = formData.get("membersNumber") as string;
@@ -1436,6 +2118,11 @@ export async function updateGroup(formData: FormData) {
   const websiteLink = (formData.get("website") as string) || null;
   const youtubeId = (formData.get("youtube") as string) || null;
 
+  const linkPortfolio = formData.get("linkPortfolio") as string;
+
+  const subgroupSize = Number(formData.get("_subgroupSize"));
+  const repertorySize = Number(formData.get("_repertorySize"));
+
   const typeGroups = JSON.parse(
     (formData.get("_typeOfGroup") as string) || "[]",
   );
@@ -1444,21 +2131,65 @@ export async function updateGroup(formData: FormData) {
     (formData.get("_styleOfGroup") as string) || "[]",
   );
 
+  const cover = formData.get("coverPhoto") as string;
+  const coverId = Number(formData.get("coverPhotoId"));
+
+  const logo = formData.get("logo") as string;
+  const logoId = Number(formData.get("logoId"));
+
+  const photos = formData.getAll("photos") as string[];
+
   const groupCategories = [...typeGroups, ...groupAge, ...styleGroup];
+
+  const currentPhotos: InsertGroupPhotos[] = [];
 
   const lang = await preparedLanguagesByCode.execute({ locale });
 
   await db.transaction(async (tx) => {
-    const generalDirectorPhotoId = await uploadFile(generalDirectorPhoto, tx);
-    const artisticDirectorPhotoId = await uploadFile(artisticDirectorPhoto, tx);
+    // const generalDirectorPhotoId = await uploadFile(generalDirectorPhoto, tx);
+    // const artisticDirectorPhotoId = await uploadFile(artisticDirectorPhoto, tx);
+    // const musicalDirectorPhotoId = await uploadFile(musicalDirectorPhoto, tx);
+
+    const generaltDirectorPhotoNextId = await uploadFileStreams(
+      generalDirectorPhoto,
+      tx,
+      "groups",
+      generalDirectorPhotoId,
+    );
+
+    const artisticDirectorPhotoNextId = await uploadFileStreams(
+      artisticDirectorPhoto,
+      tx,
+      "groups",
+      artisticDirectorPhotoId,
+    );
+
+    const musicalDirectorPhotoNextId = await uploadFileStreams(
+      musicalDirectorPhoto,
+      tx,
+      "groups",
+      musicalDirectorPhotoId,
+    );
+
+    const coverNextId = await uploadFileStreams(cover, tx, "groups", coverId);
+
+    const logoNextId = await uploadFileStreams(logo, tx, "groups", logoId);
 
     const [currentGroup] = await tx
       .update(groups)
       .set({
         generalDirectorName,
-        generalDirectorPhotoId,
+        generalDirectorPhotoId: generaltDirectorPhotoNextId
+          ? generaltDirectorPhotoNextId
+          : undefined,
         artisticDirectorName,
-        artisticDirectorPhotoId,
+        artisticDirectorPhotoId: artisticDirectorPhotoNextId
+          ? artisticDirectorPhotoNextId
+          : undefined,
+        musicalDirectorName,
+        musicalDirectorPhotoId: musicalDirectorPhotoNextId
+          ? musicalDirectorPhotoNextId
+          : undefined,
         phone,
         isAbleTravel: isAbleToTravel,
         isAbleTravelLiveMusic: isAbleToTravelLiveMusic,
@@ -1472,6 +2203,9 @@ export async function updateGroup(formData: FormData) {
         instagramLink,
         websiteLink,
         youtubeId,
+        linkPortfolio,
+        coverPhotoId: coverNextId ? coverNextId : undefined,
+        logoId: logoNextId ? logoNextId : undefined,
       })
       .where(eq(groups.id, id))
       .returning();
@@ -1483,6 +2217,7 @@ export async function updateGroup(formData: FormData) {
         name,
         generalDirectorProfile,
         artisticDirectorProfile,
+        musicalDirectorProfile,
         address,
         description,
         groupId: currentGroup.id,
@@ -1494,10 +2229,182 @@ export async function updateGroup(formData: FormData) {
           "name",
           "generalDirectorProfile",
           "artisticDirectorProfile",
+          "musicalDirectorProfile",
           "address",
           "description",
         ]),
       });
+
+    if (photos.length) {
+      const storagePhotoIds = await tx
+        .delete(groupPhotos)
+        .where(eq(groupPhotos.groupId, currentGroup.id))
+        .returning({ deletedStorageId: groupPhotos.photoId });
+
+      if (storagePhotoIds.length) {
+        const storageUrls = await tx
+          .delete(storages)
+          .where(
+            inArray(
+              storages.id,
+              storagePhotoIds.map((item) => item.deletedStorageId!),
+            ),
+          )
+          .returning({ urlToRemove: storages.url });
+
+        if (storageUrls.length) {
+          const remoteUrls = storageUrls
+            .filter((item) => {
+              return !photos.includes(item.urlToRemove);
+            })
+            .map((item) => item.urlToRemove!);
+
+          if (remoteUrls.length) {
+            await del(remoteUrls);
+          }
+        }
+      }
+
+      for await (const photo of photos) {
+        const newStorageId = await uploadFileStreams(photo, tx, "groups");
+        if (newStorageId && currentGroup.id) {
+          currentPhotos.push({
+            groupId: currentGroup.id,
+            photoId: newStorageId,
+          });
+        }
+      }
+
+      if (currentPhotos.length) {
+        await tx.insert(groupPhotos).values(currentPhotos);
+      }
+    }
+
+    if (subgroupSize > 0) {
+      for (let index = 0; index < subgroupSize; index++) {
+        const id = Number(formData.get(`_subgroups.${index}.id`));
+        const langId = Number(formData.get(`_subgroups.${index}._lang.id`));
+        const name = formData.get(`_subgroups.${index}._lang.name`) as string;
+        const membersNumber = Number(
+          formData.get(`_subgroups.${index}.membersNumber`) || "",
+        );
+        const subgroupAge = JSON.parse(
+          (formData.get(`_subgroups.${index}._groupAge`) as string) || "[]",
+        ) as string[];
+        const hasAnotherContact =
+          (formData.get(`_subgroups.${index}._hasAnotherContact`) as string) ===
+          "on";
+        const contactName = formData.get(
+          `_subgroups.${index}.contactName`,
+        ) as string;
+        const contactMail = formData.get(
+          `_subgroups.${index}.contactMail`,
+        ) as string;
+        const contactPhone = formData.get(
+          `_subgroups.${index}.contactPhone`,
+        ) as string;
+
+        const [currentSubgroup] = await tx
+          .insert(subgroups)
+          .values({
+            id: id === 0 ? undefined : id,
+            membersNumber,
+            hasAnotherContact,
+            contactName,
+            contactPhone,
+            contactMail,
+            groupId: currentGroup.id,
+          })
+          .onConflictDoUpdate({
+            target: subgroups.id,
+            set: buildConflictUpdateColumns(subgroups, [
+              "membersNumber",
+              "hasAnotherContact",
+              "contactName",
+              "contactMail",
+              "contactPhone",
+            ]),
+          })
+          .returning();
+
+        await tx
+          .insert(subgroupsLang)
+          .values({
+            id: langId === 0 ? undefined : langId,
+            name,
+            subgroupId: currentSubgroup.id,
+            lang: lang?.id,
+          })
+          .onConflictDoUpdate({
+            target: subgroups.id,
+            set: buildConflictUpdateColumns(subgroupsLang, ["name"]),
+          });
+
+        if (subgroupAge.length) {
+          await tx
+            .delete(subgroupToCategories)
+            .where(eq(subgroupToCategories.subgroupId, currentSubgroup.id));
+
+          await tx.insert(subgroupToCategories).values(
+            subgroupAge.map((categoryId) => ({
+              categoryId: Number(categoryId),
+              subgroupId: currentSubgroup.id,
+            })),
+          );
+        }
+
+        // currentTransportLocations.push({
+        //   lat,
+        //   lng,
+        //   location,
+        //   festivalId: currentFestival.id,
+        // });
+      }
+    }
+
+    if (repertorySize > 0) {
+      for (let index = 0; index < repertorySize; index++) {
+        const id = Number(formData.get(`_repertories.${index}.id`));
+        const langId = Number(formData.get(`_repertories.${index}._lang.id`));
+        const name = formData.get(`_repertories.${index}._lang.name`) as string;
+        const description = formData.get(
+          `_repertories.${index}._lang.description`,
+        ) as string;
+        const youtubeId = formData.get(
+          `_repertories.${index}.youtubeId`,
+        ) as string;
+
+        const [currentRepertory] = await tx
+          .insert(repertories)
+          .values({
+            id: id === 0 ? undefined : id,
+            youtubeId,
+            groupId: currentGroup.id,
+          })
+          .onConflictDoUpdate({
+            target: subgroups.id,
+            set: buildConflictUpdateColumns(repertories, ["youtubeId"]),
+          })
+          .returning();
+
+        await tx
+          .insert(repertoriesLang)
+          .values({
+            id: langId === 0 ? undefined : langId,
+            name,
+            description,
+            repertoryId: currentRepertory.id,
+            lang: lang?.id,
+          })
+          .onConflictDoUpdate({
+            target: subgroups.id,
+            set: buildConflictUpdateColumns(repertoriesLang, [
+              "name",
+              "description",
+            ]),
+          });
+      }
+    }
 
     if (groupCategories.length) {
       await tx

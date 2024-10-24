@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -11,12 +11,10 @@ import {
   useWatch,
 } from "react-hook-form";
 import * as RPNInput from "react-phone-number-input";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button, ButtonProps } from "@/components/ui/button";
-import { createNationalSection, updateNationalSection } from "@/app/actions";
-import { useFormState, useFormStatus } from "react-dom";
+import { updateNationalSection } from "@/app/actions";
 import {
   Form,
   FormControl,
@@ -34,19 +32,15 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import {
-  inserFestivalByNSSchema,
   inserNationalSectionLangSchema,
   insertEventLangSchema,
   insertEventSchema,
-  insertFestivalLangSchema,
-  insertGroupByNSSchema,
-  insertGroupLangSchema,
   insertNationalSectionPositionsLangSchema,
   insertNationalSectionPositionsSchema,
   insertNationalSectionSchema,
   insertSocialMediaLinkSchema,
 } from "@/db/schema";
-import { CalendarIcon, PlusCircle, Trash2 } from "lucide-react";
+import { CalendarIcon, PlusCircle } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
   Popover,
@@ -67,13 +61,6 @@ import { toast } from "sonner";
 import { customRevalidatePath, customRevalidateTag } from "../revalidateTag";
 import { useRouter } from "next/navigation";
 import { DatePickerWithRange } from "@/components/ui/datepicker-with-range";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import {
   Command,
@@ -84,6 +71,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Session } from "next-auth";
+import { FilepondImageUploader } from "@/components/extension/filepond-image-uploader";
 
 const positionsSchema = insertNationalSectionPositionsSchema.merge(
   z.object({
@@ -93,10 +81,14 @@ const positionsSchema = insertNationalSectionPositionsSchema.merge(
     _deathDate: z.string().optional(),
     _type: z.string(),
     _photo: z
-      .any()
-      .refine((item) => item instanceof File || typeof item === "undefined", {
-        params: { i18n: "file_required" },
-      }),
+      .object({
+        id: z.number(),
+        url: z.string(),
+      })
+      .optional(),
+    // .refine((item) => item instanceof File || typeof item === "undefined", {
+    //   params: { i18n: "file_required" },
+    // }),
   }),
 );
 
@@ -116,38 +108,7 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
         _lang: insertEventLangSchema,
       }),
     ),
-    // _festivals: z.array(
-    //   inserFestivalByNSSchema.merge(
-    //     z.object({
-    //       ownerId: z.number().optional(),
-    //       _lang: insertFestivalLangSchema.pick({ name: true, id: true }),
-    //       certificationFile: z.any(),
-    //       certificationFile: z.any().refine(
-    //         (item) => {
-    //           return item instanceof File || typeof item !== "undefined";
-    //         },
-    //         { params: { i18n: "file_required" } }
-    //       ),
-    //     }),
-    //   ),
-    // ),
     _social: insertSocialMediaLinkSchema,
-    // _groups: z.array(
-    //   insertGroupByNSSchema.merge(
-    //     z.object({
-    //       ownerId: z.number().optional(),
-    //       email: z.string().email(),
-    //       _lang: insertGroupLangSchema.pick({ name: true, id: true }),
-    //       certificationFile: z.any(),
-    //       certificationFile: z
-    //         .any()
-    //         .refine(
-    //           (item) => item instanceof File || typeof item !== "undefined",
-    //           { params: { i18n: "file_required" } }
-    //         ),
-    //     }),
-    //   ),
-    // ),
   }),
 );
 
@@ -237,6 +198,10 @@ export default function NationalSectionForm({
                 otherMemberName:
                   position.langs.at(0)?.otherMemberName ?? undefined,
               },
+              _photo: {
+                id: position.photo?.id ?? 0,
+                url: position.photo?.url ?? "",
+              },
             };
           })
         : [
@@ -248,34 +213,6 @@ export default function NationalSectionForm({
               _lang: { shortBio: "" },
             },
           ],
-      // _festivals: currentNationalSection?.festivals.map((festival) => {
-      //   return {
-      //     ...festival,
-      //     email: festival.owners.at(0)?.user?.email ?? "",
-      //     certificationFile: new File(["foo"], "foo.txt", {
-      //       type: "application/pdf",
-      //     }),
-      //     ownerId: festival.owners.at(0)?.id ?? 0,
-      //     _lang: {
-      //       id: festival.langs.at(0)?.id ?? 0,
-      //       name: festival.langs.at(0)?.name ?? "",
-      //     },
-      //   };
-      // }),
-      // _groups: currentNationalSection?.groups.map((group) => {
-      //   return {
-      //     ...group,
-      //     email: group.owners.at(0)?.user?.email ?? "",
-      //     certificationFile: new File(["foo"], "foo.txt", {
-      //       type: "application/pdf",
-      //     }),
-      //     ownerId: group.owners.at(0)?.id ?? 0,
-      //     _lang: {
-      //       id: group.langs.at(0)?.id ?? 0,
-      //       name: group.langs.at(0)?.name ?? "",
-      //     },
-      //   };
-      // }),
     },
   });
 
@@ -283,8 +220,11 @@ export default function NationalSectionForm({
   const router = useRouter();
 
   useEffect(() => {
-    form.setValue("_lang.name", currentLang?.name || "");
-    form.setValue("_lang.about", currentLang?.about || "");
+    if (currentLang?.id) {
+      form.setValue("_lang", {
+        ...currentLang,
+      });
+    }
 
     currentNationalSection?.positions.forEach((position, index) => {
       form.setValue(
@@ -292,14 +232,32 @@ export default function NationalSectionForm({
         position.langs.at(0)?.shortBio || "",
       );
       form.setValue(
+        `_positions.${index}._lang.otherMemberName`,
+        position.langs.at(0)?.otherMemberName || "",
+      );
+      form.setValue(
         `_positions.${index}._lang.id`,
         position.langs.at(0)?.id ?? 0,
       );
     });
+
+    currentNationalSection?.otherEvents.forEach((event, index) => {
+      form.setValue(
+        `_events.${index}._lang.name`,
+        event.langs.at(0)?.name || "",
+      );
+
+      form.setValue(
+        `_events.${index}._lang.description`,
+        event.langs.at(0)?.description || "",
+      );
+      form.setValue(`_events.${index}._lang.id`, event.langs.at(0)?.id ?? 0);
+    });
   }, [
-    currentLang?.name,
-    currentLang?.about,
+    currentLang?.id,
+    currentLang,
     currentNationalSection?.positions,
+    currentNationalSection?.otherEvents,
     form,
   ]);
 
@@ -316,24 +274,6 @@ export default function NationalSectionForm({
     control: form.control,
     name: "_events",
   });
-
-  // const {
-  //   fields: festivalFields,
-  //   append: appendFestival,
-  //   remove: removeFestival,
-  // } = useFieldArray({
-  //   control: form.control,
-  //   name: "_festivals",
-  // });
-
-  // const {
-  //   fields: groupFields,
-  //   append: appendGroup,
-  //   remove: removeGroup,
-  // } = useFieldArray({
-  //   control: form.control,
-  //   name: "_groups",
-  // });
 
   const positions = useWatch({
     control: form.control,
@@ -717,25 +657,34 @@ export default function NationalSectionForm({
                       <FormField
                         control={form.control}
                         name={`_positions.${index}._photo`}
-                        render={({
-                          field: { value, onChange, ...fieldProps },
-                        }) => (
+                        render={({ field }) => (
                           <FormItem>
                             <FormLabel>Picture</FormLabel>
                             <FormControl>
-                              <Input
-                                {...fieldProps}
-                                placeholder="Picture"
-                                type="file"
-                                accept="image/*, application/pdf"
-                                onChange={(event) =>
-                                  onChange(
-                                    event.target.files && event.target.files[0],
-                                  )
+                              <FilepondImageUploader
+                                id={field.name}
+                                name={field.name}
+                                acceptedFileTypes={["image/*"]}
+                                defaultFiles={
+                                  field.value?.url
+                                    ? [
+                                        {
+                                          source: field.value?.url!,
+                                          options: {
+                                            type: "local",
+                                          },
+                                        },
+                                      ]
+                                    : []
                                 }
                               />
                             </FormControl>
                             <FormMessage />
+                            <input
+                              name={`_positions.${index}._photo.id`}
+                              value={field.value?.id ?? undefined}
+                              type="hidden"
+                            />
                           </FormItem>
                         )}
                       />
@@ -947,6 +896,7 @@ export default function NationalSectionForm({
               ) : null}
               <Button
                 type="button"
+                variant="outline"
                 onClick={(_) =>
                   appendPosition({
                     name: "",
@@ -1158,7 +1108,7 @@ export default function NationalSectionForm({
                                   className="resize-none"
                                   name={field.name}
                                   onChange={field.onChange}
-                                  defaultValue={field.value ?? ""}
+                                  value={field.value || ""}
                                   onBlur={field.onBlur}
                                   ref={field.ref}
                                 />
@@ -1268,379 +1218,6 @@ export default function NationalSectionForm({
                   value={eventFields.length}
                 />
               </div>
-              {/* <div className="space-y-4 border-t pt-4">
-                <h2 className="text-lg font-semibold">Module 2: Members</h2>
-                <p className="text-sm text-muted-foreground">
-                  Register your members. Only the sections and groups approved
-                  by you will be visible to the public. You need to register at
-                  least one international festival.
-                </p>
-              </div> */}
-
-              {/* <div className="space-y-4 border-t pt-4">
-                <h2 className="text-lg font-semibold">Festivals</h2>
-                {festivalFields.map((field, index) => {
-                  return (
-                    <div
-                      key={field.id}
-                      className="space-y-4 p-4 border rounded-md"
-                    >
-                      <FormField
-                        control={form.control}
-                        name={`_festivals.${index}.id`}
-                        render={({ field }) => (
-                          <FormControl>
-                            <Input
-                              ref={field.ref}
-                              onChange={field.onChange}
-                              onBlur={field.onBlur}
-                              value={field.value}
-                              name={field.name}
-                              type="hidden"
-                            />
-                          </FormControl>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`_festivals.${index}._lang.id`}
-                        render={({ field }) => (
-                          <FormControl>
-                            <Input
-                              ref={field.ref}
-                              onChange={field.onChange}
-                              onBlur={field.onBlur}
-                              value={field.value}
-                              name={field.name}
-                              type="hidden"
-                            />
-                          </FormControl>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`_festivals.${index}.ownerId`}
-                        render={({ field }) => (
-                          <FormControl>
-                            <Input
-                              ref={field.ref}
-                              onChange={field.onChange}
-                              onBlur={field.onBlur}
-                              value={field.value}
-                              name={field.name}
-                              type="hidden"
-                            />
-                          </FormControl>
-                        )}
-                      />
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_festivals.${index}._lang.name`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                                Name of the festival
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  ref={field.ref}
-                                  onChange={field.onChange}
-                                  onBlur={field.onBlur}
-                                  value={
-                                    field.value === "" ? undefined : field.value
-                                  }
-                                  name={field.name}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Enter your current festival name
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_festivals.${index}.email`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                                Email address
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  ref={field.ref}
-                                  onChange={field.onChange}
-                                  onBlur={field.onBlur}
-                                  value={field.value || ""}
-                                  name={field.name}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Enter your email address
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_festivals.${index}.certificationFile`}
-                          render={({
-                            field: { value, onChange, ...fieldProps },
-                          }) => (
-                            <FormItem>
-                              <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                                Upload certification of membership
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...fieldProps}
-                                  placeholder="Picture"
-                                  type="file"
-                                  accept=".pdf,.doc,.docx"
-                                  onChange={(event) =>
-                                    onChange(
-                                      event.target.files &&
-                                        event.target.files[0],
-                                    )
-                                  }
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Link to a PDF or word document
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <Switch id={`festival-turn-${field.id}`} disabled />
-                          <Label htmlFor={`festival-turn-${field.id}`}>
-                            Turn off profile
-                          </Label>
-                        </div>
-                      </div>
-                      {festivalFields.length > 1 && (
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => removeFestival(index)}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" /> Remove Festival
-                        </Button>
-                      )}
-                    </div>
-                  );
-                })}
-                <Button
-                  type="button"
-                  onClick={() =>
-                    appendFestival({
-                      email: "",
-                      certificationFile: null,
-                      _lang: { name: "" },
-                    })
-                  }
-                  className="mt-2"
-                >
-                  <PlusCircle className="mr-2 h-4 w-4" /> Add Festival
-                </Button>
-                <input
-                  type="hidden"
-                  name="_festivalSize"
-                  value={festivalFields.length}
-                />
-              </div> */}
-              {/* <div className="space-y-4 border-t pt-4">
-                <h2 className="text-lg font-semibold">Groups</h2>
-                {groupFields.map((field, index) => {
-                  return (
-                    <div
-                      key={field.id}
-                      className="space-y-4 p-4 border rounded-md"
-                    >
-                      <FormField
-                        control={form.control}
-                        name={`_groups.${index}.id`}
-                        render={({ field }) => (
-                          <FormControl>
-                            <Input
-                              ref={field.ref}
-                              onChange={field.onChange}
-                              onBlur={field.onBlur}
-                              value={field.value}
-                              name={field.name}
-                              type="hidden"
-                            />
-                          </FormControl>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`_groups.${index}._lang.id`}
-                        render={({ field }) => (
-                          <FormControl>
-                            <Input
-                              ref={field.ref}
-                              onChange={field.onChange}
-                              onBlur={field.onBlur}
-                              value={field.value}
-                              name={field.name}
-                              type="hidden"
-                            />
-                          </FormControl>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`_groups.${index}.ownerId`}
-                        render={({ field }) => (
-                          <FormControl>
-                            <Input
-                              ref={field.ref}
-                              onChange={field.onChange}
-                              onBlur={field.onBlur}
-                              value={field.value}
-                              name={field.name}
-                              type="hidden"
-                            />
-                          </FormControl>
-                        )}
-                      />
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_groups.${index}._lang.name`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                                Name of the group
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  ref={field.ref}
-                                  onChange={field.onChange}
-                                  onBlur={field.onBlur}
-                                  value={
-                                    field.value === "" ? undefined : field.value
-                                  }
-                                  name={field.name}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Enter your current group name
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_groups.${index}.email`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                                Email address
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  ref={field.ref}
-                                  onChange={field.onChange}
-                                  onBlur={field.onBlur}
-                                  value={field.value || ""}
-                                  name={field.name}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Enter your email address
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="grid w-full items-center gap-1.5">
-                        <FormField
-                          control={form.control}
-                          name={`_groups.${index}.certificationFile`}
-                          render={({
-                            field: { value, onChange, ...fieldProps },
-                          }) => (
-                            <FormItem>
-                              <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                                Upload certification of membership
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...fieldProps}
-                                  placeholder="Picture"
-                                  type="file"
-                                  accept=".pdf,.doc,.docx"
-                                  onChange={(event) =>
-                                    onChange(
-                                      event.target.files &&
-                                        event.target.files[0]
-                                    )
-                                  }
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Link to a PDF or word document
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <Switch id={`festival-turn-${field.id}`} disabled />
-                          <Label htmlFor={`festival-turn-${field.id}`}>
-                            Turn off profile
-                          </Label>
-                        </div>
-                      </div>
-                      {groupFields.length > 1 && (
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => removeGroup(index)}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" /> Remove Group
-                        </Button>
-                      )}
-                    </div>
-                  );
-                })}
-                <Button
-                  type="button"
-                  onClick={() =>
-                    appendGroup({
-                      certificationFile: null,
-                      email: "",
-                      _lang: { name: "" },
-                    })
-                  }
-                  className="mt-2"
-                >
-                  <PlusCircle className="mr-2 h-4 w-4" /> Add Group
-                </Button>
-                <input
-                  type="hidden"
-                  name="_groupSize"
-                  value={groupFields.length}
-                />
-              </div> */}
             </CardContent>
           </Card>
           <div className="sticky bottom-5 mt-4 right-0 flex justify-end px-4">

@@ -23,13 +23,14 @@ import { Globe } from "lucide-react";
 import DashboardBreadcrumb from "./dashboard/breadcrumbs";
 import { getAllLanguages } from "@/db/queries/languages";
 import LocaleSwitcher from "./locale-switcher";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 export default async function Dashboard({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const defaultLocale = await getLocale();
   const locales = await getAllLanguages();
   const t = await getTranslations("link");
   return (
@@ -204,7 +205,11 @@ export default async function Dashboard({
             />
           </div>
           <div>
-            <LocaleSwitcher locales={locales} className="text-gray-500" />
+            <LocaleSwitcher
+              locales={locales}
+              defaultLocale={defaultLocale}
+              className="text-gray-500"
+            />
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

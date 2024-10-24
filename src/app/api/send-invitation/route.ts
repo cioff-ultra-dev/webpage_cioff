@@ -121,16 +121,16 @@ export async function GET(request: NextRequest) {
       }
 
       if (nsId) {
-        const data = await tx.query.nationalSectionsLang.findFirst({
+        const countryLang = await tx.query.countriesLang.findFirst({
           where(fields, operators) {
             return operators.and(
-              operators.eq(fields.nsId, nsId),
+              operators.eq(fields.id, currentCountry?.id!),
               operators.eq(fields.lang, currentCountry?.nativeLang ?? 1),
             );
           },
         });
 
-        nsName = data?.name ?? "";
+        nsName = countryLang?.name ?? "";
       }
 
       if (festivalId) {

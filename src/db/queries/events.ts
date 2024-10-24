@@ -9,6 +9,7 @@ import {
   categories,
   SelectLanguages,
   languages,
+  components,
 } from "@/db/schema";
 import { db } from "@/db";
 import { eq, inArray } from "drizzle-orm";
@@ -35,7 +36,7 @@ export async function newFestival(festival: InsertFestival) {
 
 export async function getFestivalById(
   id: SelectFestival["id"],
-  locale: string
+  locale: string,
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
@@ -70,7 +71,7 @@ export async function getFestivalById(
 
 export async function getFestivalBySlug(
   slug: SelectFestival["slug"],
-  locale: string = defaultLocale as SelectLanguages["code"]
+  locale: string = defaultLocale as SelectLanguages["code"],
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
@@ -109,8 +110,70 @@ export async function getFestivalBySlug(
           },
         },
       },
+      coverPhoto: true,
+      logo: true,
+      accomodationPhoto: true,
+      certification: true,
+      photos: {
+        with: {
+          photo: true,
+        },
+      },
+      stagePhotos: {
+        with: {
+          photo: true,
+        },
+      },
+      festivalsToStatuses: true,
+      festivalsToComponents: true,
+      festivalsToGroups: {
+        with: {
+          group: {
+            with: {
+              langs: {
+                with: {
+                  l: true,
+                },
+              },
+              country: {
+                with: {
+                  langs: {
+                    with: {
+                      l: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      festivalsGroupToRegions: true,
+      transports: true,
       social: true,
       status: true,
+      connections: {
+        with: {
+          target: {
+            with: {
+              langs: {
+                with: {
+                  l: true,
+                },
+              },
+              country: {
+                with: {
+                  langs: {
+                    with: {
+                      l: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
       owners: {
         with: {
           user: {
@@ -230,6 +293,64 @@ export async function getCategoryForGroups(locale: string, fields: string[]) {
         where(fields, { inArray }) {
           return inArray(fields.lang, sq);
         },
+        with: {
+          l: true,
+        },
+      },
+    },
+  });
+}
+
+export async function getComponentForGroups(locale: string, fields: string[]) {
+  const localeValue = locale as SelectLanguages["code"];
+  const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
+
+  const pushLocales = [localeValue];
+
+  if (localeValue !== currentDefaultLocale) {
+    pushLocales.push(currentDefaultLocale);
+  }
+
+  const sq = db
+    .select({ id: languages.id })
+    .from(languages)
+    .where(inArray(languages.code, pushLocales));
+
+  return db.query.components.findMany({
+    where: inArray(components.slug, fields),
+    with: {
+      langs: {
+        where(fields, { inArray }) {
+          return inArray(fields.lang, sq);
+        },
+        with: {
+          l: true,
+        },
+      },
+    },
+  });
+}
+
+export type ComponentsForGroupType = Awaited<
+  ReturnType<typeof getComponentForGroups>
+>;
+
+export async function buildFestival(countryId: number) {
+  return await db.query.festivals.findMany({
+    where(fields, { eq }) {
+      return eq(fields.countryId, countryId);
+    },
+    with: {
+      country: {
+        with: {
+          langs: {
+            with: {
+              l: true,
+            },
+          },
+        },
+      },
+      langs: {
         with: {
           l: true,
         },

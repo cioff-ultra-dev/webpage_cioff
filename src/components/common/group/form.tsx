@@ -45,11 +45,13 @@ import { PhoneInput } from "@/components/ui/phone-input";
 import {
   insertGroupLangSchema,
   insertGroupSchema,
+  insertRepertoryLangSchema,
+  insertRepertorySchema,
   insertSubGroupLangSchema,
   insertSubGroupSchema,
 } from "@/db/schema";
 import { cn, formatBytes } from "@/lib/utils";
-import { X } from "lucide-react";
+import { PlusCircle, X } from "lucide-react";
 import {
   AgeGroupsType,
   GroupDetailsType,
@@ -67,6 +69,7 @@ import { toast } from "sonner";
 import { customRevalidatePath } from "../revalidateTag";
 import { useRouter } from "next/navigation";
 import { RegionsType } from "@/db/queries/regions";
+import { FilepondImageUploader } from "@/components/extension/filepond-image-uploader";
 
 const globalGroupSchema = insertGroupSchema.extend({
   _lang: insertGroupLangSchema,
@@ -83,11 +86,11 @@ const globalGroupSchema = insertGroupSchema.extend({
     .refine((item) => item instanceof File || typeof item === "undefined", {
       params: { i18n: "file_required" },
     }),
-  // _musicalDirectorPhoto: z
-  //   .any()
-  //   .refine((item) => item instanceof File || typeof item === "undefined", {
-  //     params: { i18n: "file_required" },
-  //   }),
+  _musicalDirectorPhoto: z
+    .any()
+    .refine((item) => item instanceof File || typeof item === "undefined", {
+      params: { i18n: "file_required" },
+    }),
   _isAbleToTravel: z.boolean().optional(),
   _isAbleToTravelToLiveMusic: z.boolean().optional(),
   _specificDate: z
@@ -100,6 +103,13 @@ const globalGroupSchema = insertGroupSchema.extend({
   _subgroups: z.array(
     insertSubGroupSchema.extend({
       _lang: insertSubGroupLangSchema,
+      _groupAge: z.array(z.string()),
+      _hasAnotherContact: z.boolean().default(false).optional(),
+    }),
+  ),
+  _repertories: z.array(
+    insertRepertorySchema.extend({
+      _lang: insertRepertoryLangSchema,
     }),
   ),
 });
@@ -321,6 +331,7 @@ export default function GroupForm({
       id: currentGroup?.id ?? 0,
       generalDirectorName: currentGroup?.generalDirectorName || "",
       artisticDirectorName: currentGroup?.artisticDirectorName || "",
+      musicalDirectorName: currentGroup?.musicalDirectorName || "",
       phone: currentGroup?.phone || "",
       _groupAge: currentCategoriesSelected?.filter((item) => {
         return ageGroups.some((category) => category.id === Number(item));
@@ -348,7 +359,39 @@ export default function GroupForm({
         description: currentLang?.description || undefined,
         generalDirectorProfile: currentLang?.generalDirectorProfile || "",
         artisticDirectorProfile: currentLang?.artisticDirectorProfile || "",
+        musicalDirectorProfile: currentLang?.musicalDirectorProfile || "",
       },
+      _subgroups: currentGroup?.subgroups.map((item) => {
+        return {
+          id: item.id,
+          _hasAnotherContact: item.hasAnotherContact ?? false,
+          contactName: item.contactName,
+          contactPhone: item.contactPhone,
+          contactMail: item.contactMail,
+          membersNumber: item.membersNumber,
+          _groupAge:
+            item.subgroupsToCategories.map((item) => String(item.categoryId)) ??
+            [],
+          _lang: {
+            id: item.langs.find((lang) => lang?.l?.code === locale)?.id,
+            name: item.langs.find((lang) => lang?.l?.code === locale)?.name,
+          },
+        };
+      }),
+      _repertories: currentGroup?.repertories.map((item) => {
+        const currentRepertoryLang = item.langs.find(
+          (lang) => lang?.l?.code === locale,
+        );
+        return {
+          id: item.id,
+          youtubeId: item.youtubeId,
+          _lang: {
+            id: currentRepertoryLang?.id,
+            name: currentRepertoryLang?.name,
+            description: currentRepertoryLang?.description,
+          },
+        };
+      }),
     },
   });
 
@@ -359,9 +402,19 @@ export default function GroupForm({
     },
   );
 
+  const { fields: repertoryFields, append: appendRepertory } = useFieldArray({
+    control: form.control,
+    name: "_repertories",
+  });
+
   const isAbleToTravelWatch = useWatch({
     control: form.control,
     name: "_isAbleToTravel",
+  });
+
+  const currentSubgroups = useWatch({
+    control: form.control,
+    name: "_subgroups",
   });
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -376,10 +429,12 @@ export default function GroupForm({
       toast.error(result.error);
     }
 
-    // if (result.success) {
-    //   customRevalidatePath("/dashboard/groups");
-    //   router.push("/dashboard/groups");
-    // }
+    customRevalidatePath(`/dashboard/groups/${currentGroup?.id}/edit`);
+    customRevalidatePath("/dashboard/groups");
+
+    if (result.success) {
+      router.push("/dashboard/groups");
+    }
   };
 
   return (
@@ -527,21 +582,35 @@ export default function GroupForm({
                           President/General Director's photo
                         </FormLabel>
                         <FormControl>
-                          <Input
-                            ref={field.ref}
-                            type="file"
-                            accept="image/*"
-                            onChange={(event) => {
-                              field.onChange(
-                                event.target.files && event.target.files[0],
-                              );
-                            }}
-                            onBlur={field.onBlur}
+                          <FilepondImageUploader
+                            id={field.name}
                             name={field.name}
+                            allowImageCrop
                             disabled={isNSAccount}
+                            acceptedFileTypes={["image/*"]}
+                            imageCropAspectRatio="1:1"
+                            defaultFiles={
+                              currentGroup?.directorPhoto?.url
+                                ? [
+                                    {
+                                      source: currentGroup.directorPhoto?.url!,
+                                      options: {
+                                        type: "local",
+                                      },
+                                    },
+                                  ]
+                                : []
+                            }
                           />
                         </FormControl>
                         <FormMessage />
+                        <input
+                          name="_generalDirectorPhotoId"
+                          type="hidden"
+                          value={
+                            currentGroup?.generalDirectorPhotoId ?? undefined
+                          }
+                        />
                       </FormItem>
                     )}
                   />
@@ -612,28 +681,42 @@ export default function GroupForm({
                           Artistic Director's photo
                         </FormLabel>
                         <FormControl>
-                          <Input
-                            ref={field.ref}
-                            type="file"
-                            accept="image/*"
-                            onChange={(event) => {
-                              field.onChange(
-                                event.target.files && event.target.files[0],
-                              );
-                            }}
-                            onBlur={field.onBlur}
+                          <FilepondImageUploader
+                            id={field.name}
                             name={field.name}
+                            allowImageCrop
                             disabled={isNSAccount}
+                            acceptedFileTypes={["image/*"]}
+                            imageCropAspectRatio="1:1"
+                            defaultFiles={
+                              currentGroup?.artisticPhoto?.url
+                                ? [
+                                    {
+                                      source: currentGroup.artisticPhoto?.url!,
+                                      options: {
+                                        type: "local",
+                                      },
+                                    },
+                                  ]
+                                : []
+                            }
                           />
                         </FormControl>
                         <FormMessage />
+                        <input
+                          name="_artisticDirectorPhotoId"
+                          type="hidden"
+                          value={
+                            currentGroup?.artisticDirectorPhotoId ?? undefined
+                          }
+                        />
                       </FormItem>
                     )}
                   />
                 </div>
 
                 {/* Musical Director */}
-                {/* <div className="space-y-2">
+                <div className="space-y-2">
                   <FormField
                     control={form.control}
                     name={"musicalDirectorName"}
@@ -697,21 +780,39 @@ export default function GroupForm({
                           Musical Director's photo
                         </FormLabel>
                         <FormControl>
-                          <Input
-                            ref={field.ref}
-                            type="file"
-                            accept="image/*"
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
+                          <FilepondImageUploader
+                            id={field.name}
                             name={field.name}
+                            allowImageCrop
                             disabled={isNSAccount}
+                            acceptedFileTypes={["image/*"]}
+                            imageCropAspectRatio="1:1"
+                            defaultFiles={
+                              currentGroup?.musicalPhoto?.url
+                                ? [
+                                    {
+                                      source: currentGroup.musicalPhoto?.url!,
+                                      options: {
+                                        type: "local",
+                                      },
+                                    },
+                                  ]
+                                : []
+                            }
                           />
                         </FormControl>
                         <FormMessage />
+                        <input
+                          name="_musicalDirectorPhotoId"
+                          type="hidden"
+                          value={
+                            currentGroup?.musicalDirectorPhotoId ?? undefined
+                          }
+                        />
                       </FormItem>
                     )}
                   />
-                </div> */}
+                </div>
 
                 <div className="space-y-2">
                   <FormField
@@ -998,8 +1099,7 @@ export default function GroupForm({
                     }}
                   />
                 </div>
-
-                {/* <div className="space-y-4 border-t pt-4">
+                <div className="space-y-4 border-t pt-4">
                   <h2 className="text-lg font-semibold">Sub Groups</h2>
                   {subGroupFields.map((field, index) => (
                     <Card
@@ -1035,7 +1135,6 @@ export default function GroupForm({
                               value={field.value}
                               name={field.name}
                               type="hidden"
-                              disabled={isNSAccount}
                             />
                           </FormControl>
                         )}
@@ -1082,9 +1181,13 @@ export default function GroupForm({
                                     ref={field.ref}
                                     type="number"
                                     max="40"
-                                    onChange={field.onChange}
+                                    onChange={(event) =>
+                                      void field.onChange(
+                                        Number(event.target.value),
+                                      )
+                                    }
                                     onBlur={field.onBlur}
-                                    value={field.value || ""}
+                                    value={field.value ?? undefined}
                                     name={field.name}
                                     disabled={isNSAccount}
                                   />
@@ -1100,7 +1203,7 @@ export default function GroupForm({
                         <div className="grid w-full items-center gap-1.5">
                           <FormField
                             control={form.control}
-                            name="_groupAge"
+                            name={`_subgroups.${index}._groupAge`}
                             render={({ field }) => {
                               const options: MultiSelectProps["options"] =
                                 ageGroups.map((type) => {
@@ -1120,41 +1223,141 @@ export default function GroupForm({
                                       ref={field.ref}
                                       options={options}
                                       disabled={isNSAccount}
+                                      defaultValue={field.value}
                                       onValueChange={(values) => {
-                                        setSelectedGroupAge(values);
-                                        form.setValue(
-                                          "_groupAge",
-                                          JSON.stringify(values)
-                                        );
+                                        field.onChange(values);
                                       }}
                                     />
                                   </FormControl>
                                   <FormMessage />
+                                  <input
+                                    type="hidden"
+                                    name={`_subgroups.${index}._groupAge`}
+                                    value={JSON.stringify(field.value) || "[]"}
+                                  />
                                 </FormItem>
                               );
                             }}
                           />
-                          <input
-                            type="hidden"
-                            name="_groupAge"
-                            value={JSON.stringify(selectedGroupAge) || "[]"}
+                        </div>
+                        <div className="grid w-full items-center gap-1.5">
+                          <FormField
+                            control={form.control}
+                            name={`_subgroups.${index}._hasAnotherContact`}
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                <div className="space-y-0.5">
+                                  <FormLabel className="text-base">
+                                    Another Contact
+                                  </FormLabel>
+                                  <FormDescription>
+                                    Do you have another contact person for your
+                                    other group?
+                                  </FormDescription>
+                                </div>
+                                <FormControl>
+                                  <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                    name={field.name}
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
                           />
                         </div>
+                        {currentSubgroups[index]?._hasAnotherContact ? (
+                          <div className="pl-5 border-l space-y-4 w-full">
+                            <div className="grid w-full items-center gap-1.5">
+                              <FormField
+                                control={form.control}
+                                name={`_subgroups.${index}.contactName`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Contact Name</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        value={field.value ?? ""}
+                                      />
+                                    </FormControl>
+                                    <FormDescription>
+                                      Provide the current main contact name
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <div className="grid w-full items-center gap-1.5">
+                              <FormField
+                                control={form.control}
+                                name={`_subgroups.${index}.contactMail`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Contact Email</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        value={field.value ?? ""}
+                                      />
+                                    </FormControl>
+                                    <FormDescription>
+                                      Provide the current main contact email
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <div className="grid w-full items-center gap-1.5">
+                              <FormField
+                                control={form.control}
+                                name={`_subgroups.${index}.contactPhone`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Contact Phone</FormLabel>
+                                    <FormControl>
+                                      <PhoneInput
+                                        placeholder="Enter a phone number"
+                                        international
+                                        {...field}
+                                        value={field.value as RPNInput.Value}
+                                        disabled={isNSAccount}
+                                      />
+                                    </FormControl>
+                                    <FormDescription>
+                                      Provide the current main contact phone
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
+                        ) : null}
                       </CardContent>
                     </Card>
                   ))}
+                  <input
+                    type="hidden"
+                    name="_subgroupSize"
+                    value={subGroupFields.length}
+                  />
                   <Button
                     type="button"
+                    variant="outline"
                     disabled={isNSAccount}
                     onClick={(_) =>
                       appendSubGroupEvent({
                         _lang: {},
+                        _groupAge: [],
                       })
                     }
                   >
                     <PlusCircle className="mr-2 h-4 w-4" /> Add Event
                   </Button>
-                </div> */}
+                </div>
               </CardContent>
             </Card>
 
@@ -1326,36 +1529,82 @@ export default function GroupForm({
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="photos">Photos</Label>
-                  <Input
+                  <FilepondImageUploader
                     id="photos"
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    disabled={isNSAccount}
+                    name="photos"
+                    allowMultiple
+                    acceptedFileTypes={["image/*"]}
+                    maxFiles={5}
+                    defaultFiles={
+                      currentGroup?.photos.length
+                        ? currentGroup.photos.map((item) => {
+                            return {
+                              source: item.photo?.url!,
+                              options: {
+                                type: "local",
+                              },
+                            };
+                          })
+                        : []
+                    }
                   />
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-gray-500">
                     Max 5 photos x 3MB each
                   </p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="coverPhoto">Cover photo</Label>
-                  <Input
+                  <FilepondImageUploader
                     id="coverPhoto"
-                    type="file"
-                    accept="image/*"
-                    disabled={isNSAccount}
+                    name="coverPhoto"
+                    acceptedFileTypes={["image/*"]}
+                    defaultFiles={
+                      currentGroup?.coverPhoto?.url
+                        ? [
+                            {
+                              source: currentGroup.coverPhoto?.url!,
+                              options: {
+                                type: "local",
+                              },
+                            },
+                          ]
+                        : []
+                    }
                   />
-                  <p className="text-sm text-muted-foreground">Size TBC</p>
+                  <p className="text-sm text-gray-500">Size TBC</p>
+                  <input
+                    name="coverPhotoId"
+                    type="hidden"
+                    value={currentGroup?.coverPhotoId ?? undefined}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="logo">Logo</Label>
-                  <Input
+                  <FilepondImageUploader
                     id="logo"
-                    type="file"
-                    accept="image/*"
-                    disabled={isNSAccount}
+                    name="logo"
+                    allowImageCrop
+                    acceptedFileTypes={["image/*"]}
+                    imageCropAspectRatio="1:1"
+                    defaultFiles={
+                      currentGroup?.logo?.url
+                        ? [
+                            {
+                              source: currentGroup.logo?.url!,
+                              options: {
+                                type: "local",
+                              },
+                            },
+                          ]
+                        : []
+                    }
                   />
-                  <p className="text-sm text-muted-foreground">Size TBC</p>
+                  <p className="text-sm text-gray-500">Size TBC</p>
+                  <input
+                    name="logoId"
+                    type="hidden"
+                    value={currentGroup?.logoId ?? undefined}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="video">Video</Label>
@@ -1399,7 +1648,7 @@ export default function GroupForm({
                 </div>
               </CardContent>
             </Card>
-            {/* <Card>
+            <Card>
               <CardHeader>
                 <CardTitle>Repertoire</CardTitle>
                 <CardDescription>
@@ -1407,12 +1656,44 @@ export default function GroupForm({
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {repertoire.map((item, index) => (
+                {repertoryFields.map((item, index) => (
                   <div
                     key={item.id}
                     className="space-y-4 p-4 border rounded-lg relative"
                   >
-                    <Button
+                    <FormField
+                      control={form.control}
+                      name={`_repertories.${index}.id`}
+                      render={({ field }) => (
+                        <FormControl>
+                          <Input
+                            ref={field.ref}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            value={field.value}
+                            name={field.name}
+                            type="hidden"
+                          />
+                        </FormControl>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`_repertories.${index}._lang.id`}
+                      render={({ field }) => (
+                        <FormControl>
+                          <Input
+                            ref={field.ref}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            value={field.value}
+                            name={field.name}
+                            type="hidden"
+                          />
+                        </FormControl>
+                      )}
+                    />
+                    {/* <Button
                       type="button"
                       variant="ghost"
                       size="icon"
@@ -1420,37 +1701,57 @@ export default function GroupForm({
                       onClick={() => removeRepertoireItem(item.id)}
                     >
                       <X className="h-4 w-4" />
-                    </Button>
+                    </Button> */}
                     <div className="space-y-2">
-                      <Label htmlFor={`section${item.id}Name`}>
-                        Section {index + 1} Name
-                      </Label>
-                      <Input
-                        id={`section${item.id}Name`}
-                        value={item.name}
-                        onChange={(e) =>
-                          updateRepertoireItem(item.id, "name", e.target.value)
-                        }
+                      <FormField
+                        control={form.control}
+                        name={`_repertories.${index}._lang.name`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Name</FormLabel>
+                            <FormControl>
+                              <Input
+                                ref={field.ref}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                value={field.value ?? ""}
+                                name={field.name}
+                                disabled={isNSAccount}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Enter your current section name of the repertory
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor={`section${item.id}Description`}>
-                        Description
-                      </Label>
-                      <Textarea
-                        id={`section${item.id}Description`}
-                        className="min-h-[100px]"
-                        value={item.description}
-                        onChange={(e) =>
-                          updateRepertoireItem(
-                            item.id,
-                            "description",
-                            e.target.value
-                          )
-                        }
+                      <FormField
+                        control={form.control}
+                        name={`_repertories.${index}._lang.description`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Description</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                className="resize-none"
+                                name={field.name}
+                                onChange={field.onChange}
+                                value={field.value || ""}
+                                onBlur={field.onBlur}
+                                ref={field.ref}
+                                disabled={isNSAccount}
+                              />
+                            </FormControl>
+                            <FormDescription>Max 500 words</FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-2 hidden">
                       <Label htmlFor={`section${item.id}Photos`}>
                         Photos in costume
                       </Label>
@@ -1463,58 +1764,103 @@ export default function GroupForm({
                           updateRepertoireItem(
                             item.id,
                             "photos",
-                            e.target.files
+                            e.target.files,
                           )
                         }
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor={`section${item.id}Video`}>
-                        Video (YouTube Link)
-                      </Label>
-                      <Input
-                        id={`section${item.id}Video`}
-                        placeholder="YouTube Link"
-                        value={item.video}
-                        onChange={(e) =>
-                          updateRepertoireItem(item.id, "video", e.target.value)
-                        }
+                      <FormField
+                        control={form.control}
+                        name={`_repertories.${index}.youtubeId`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Video (Youtube Link)</FormLabel>
+                            <FormControl>
+                              <Input
+                                ref={field.ref}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                value={field.value ?? ""}
+                                name={field.name}
+                                disabled={isNSAccount}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Enter your video link by Youtube
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
                     </div>
                   </div>
                 ))}
+                <input
+                  type="hidden"
+                  name="_repertorySize"
+                  value={repertoryFields.length}
+                />
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={addRepertoireItem}
+                  onClick={() => appendRepertory({ _lang: {} })}
                   className="w-full"
                 >
-                  <PlusCircle className="mr-2 h-4 w-4" /> Add Repertoire Section
+                  <PlusCircle className="mr-2 h-4 w-4" /> Add Repertoire
                 </Button>
               </CardContent>
-            </Card> */}
+            </Card>
 
-            {/* <Card>
+            <Card>
               <CardHeader>
                 <CardTitle>Additional Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="groupPortfolio">
-                    Upload group portfolio/brochure
-                  </Label>
-                  <Input
-                    id="groupPortfolio"
-                    type="file"
-                    accept=".pdf"
-                    disabled={isNSAccount}
+                  <FormField
+                    control={form.control}
+                    name="linkPortfolio"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Upload group portfolio/brochure</FormLabel>
+                        <FormControl>
+                          <Input
+                            ref={field.ref}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            value={field.value ?? ""}
+                            name={field.name}
+                            disabled={isNSAccount}
+                            placeholder="Provide the link of your portfolio/brochure"
+                          />
+                        </FormControl>
+                        <FormDescription>Only PDF - max 10MB</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                  <p className="text-sm text-muted-foreground">
-                    Only PDF - max 10MB
-                  </p>
                 </div>
               </CardContent>
-            </Card> */}
+            </Card>
+            <Card className="hidden">
+              <CardHeader>
+                <CardTitle>Recognition Certification</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="recognitionCertificate">
+                    Upload recognition certificate
+                  </Label>
+                  <Input
+                    id="recognitionCertificate"
+                    name="recognitionCertificate"
+                    type="file"
+                    disabled={isNSAccount}
+                  />
+                </div>
+              </CardContent>
+            </Card>
           </div>
           {!isNSAccount ? (
             <div className="sticky bottom-5 mt-4 right-0 flex justify-end px-4">

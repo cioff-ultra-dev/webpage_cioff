@@ -48,7 +48,7 @@ export default function DashboardBreadcrumb({
                   <BreadcrumbItem>
                     <BreadcrumbLink asChild>
                       <Link className="capitalize" href={href} prefetch={false}>
-                        {t(link)}
+                        {t(link.replaceAll("-", " "))}
                       </Link>
                     </BreadcrumbLink>
                   </BreadcrumbItem>

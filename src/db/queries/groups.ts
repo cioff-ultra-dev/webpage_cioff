@@ -41,6 +41,40 @@ export async function getGroupById(id: SelectGroup["id"]) {
     where: eq(groups.id, id),
     with: {
       directorPhoto: true,
+      musicalPhoto: true,
+      artisticPhoto: true,
+      coverPhoto: true,
+      logo: true,
+      photos: {
+        with: {
+          photo: true,
+        },
+      },
+      subgroups: {
+        with: {
+          subgroupsToCategories: true,
+          langs: {
+            where(fields, { inArray }) {
+              return inArray(fields.lang, sq);
+            },
+            with: {
+              l: true,
+            },
+          },
+        },
+      },
+      repertories: {
+        with: {
+          langs: {
+            where(fields, { inArray }) {
+              return inArray(fields.lang, sq);
+            },
+            with: {
+              l: true,
+            },
+          },
+        },
+      },
       groupToCategories: {
         with: {
           category: true,
@@ -188,3 +222,27 @@ export async function getAllGroupStyles() {
 }
 
 export type GroupStyleType = Awaited<ReturnType<typeof getAllAgeGroups>>;
+
+export async function buildGroup(countryId: number) {
+  return await db.query.groups.findMany({
+    where(fields, { eq }) {
+      return eq(fields.countryId, countryId);
+    },
+    with: {
+      country: {
+        with: {
+          langs: {
+            with: {
+              l: true,
+            },
+          },
+        },
+      },
+      langs: {
+        with: {
+          l: true,
+        },
+      },
+    },
+  });
+}

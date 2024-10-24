@@ -108,9 +108,9 @@ export default async function DashboardPage() {
       <TabsContent value="all">
         <Card x-chunk="dashboard-06-chunk-0">
           <CardHeader>
-            <CardTitle>{t("festivals")}</CardTitle>
+            <CardTitle>Festivals</CardTitle>
             <CardDescription>
-              {t("Manage_your_fest_details")}
+              Manage your festivals and view their details.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -118,11 +118,11 @@ export default async function DashboardPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{t("name")}</TableHead>
+                    <TableHead>Name</TableHead>
                     <TableHead className="hidden md:table-cell">
-                      {t("owner")}
+                      Owner
                     </TableHead>
-                    <TableHead className="hidden md:table-cell">{t("date")}</TableHead>
+                    <TableHead className="hidden md:table-cell">Date</TableHead>
                     <TableHead className="hidden md:table-cell">
                       {t("state")}
                     </TableHead>
@@ -175,7 +175,7 @@ export default async function DashboardPage() {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>{t("actions")}</DropdownMenuLabel>
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                 <DropdownMenuItem>
                                   <Link
                                     href={`/event/${item?.id}`}
