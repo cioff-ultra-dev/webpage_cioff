@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
         const countryLang = await tx.query.countriesLang.findFirst({
           where(fields, operators) {
             return operators.and(
-              operators.eq(fields.id, currentCountry?.id!),
+              operators.eq(fields.countryId, currentCountry?.id!),
               operators.eq(fields.lang, currentCountry?.nativeLang ?? 1),
             );
           },

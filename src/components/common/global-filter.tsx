@@ -36,6 +36,7 @@ import {
 import Image from "next/image";
 import { Skeleton } from "../ui/skeleton";
 import { BuildFilterType } from "@/app/api/filter/route";
+import constants from "@/constants";
 
 interface FormElements extends HTMLFormControlsCollection {
   search: HTMLInputElement;
@@ -447,10 +448,7 @@ function BaseWrapperFilter({
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
   return (
-    <APIProvider
-      apiKey={"AIzaSyBRO_oBiyzOAQbH7Jcv3ZrgOgkfNp1wJeI"}
-      libraries={["marker"]}
-    >
+    <APIProvider apiKey={constants.google.apiKey!} libraries={["marker"]}>
       <WrapperFilter searchParams={searchParams} />
     </APIProvider>
   );

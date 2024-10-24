@@ -97,6 +97,7 @@ import useSWR from "swr";
 import { RegionsType } from "@/db/queries/regions";
 import { buildGroup } from "@/db/queries/groups";
 import { FilepondImageUploader } from "@/components/extension/filepond-image-uploader";
+import constants from "@/constants";
 
 const dateRangeSchema = z.object({
   id: z.string().optional(),
@@ -469,6 +470,14 @@ export default function EventForm({
     name: "_countryGroupSelected",
   });
 
+  useEffect(() => {
+    if (currentLang?.id) {
+      form.setValue("_lang", {
+        ...currentLang,
+      });
+    }
+  }, [currentLang?.id, currentLang, form]);
+
   type CurrentFestivals = Awaited<ReturnType<typeof buildFestival>>;
   type CurrentGroups = Awaited<ReturnType<typeof buildGroup>>;
 
@@ -483,7 +492,7 @@ export default function EventForm({
   );
 
   return (
-    <APIProvider apiKey={"AIzaSyBRO_oBiyzOAQbH7Jcv3ZrgOgkfNp1wJeI"}>
+    <APIProvider apiKey={constants.google.apiKey!}>
       <div className="w-full p-4 md:p-6 ">
         <h1 className="text-2xl font-bold">ADD AN FESTIVAL</h1>
         <p className="text-sm text-muted-foreground pb-6">
@@ -541,13 +550,17 @@ export default function EventForm({
                     <FormField
                       control={form.control}
                       name="_lang.name"
-                      render={({ field }) => (
+                      render={({ field, fieldState }) => (
                         <FormItem>
                           <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
                             {t("name")}
                           </FormLabel>
                           <FormControl>
-                            <Input {...field} disabled={isNSAccount} />
+                            <Input
+                              {...field}
+                              disabled={isNSAccount}
+                              data-dirty={fieldState.isDirty}
+                            />
                           </FormControl>
                           <FormDescription>
                             This is your current festival name

@@ -26,7 +26,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { EllipsisVertical, Send } from "lucide-react";
 import { getAllGroupsByOwner } from "@/db/queries/groups";
-import { getFormatter, getLocale } from "next-intl/server";
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
 import { auth } from "@/auth";
 import { DialogTrigger } from "@/components/ui/dialog";
@@ -36,6 +36,7 @@ export default async function DashboardPage() {
   const session = await auth();
   const locale = await getLocale();
   const formatter = await getFormatter();
+  const t = await getTranslations("page");
   const response = await getAllGroupsByOwner(locale);
   let groups = response.filter((item) => item.group).map((item) => item.group);
 
@@ -49,7 +50,7 @@ export default async function DashboardPage() {
     <Tabs defaultValue="all">
       <div className="flex items-center">
         <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="all">{t("all")}</TabsTrigger>
           {/* <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
           <TabsTrigger value="past">Past</TabsTrigger> */}
         </TabsList>
@@ -84,7 +85,7 @@ export default async function DashboardPage() {
                 <Button size="sm" variant="secondary" className="h-8 gap-1">
                   <Send className="h-3.5 w-3.5" />
                   <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                    Generate Group Invitation
+                    {t("Gener_group_invitat")}
                   </span>
                 </Button>
               </Link>
@@ -94,7 +95,7 @@ export default async function DashboardPage() {
                 <Button size="sm" className="h-8 gap-1">
                   <CirclePlusIcon className="h-3.5 w-3.5" />
                   <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                    Add Group
+                    {t("add_group")}
                   </span>
                 </Button>
               </Link>
@@ -105,9 +106,9 @@ export default async function DashboardPage() {
       <TabsContent value="all">
         <Card x-chunk="dashboard-06-chunk-0">
           <CardHeader>
-            <CardTitle>Groups</CardTitle>
+            <CardTitle>{t("groups")}</CardTitle>
             <CardDescription>
-              Manage your groups and view their details.
+              {t("Manage_your_groups_details")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -115,13 +116,13 @@ export default async function DashboardPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead className="hidden md:table-cell">Date</TableHead>
+                    <TableHead>{t("name")}</TableHead>
+                    <TableHead className="hidden md:table-cell">{t("date")}</TableHead>
                     <TableHead className="hidden md:table-cell">
-                      Country
+                      {t("country")}
                     </TableHead>
                     <TableHead>
-                      <span className="sr-only">Actions</span>
+                      <span className="sr-only">{t("actions")}</span>
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -158,7 +159,7 @@ export default async function DashboardPage() {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuLabel>{t("actions")}</DropdownMenuLabel>
                                 {/* <DropdownMenuItem
                                 asChild
                                 className="cursor-pointer"
@@ -177,14 +178,14 @@ export default async function DashboardPage() {
                                   <Link
                                     href={`/dashboard/groups/${item?.id}/edit`}
                                   >
-                                    Edit
+                                    {t("edit")}
                                   </Link>
                                 </DropdownMenuItem>
                                 {session?.user.role?.name ===
                                 "National Sections" ? (
                                   <DialogTrigger asChild>
                                     <DropdownMenuItem className="cursor-pointer">
-                                      Send Invitation
+                                      {t("send_invitation")}
                                     </DropdownMenuItem>
                                   </DialogTrigger>
                                 ) : null}
@@ -200,7 +201,7 @@ export default async function DashboardPage() {
             ) : (
               <div className="w-full flex justify-center">
                 <span className="text-muted-foreground text-sm">
-                  Not found groups...
+                  {t("not_found_groups")}
                 </span>
               </div>
             )}

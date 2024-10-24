@@ -2,6 +2,34 @@
   "home": {
     "title": "Hello world!"
   },
+  "page":{
+    "all": "All",
+    "add_national_section": "Add National Section",
+    "add_festival": "Add Festival",
+    "add_group": "Add Group",
+    "national_sections": "National Sections",
+    "festivals": "Festivals",
+    "groups": "Groups",
+    "Manage_your_ns": "Manage your NS and view their details.",
+    "Manage_your_fest_details": "Manage your festivals and view their details.",
+    "Manage_your_groups_details": "Manage your groups and view their details.",
+    "name": "Name",
+    "owner": "Owner",
+    "date": "Date",
+    "country": "Country",
+    "state": "State",
+    "description": "Description",
+    "actions": "Actions",
+    "edit": "Edit",
+    "delete": "Delete",
+    "preview": "Preview",
+    "not_found_groups": "Not found groups...",
+    "not_found_festivals": "Not found festivals...",
+    "gener_fest_invit": "Generate Festival Invitation",
+    "Gener_group_invitat": "Generate Group Invitation",
+    "send_invitation": "Send Invitation"    
+
+  },
   "locale_switch": {
     "select": "Select language",
     "es": "Español",
@@ -61,9 +89,31 @@
     },
     "ns": {
       "title": "ADD A NATIONAL SECTION",
-      "disclaimer": "The fields with * are mandatory.",
+      "disclaimer": "The fields with (*) are mandatory.",
+      "organi_registra_form": "Organization Registration Form",
+      "please_fill_out_details": "Please fill out the details for your organization",
+      "module_1_profile": "Module 1: Profile",
+      "enter_associ_name": "Enter association name",
+      "about_national_secti": "About National Section",
+      "Tell_public_about_NS_etc":"Tell the public about the NS main activities or projects, year of creation, etc.",
+      "You_can_use_max_500_words":"You can use max. 500 words for this input",
+      "position": "Position",
+      "name": "Name",
+      "enter_current_name": "Enter your current name",
+      "type_position": "Type Position",
+      "select_type_positi": "Select type position",
+      "search_type": "Search type...",
+      "no_type_position_found": "No type position found.",
+      "this_type_posi_used_nationalsec": "This is the type position that will be used in the NationalSection.",
+      "member_name": "Member name",
+      "enter_custom_me_name": "Enter your custom member name",
+      "email_address": "Email Address",
+      "enter_current_email_addre": "Enter your current email address",
+      "phone_number": "Phone Number (country code)",
+      "enter_phone_number": "Enter a phone number",
       "_lang": {
-        "name": "Name of the association"
+        "name": "Name of the association",
+        "about": "About"
       },
       "_festivals": [
         {

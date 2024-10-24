@@ -35,6 +35,7 @@ import {
 } from "../ui/tooltip";
 import Image from "next/image";
 import { BuildFilterType } from "@/app/api/filter/route";
+import constants from "@/constants";
 
 interface FormElements extends HTMLFormControlsCollection {
   search: HTMLInputElement;
@@ -448,10 +449,7 @@ export function WrapperFilter() {
 
 function BaseWrapperFilter() {
   return (
-    <APIProvider
-      apiKey={"AIzaSyBRO_oBiyzOAQbH7Jcv3ZrgOgkfNp1wJeI"}
-      libraries={["marker"]}
-    >
+    <APIProvider apiKey={constants.google.apiKey!} libraries={["marker"]}>
       <WrapperFilter />
     </APIProvider>
   );

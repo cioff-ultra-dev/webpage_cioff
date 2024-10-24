@@ -1190,6 +1190,10 @@ export const userRelations = relations(users, ({ one }) => ({
     fields: [users.roleId],
     references: [roles.id],
   }),
+  country: one(countries, {
+    fields: [users.countryId],
+    references: [countries.id],
+  }),
 }));
 
 export const festivalRelations = relations(festivals, ({ many, one }) => ({
@@ -1288,9 +1292,13 @@ export const categoryGroupsRealtions = relations(
   }),
 );
 
-export const countriesRelations = relations(countries, ({ many }) => ({
+export const countriesRelations = relations(countries, ({ one, many }) => ({
   festivals: many(festivals),
   langs: many(countriesLang),
+  nativeLang: one(languages, {
+    fields: [countries.nativeLang],
+    references: [languages.id],
+  }),
 }));
 
 export const countriesLangRelations = relations(countriesLang, ({ one }) => ({
@@ -1916,6 +1924,15 @@ export type SelectFestivalLang = typeof festivalsLang.$inferSelect;
 
 export type InsertGroup = typeof groups.$inferInsert;
 export type SelectGroup = typeof groups.$inferSelect;
+
+export type InsertGroupLang = typeof groupsLang.$inferInsert;
+export type SelectGroupLang = typeof groupsLang.$inferSelect;
+
+export type InsertSubGroupLang = typeof subgroupsLang.$inferInsert;
+export type SelectSubGroupLang = typeof subgroupsLang.$inferSelect;
+
+export type InsertRepertoryLang = typeof repertoriesLang.$inferInsert;
+export type SelectRepertoryLang = typeof repertoriesLang.$inferSelect;
 
 export type InsertCountries = typeof countries.$inferInsert;
 export type SelectCountries = typeof countries.$inferSelect;

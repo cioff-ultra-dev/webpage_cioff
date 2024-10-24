@@ -28,13 +28,6 @@ export function FilepondImageUploader({
   const [files, setFiles] = useState<FilePondProps["files"]>(defaultFiles);
   const fileRef = useRef(null);
 
-  function handleOnInit() {
-    console.log(
-      `This is a inicialized componnet for upload file`,
-      fileRef.current,
-    );
-  }
-
   return (
     <div className="w-full">
       <FilePond
@@ -46,7 +39,6 @@ export function FilepondImageUploader({
             "x-custom-field": name,
           },
         }}
-        oninit={() => void handleOnInit()}
         name={name}
         onupdatefiles={(values: FilePondFile[]) => {
           setFiles(values.map((item) => item.file as File));
