@@ -7,10 +7,7 @@ export async function GET(request: NextRequest) {
   const search: string = request.nextUrl.searchParams.get("search") || "";
   const currentLocale = (await getLocale()) as Locale;
 
-  const results = await getTranslateText(
-    search || "hola mundo de mierda",
-    currentLocale,
-  );
+  const results = await getTranslateText(search, currentLocale);
 
   return Response.json({ results });
 }

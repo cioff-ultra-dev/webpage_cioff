@@ -130,8 +130,6 @@ export async function GET(request: NextRequest) {
           },
         });
 
-        console.log({ currentCountry, countryLang });
-
         nsName = countryLang?.name ?? "";
       }
 
