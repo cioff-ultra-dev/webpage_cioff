@@ -216,7 +216,7 @@ export default function NationalSectionForm({
     },
   });
 
-  const t = useTranslations("form.ns");  
+  const t = useTranslations("form.ns");
   const router = useRouter();
 
   useEffect(() => {
@@ -313,13 +313,13 @@ export default function NationalSectionForm({
           <Card className="w-full mx-auto">
             <CardHeader>
               <CardTitle>{t("organi_registra_form")}</CardTitle>
-              <CardDescription>
-                {t("please_fill_out_details")}
-              </CardDescription>
+              <CardDescription>{t("please_fill_out_details")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
               <div className="space-y-4">
-                <h2 className="text-lg font-semibold">{t("module_1_profile")}</h2>
+                <h2 className="text-lg font-semibold">
+                  {t("module_1_profile")}
+                </h2>
                 <FormField
                   control={form.control}
                   name="slug"
@@ -433,7 +433,10 @@ export default function NationalSectionForm({
                 const positionIndex = index + 1;
                 return (
                   <div key={field.id} className="space-y-4 border-t pt-4">
-                    <h3 className="font-medium"> {t("position")} {positionIndex}</h3>
+                    <h3 className="font-medium">
+                      {" "}
+                      {t("position")} {positionIndex}
+                    </h3>
                     <FormField
                       control={form.control}
                       name={`_positions.${index}.id`}
@@ -505,7 +508,7 @@ export default function NationalSectionForm({
                                           ?.langs.find(
                                             (lang) => lang.l?.code === locale,
                                           )?.name
-                                      : t("select_type_positi") }
+                                      : t("select_type_positi")}
                                     <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                   </Button>
                                 </FormControl>
@@ -513,7 +516,7 @@ export default function NationalSectionForm({
                               <PopoverContent className="w-full p-0">
                                 <Command>
                                   <CommandInput
-                                    placeholder= {t("search_type")}
+                                    placeholder={t("search_type")}
                                     className="h-9"
                                   />
                                   <CommandList>
@@ -593,7 +596,7 @@ export default function NationalSectionForm({
                                 />
                               </FormControl>
                               <FormDescription>
-                                {("enter_custom_me_name")} 
+                                {"enter_custom_me_name"}
                               </FormDescription>
                               <FormMessage />
                             </FormItem>
@@ -608,7 +611,6 @@ export default function NationalSectionForm({
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-
                               {t("email_address")}
                             </FormLabel>
                             <FormControl>

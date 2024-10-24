@@ -393,7 +393,7 @@ export default function EventForm({
     customRevalidatePath("/dashboard/festivals");
 
     if (result.success) {
-      // router.push("/dashboard/festivals");
+      router.push("/dashboard/festivals");
     }
   };
 
@@ -490,8 +490,6 @@ export default function EventForm({
     `/api/group?countryId=${currentCountryGroupSelected ?? ""}`,
     fetcher,
   );
-
-  console.log({ apiKey: constants.google });
 
   return (
     <APIProvider apiKey={constants.google.apiKey!}>

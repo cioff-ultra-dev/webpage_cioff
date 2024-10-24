@@ -420,7 +420,7 @@ export default function GroupForm({
     customRevalidatePath("/dashboard/groups");
 
     if (result.success) {
-      // router.push("/dashboard/groups");
+      router.push("/dashboard/groups");
     }
   };
 
