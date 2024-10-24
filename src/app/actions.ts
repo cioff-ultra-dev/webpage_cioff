@@ -1170,7 +1170,7 @@ export async function generateFestival(formData: FormData) {
         const countryLang = await tx.query.countriesLang.findFirst({
           where(fields, operators) {
             return operators.and(
-              operators.eq(fields.id, currentCountry?.id!),
+              operators.eq(fields.countryId, currentCountry?.id!),
               operators.eq(fields.lang, currentCountry?.nativeLang ?? 1),
             );
           },
@@ -1293,14 +1293,14 @@ export async function generateGroup(formData: FormData) {
       if (user.email && !user.isCreationNotified) {
         const currentCountry = await tx.query.countries.findFirst({
           where(fields, { eq }) {
-            return eq(fields.id, user.countryId!);
+            return eq(fields.id, currentNationalSection?.countryId!);
           },
         });
 
         const countryLang = await tx.query.countriesLang.findFirst({
           where(fields, operators) {
             return operators.and(
-              operators.eq(fields.id, currentCountry?.id!),
+              operators.eq(fields.countryId, currentCountry?.id!),
               operators.eq(fields.lang, currentCountry?.nativeLang ?? 1),
             );
           },
