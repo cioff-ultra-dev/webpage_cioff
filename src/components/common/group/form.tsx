@@ -269,61 +269,8 @@ export default function GroupForm({
   useI18nZodErrors("group");
   const isNSAccount = session?.user.role?.name === "National Sections";
 
-  // const [state, formAction] = useFormState(createGroup, undefined);
-  const [groupType, setGroupType] = useState<string>("only_dance");
-  const [travelAvailability, setTravelAvailability] = useState<string>("no");
-  const [repertoire, setRepertoire] = useState<RepertoireItem[]>([
-    { id: 1, name: "", description: "", photos: null, video: "" },
-  ]);
-  const directorPhotoUrl = useRef(currentGroup?.directorPhoto?.url);
-  const [currentFile, setCurrentFile] = useState<
-    (File & { preview: string }) | null
-  >(null);
-  const [selectedTypeOfGroup, setSelectedTypeOfGroup] = useState<string[]>([]);
-  const [selectedGroupAge, setSelectedGroupAge] = useState<string[]>([]);
-  const [selectedStyleOfGroup, setSelectedStyleOfGroup] = useState<string[]>(
-    [],
-  );
-
   const t = useTranslations("form.group");
   const router = useRouter();
-
-  useEffect(() => {
-    if (directorPhotoUrl.current) {
-      urlToFile(directorPhotoUrl.current).then((response) => {
-        const data = response as File & { preview: string };
-        data.preview = URL.createObjectURL(response);
-        setCurrentFile(data);
-      });
-    }
-  }, []);
-
-  const addRepertoireItem = () => {
-    const newId =
-      repertoire.length > 0
-        ? Math.max(...repertoire.map((item) => item.id)) + 1
-        : 1;
-    setRepertoire([
-      ...repertoire,
-      { id: newId, name: "", description: "", photos: null, video: "" },
-    ]);
-  };
-
-  const removeRepertoireItem = (id: number) => {
-    setRepertoire(repertoire.filter((item) => item.id !== id));
-  };
-
-  const updateRepertoireItem = (
-    id: number,
-    field: keyof RepertoireItem,
-    value: string | FileList | null,
-  ) => {
-    setRepertoire(
-      repertoire.map((item) =>
-        item.id === id ? { ...item, [field]: value } : item,
-      ),
-    );
-  };
 
   const form = useForm<z.infer<typeof globalGroupSchema>>({
     resolver: zodResolver(globalGroupSchema),
@@ -417,6 +364,46 @@ export default function GroupForm({
     name: "_subgroups",
   });
 
+  useEffect(() => {
+    if (currentLang?.id) {
+      form.setValue("_lang", {
+        ...currentLang,
+      });
+    }
+
+    currentGroup?.subgroups.forEach((subgroup, index) => {
+      form.setValue(
+        `_subgroups.${index}._lang.name`,
+        subgroup.langs.at(0)?.name || "",
+      );
+      form.setValue(
+        `_subgroups.${index}._lang.id`,
+        subgroup.langs.at(0)?.id ?? 0,
+      );
+    });
+
+    currentGroup?.repertories.forEach((repertory, index) => {
+      form.setValue(
+        `_repertories.${index}._lang.name`,
+        repertory.langs.at(0)?.name || "",
+      );
+      form.setValue(
+        `_repertories.${index}._lang.description`,
+        repertory.langs.at(0)?.description || "",
+      );
+      form.setValue(
+        `_repertories.${index}._lang.id`,
+        repertory.langs.at(0)?.id ?? 0,
+      );
+    });
+  }, [
+    currentLang?.id,
+    currentLang,
+    currentGroup?.subgroups,
+    currentGroup?.repertories,
+    form,
+  ]);
+
   const formRef = useRef<HTMLFormElement>(null);
 
   const onSubmitForm: SubmitHandler<z.infer<typeof globalGroupSchema>> = async (
@@ -433,7 +420,7 @@ export default function GroupForm({
     customRevalidatePath("/dashboard/groups");
 
     if (result.success) {
-      router.push("/dashboard/groups");
+      // router.push("/dashboard/groups");
     }
   };
 
@@ -903,7 +890,6 @@ export default function GroupForm({
                                 ) ?? []
                               }
                               onValueChange={(values) => {
-                                setSelectedGroupAge(values);
                                 field.onChange(values);
                               }}
                             />
@@ -1000,7 +986,6 @@ export default function GroupForm({
                                 ) ?? []
                               }
                               onValueChange={(values) => {
-                                setSelectedGroupAge(values);
                                 field.onChange(values);
                               }}
                             />
@@ -1083,7 +1068,6 @@ export default function GroupForm({
                                 ) ?? []
                               }
                               onValueChange={(values) => {
-                                setSelectedGroupAge(values);
                                 field.onChange(values);
                               }}
                             />
@@ -1760,13 +1744,6 @@ export default function GroupForm({
                         type="file"
                         accept="image/*"
                         multiple
-                        onChange={(e) =>
-                          updateRepertoireItem(
-                            item.id,
-                            "photos",
-                            e.target.files,
-                          )
-                        }
                       />
                     </div>
                     <div className="space-y-2">

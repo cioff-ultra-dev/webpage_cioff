@@ -28,10 +28,13 @@ import {
   InsertFestivalToConnected,
   InsertFestivalToGroups,
   InsertGroup,
+  InsertGroupLang,
   InsertGroupPhotos,
   InsertNationalSectionLang,
   InsertNationalSectionPositions,
   InsertNationalSectionPositionsLang,
+  InsertRepertoryLang,
+  InsertSubGroupLang,
   InsertTransportLocations,
   nationalSectionPositionsLang,
   nationalSections,
@@ -686,8 +689,6 @@ export async function updateNationalSection(formData: FormData) {
           }
         }
       }
-
-      console.log({ otherEventLangs });
 
       await tx
         .insert(eventsLang)
@@ -2142,14 +2143,13 @@ export async function updateGroup(formData: FormData) {
   const groupCategories = [...typeGroups, ...groupAge, ...styleGroup];
 
   const currentPhotos: InsertGroupPhotos[] = [];
+  const groupLangs: InsertGroupLang[] = [];
+  const subgroupLangs: InsertSubGroupLang[] = [];
+  const repertoryLangs: InsertRepertoryLang[] = [];
 
   const lang = await preparedLanguagesByCode.execute({ locale });
 
   await db.transaction(async (tx) => {
-    // const generalDirectorPhotoId = await uploadFile(generalDirectorPhoto, tx);
-    // const artisticDirectorPhotoId = await uploadFile(artisticDirectorPhoto, tx);
-    // const musicalDirectorPhotoId = await uploadFile(musicalDirectorPhoto, tx);
-
     const generaltDirectorPhotoNextId = await uploadFileStreams(
       generalDirectorPhoto,
       tx,
@@ -2210,19 +2210,131 @@ export async function updateGroup(formData: FormData) {
       .where(eq(groups.id, id))
       .returning();
 
-    await tx
-      .insert(groupsLang)
-      .values({
+    const currentCountry = await tx.query.countries.findFirst({
+      where(fields, { eq }) {
+        return eq(fields.id, currentGroup?.countryId!);
+      },
+      with: {
+        nativeLang: true,
+      },
+    });
+
+    if (currentCountry?.nativeLang?.code === locale) {
+      const currentGroupLangs = await tx.query.groupsLang.findMany({
+        where(fields, { eq }) {
+          return eq(fields.groupId, currentGroup?.id!);
+        },
+        with: {
+          l: true,
+        },
+      });
+
+      const nameTranslateResults = await getTranslateText(
+        name,
+        locale as Locale,
+      );
+      const descriptionTranslateResults = await getTranslateText(
+        description,
+        locale as Locale,
+      );
+      const addressTranslateResults = await getTranslateText(
+        address,
+        locale as Locale,
+      );
+      const generalDirectorProfileTranslateResults = await getTranslateText(
+        generalDirectorProfile,
+        locale as Locale,
+      );
+      const artisticDirectorProfileTranslateResults = await getTranslateText(
+        artisticDirectorProfile,
+        locale as Locale,
+      );
+      const musicalDirectorProfileTranslateResults = await getTranslateText(
+        musicalDirectorProfile,
+        locale as Locale,
+      );
+
+      const pickedLocales = pickLocales(locale);
+
+      for await (const _currentLocale of pickedLocales) {
+        const newLang = await preparedLanguagesByCode.execute({
+          locale: _currentLocale,
+        });
+
+        const newName = nameTranslateResults.find(
+          (item) => item.locale === _currentLocale,
+        );
+
+        const newDescription = descriptionTranslateResults.find(
+          (item) => item.locale === _currentLocale,
+        );
+
+        const newAddress = addressTranslateResults.find(
+          (item) => item.locale === _currentLocale,
+        );
+
+        const newGeneralDirectorProfile =
+          generalDirectorProfileTranslateResults.find(
+            (item) => item.locale === _currentLocale,
+          );
+
+        const newArtisticDirectorProfile =
+          artisticDirectorProfileTranslateResults.find(
+            (item) => item.locale === _currentLocale,
+          );
+
+        const newMusicalDirectorProfile =
+          musicalDirectorProfileTranslateResults.find(
+            (item) => item.locale === _currentLocale,
+          );
+
+        groupLangs.push({
+          id:
+            currentGroupLangs.find((item) => item.l?.code === _currentLocale)
+              ?.id || undefined,
+          name: newName?.result!,
+          description: newDescription?.result,
+          address: newAddress?.result,
+          generalDirectorProfile: newGeneralDirectorProfile?.result,
+          artisticDirectorProfile: newArtisticDirectorProfile?.result,
+          musicalDirectorProfile: newMusicalDirectorProfile?.result,
+          groupId: currentGroup?.id,
+          lang:
+            currentGroupLangs.find((item) => item.l?.code === _currentLocale)
+              ?.lang ||
+            newLang?.id ||
+            undefined,
+        });
+      }
+
+      groupLangs.push({
         id: langId === 0 ? undefined : langId,
         name,
+        description,
+        address,
         generalDirectorProfile,
         artisticDirectorProfile,
         musicalDirectorProfile,
-        address,
-        description,
-        groupId: currentGroup.id,
+        groupId: currentGroup?.id,
         lang: lang?.id,
-      })
+      });
+    } else {
+      groupLangs.push({
+        id: langId === 0 ? undefined : langId,
+        name,
+        description,
+        address,
+        generalDirectorProfile,
+        artisticDirectorProfile,
+        musicalDirectorProfile,
+        groupId: currentGroup?.id,
+        lang: lang?.id,
+      });
+    }
+
+    await tx
+      .insert(groupsLang)
+      .values(groupLangs)
       .onConflictDoUpdate({
         target: groupsLang.id,
         set: buildConflictUpdateColumns(groupsLang, [
@@ -2327,14 +2439,65 @@ export async function updateGroup(formData: FormData) {
           })
           .returning();
 
-        await tx
-          .insert(subgroupsLang)
-          .values({
+        if (currentCountry?.nativeLang?.code === locale) {
+          const currentSubgroupLangs = await tx.query.subgroupsLang.findMany({
+            where(fields, { eq }) {
+              return eq(fields.subgroupId, currentSubgroup.id);
+            },
+            with: {
+              l: true,
+            },
+          });
+
+          const nameTranslateResults = await getTranslateText(
+            name,
+            locale as Locale,
+          );
+
+          const pickedLocales = pickLocales(locale);
+
+          for await (const _currentLocale of pickedLocales) {
+            const newLang = await preparedLanguagesByCode.execute({
+              locale: _currentLocale,
+            });
+            const newName = nameTranslateResults.find(
+              (item) => item.locale === _currentLocale,
+            );
+
+            subgroupLangs.push({
+              id:
+                currentSubgroupLangs.find(
+                  (item) => item.l?.code === _currentLocale,
+                )?.id || undefined,
+              name: newName?.result,
+              subgroupId: currentSubgroup.id,
+              lang:
+                currentSubgroupLangs.find(
+                  (item) => item.l?.code === _currentLocale,
+                )?.lang ||
+                newLang?.id ||
+                undefined,
+            });
+          }
+
+          subgroupLangs.push({
             id: langId === 0 ? undefined : langId,
             name,
             subgroupId: currentSubgroup.id,
             lang: lang?.id,
-          })
+          });
+        } else {
+          subgroupLangs.push({
+            id: langId === 0 ? undefined : langId,
+            name,
+            subgroupId: currentSubgroup.id,
+            lang: lang?.id,
+          });
+        }
+
+        await tx
+          .insert(subgroupsLang)
+          .values(subgroupLangs)
           .onConflictDoUpdate({
             target: subgroups.id,
             set: buildConflictUpdateColumns(subgroupsLang, ["name"]),
@@ -2352,13 +2515,6 @@ export async function updateGroup(formData: FormData) {
             })),
           );
         }
-
-        // currentTransportLocations.push({
-        //   lat,
-        //   lng,
-        //   location,
-        //   festivalId: currentFestival.id,
-        // });
       }
     }
 
@@ -2387,15 +2543,78 @@ export async function updateGroup(formData: FormData) {
           })
           .returning();
 
-        await tx
-          .insert(repertoriesLang)
-          .values({
+        if (currentCountry?.nativeLang?.code === locale) {
+          const currentRepertoryLangs = await tx.query.repertoriesLang.findMany(
+            {
+              where(fields, { eq }) {
+                return eq(fields.repertoryId, currentRepertory.id);
+              },
+              with: {
+                l: true,
+              },
+            },
+          );
+
+          const nameTranslateResults = await getTranslateText(
+            name,
+            locale as Locale,
+          );
+
+          const descriptionTranslateResults = await getTranslateText(
+            description,
+            locale as Locale,
+          );
+
+          const pickedLocales = pickLocales(locale);
+
+          for await (const _currentLocale of pickedLocales) {
+            const newLang = await preparedLanguagesByCode.execute({
+              locale: _currentLocale,
+            });
+            const newName = nameTranslateResults.find(
+              (item) => item.locale === _currentLocale,
+            );
+            const newDescription = descriptionTranslateResults.find(
+              (item) => item.locale === _currentLocale,
+            );
+
+            repertoryLangs.push({
+              id:
+                currentRepertoryLangs.find(
+                  (item) => item.l?.code === _currentLocale,
+                )?.id || undefined,
+              name: newName?.result,
+              description: newDescription?.result,
+              repertoryId: currentRepertory.id,
+              lang:
+                currentRepertoryLangs.find(
+                  (item) => item.l?.code === _currentLocale,
+                )?.lang ||
+                newLang?.id ||
+                undefined,
+            });
+          }
+
+          repertoryLangs.push({
             id: langId === 0 ? undefined : langId,
             name,
             description,
             repertoryId: currentRepertory.id,
             lang: lang?.id,
-          })
+          });
+        } else {
+          repertoryLangs.push({
+            id: langId === 0 ? undefined : langId,
+            name,
+            description,
+            repertoryId: currentRepertory.id,
+            lang: lang?.id,
+          });
+        }
+
+        await tx
+          .insert(repertoriesLang)
+          .values(repertoryLangs)
           .onConflictDoUpdate({
             target: subgroups.id,
             set: buildConflictUpdateColumns(repertoriesLang, [
