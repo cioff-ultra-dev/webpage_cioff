@@ -108,9 +108,9 @@ export default async function DashboardPage() {
       <TabsContent value="all">
         <Card x-chunk="dashboard-06-chunk-0">
           <CardHeader>
-            <CardTitle>Festivals</CardTitle>
+            <CardTitle>{t("festivals")}</CardTitle>
             <CardDescription>
-              Manage your festivals and view their details.
+              {t("Manage_your_fest_details")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -118,7 +118,7 @@ export default async function DashboardPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
+                    <TableHead>{t("name")}</TableHead>
                     <TableHead className="hidden md:table-cell">
                       Owner
                     </TableHead>

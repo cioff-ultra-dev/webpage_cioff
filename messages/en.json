@@ -2,6 +2,7 @@
   "home": {
     "title": "Hello world!"
   },
+
   "page":{
     "all": "All",
     "add_national_section": "Add National Section",
@@ -69,6 +70,14 @@
     "_typeOfFestival": "Type of festival",
     "_status": "Status",
     "festival": {
+      "add_an_festival": "ADD AN FESTIVAL",
+      "the_fields_mandatory": "Fields marked are required",
+      "profile": "Profile",
+      "this_is_festival_name": "This is your current festival name",
+      "phone_number": "Phone Number (country code)",
+      "enter_phone_number": "Enter a phone number",
+      "email_address": "Email Address",
+      "current_user_this_festival": "Current user owner of this festival",
       "tag": {
         "typeOfFestival": "Type of Festival",
         "ageOfParticipants": "Age of Participants",
