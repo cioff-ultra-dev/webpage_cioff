@@ -494,9 +494,9 @@ export default function EventForm({
   return (
     <APIProvider apiKey={constants.google.apiKey!}>
       <div className="w-full p-4 md:p-6 ">
-        <h1 className="text-2xl font-bold">ADD AN FESTIVAL</h1>
-        <p className="text-sm text-muted-foreground pb-6">
-          The fields with * are mandatory.
+        <h1 className="text-2xl font-bold">{t("add_an_festival")}</h1>
+        <p className="text-sm text-muted-foreground pb-6 after:content-['*'] after:ml-0.5 after:text-red-500">
+          {t("the_fields_mandatory")} 
         </p>
         <Form {...form}>
           <form
@@ -543,7 +543,7 @@ export default function EventForm({
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Profile</CardTitle>
+                  <CardTitle>{t("profile")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
@@ -563,7 +563,7 @@ export default function EventForm({
                             />
                           </FormControl>
                           <FormDescription>
-                            This is your current festival name
+                            {t("this_is_festival_name")}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -611,20 +611,20 @@ export default function EventForm({
                       render={({ field: { value, ...fieldRest } }) => (
                         <FormItem>
                           <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                            Phone Number (country code)
+                            {t("phone_number")}
                           </FormLabel>
                           <FormControl>
                             <PhoneInput
                               value={value as RPNInput.Value}
                               id="phone"
-                              placeholder="Enter a phone number"
+                              placeholder={t("enter_phone_number")}
                               international
                               disabled={isNSAccount}
                               {...fieldRest}
                             />
                           </FormControl>
                           <FormDescription>
-                            Enter a phone number
+                          {t("enter_phone_number")}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -638,13 +638,13 @@ export default function EventForm({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                            Email Address
+                            {t("email_address")}
                           </FormLabel>
                           <FormControl>
                             <Input {...field} readOnly />
                           </FormControl>
                           <FormDescription>
-                            Current user owner of this festival
+                            {t("current_user_this_festival")}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>

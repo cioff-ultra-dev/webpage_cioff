@@ -67,6 +67,14 @@
     "_typeOfFestival": "Tipo de festival",
     "_status": "Estado",
     "festival": {
+      "add_an_festival": "AÑADIR UN FESTIVAL",
+      "the_fields_mandatory": "Son obligatorios los campos marcados con un ",
+      "profile": "Perfil",
+      "this_is_festival_name": "Este es el nombre actual de tu festival",
+      "phone_number": "Número de teléfono (prefijo del país)",
+      "enter_phone_number": "Ingrese su número telefónico",
+      "email_address": "Correo Electrónico",
+      "current_user_this_festival": "Usuario actual propietario de este festival",
       "tag": {
         "typeOfFestival": "Tipo de festival",
         "ageOfParticipants": "Edad de los participantes",
