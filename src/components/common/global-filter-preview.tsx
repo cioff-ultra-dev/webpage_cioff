@@ -597,6 +597,24 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                       placeholder={tc("select_options")}
                     />
                   </div>
+                  <div className="flex-1">
+                    <Label>{tf("regions")}</Label>
+                    <MultiSelect
+                      options={regionsMap}
+                      onValueChange={setSelectedRegions}
+                      disabled={isLoadingRegionCast}
+                      placeholder={tf("select_regions")}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Label>{tf("countries")}</Label>
+                    <MultiSelect
+                      options={countriesMap}
+                      onValueChange={setSelectedCountries}
+                      disabled={isLoadingCountryCast}
+                      placeholder={tf("select_countries")}
+                    />
+                  </div>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>

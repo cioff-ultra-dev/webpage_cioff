@@ -45,6 +45,9 @@ async function buildFilter(request: NextRequest) {
   const categoriesIn: string[] = JSON.parse(
     request.nextUrl.searchParams.get("categories") || "[]",
   );
+  const countriesIn: string[] = JSON.parse(
+    request.nextUrl.searchParams.get("countries") || "[]",
+  );
   const search: string = request.nextUrl.searchParams.get("search") || "";
   const type: string = request.nextUrl.searchParams.get("type") || "";
   const rangeDateFrom: string =
@@ -105,6 +108,11 @@ async function buildFilter(request: NextRequest) {
 
   if (categoriesIn.length) {
     filters.push(inArray(categories.id, categoriesIn.map(Number)));
+  }
+
+  if (countriesIn.length) {
+    console.log({ countriesIn });
+    filters.push(inArray(groups.countryId, countriesIn.map(Number)));
   }
 
   if (countryId) {
