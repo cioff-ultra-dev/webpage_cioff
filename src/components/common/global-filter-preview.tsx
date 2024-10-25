@@ -746,7 +746,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                             ),
                           )
                         )}
-                        {itemList?.length ? (
+                        {itemGroupList?.length ? (
                           <div className="w-full flex justify-center">
                             <Button variant="link" size="sm" asChild>
                               <Link
@@ -756,7 +756,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                                   search ? `&${search}` : ""
                                 }`}
                               >
-                                See more festivals 🎉
+                                See more groups 🎉
                               </Link>
                             </Button>
                           </div>
