@@ -1,6 +1,13 @@
 import { db } from "@/db";
-import { countries, festivals, languages, SelectLanguages } from "@/db/schema";
-import { defaultLocale } from "@/i18n/config";
+import {
+  countries,
+  countriesLang,
+  festivals,
+  festivalsLang,
+  languages,
+  SelectLanguages,
+} from "@/db/schema";
+import { defaultLocale, Locale } from "@/i18n/config";
 import { and, count, eq, inArray, isNotNull } from "drizzle-orm";
 import { getLocale } from "next-intl/server";
 
@@ -9,22 +16,38 @@ export type CountryCastFestivals = {
   country: string | null;
   lat: string | null;
   lng: string | null;
+  name: string | null;
   festivalsCount: number;
 }[];
 
-export async function getAllCountryCastFestivals(): Promise<CountryCastFestivals> {
+export async function getAllCountryCastFestivals(
+  locale: Locale,
+): Promise<CountryCastFestivals> {
+  const sq = db
+    .select({ id: languages.id })
+    .from(languages)
+    .where(eq(languages.code, locale));
+
   return db
     .select({
       id: countries.id,
       country: countries.slug,
       lat: countries.lat,
       lng: countries.lng,
+      name: countriesLang.name,
       festivalsCount: count(festivals.id),
     })
     .from(countries)
+    .leftJoin(countriesLang, eq(countries.id, countriesLang.countryId))
     .leftJoin(festivals, eq(countries.id, festivals.countryId))
-    .where(and(isNotNull(festivals.countryId), eq(festivals.published, true)))
-    .groupBy(countries.id)
+    .where(
+      and(
+        isNotNull(festivals.countryId),
+        isNotNull(festivals.location),
+        eq(countriesLang.lang, sq),
+      ),
+    )
+    .groupBy(countries.id, countriesLang.id)
     .orderBy(countries.slug);
 }
 
