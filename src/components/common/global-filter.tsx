@@ -37,6 +37,7 @@ import Image from "next/image";
 import { Skeleton } from "../ui/skeleton";
 import { BuildFilterType } from "@/app/api/filter/route";
 import constants from "@/constants";
+import { useLocale, useTranslations } from "next-intl";
 
 interface FormElements extends HTMLFormControlsCollection {
   search: HTMLInputElement;
@@ -74,6 +75,8 @@ export function WrapperFilter({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
+  const locale = useLocale();
+  const t = useTranslations("maps");
   const [search, setSearch] = useState(
     `search=${searchParams?.search ?? ""}&rangeDateFrom=${
       searchParams?.rangeDateFrom ?? ""
@@ -91,14 +94,14 @@ export function WrapperFilter({
   const map = useMap();
   const places = useMapsLibrary("places");
   const { data: countryCast } = useSWR<CountryCastFestivals>(
-    "/api/filter/country",
+    `/api/filter/country?locale=${locale}`,
     fetcher,
   );
   const swr = useSWRInfinite<BuildFilterType>(
     (index, _) =>
       `api/filter?categories=${JSON.stringify(
         selectedCategories,
-      )}&countryId=${selectedCountryId}&page=${index + 1}${
+      )}&locale=${locale}&countryId=${selectedCountryId}&page=${index + 1}${
         search ? `&${search}` : ""
       }`,
     fetcher,
@@ -396,7 +399,7 @@ export function WrapperFilter({
               offset={-600}
             >
               {(response) =>
-                response.map(({ festival, country, langs }) => (
+                response.map(({ festival, country, lang, countryLang }) => (
                   <Link
                     href={`/event/${festival.id}`}
                     className="bg-gray-50 hover:bg-gray-100 hover:cursor-pointer p-4 space-y-3 rounded-lg w-full justify-self-center"
@@ -413,8 +416,7 @@ export function WrapperFilter({
                       />
                     </div>
                     <h3 className="text-black mt-2 text-sm sm:text-base">
-                      {langs.find((item) => item.lang === 1)?.name ||
-                        langs.find((item) => item.lang === 1)?.name}
+                      {lang.name}
                     </h3>
                     <p className="text-gray-700 text-xs sm:text-sm flex gap-1">
                       <span className="flex gap-1 items-center">
@@ -428,8 +430,7 @@ export function WrapperFilter({
                       </span>
                     </p>
                     <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">
-                      {langs.find((item) => item.lang === 1)?.description ||
-                        langs.find((item) => item.lang === 1)?.description}
+                      {lang.description}
                     </p>
                   </Link>
                 ))

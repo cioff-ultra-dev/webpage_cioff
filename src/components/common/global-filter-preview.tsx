@@ -4,13 +4,10 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import useSWR, { preload } from "swr";
-import useSWRInfinite from "swr/infinite";
-import InfiniteScroll from "@/components/extension/swr-infinite-scroll";
+import useSWR from "swr";
 import fetcher, { cn } from "@/lib/utils";
-import { SelectCountries, SelectFestival } from "@/db/schema";
+import { SelectFestival } from "@/db/schema";
 import { MapPin, CalendarCheck, ExternalLink } from "lucide-react";
-import { format } from "date-fns";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   APIProvider,
@@ -24,7 +21,6 @@ import MapHandler from "@/components/common/map-handler";
 import { DatePickerWithRange } from "@/components/ui/datepicker-with-range";
 import { DateRange } from "react-day-picker";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import { CountryCastFestivals } from "@/db/queries/countries";
 import { SWRProvider } from "@/components/provider/swr";
 import {
@@ -36,6 +32,10 @@ import {
 import Image from "next/image";
 import { BuildFilterType } from "@/app/api/filter/route";
 import constants from "@/constants";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { MultiSelect, MultiSelectProps } from "../ui/multi-select";
+import { CategoriesType } from "@/db/queries/categories";
 
 interface FormElements extends HTMLFormControlsCollection {
   search: HTMLInputElement;
@@ -92,7 +92,13 @@ function SkeletonList() {
   );
 }
 
-export function WrapperFilter() {
+export function WrapperFilter({ categories }: { categories: CategoriesType }) {
+  const locale = useLocale();
+  const t = useTranslations("maps");
+  const tc = useTranslations("categories");
+  const formatter = useFormatter();
+
+  const [tabSelected, setTabSelected] = useState<string>("festivals");
   const [search, setSearch] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedFestival, setSelectedFestival] =
@@ -102,14 +108,17 @@ export function WrapperFilter() {
   const map = useMap();
   const places = useMapsLibrary("places");
   const { data: countryCast } = useSWR<CountryCastFestivals>(
-    "/api/filter/country",
+    `/api/filter/country?locale=${locale}`,
     fetcher,
   );
+
   const { data: itemList, isLoading: isLoadingItemList } =
     useSWR<BuildFilterType>(
       `api/filter?categories=${JSON.stringify(
         selectedCategories,
-      )}&countryId=${selectedCountryId}&page=1${search ? `&${search}` : ""}`,
+      )}&locale=${locale}&countryId=${selectedCountryId}&page=1${
+        search ? `&${search}` : ""
+      }`,
       fetcher,
     );
 
@@ -120,7 +129,7 @@ export function WrapperFilter() {
         .map((item) => ({
           id: item.id,
           count: item.festivalsCount,
-          name: item.country,
+          name: item.name,
           position: {
             lat: parseFloat(item.lat!),
             lng: parseFloat(item.lng!),
@@ -128,6 +137,15 @@ export function WrapperFilter() {
         })) || []
     );
   }, [countryCast]);
+
+  const categoriesMap: MultiSelectProps["options"] = useMemo(() => {
+    return categories.map((category) => {
+      return {
+        label: category.langs.at(0)?.name || category.slug,
+        value: String(category.id),
+      };
+    });
+  }, [categories]);
 
   // https://developers.google.com/maps/documentation/javascript/reference/places-autocomplete-service#AutocompleteSessionToken
   const [sessionToken, setSessionToken] =
@@ -159,7 +177,7 @@ export function WrapperFilter() {
   }, [map, places]);
 
   const fetchPredictions = useCallback(
-    async (inputValue: string) => {
+    async (inputValue: string, locationValue: { lat: number; lng: number }) => {
       if (!autocompleteService || !inputValue) {
         setPredictionResults([]);
         return;
@@ -170,7 +188,14 @@ export function WrapperFilter() {
         return;
       }
 
-      const request = { input: inputValue, sessionToken };
+      const request: google.maps.places.AutocompletionRequest = {
+        input: inputValue,
+        sessionToken,
+        ...(locationValue.lat && locationValue.lng
+          ? { locationBias: { lat: locationValue.lat, lng: locationValue.lng } }
+          : {}),
+      };
+
       const response = await autocompleteService.getPlacePredictions(request);
 
       setPredictionResults(response.predictions);
@@ -217,8 +242,9 @@ export function WrapperFilter() {
 
   async function handleClickSelected(
     festival: BuildFilterType[number]["festival"],
-    country: BuildFilterType[number]["country"],
-    langs: BuildFilterType[number]["langs"],
+    _country: BuildFilterType[number]["country"],
+    lang: BuildFilterType[number]["lang"],
+    countryLang: BuildFilterType[number]["countryLang"],
   ) {
     if (festival.id === selectedFestival?.id) {
       if (!places) return;
@@ -227,13 +253,21 @@ export function WrapperFilter() {
       return;
     }
 
-    if (!langs.at(0) && !festival?.location) return;
+    if (!lang && !festival?.location) return;
 
     const possiblePredicctionAddress = `${
-      langs.at(0)?.address || festival?.location || ""
-    } ${country?.id}`;
+      festival?.location || ""
+    } ${countryLang?.name}`;
 
-    const predictions = await fetchPredictions(possiblePredicctionAddress);
+    const locationPredictionAddress = {
+      lat: Number(festival.lat ?? 0),
+      lng: Number(festival.lng ?? 0),
+    };
+
+    const predictions = await fetchPredictions(
+      possiblePredicctionAddress,
+      locationPredictionAddress,
+    );
 
     handleSuggestion(predictions?.at(0)?.place_id || "");
 
@@ -242,215 +276,287 @@ export function WrapperFilter() {
 
   return (
     <>
-      <section className="bg-gray-50 py-4 sm:py-8">
-        <div className="container mx-auto px-4">
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
-          >
-            <Input
-              placeholder="Type to explore new places..."
-              className="flex-1"
-              name="search"
-            />
-            <DatePickerWithRange onValueChange={setDateRange} />
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    type="submit"
-                    className="rounded-full"
-                  >
-                    <SearchIcon className="text-black" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent align="center" side="bottom">
-                  <p>Search</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </form>
-        </div>
-      </section>
-      <section className="bg-gray-200 py-4 sm:py-8">
-        <div className="container mx-auto px-4">
-          <ToggleGroup
-            type="multiple"
-            className="justify-between overflow-x-auto p-1"
-            onValueChange={(value) => setSelectedCategories(value)}
-          >
-            <ToggleGroupItem value="international" className="flex gap-1">
-              <GlobeIcon />
-              <span>International</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="cioff" className="flex gap-1">
-              <CogIcon />
-              <span>CIOFF</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="children" className="flex gap-1">
-              <BabyIcon />
-              <span>Childrens</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="folk_singing" className="flex gap-1">
-              <SirenIcon />
-              <span>Folk Singing</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="folk-dancing" className="flex gap-1">
-              <DrumIcon />
-              <span>Folk dance</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="folk_music" className="flex gap-1">
-              <FishIcon />
-              <span>Folk music</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="traditional_cooking" className="flex gap-1">
-              <CookingPotIcon />
-              <span>Traditional cooking</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="traditional_trades" className="flex gap-1">
-              <TruckIcon />
-              <span>Traditional trade</span>
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-      </section>
-      <section className="bg-white py-4 sm:py-8">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-            <MapHandler place={selectedPlace} />
-            <div className="flex-1 bg-gray-50 p-4 rounded-lg">
-              <Map
-                mapId={"bf51a910020fa25a"}
-                style={{ width: "100%", height: "100%" }}
-                defaultCenter={{
-                  lat: map?.getCenter()?.lat() || 0,
-                  lng: map?.getCenter()?.lng() || 0,
-                }}
-                defaultZoom={selectedFestival ? 10 : 2}
-                gestureHandling="greedy"
-                disableDefaultUI={true}
-              >
-                {selectedPlace ? (
-                  <Marker position={selectedPlace.geometry?.location} />
-                ) : null}
-                {!selectedPlace
-                  ? countryMapClusters.map((item) => (
-                      <AdvancedMarker
-                        key={item.id}
-                        position={item.position}
-                        onClick={() =>
-                          setSelectedCountryId((prevState) => {
-                            return prevState === item.id ? 0 : item.id;
-                          })
-                        }
-                        title={`Markers located at ${item.name}`}
-                      >
-                        <div
-                          className={cn(
-                            "w-5 h-5 bg-red-300 flex justify-center items-center rounded-full p-3",
-                            item.id === selectedCountryId && "bg-red-400",
-                          )}
-                        >
-                          <span>{item.count}</span>
-                        </div>
-                      </AdvancedMarker>
-                    ))
-                  : null}
-              </Map>
-            </div>
-            <div className="flex-1 bg-gray-50 p-4 rounded-lg">
-              <ScrollArea className="h-[400px] w -full">
-                <div className="flex flex-col gap-2">
-                  {isLoadingItemList ? (
-                    <SkeletonList />
-                  ) : (
-                    itemList?.map(({ festival, country, langs }) => (
-                      <div
-                        key={festival.id}
-                        className={cn(
-                          "flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-200 hover:cursor-pointer",
-                          festival.id === selectedFestival?.id
-                            ? "bg-gray-200"
-                            : null,
-                        )}
-                        onClick={() =>
-                          handleClickSelected(festival, country, langs)
-                        }
-                      >
-                        <div>
-                          <div className="rounded-lg">
-                            <Image
-                              width={58}
-                              height={58}
-                              src={"/placeholder.svg"}
-                              alt="Profile Festival Picture"
-                              className="rounded-lg aspect-square"
-                            />
-                          </div>
-                        </div>
-                        <div className="max-w-[440px] flex-1">
-                          <h3 className="text-black text-sm sm:text-base truncate">
-                            {langs.find((item) => item.lang === 1)?.name ||
-                              langs.find((item) => item.lang === 1)?.name}
-                          </h3>
-                          <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
-                            <CalendarCheck size={16} />
-                            <span>{format(festival.createdAt, "PP")}</span>
-                          </p>
-                          <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
-                            <MapPin size={16} />
-                            <span>{country?.id}</span>
-                          </p>
-                        </div>
-                        <div className="flex-1 flex justify-end">
-                          <Link
-                            href={`/event/${festival.id}`}
-                            target="_blank"
-                            tabIndex={-1}
-                          >
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-gray-500"
-                            >
-                              <ExternalLink size={15} />
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                  {itemList?.length ? (
-                    <div className="w-full flex justify-center">
-                      <Button variant="link" size="sm" asChild>
-                        <Link
-                          href={`/search?categories=${JSON.stringify(
-                            selectedCategories,
-                          )}&countryId=${selectedCountryId}&page=1${
-                            search ? `&${search}` : ""
-                          }`}
-                        >
-                          See more festivals 🎉
-                        </Link>
-                      </Button>
-                    </div>
-                  ) : null}
-                </div>
-              </ScrollArea>
-            </div>
+      <section className="py-4 sm:py-8">
+        <Tabs
+          defaultValue="festivals"
+          value={tabSelected}
+          className="w-full"
+          onValueChange={(value) => setTabSelected(value)}
+        >
+          <div className="container mx-auto flex">
+            <TabsList className="">
+              <TabsTrigger value="festivals">Festivals</TabsTrigger>
+              <TabsTrigger value="groups">Groups</TabsTrigger>
+            </TabsList>
           </div>
-        </div>
+          <TabsContent value="festivals">
+            <section className="pb-6 pt-2">
+              <div className="container mx-auto">
+                <form
+                  onSubmit={handleSubmit}
+                  className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
+                >
+                  <Input
+                    placeholder="Type to explore..."
+                    className="flex-1"
+                    name="search"
+                  />
+                  <DatePickerWithRange onValueChange={setDateRange} />
+                  <MultiSelect
+                    options={categoriesMap}
+                    onValueChange={setSelectedCategories}
+                    className="flex-1"
+                    placeholder={tc("select_options")}
+                  />
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          type="submit"
+                          className="rounded-full"
+                        >
+                          <SearchIcon className="text-black" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent align="center" side="bottom">
+                        <p>Search</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </form>
+              </div>
+            </section>
+            <section className="bg-gray-50 py-4 sm:py-8">
+              <div className="container mx-auto">
+                <ToggleGroup
+                  type="multiple"
+                  className="justify-between overflow-x-auto p-1"
+                  onValueChange={(value) => setSelectedCategories(value)}
+                >
+                  <ToggleGroupItem value="international" className="flex gap-1">
+                    <GlobeIcon />
+                    <span>International</span>
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="cioff" className="flex gap-1">
+                    <CogIcon />
+                    <span>CIOFF</span>
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="children" className="flex gap-1">
+                    <BabyIcon />
+                    <span>Childrens</span>
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="folk_singing" className="flex gap-1">
+                    <SirenIcon />
+                    <span>Folk Singing</span>
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="folk-dancing" className="flex gap-1">
+                    <DrumIcon />
+                    <span>Folk dance</span>
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="folk_music" className="flex gap-1">
+                    <FishIcon />
+                    <span>Folk music</span>
+                  </ToggleGroupItem>
+                  <ToggleGroupItem
+                    value="traditional_cooking"
+                    className="flex gap-1"
+                  >
+                    <CookingPotIcon />
+                    <span>Traditional cooking</span>
+                  </ToggleGroupItem>
+                  <ToggleGroupItem
+                    value="traditional_trades"
+                    className="flex gap-1"
+                  >
+                    <TruckIcon />
+                    <span>Traditional trade</span>
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+            </section>
+            <section className="bg-white py-4 sm:py-8">
+              <div className="container mx-auto">
+                <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+                  <MapHandler
+                    place={selectedPlace}
+                    defaultZoom={2}
+                    defaultSelectedZoom={9}
+                  />
+                  <div className="flex-1 bg-gray-50 p-4 rounded-lg">
+                    <Map
+                      mapId={"bf51a910020fa25a"}
+                      style={{ width: "100%", height: "100%" }}
+                      defaultCenter={{
+                        lat: map?.getCenter()?.lat() || 0,
+                        lng: map?.getCenter()?.lng() || 0,
+                      }}
+                      defaultZoom={2}
+                      gestureHandling="greedy"
+                      disableDefaultUI={true}
+                    >
+                      {selectedPlace ? (
+                        <Marker position={selectedPlace.geometry?.location} />
+                      ) : null}
+                      {!selectedPlace
+                        ? countryMapClusters.map((item) => (
+                            <AdvancedMarker
+                              key={item.id}
+                              position={item.position}
+                              onClick={() =>
+                                setSelectedCountryId((prevState) => {
+                                  return prevState === item.id ? 0 : item.id;
+                                })
+                              }
+                              title={t("marker_located_at", {
+                                name: item.name,
+                              })}
+                            >
+                              <div
+                                className={cn(
+                                  "w-5 h-5 bg-red-300 flex justify-center items-center rounded-full p-3",
+                                  item.id === selectedCountryId && "bg-red-400",
+                                )}
+                              >
+                                <span>{item.count}</span>
+                              </div>
+                            </AdvancedMarker>
+                          ))
+                        : null}
+                    </Map>
+                  </div>
+                  <div className="flex-1 bg-gray-50 p-4 rounded-lg">
+                    <ScrollArea className="h-[400px] w -full">
+                      <div className="flex flex-col gap-2">
+                        {isLoadingItemList ? (
+                          <SkeletonList />
+                        ) : (
+                          itemList?.map(
+                            ({
+                              festival,
+                              country,
+                              lang,
+                              countryLang,
+                              event,
+                              logo,
+                            }) => (
+                              <div
+                                key={festival.id}
+                                className={cn(
+                                  "flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-200 hover:cursor-pointer",
+                                  festival.id === selectedFestival?.id
+                                    ? "bg-gray-200"
+                                    : null,
+                                )}
+                                onClick={() =>
+                                  handleClickSelected(
+                                    festival,
+                                    country,
+                                    lang,
+                                    countryLang,
+                                  )
+                                }
+                              >
+                                <div>
+                                  <div className="rounded-lg">
+                                    <Image
+                                      width={60}
+                                      height={60}
+                                      src={logo?.url || "/placeholder.svg"}
+                                      alt="Festival Picture"
+                                      className="rounded-lg aspect-square"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="w-full flex flex-col gap-1">
+                                  <h3 className="text-black text-sm sm:text-base truncate sm:max-w-[170px] md:max-w-[200px] lg:max-w-[300px]">
+                                    {lang.name}
+                                  </h3>
+                                  <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
+                                    <CalendarCheck size={16} />
+                                    <span>
+                                      {event.startDate
+                                        ? formatter.dateTime(
+                                            new Date(event.startDate),
+                                            {
+                                              year: "numeric",
+                                              month: "long",
+                                              day: "numeric",
+                                            },
+                                          )
+                                        : null}
+                                      {" - "}
+                                      {event.endDate &&
+                                      event.startDate !== event.endDate
+                                        ? formatter.dateTime(
+                                            new Date(event.endDate),
+                                            {
+                                              year: "numeric",
+                                              month: "long",
+                                              day: "numeric",
+                                            },
+                                          )
+                                        : null}
+                                    </span>
+                                  </p>
+                                  <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
+                                    <MapPin size={16} />
+                                    <span>{countryLang.name}</span>
+                                  </p>
+                                </div>
+                                <div className="flex-1 flex justify-end">
+                                  <Link
+                                    href={`/event/${festival.id}`}
+                                    target="_blank"
+                                    tabIndex={-1}
+                                  >
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-gray-500"
+                                    >
+                                      <ExternalLink size={15} />
+                                    </Button>
+                                  </Link>
+                                </div>
+                              </div>
+                            ),
+                          )
+                        )}
+                        {itemList?.length ? (
+                          <div className="w-full flex justify-center">
+                            <Button variant="link" size="sm" asChild>
+                              <Link
+                                href={`/search?categories=${JSON.stringify(
+                                  selectedCategories,
+                                )}&locale=${locale}&countryId=${selectedCountryId}&page=1${
+                                  search ? `&${search}` : ""
+                                }`}
+                              >
+                                See more festivals 🎉
+                              </Link>
+                            </Button>
+                          </div>
+                        ) : null}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </TabsContent>
+          <TabsContent value="groups">Change your password here.</TabsContent>
+        </Tabs>
       </section>
     </>
   );
 }
 
-function BaseWrapperFilter() {
+function BaseWrapperFilter({ categories }: { categories: CategoriesType }) {
   return (
     <APIProvider apiKey={constants.google.apiKey!} libraries={["marker"]}>
-      <WrapperFilter />
+      <WrapperFilter categories={categories} />
     </APIProvider>
   );
 }
@@ -458,16 +564,18 @@ function BaseWrapperFilter() {
 export default function GlobalFilterPreview({
   fallbackFestivals,
   fallbackCountryCast,
+  categories,
 }: {
   fallbackFestivals: { festivals: SelectFestival }[];
   fallbackCountryCast: CountryCastFestivals;
+  categories: CategoriesType;
 }) {
   return (
     <SWRProvider
       fallbackCountryCast={fallbackCountryCast}
       fallbackFestivals={fallbackFestivals}
     >
-      <BaseWrapperFilter />;
+      <BaseWrapperFilter categories={categories} />;
     </SWRProvider>
   );
 }

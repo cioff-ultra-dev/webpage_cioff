@@ -2,7 +2,7 @@
   "home": {
     "title": "Hola mundo!"
   },
-  "page":{
+  "page": {
     "all": "Todos",
     "add_national_section": "Agregar sección nacional",
     "add_festival": "Agregar Festival",
@@ -93,8 +93,8 @@
       "module_1_profile": "Módulo 1: Perfil",
       "enter_associ_name": "Ingrese el nombre de la asociación",
       "about_national_secti": "Información de la Sección Nacional",
-      "Tell_public_about_NS_etc":"Informe al público sobre las principales actividades o proyectos de la SN, año de creación, etc.",
-      "You_can_use_max_500_words":"Puede utilizar un máximo de 500 palabras para esta información",
+      "Tell_public_about_NS_etc": "Informe al público sobre las principales actividades o proyectos de la SN, año de creación, etc.",
+      "You_can_use_max_500_words": "Puede utilizar un máximo de 500 palabras para esta información",
       "position": "Posición",
       "name": "Nombre",
       "enter_current_name": "Introduzca su nombre actual",
@@ -141,6 +141,9 @@
         "name": "Nombre del grupo"
       }
     }
+  },
+  "maps": {
+    "marker_located_at": "Marcadores ubicados en {name}"
   },
   "customErrors": {
     "file_required": "Archivo es requerido",

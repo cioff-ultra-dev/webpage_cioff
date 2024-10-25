@@ -2,7 +2,7 @@
   "home": {
     "title": "Hello world!"
   },
-  "page":{
+  "page": {
     "all": "All",
     "add_national_section": "Add National Section",
     "add_festival": "Add Festival",
@@ -27,8 +27,7 @@
     "not_found_festivals": "Not found festivals...",
     "gener_fest_invit": "Generate Festival Invitation",
     "Gener_group_invitat": "Generate Group Invitation",
-    "send_invitation": "Send Invitation"    
-
+    "send_invitation": "Send Invitation"
   },
   "locale_switch": {
     "select": "Select language",
@@ -95,8 +94,8 @@
       "module_1_profile": "Module 1: Profile",
       "enter_associ_name": "Enter association name",
       "about_national_secti": "About National Section",
-      "Tell_public_about_NS_etc":"Tell the public about the NS main activities or projects, year of creation, etc.",
-      "You_can_use_max_500_words":"You can use max. 500 words for this input",
+      "Tell_public_about_NS_etc": "Tell the public about the NS main activities or projects, year of creation, etc.",
+      "You_can_use_max_500_words": "You can use max. 500 words for this input",
       "position": "Position",
       "name": "Name",
       "enter_current_name": "Enter your current name",
@@ -143,6 +142,12 @@
         "name": "Name of the group"
       }
     }
+  },
+  "maps": {
+    "marker_located_at": "Markers located at {name}"
+  },
+  "categories": {
+    "select_options": "Select categories"
   },
   "customErrors": {
     "file_required": "File is required",

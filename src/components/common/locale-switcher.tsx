@@ -17,13 +17,10 @@ import { useLocale, useTranslations } from "next-intl";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { defaultHead } from "next/head";
 
 const flags = {
   es: "🇪🇸",
@@ -49,8 +46,6 @@ export default function LocaleSwitcher({
       setUserLocale(locale);
     });
   };
-
-  console.log({ locales, defaultLocale });
 
   return (
     <Select

@@ -1937,6 +1937,12 @@ export type SelectRepertoryLang = typeof repertoriesLang.$inferSelect;
 export type InsertCountries = typeof countries.$inferInsert;
 export type SelectCountries = typeof countries.$inferSelect;
 
+export type InsertCountryLang = typeof countriesLang.$inferInsert;
+export type SelectCountryLang = typeof countriesLang.$inferSelect;
+
+export type InsertStorage = typeof storages.$inferInsert;
+export type SelectStorage = typeof storages.$inferSelect;
+
 export type InsertLanguages = typeof languages.$inferInsert;
 export type SelectLanguages = typeof languages.$inferSelect;
 

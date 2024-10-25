@@ -1,8 +1,8 @@
 {
   "home": {
     "title": "Hello world!"
-  },  
-  "page":{
+  },
+  "page": {
     "all": "Tous",
     "add_national_section": "Ajouter section nationale",
     "add_festival": "Ajouter festival",
@@ -27,15 +27,14 @@
     "not_found_festivals": "Festivals non trouvés...",
     "gener_fest_invit": "Générer une invitation à un festival",
     "Gener_group_invitat": "Générer une invitation de groupe",
-    "send_invitation": "Send Invitation"  
-    
+    "send_invitation": "Send Invitation"
   },
   "locale_switch": {
     "select": "Sélectionner la langue",
     "es": "Español",
     "fr": "Français",
     "en": "English"
-  },  
+  },
   "notification": {
     "success": "Sauvegardé avec succès",
     "email_exist": "Email déjà existant",
@@ -110,7 +109,7 @@
             "shortBio": "Brève biographie"
           }
         }
-      ]      
+      ]
     },
     "profile": {
       "password_match": "Le mot de passe ne correspond pas",
@@ -121,8 +120,11 @@
     "group": {
       "_lang": {
         "name": "Nom du groupe"
-      } 
+      }
     }
+  },
+  "maps": {
+    "marker_located_at": "Marqueurs situés à {name}"
   },
   "customErrors": {
     "file_required": "Le fichier est requis",
