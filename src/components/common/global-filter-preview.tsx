@@ -36,6 +36,8 @@ import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { MultiSelect, MultiSelectProps } from "../ui/multi-select";
 import { CategoriesType } from "@/db/queries/categories";
+import { Label } from "../ui/label";
+import { BuildGroupFilterType } from "@/app/api/filter/group/route";
 
 interface FormElements extends HTMLFormControlsCollection {
   search: HTMLInputElement;
@@ -112,13 +114,29 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
     fetcher,
   );
 
-  const { data: itemList, isLoading: isLoadingItemList } =
+  const { data: itemList = [], isLoading: isLoadingItemList } =
     useSWR<BuildFilterType>(
-      `api/filter?categories=${JSON.stringify(
-        selectedCategories,
-      )}&locale=${locale}&countryId=${selectedCountryId}&page=1${
-        search ? `&${search}` : ""
-      }`,
+      () =>
+        tabSelected === "festivals"
+          ? `api/filter?categories=${JSON.stringify(
+              selectedCategories,
+            )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&page=1${
+              search ? `&${search}` : ""
+            }`
+          : null,
+      fetcher,
+    );
+
+  const { data: itemGroupList = [], isLoading: isLoadingItemGroupList } =
+    useSWR<BuildGroupFilterType>(
+      () =>
+        tabSelected === "groups"
+          ? `api/filter/group?categories=${JSON.stringify(
+              selectedCategories,
+            )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&page=1${
+              search ? `&${search}` : ""
+            }`
+          : null,
       fetcher,
     );
 
@@ -294,20 +312,24 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
               <div className="container mx-auto">
                 <form
                   onSubmit={handleSubmit}
-                  className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
+                  className="flex flex-col items-end space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
                 >
-                  <Input
-                    placeholder="Type to explore..."
-                    className="flex-1"
-                    name="search"
-                  />
-                  <DatePickerWithRange onValueChange={setDateRange} />
-                  <MultiSelect
-                    options={categoriesMap}
-                    onValueChange={setSelectedCategories}
-                    className="flex-1"
-                    placeholder={tc("select_options")}
-                  />
+                  <div className="flex-1">
+                    <Label className="pb-1">Search</Label>
+                    <Input placeholder="Type to explore..." name="search" />
+                  </div>
+                  <div className="flex-1">
+                    <Label>Categories</Label>
+                    <MultiSelect
+                      options={categoriesMap}
+                      onValueChange={setSelectedCategories}
+                      placeholder={tc("select_options")}
+                    />
+                  </div>
+                  <div>
+                    <Label>Events</Label>
+                    <DatePickerWithRange onValueChange={setDateRange} />
+                  </div>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -326,54 +348,6 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                     </Tooltip>
                   </TooltipProvider>
                 </form>
-              </div>
-            </section>
-            <section className="bg-gray-50 py-4 sm:py-8">
-              <div className="container mx-auto">
-                <ToggleGroup
-                  type="multiple"
-                  className="justify-between overflow-x-auto p-1"
-                  onValueChange={(value) => setSelectedCategories(value)}
-                >
-                  <ToggleGroupItem value="international" className="flex gap-1">
-                    <GlobeIcon />
-                    <span>International</span>
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="cioff" className="flex gap-1">
-                    <CogIcon />
-                    <span>CIOFF</span>
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="children" className="flex gap-1">
-                    <BabyIcon />
-                    <span>Childrens</span>
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="folk_singing" className="flex gap-1">
-                    <SirenIcon />
-                    <span>Folk Singing</span>
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="folk-dancing" className="flex gap-1">
-                    <DrumIcon />
-                    <span>Folk dance</span>
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="folk_music" className="flex gap-1">
-                    <FishIcon />
-                    <span>Folk music</span>
-                  </ToggleGroupItem>
-                  <ToggleGroupItem
-                    value="traditional_cooking"
-                    className="flex gap-1"
-                  >
-                    <CookingPotIcon />
-                    <span>Traditional cooking</span>
-                  </ToggleGroupItem>
-                  <ToggleGroupItem
-                    value="traditional_trades"
-                    className="flex gap-1"
-                  >
-                    <TruckIcon />
-                    <span>Traditional trade</span>
-                  </ToggleGroupItem>
-                </ToggleGroup>
               </div>
             </section>
             <section className="bg-white py-4 sm:py-8">
@@ -546,7 +520,182 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
               </div>
             </section>
           </TabsContent>
-          <TabsContent value="groups">Change your password here.</TabsContent>
+          <TabsContent value="groups">
+            <section className="pb-6 pt-2">
+              <div className="container mx-auto">
+                <form
+                  onSubmit={handleSubmit}
+                  className="flex flex-col items-end space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
+                >
+                  <div className="flex-1">
+                    <Label className="pb-1">Search</Label>
+                    <Input placeholder="Type to explore..." name="search" />
+                  </div>
+                  <div className="flex-1">
+                    <Label>Categories</Label>
+                    <MultiSelect
+                      options={categoriesMap}
+                      onValueChange={setSelectedCategories}
+                      placeholder={tc("select_options")}
+                    />
+                  </div>
+                  {/* <div> */}
+                  {/*   <Label>Events</Label> */}
+                  {/*   <DatePickerWithRange onValueChange={setDateRange} /> */}
+                  {/* </div> */}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          type="submit"
+                          className="rounded-full"
+                        >
+                          <SearchIcon className="text-black" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent align="center" side="bottom">
+                        <p>Search</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </form>
+              </div>
+            </section>
+            <section className="bg-white py-4 sm:py-8">
+              <div className="container mx-auto">
+                <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+                  {/* <MapHandler */}
+                  {/*   place={selectedPlace} */}
+                  {/*   defaultZoom={2} */}
+                  {/*   defaultSelectedZoom={9} */}
+                  {/* /> */}
+                  {/* <div className="flex-1 bg-gray-50 p-4 rounded-lg"> */}
+                  {/*   <Map */}
+                  {/*     mapId={"bf51a910020fa25a"} */}
+                  {/*     style={{ width: "100%", height: "100%" }} */}
+                  {/*     defaultCenter={{ */}
+                  {/*       lat: map?.getCenter()?.lat() || 0, */}
+                  {/*       lng: map?.getCenter()?.lng() || 0, */}
+                  {/*     }} */}
+                  {/*     defaultZoom={2} */}
+                  {/*     gestureHandling="greedy" */}
+                  {/*     disableDefaultUI={true} */}
+                  {/*   > */}
+                  {/*     {selectedPlace ? ( */}
+                  {/*       <Marker position={selectedPlace.geometry?.location} /> */}
+                  {/*     ) : null} */}
+                  {/*     {!selectedPlace */}
+                  {/*       ? countryMapClusters.map((item) => ( */}
+                  {/*           <AdvancedMarker */}
+                  {/*             key={item.id} */}
+                  {/*             position={item.position} */}
+                  {/*             onClick={() => */}
+                  {/*               setSelectedCountryId((prevState) => { */}
+                  {/*                 return prevState === item.id ? 0 : item.id; */}
+                  {/*               }) */}
+                  {/*             } */}
+                  {/*             title={t("marker_located_at", { */}
+                  {/*               name: item.name, */}
+                  {/*             })} */}
+                  {/*           > */}
+                  {/*             <div */}
+                  {/*               className={cn( */}
+                  {/*                 "w-5 h-5 bg-red-300 flex justify-center items-center rounded-full p-3", */}
+                  {/*                 item.id === selectedCountryId && "bg-red-400", */}
+                  {/*               )} */}
+                  {/*             > */}
+                  {/*               <span>{item.count}</span> */}
+                  {/*             </div> */}
+                  {/*           </AdvancedMarker> */}
+                  {/*         )) */}
+                  {/*       : null} */}
+                  {/*   </Map> */}
+                  {/* </div> */}
+                  <div className="flex-1 bg-gray-50 p-4 rounded-lg">
+                    <ScrollArea className="h-[400px] w -full">
+                      <div className="flex flex-col gap-2">
+                        {isLoadingItemGroupList ? (
+                          <SkeletonList />
+                        ) : (
+                          itemGroupList?.map(
+                            ({ group, country, lang, countryLang, logo }) => (
+                              <div
+                                key={group.id}
+                                className={cn(
+                                  "flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-200 hover:cursor-pointer",
+                                )}
+                                // onClick={() =>
+                                //   handleClickSelected(
+                                //     festival,
+                                //     country,
+                                //     lang,
+                                //     countryLang,
+                                //   )
+                                // }
+                              >
+                                <div>
+                                  <div className="rounded-lg">
+                                    <Image
+                                      width={60}
+                                      height={60}
+                                      src={logo?.url || "/placeholder.svg"}
+                                      alt="Festival Picture"
+                                      className="rounded-lg aspect-square"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="w-full flex flex-col gap-1">
+                                  <h3 className="text-black text-sm sm:text-base truncate sm:max-w-[170px] md:max-w-[200px] lg:max-w-[300px]">
+                                    {lang.name}
+                                  </h3>
+                                  <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
+                                    <MapPin size={16} />
+                                    <span>{countryLang.name}</span>
+                                  </p>
+                                </div>
+                                <div className="flex-1 flex justify-end">
+                                  <Link
+                                    href={`/group/${group.id}`}
+                                    target="_blank"
+                                    tabIndex={-1}
+                                  >
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-gray-500"
+                                    >
+                                      <ExternalLink size={15} />
+                                    </Button>
+                                  </Link>
+                                </div>
+                              </div>
+                            ),
+                          )
+                        )}
+                        {itemList?.length ? (
+                          <div className="w-full flex justify-center">
+                            <Button variant="link" size="sm" asChild>
+                              <Link
+                                href={`/search?categories=${JSON.stringify(
+                                  selectedCategories,
+                                )}&locale=${locale}&countryId=${selectedCountryId}&page=1${
+                                  search ? `&${search}` : ""
+                                }`}
+                              >
+                                See more festivals 🎉
+                              </Link>
+                            </Button>
+                          </div>
+                        ) : null}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </TabsContent>
         </Tabs>
       </section>
     </>
