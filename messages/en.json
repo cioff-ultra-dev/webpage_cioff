@@ -149,6 +149,11 @@
   "categories": {
     "select_options": "Select categories"
   },
+  "filters": {
+    "search": "Search",
+    "categories": "Categories",
+    "events": "Events"
+  },
   "customErrors": {
     "file_required": "File is required",
     "invalid_phone_number": "Invalid phone number",

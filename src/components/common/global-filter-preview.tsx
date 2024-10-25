@@ -98,6 +98,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
   const locale = useLocale();
   const t = useTranslations("maps");
   const tc = useTranslations("categories");
+  const tf = useTranslations("filters");
   const formatter = useFormatter();
 
   const [tabSelected, setTabSelected] = useState<string>("festivals");
@@ -315,11 +316,11 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                   className="flex flex-col items-end space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
                 >
                   <div className="flex-1">
-                    <Label className="pb-1">Search</Label>
+                    <Label className="pb-1">{tf("search")}</Label>
                     <Input placeholder="Type to explore..." name="search" />
                   </div>
                   <div className="flex-1">
-                    <Label>Categories</Label>
+                    <Label>{tf("categories")}</Label>
                     <MultiSelect
                       options={categoriesMap}
                       onValueChange={setSelectedCategories}
@@ -327,7 +328,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                     />
                   </div>
                   <div>
-                    <Label>Events</Label>
+                    <Label>{tf("events")}</Label>
                     <DatePickerWithRange onValueChange={setDateRange} />
                   </div>
                   <TooltipProvider>
@@ -528,21 +529,17 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                   className="flex flex-col items-end space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
                 >
                   <div className="flex-1">
-                    <Label className="pb-1">Search</Label>
+                    <Label className="pb-1">{tf("search")}</Label>
                     <Input placeholder="Type to explore..." name="search" />
                   </div>
                   <div className="flex-1">
-                    <Label>Categories</Label>
+                    <Label>{tf("categories")}</Label>
                     <MultiSelect
                       options={categoriesMap}
                       onValueChange={setSelectedCategories}
                       placeholder={tc("select_options")}
                     />
                   </div>
-                  {/* <div> */}
-                  {/*   <Label>Events</Label> */}
-                  {/*   <DatePickerWithRange onValueChange={setDateRange} /> */}
-                  {/* </div> */}
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>

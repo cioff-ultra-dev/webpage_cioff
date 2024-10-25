@@ -145,6 +145,14 @@
   "maps": {
     "marker_located_at": "Marcadores ubicados en {name}"
   },
+  "categories": {
+    "select_options": "Select categories"
+  },
+  "filters": {
+    "search": "Buscar",
+    "categories": "Categorias",
+    "events": "Eventos"
+  },
   "customErrors": {
     "file_required": "Archivo es requerido",
     "invalid_phone_number": "Número de teléfono inválido",
