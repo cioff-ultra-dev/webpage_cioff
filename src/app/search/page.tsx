@@ -3,6 +3,8 @@ import { Header } from "@/components/common/header";
 import GlobalFilter from "@/components/common/global-filter";
 import { getAllNestedFestivals } from "@/db/queries/events";
 import { getAllCountryCastFestivals } from "@/db/queries/countries";
+import { getLocale } from "next-intl/server";
+import { Locale } from "@/i18n/config";
 
 export default async function SearchPage({
   searchParams,
@@ -10,8 +12,9 @@ export default async function SearchPage({
   params: { slug: string };
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
+  const locale = await getLocale();
   const festivals = await getAllNestedFestivals();
-  const countryCast = await getAllCountryCastFestivals();
+  const countryCast = await getAllCountryCastFestivals(locale as Locale);
   return (
     <div>
       <Header text="text-black" className="border-b" />
