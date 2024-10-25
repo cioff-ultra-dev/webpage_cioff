@@ -6,12 +6,17 @@ import {
   festivals,
   festivalsLang,
   festivalToCategories,
+  groups,
+  groupsLang,
+  groupToCategories,
   languages,
   SelectCountries,
   SelectCountryLang,
   SelectEvent,
   SelectFestival,
   SelectFestivalLang,
+  SelectGroup,
+  SelectGroupLang,
   SelectStorage,
   storages,
 } from "@/db/schema";
@@ -34,7 +39,7 @@ const PAGE_SIZE = 10;
 
 const logoStorage = aliasedTable(storages, "logo");
 
-export type BuildFilterType = Awaited<ReturnType<typeof buildFilter>>;
+export type BuildGroupFilterType = Awaited<ReturnType<typeof buildFilter>>;
 
 async function buildFilter(request: NextRequest) {
   const categoriesIn: string[] = JSON.parse(
@@ -50,11 +55,9 @@ async function buildFilter(request: NextRequest) {
   const countryId: number = Number(
     request.nextUrl.searchParams.get("countryId") || "0",
   );
-  const festivalId: number = Number(
-    request.nextUrl.searchParams.get("festivalId") || "0",
+  const groupId: number = Number(
+    request.nextUrl.searchParams.get("groupId") || "0",
   );
-
-  console.log({ type });
 
   const locale: Locale =
     (request.nextUrl.searchParams.get("locale") as Locale) || defaultLocale;
@@ -68,63 +71,60 @@ async function buildFilter(request: NextRequest) {
 
   const baseQuery = db
     .select({
-      festival: festivals,
+      group: groups,
+      lang: groupsLang,
       country: countries,
-      lang: festivalsLang,
       countryLang: countriesLang,
-      event: events,
       logo: logoStorage,
     })
-    .from(festivalToCategories)
-    .innerJoin(festivals, eq(festivalToCategories.festivalId, festivals.id))
-    .innerJoin(events, eq(events.festivalId, festivals.id))
-    .leftJoin(festivalsLang, eq(festivals.id, festivalsLang.festivalId))
-    .leftJoin(countries, eq(festivals.countryId, countries.id))
+    .from(groupToCategories)
+    .innerJoin(groups, eq(groupToCategories.groupId, groups.id))
+    .leftJoin(groupsLang, eq(groups.id, groupsLang.groupId))
+    .leftJoin(countries, eq(groups.countryId, countries.id))
     .leftJoin(countriesLang, eq(countriesLang.countryId, countries.id))
-    .leftJoin(categories, eq(festivalToCategories.categoryId, categories.id))
-    .leftJoin(logoStorage, eq(festivals.logoId, logoStorage.id))
+    .leftJoin(categories, eq(groupToCategories.categoryId, categories.id))
+    .leftJoin(logoStorage, eq(groups.logoId, logoStorage.id))
     .$dynamic();
 
   // filters.push(eq(festivals.publish, true));
-  filters.push(isNotNull(festivals.location), isNotNull(festivals.countryId));
+  filters.push(isNotNull(groups.countryId));
   filters.push(eq(countriesLang.lang, sq));
-  filters.push(eq(festivalsLang.lang, sq));
+  filters.push(eq(groupsLang.lang, sq));
 
-  if (rangeDateFrom || rangeDateTo) {
-    filters.push(
-      gte(events.startDate, new Date(Number(rangeDateFrom) * 1000)),
-      lte(
-        events.endDate,
-        new Date(Number(rangeDateTo || rangeDateFrom) * 1000),
-      ),
-    );
-  } else {
-    filters.push(gte(events.startDate, new Date()));
-  }
+  // if (rangeDateFrom || rangeDateTo) {
+  //   filters.push(
+  //     gte(events.startDate, new Date(Number(rangeDateFrom) * 1000)),
+  //     lte(
+  //       events.endDate,
+  //       new Date(Number(rangeDateTo || rangeDateFrom) * 1000),
+  //     ),
+  //   );
+  // } else {
+  //   filters.push(gte(events.startDate, new Date()));
+  // }
 
   if (categoriesIn.length) {
     filters.push(inArray(categories.id, categoriesIn.map(Number)));
   }
 
   if (countryId) {
-    filters.push(eq(festivals.countryId, countryId));
+    filters.push(eq(groups.countryId, countryId));
   }
 
-  if (festivalId) {
-    filters.push(eq(festivals.id, festivalId));
+  if (groupId) {
+    filters.push(eq(groups.id, groupId));
   }
 
   if (search) {
-    filters.push(ilike(festivalsLang.name, `%${search}%`));
+    filters.push(ilike(groupsLang.name, `%${search}%`));
   }
 
   baseQuery
     .where(and(...filters))
     .groupBy(
-      festivals.id,
+      groups.id,
+      groupsLang.id,
       countries.id,
-      events.id,
-      festivalsLang.id,
       countriesLang.id,
       logoStorage.id,
     )
@@ -135,29 +135,26 @@ async function buildFilter(request: NextRequest) {
     Record<
       number,
       {
-        festival: SelectFestival;
+        group: SelectGroup;
         country: SelectCountries | null;
-        lang: SelectFestivalLang;
+        lang: SelectGroupLang;
         countryLang: SelectCountryLang;
-        event: SelectEvent;
         logo: SelectStorage;
       }
     >
   >((acc, row) => {
-    const festival = row.festival;
+    const group = row.group;
     const country = row.country;
     const lang = row.lang;
     const countryLang = row.countryLang;
-    const event = row.event;
     const logo = row.logo;
 
-    if (!acc[festival.id]) {
-      acc[festival.id] = {
-        festival,
+    if (!acc[group.id]) {
+      acc[group.id] = {
+        group,
         country,
         lang: lang!,
         countryLang: countryLang!,
-        event: event,
         logo: logo!,
       };
     }
