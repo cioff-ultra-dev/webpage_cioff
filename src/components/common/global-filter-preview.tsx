@@ -38,6 +38,7 @@ import { MultiSelect, MultiSelectProps } from "../ui/multi-select";
 import { CategoriesType } from "@/db/queries/categories";
 import { Label } from "../ui/label";
 import { BuildGroupFilterType } from "@/app/api/filter/group/route";
+import { RegionsType } from "@/db/queries/regions";
 
 interface FormElements extends HTMLFormControlsCollection {
   search: HTMLInputElement;
@@ -104,16 +105,25 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
   const [tabSelected, setTabSelected] = useState<string>("festivals");
   const [search, setSearch] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [selectedFestival, setSelectedFestival] =
     useState<SelectFestival | null>(null);
   const [selectedCountryId, setSelectedCountryId] = useState<number>(0);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const map = useMap();
   const places = useMapsLibrary("places");
-  const { data: countryCast } = useSWR<CountryCastFestivals>(
-    `/api/filter/country?locale=${locale}`,
-    fetcher,
-  );
+
+  const { data: regionCast = [], isLoading: isLoadingRegionCast } =
+    useSWR<RegionsType>(`/api/filter/region?locale=${locale}`, fetcher);
+
+  const { data: countryCast = [], isLoading: isLoadingCountryCast } =
+    useSWR<CountryCastFestivals>(
+      `/api/filter/country?locale=${locale}&regions=${JSON.stringify(
+        selectedRegions,
+      )}`,
+      fetcher,
+    );
 
   const { data: itemList = [], isLoading: isLoadingItemList } =
     useSWR<BuildFilterType>(
@@ -121,9 +131,13 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
         tabSelected === "festivals"
           ? `api/filter?categories=${JSON.stringify(
               selectedCategories,
-            )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&page=1${
-              search ? `&${search}` : ""
-            }`
+            )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&regions=${JSON.stringify(
+              selectedRegions,
+            )}&countries=${JSON.stringify(
+              selectedCountries.length
+                ? selectedCountries
+                : countryCast.map((item) => item.id),
+            )}&page=1${search ? `&${search}` : ""}`
           : null,
       fetcher,
     );
@@ -134,9 +148,13 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
         tabSelected === "groups"
           ? `api/filter/group?categories=${JSON.stringify(
               selectedCategories,
-            )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&page=1${
-              search ? `&${search}` : ""
-            }`
+            )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&regions=${JSON.stringify(
+              selectedRegions,
+            )}&countries=${JSON.stringify(
+              selectedCountries.length
+                ? selectedCountries
+                : countryCast.map((item) => item.id),
+            )}&page=1${search ? `&${search}` : ""}`
           : null,
       fetcher,
     );
@@ -165,6 +183,27 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
       };
     });
   }, [categories]);
+
+  const regionsMap: MultiSelectProps["options"] = useMemo(() => {
+    return regionCast.map((region) => {
+      return {
+        label:
+          region.langs.find((item) => item.l?.code === locale)?.name ||
+          region.langs.at(0)?.name ||
+          region.slug,
+        value: String(region.id),
+      };
+    });
+  }, [regionCast, locale]);
+
+  const countriesMap: MultiSelectProps["options"] = useMemo(() => {
+    return countryCast.map((country) => {
+      return {
+        label: country.name || "",
+        value: String(country.id),
+      };
+    });
+  }, [countryCast]);
 
   // https://developers.google.com/maps/documentation/javascript/reference/places-autocomplete-service#AutocompleteSessionToken
   const [sessionToken, setSessionToken] =
@@ -325,6 +364,24 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                       options={categoriesMap}
                       onValueChange={setSelectedCategories}
                       placeholder={tc("select_options")}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Label>{tf("regions")}</Label>
+                    <MultiSelect
+                      options={regionsMap}
+                      onValueChange={setSelectedRegions}
+                      disabled={isLoadingRegionCast}
+                      placeholder={tf("select_regions")}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Label>{tf("countries")}</Label>
+                    <MultiSelect
+                      options={countriesMap}
+                      onValueChange={setSelectedCountries}
+                      disabled={isLoadingCountryCast}
+                      placeholder={tf("select_countries")}
                     />
                   </div>
                   <div>

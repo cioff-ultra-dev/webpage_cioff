@@ -152,7 +152,11 @@
   "filters": {
     "search": "Search",
     "categories": "Categories",
-    "events": "Events"
+    "events": "Events",
+    "regions": "Regions",
+    "countries": "Countries",
+    "select_regions": "Select regions",
+    "select_countries": "Select countries"
   },
   "customErrors": {
     "file_required": "File is required",

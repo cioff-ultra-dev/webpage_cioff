@@ -40,6 +40,9 @@ async function buildFilter(request: NextRequest) {
   const categoriesIn: string[] = JSON.parse(
     request.nextUrl.searchParams.get("categories") || "[]",
   );
+  const countriesIn: string[] = JSON.parse(
+    request.nextUrl.searchParams.get("countries") || "[]",
+  );
   const search: string = request.nextUrl.searchParams.get("search") || "";
   const type: string = request.nextUrl.searchParams.get("type") || "";
   const rangeDateFrom: string =
@@ -53,8 +56,6 @@ async function buildFilter(request: NextRequest) {
   const festivalId: number = Number(
     request.nextUrl.searchParams.get("festivalId") || "0",
   );
-
-  console.log({ type });
 
   const locale: Locale =
     (request.nextUrl.searchParams.get("locale") as Locale) || defaultLocale;
@@ -104,6 +105,10 @@ async function buildFilter(request: NextRequest) {
 
   if (categoriesIn.length) {
     filters.push(inArray(categories.id, categoriesIn.map(Number)));
+  }
+
+  if (countriesIn.length) {
+    filters.push(inArray(festivals.countryId, countriesIn.map(Number)));
   }
 
   if (countryId) {
