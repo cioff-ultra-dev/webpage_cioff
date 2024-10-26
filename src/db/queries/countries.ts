@@ -2,13 +2,23 @@ import { db } from "@/db";
 import {
   countries,
   countriesLang,
+  events,
   festivals,
   festivalsLang,
   languages,
   SelectLanguages,
 } from "@/db/schema";
 import { defaultLocale, Locale } from "@/i18n/config";
-import { and, count, eq, inArray, isNotNull, SQLWrapper } from "drizzle-orm";
+import {
+  and,
+  count,
+  countDistinct,
+  eq,
+  gte,
+  inArray,
+  isNotNull,
+  SQLWrapper,
+} from "drizzle-orm";
 import { getLocale } from "next-intl/server";
 
 export type CountryCastFestivals = {
@@ -38,15 +48,16 @@ export async function getAllCountryCastFestivals(
       lat: countries.lat,
       lng: countries.lng,
       name: countriesLang.name,
-      festivalsCount: count(festivals.id),
+      festivalsCount: countDistinct(festivals.id),
     })
     .from(countries)
     .leftJoin(countriesLang, eq(countries.id, countriesLang.countryId))
     .leftJoin(festivals, eq(countries.id, festivals.countryId))
+    // .leftJoin(events, eq(events.festivalId, festivals.id))
     .$dynamic();
 
   filters.push(
-    isNotNull(festivals.countryId),
+    // isNotNull(festivals.countryId),
     isNotNull(festivals.location),
     eq(countriesLang.lang, sq),
   );
@@ -59,6 +70,8 @@ export async function getAllCountryCastFestivals(
     .where(and(...filters))
     .groupBy(countries.id, countriesLang.id)
     .orderBy(countries.slug);
+
+  console.log(query.toSQL());
 
   return query;
 }

@@ -78,7 +78,7 @@ async function buildFilter(request: NextRequest) {
     })
     .from(festivalToCategories)
     .innerJoin(festivals, eq(festivalToCategories.festivalId, festivals.id))
-    .innerJoin(events, eq(events.festivalId, festivals.id))
+    .leftJoin(events, eq(events.festivalId, festivals.id))
     .leftJoin(festivalsLang, eq(festivals.id, festivalsLang.festivalId))
     .leftJoin(countries, eq(festivals.countryId, countries.id))
     .leftJoin(countriesLang, eq(countriesLang.countryId, countries.id))
@@ -100,7 +100,7 @@ async function buildFilter(request: NextRequest) {
       ),
     );
   } else {
-    filters.push(gte(events.startDate, new Date()));
+    // filters.push(gte(events.startDate, new Date()));
   }
 
   if (categoriesIn.length) {
@@ -146,6 +146,7 @@ async function buildFilter(request: NextRequest) {
         countryLang: SelectCountryLang;
         event: SelectEvent;
         logo: SelectStorage;
+        events: SelectEvent[];
       }
     >
   >((acc, row) => {
@@ -164,7 +165,12 @@ async function buildFilter(request: NextRequest) {
         countryLang: countryLang!,
         event: event,
         logo: logo!,
+        events: [],
       };
+    }
+
+    if (event) {
+      acc[festival.id].events.push(event);
     }
 
     return acc;

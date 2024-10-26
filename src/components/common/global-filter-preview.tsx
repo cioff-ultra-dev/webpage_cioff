@@ -508,7 +508,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                                   <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
                                     <CalendarCheck size={16} />
                                     <span>
-                                      {event.startDate
+                                      {event?.startDate
                                         ? formatter.dateTime(
                                             new Date(event.startDate),
                                             {
@@ -519,8 +519,8 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                                           )
                                         : null}
                                       {" - "}
-                                      {event.endDate &&
-                                      event.startDate !== event.endDate
+                                      {event?.endDate &&
+                                      event?.startDate !== event?.endDate
                                         ? formatter.dateTime(
                                             new Date(event.endDate),
                                             {
