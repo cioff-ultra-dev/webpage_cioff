@@ -505,33 +505,35 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                                   <h3 className="text-black text-sm sm:text-base truncate sm:max-w-[170px] md:max-w-[200px] lg:max-w-[300px]">
                                     {lang.name}
                                   </h3>
-                                  <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
-                                    <CalendarCheck size={16} />
-                                    <span>
-                                      {event?.startDate
-                                        ? formatter.dateTime(
-                                            new Date(event.startDate),
-                                            {
-                                              year: "numeric",
-                                              month: "long",
-                                              day: "numeric",
-                                            },
-                                          )
-                                        : null}
-                                      {" - "}
-                                      {event?.endDate &&
-                                      event?.startDate !== event?.endDate
-                                        ? formatter.dateTime(
-                                            new Date(event.endDate),
-                                            {
-                                              year: "numeric",
-                                              month: "long",
-                                              day: "numeric",
-                                            },
-                                          )
-                                        : null}
-                                    </span>
-                                  </p>
+                                  {event?.startDate ? (
+                                    <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
+                                      <CalendarCheck size={16} />
+                                      <span>
+                                        {event?.startDate
+                                          ? formatter.dateTime(
+                                              new Date(event.startDate),
+                                              {
+                                                year: "numeric",
+                                                month: "long",
+                                                day: "numeric",
+                                              },
+                                            )
+                                          : null}
+                                        {" - "}
+                                        {event?.endDate &&
+                                        event?.startDate !== event?.endDate
+                                          ? formatter.dateTime(
+                                              new Date(event.endDate),
+                                              {
+                                                year: "numeric",
+                                                month: "long",
+                                                day: "numeric",
+                                              },
+                                            )
+                                          : null}
+                                      </span>
+                                    </p>
+                                  ) : null}
                                   <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
                                     <MapPin size={16} />
                                     <span>{countryLang.name}</span>
