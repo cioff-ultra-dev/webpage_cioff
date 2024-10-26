@@ -94,9 +94,7 @@ export default async function DashboardPage() {
         <Card x-chunk="dashboard-06-chunk-0">
           <CardHeader>
             <CardTitle>{t("national_sections")}</CardTitle>
-            <CardDescription>
-              {t("Manage_your_ns")}
-            </CardDescription>
+            <CardDescription>{t("Manage_your_ns")}</CardDescription>
           </CardHeader>
           <CardContent>
             {nationalSections.length ? (
@@ -104,7 +102,9 @@ export default async function DashboardPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t("name")}</TableHead>
-                    <TableHead className="hidden md:table-cell">{t("date")}</TableHead>
+                    <TableHead className="hidden md:table-cell">
+                      {t("date")}
+                    </TableHead>
                     <TableHead className="hidden md:table-cell">
                       {t("description")}
                     </TableHead>
@@ -153,10 +153,16 @@ export default async function DashboardPage() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>{t("actions")}</DropdownMenuLabel>
+                              <DropdownMenuLabel>
+                                {t("actions")}
+                              </DropdownMenuLabel>
                               <DropdownMenuItem
                                 asChild
                                 className="cursor-pointer"
+                                disabled={
+                                  session?.user.role?.name !==
+                                  "National Sections"
+                                }
                               >
                                 <Link
                                   href={`/dashboard/national-sections/${item?.slug}/edit`}
@@ -165,7 +171,7 @@ export default async function DashboardPage() {
                                 </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem disabled>
-                              {t("delete")}
+                                {t("delete")}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -178,7 +184,7 @@ export default async function DashboardPage() {
             ) : (
               <div className="w-full flex justify-center">
                 <span className="text-muted-foreground text-sm">
-                {t("not_found_groups")}
+                  {t("not_found_groups")}
                 </span>
               </div>
             )}
