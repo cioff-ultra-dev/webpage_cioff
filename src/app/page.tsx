@@ -28,7 +28,6 @@ export default async function Home() {
       <main>
         <section className="flex flex-col items-center justify-center h-screen bg-cover bg-center relative">
           <video
-            autoPlay
             loop
             muted
             className="absolute inset-0 w-full h-full object-cover"

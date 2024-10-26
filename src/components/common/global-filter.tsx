@@ -37,7 +37,16 @@ import Image from "next/image";
 import { Skeleton } from "../ui/skeleton";
 import { BuildFilterType } from "@/app/api/filter/route";
 import constants from "@/constants";
-import { useLocale, useTranslations } from "next-intl";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { RegionsType } from "@/db/queries/regions";
+import { CountryCastGroups } from "@/db/queries/groups";
+import { Label } from "../ui/label";
+import { Card, CardContent } from "../ui/card";
+import { MultiSelect, MultiSelectProps } from "../ui/multi-select";
+import { CategoriesType } from "@/db/queries/categories";
+import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
+import { TabsContent } from "@radix-ui/react-tabs";
+import { BuildGroupFilterType } from "@/app/api/filter/group/route";
 
 interface FormElements extends HTMLFormControlsCollection {
   search: HTMLInputElement;
@@ -56,7 +65,7 @@ function SkeletonList() {
       {Array.from({ length: 6 }).map((_, index) => (
         <div
           key={`skeleton-list-search-${index}`}
-          className="bg-gray-50 p-4 rounded-lg flex flex-col space-y-4 w-[410px]"
+          className="bg-gray-50 p-4 rounded-lg flex flex-col space-y-4 w-full"
         >
           <Skeleton className="h-64 sm:h-48 bg-gray-300 rounded-lg" />
           <Skeleton className="h-4 w-[250px] bg-gray-300" />
@@ -72,39 +81,90 @@ function SkeletonList() {
 
 export function WrapperFilter({
   searchParams,
+  categories,
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
+  categories: CategoriesType;
 }) {
   const locale = useLocale();
   const t = useTranslations("maps");
+  const tc = useTranslations("categories");
+  const tf = useTranslations("filters");
+  const formatter = useFormatter();
+
+  const [tabSelected, setTabSelected] = useState<string>(
+    (searchParams.type as string) || "festivals"
+  );
+  const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [search, setSearch] = useState(
     `search=${searchParams?.search ?? ""}&rangeDateFrom=${
       searchParams?.rangeDateFrom ?? ""
-    }&rangeDateTo=${searchParams?.rangeDateTo ?? ""}`,
+    }&rangeDateTo=${searchParams?.rangeDateTo ?? ""}`
   );
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    Array.from(JSON.parse((searchParams?.categories as string) || "[]")),
+    Array.from(JSON.parse((searchParams?.categories as string) || "[]"))
   );
   const [selectedFestival, setSelectedFestival] =
     useState<SelectFestival | null>(null);
   const [selectedCountryId, setSelectedCountryId] = useState<number>(
-    Number(searchParams?.countryId ?? 0),
+    Number(searchParams?.countryId ?? 0)
   );
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const map = useMap();
   const places = useMapsLibrary("places");
-  const { data: countryCast } = useSWR<CountryCastFestivals>(
-    `/api/filter/country?locale=${locale}`,
-    fetcher,
-  );
+
+  const { data: regionCast = [], isLoading: isLoadingRegionCast } =
+    useSWR<RegionsType>(`/api/filter/region?locale=${locale}`, fetcher);
+
+  const { data: countryCast = [], isLoading: isLoadingCountryCast } =
+    useSWR<CountryCastFestivals>(
+      () =>
+        tabSelected === "festivals"
+          ? `/api/filter/country?locale=${locale}&regions=${JSON.stringify(
+              selectedRegions
+            )}`
+          : null,
+      fetcher
+    );
+
+  const { data: countryGroupCast = [], isLoading: isLoadingCountryGroupCast } =
+    useSWR<CountryCastGroups>(
+      () =>
+        tabSelected === "groups"
+          ? `/api/filter/country/group?locale=${locale}&regions=${JSON.stringify(
+              selectedRegions
+            )}`
+          : null,
+      fetcher
+    );
+
   const swr = useSWRInfinite<BuildFilterType>(
     (index, _) =>
       `api/filter?categories=${JSON.stringify(
-        selectedCategories,
-      )}&locale=${locale}&countryId=${selectedCountryId}&page=${index + 1}${
-        search ? `&${search}` : ""
-      }`,
-    fetcher,
+        selectedCategories
+      )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&regions=${JSON.stringify(
+        selectedRegions
+      )}&countries=${JSON.stringify(
+        selectedCountries.length
+          ? selectedCountries
+          : countryCast.map((item) => item.id)
+      )}&page=${index + 1}${search ? `&${search}` : ""}`,
+    fetcher
+  );
+
+  const swrGroup = useSWRInfinite<BuildGroupFilterType>(
+    (index, _) =>
+      `api/filter/group?categories=${JSON.stringify(
+        selectedCategories
+      )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&regions=${JSON.stringify(
+        selectedRegions
+      )}&countries=${JSON.stringify(
+        selectedCountries.length
+          ? selectedCountries
+          : countryGroupCast.map((item) => item.id)
+      )}&page=${index + 1}${search ? `&${search}` : ""}`,
+    fetcher
   );
 
   const countryMapClusters = useMemo(() => {
@@ -122,6 +182,61 @@ export function WrapperFilter({
         })) || []
     );
   }, [countryCast]);
+
+  const countryGroupMapClusters = useMemo(() => {
+    return (
+      countryGroupCast
+        ?.filter((item) => item.lat && item.lng)
+        .map((item) => ({
+          id: item.id,
+          count: item.groupsCount,
+          name: item.name,
+          position: {
+            lat: parseFloat(item.lat!),
+            lng: parseFloat(item.lng!),
+          },
+        })) || []
+    );
+  }, [countryGroupCast]);
+
+  const categoriesMap: MultiSelectProps["options"] = useMemo(() => {
+    return categories.map((category) => {
+      return {
+        label: category.langs.at(0)?.name || category.slug,
+        value: String(category.id),
+      };
+    });
+  }, [categories]);
+
+  const regionsMap: MultiSelectProps["options"] = useMemo(() => {
+    return regionCast.map((region) => {
+      return {
+        label:
+          region.langs.find((item) => item.l?.code === locale)?.name ||
+          region.langs.at(0)?.name ||
+          region.slug,
+        value: String(region.id),
+      };
+    });
+  }, [regionCast, locale]);
+
+  const countriesMap: MultiSelectProps["options"] = useMemo(() => {
+    return countryCast.map((country) => {
+      return {
+        label: country.name || "",
+        value: String(country.id),
+      };
+    });
+  }, [countryCast]);
+
+  const countriesGroupMap: MultiSelectProps["options"] = useMemo(() => {
+    return countryGroupCast.map((country) => {
+      return {
+        label: country.name || "",
+        value: String(country.id),
+      };
+    });
+  }, [countryGroupCast]);
 
   // https://developers.google.com/maps/documentation/javascript/reference/places-autocomplete-service#AutocompleteSessionToken
   const [sessionToken, setSessionToken] =
@@ -170,7 +285,7 @@ export function WrapperFilter({
       setPredictionResults(response.predictions);
       return response.predictions;
     },
-    [autocompleteService, sessionToken],
+    [autocompleteService, sessionToken]
   );
 
   const handleSuggestion = useCallback(
@@ -184,7 +299,7 @@ export function WrapperFilter({
       };
 
       const detailsRequestCallback = (
-        placeDetails: google.maps.places.PlaceResult | null,
+        placeDetails: google.maps.places.PlaceResult | null
       ) => {
         setPredictionResults([]);
         setSelectedPlace(placeDetails);
@@ -193,7 +308,7 @@ export function WrapperFilter({
 
       placesService?.getDetails(detailRequestOptions, detailsRequestCallback);
     },
-    [places, placesService, sessionToken],
+    [places, placesService, sessionToken]
   );
 
   async function handleSubmit(event: React.FormEvent<SearchFormElement>) {
@@ -205,7 +320,7 @@ export function WrapperFilter({
         dateRange?.from ? Math.floor(dateRange!.from!.getTime() / 1000) : ""
       }&rangeDateTo=${
         dateRange?.to ? Math.floor(dateRange!.to!.getTime() / 1000) : ""
-      }`,
+      }`
     );
   }
 
@@ -235,222 +350,388 @@ export function WrapperFilter({
 
   return (
     <>
-      <section className="bg-gray-50 py-4 sm:py-8">
-        <div className="container mx-auto px-4">
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
-          >
-            <Input
-              placeholder="Type to explore new places..."
-              className="flex-1"
-              name="search"
-              defaultValue={searchParams?.search}
-            />
-            <DatePickerWithRange
-              defaultDates={{
-                from: searchParams?.rangeDateFrom
-                  ? new Date(Number(searchParams?.rangeDateFrom) * 1000)
-                  : undefined,
-                to: searchParams?.rangeDateTo
-                  ? new Date(Number(searchParams?.rangeDateTo) * 1000)
-                  : undefined,
-              }}
-              onValueChange={setDateRange}
-            />
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    type="submit"
-                    className="rounded-full"
+      <Tabs
+        defaultValue="festivals"
+        value={tabSelected}
+        className="w-full pt-6 bg-gray-50"
+        onValueChange={(value) => setTabSelected(value)}
+      >
+        <div className="container mx-auto flex">
+          <TabsList>
+            <TabsTrigger value="festivals">Festivals</TabsTrigger>
+            <TabsTrigger value="groups">Groups</TabsTrigger>
+          </TabsList>
+        </div>
+        <TabsContent value="festivals">
+          <section className="bg-gray-50 py-4 sm:py-8">
+            <div className="container mx-auto">
+              <Card>
+                <CardContent className="pt-4">
+                  <form
+                    onSubmit={handleSubmit}
+                    className="flex flex-col items-end space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
                   >
-                    <SearchIcon className="text-black" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent align="center" side="bottom">
-                  <p>Search</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </form>
-        </div>
-      </section>
-      <section className="bg-gray-200 py-4 sm:py-8">
-        <div className="container mx-auto px-4">
-          <ToggleGroup
-            type="multiple"
-            className="justify-between overflow-x-auto p-1"
-            onValueChange={(value) => setSelectedCategories(value)}
-            defaultValue={Array.from(
-              JSON.parse((searchParams?.categories as string) || "[]"),
-            )}
-          >
-            <ToggleGroupItem value="international" className="flex gap-1">
-              <GlobeIcon />
-              <span>International</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="cioff" className="flex gap-1">
-              <CogIcon />
-              <span>CIOFF</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="children" className="flex gap-1">
-              <BabyIcon />
-              <span>Childrens</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="folk_singing" className="flex gap-1">
-              <SirenIcon />
-              <span>Folk Singing</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="folk-dancing" className="flex gap-1">
-              <DrumIcon />
-              <span>Folk dance</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="folk_music" className="flex gap-1">
-              <FishIcon />
-              <span>Folk music</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="traditional_cooking" className="flex gap-1">
-              <CookingPotIcon />
-              <span>Traditional cooking</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="traditional_trades" className="flex gap-1">
-              <TruckIcon />
-              <span>Traditional trade</span>
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-      </section>
-      <section className="bg-white py-4 sm:py-8">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 h-[600px]">
-            <MapHandler place={selectedPlace} />
-            <div className="flex-1 bg-gray-50 p-4 rounded-lg">
-              <Map
-                mapId={"bf51a910020fa25a"}
-                style={{ width: "100%", height: "100%" }}
-                defaultCenter={{
-                  lat: map?.getCenter()?.lat() || 0,
-                  lng: map?.getCenter()?.lng() || 0,
-                }}
-                defaultZoom={2}
-                minZoom={2}
-                gestureHandling="greedy"
-                disableDefaultUI={true}
-              >
-                {selectedPlace ? (
-                  <Marker position={selectedPlace.geometry?.location} />
-                ) : null}
-                {!selectedPlace
-                  ? countryMapClusters.map((item) => (
-                      <AdvancedMarker
-                        key={item.id}
-                        position={item.position}
-                        onClick={() =>
-                          setSelectedCountryId((prevState) => {
-                            return prevState === item.id ? 0 : item.id;
-                          })
-                        }
-                        title={`Markers located at ${item.name}`}
-                      >
-                        <div
-                          className={cn(
-                            "w-5 h-5 bg-red-300 flex justify-center items-center rounded-full p-3",
-                            item.id === selectedCountryId && "bg-red-400",
-                          )}
-                        >
-                          <span>{item.count}</span>
-                        </div>
-                      </AdvancedMarker>
-                    ))
-                  : null}
-              </Map>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section className="bg-white py-4 sm:py-8">
-        <div className="container mx-auto px-4">
-          <h2 className="text-xl font-bold text-black sm:text-2xl mb-5">
-            Festival Results
-          </h2>
-          <div className="grid grid-cols-3 gap-4 w-full">
-            <InfiniteScroll
-              swr={swr}
-              loadingIndicator={<SkeletonList />}
-              endingIndicator={
-                <div className="w-full flex justify-center mt-5">
-                  <Badge variant="secondary" className="text-gray-400">
-                    Not more festivals to show! 🎉
-                  </Badge>
-                </div>
-              }
-              isReachingEnd={(swr) => {
-                const lastPosition = swr.data?.at(-1);
-                return (
-                  swr.data?.at(0)?.length === 0 ||
-                  (typeof lastPosition !== "undefined" &&
-                    lastPosition.length < 10)
-                );
-              }}
-              classNameWrapper="w-full col-span-3"
-              offset={-600}
-            >
-              {(response) =>
-                response.map(({ festival, country, lang, countryLang }) => (
-                  <Link
-                    href={`/event/${festival.id}`}
-                    className="bg-gray-50 hover:bg-gray-100 hover:cursor-pointer p-4 space-y-3 rounded-lg w-full justify-self-center"
-                    target="_blank"
-                    key={festival.id}
-                  >
-                    <div className="relative w-full h-[250px]">
-                      <Image
-                        fill
-                        src={"/placeholder.svg"}
-                        alt="Profile Festival Picture"
-                        className="rounded-lg aspect-video"
-                        blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOsbmysBwAE+gH+lB3PkwAAAABJRU5ErkJggg=="
+                    <div className="flex-1">
+                      <Label className="pb-1">{tf("search")}</Label>
+                      <Input placeholder="Type to explore..." name="search" />
+                    </div>
+                    <div className="flex-1">
+                      <Label>{tf("categories")}</Label>
+                      <MultiSelect
+                        options={categoriesMap}
+                        onValueChange={setSelectedCategories}
+                        placeholder={tc("select_options")}
                       />
                     </div>
-                    <h3 className="text-black mt-2 text-sm sm:text-base">
-                      {lang.name}
-                    </h3>
-                    <p className="text-gray-700 text-xs sm:text-sm flex gap-1">
-                      <span className="flex gap-1 items-center">
-                        <CalendarCheck size={16} />
-                        <span>{format(festival.createdAt, "PP")}</span>
-                      </span>
-                      •
-                      <span className="flex gap-1 items-center">
-                        <MapPin size={16} />
-                        <span>{country?.id}</span>
-                      </span>
-                    </p>
-                    <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">
-                      {lang.description}
-                    </p>
-                  </Link>
-                ))
-              }
-            </InfiniteScroll>
-          </div>
-        </div>
-      </section>
+                    <div className="flex-1">
+                      <Label>{tf("regions")}</Label>
+                      <MultiSelect
+                        options={regionsMap}
+                        onValueChange={setSelectedRegions}
+                        disabled={isLoadingRegionCast}
+                        placeholder={tf("select_regions")}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Label>{tf("countries")}</Label>
+                      <MultiSelect
+                        options={countriesMap}
+                        onValueChange={setSelectedCountries}
+                        disabled={isLoadingCountryCast}
+                        placeholder={tf("select_countries")}
+                      />
+                    </div>
+                    <div>
+                      <Label>{tf("events")}</Label>
+                      <DatePickerWithRange onValueChange={setDateRange} />
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            type="submit"
+                            className="rounded-full"
+                          >
+                            <SearchIcon className="text-black" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent align="center" side="bottom">
+                          <p>Search</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+          <section className="bg-white py-4 sm:py-8">
+            <div className="container mx-auto px-4">
+              <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 h-[600px]">
+                <MapHandler place={selectedPlace} />
+                <div className="flex-1 bg-gray-50 p-4 rounded-lg">
+                  <Map
+                    mapId={"bf51a910020fa25a"}
+                    style={{ width: "100%", height: "100%" }}
+                    defaultCenter={{
+                      lat: map?.getCenter()?.lat() || 0,
+                      lng: map?.getCenter()?.lng() || 0,
+                    }}
+                    defaultZoom={2}
+                    minZoom={2}
+                    gestureHandling="greedy"
+                    disableDefaultUI={true}
+                  >
+                    {selectedPlace ? (
+                      <Marker position={selectedPlace.geometry?.location} />
+                    ) : null}
+                    {!selectedPlace
+                      ? countryMapClusters.map((item) => (
+                          <AdvancedMarker
+                            key={item.id}
+                            position={item.position}
+                            onClick={() =>
+                              setSelectedCountryId((prevState) => {
+                                return prevState === item.id ? 0 : item.id;
+                              })
+                            }
+                            title={`Markers located at ${item.name}`}
+                          >
+                            <div
+                              className={cn(
+                                "w-5 h-5 bg-red-300 flex justify-center items-center rounded-full p-3",
+                                item.id === selectedCountryId && "bg-red-400"
+                              )}
+                            >
+                              <span>{item.count}</span>
+                            </div>
+                          </AdvancedMarker>
+                        ))
+                      : null}
+                  </Map>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section className="bg-white py-4 sm:py-8">
+            <div className="container mx-auto px-4">
+              <h2 className="text-xl font-bold text-black sm:text-2xl mb-5">
+                Festival Results
+              </h2>
+              <div className="grid grid-cols-3 gap-4 w-full">
+                <InfiniteScroll
+                  swr={swr}
+                  loadingIndicator={<SkeletonList />}
+                  endingIndicator={
+                    <div className="w-full flex justify-center mt-5">
+                      <Badge variant="secondary" className="text-gray-400">
+                        Not more festivals to show! 🎉
+                      </Badge>
+                    </div>
+                  }
+                  isReachingEnd={(swr) => {
+                    const lastPosition = swr.data?.at(-1);
+                    return (
+                      swr.data?.at(0)?.length === 0 ||
+                      (typeof lastPosition !== "undefined" &&
+                        lastPosition.length < 10)
+                    );
+                  }}
+                  classNameWrapper="w-full col-span-3"
+                  offset={-600}
+                >
+                  {(response) =>
+                    response.map(({ festival, country, lang, countryLang }) => (
+                      <Link
+                        href={`/event/${festival.id}`}
+                        className="bg-gray-50 hover:bg-gray-100 hover:cursor-pointer p-4 space-y-3 rounded-lg w-full justify-self-center"
+                        target="_blank"
+                        key={festival.id}
+                      >
+                        <div className="relative w-full h-[250px]">
+                          <Image
+                            fill
+                            src={"/placeholder.svg"}
+                            alt="Profile Festival Picture"
+                            className="rounded-lg aspect-video"
+                            blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOsbmysBwAE+gH+lB3PkwAAAABJRU5ErkJggg=="
+                          />
+                        </div>
+                        <h3 className="text-black mt-2 text-sm sm:text-base">
+                          {lang.name}
+                        </h3>
+                        <p className="text-gray-700 text-xs sm:text-sm flex gap-1">
+                          <span className="flex gap-1 items-center">
+                            <CalendarCheck size={16} />
+                            <span>{format(festival.createdAt, "PP")}</span>
+                          </span>
+                          •
+                          <span className="flex gap-1 items-center">
+                            <MapPin size={16} />
+                            <span>{country?.id}</span>
+                          </span>
+                        </p>
+                        <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">
+                          {lang.description}
+                        </p>
+                      </Link>
+                    ))
+                  }
+                </InfiniteScroll>
+              </div>
+            </div>
+          </section>
+        </TabsContent>
+        <TabsContent value="groups">
+          <section className="bg-gray-50 py-4 sm:py-8">
+            <div className="container mx-auto">
+              <Card>
+                <CardContent className="pt-4">
+                  <form
+                    onSubmit={handleSubmit}
+                    className="flex flex-col items-end space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
+                  >
+                    <div className="flex-1">
+                      <Label className="pb-1">{tf("search")}</Label>
+                      <Input placeholder="Type to explore..." name="search" />
+                    </div>
+                    <div className="flex-1">
+                      <Label>{tf("categories")}</Label>
+                      <MultiSelect
+                        options={categoriesMap}
+                        onValueChange={setSelectedCategories}
+                        placeholder={tc("select_options")}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Label>{tf("regions")}</Label>
+                      <MultiSelect
+                        options={regionsMap}
+                        onValueChange={setSelectedRegions}
+                        disabled={isLoadingRegionCast}
+                        placeholder={tf("select_regions")}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Label>{tf("countries")}</Label>
+                      <MultiSelect
+                        options={countriesGroupMap}
+                        onValueChange={setSelectedCountries}
+                        disabled={isLoadingCountryGroupCast}
+                        placeholder={tf("select_countries")}
+                      />
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            type="submit"
+                            className="rounded-full"
+                          >
+                            <SearchIcon className="text-black" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent align="center" side="bottom">
+                          <p>Search</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+          <section className="bg-white py-4 sm:py-8">
+            <div className="container mx-auto px-4">
+              <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 h-[600px]">
+                <MapHandler place={selectedPlace} />
+                <div className="flex-1 bg-gray-50 p-4 rounded-lg">
+                  <Map
+                    mapId={"bf51a910020fa25a"}
+                    style={{ width: "100%", height: "100%" }}
+                    defaultCenter={{
+                      lat: map?.getCenter()?.lat() || 0,
+                      lng: map?.getCenter()?.lng() || 0,
+                    }}
+                    defaultZoom={2}
+                    minZoom={2}
+                    gestureHandling="greedy"
+                    disableDefaultUI={true}
+                  >
+                    {selectedPlace ? (
+                      <Marker position={selectedPlace.geometry?.location} />
+                    ) : null}
+                    {!selectedPlace
+                      ? countryGroupMapClusters.map((item) => (
+                          <AdvancedMarker
+                            key={item.id}
+                            position={item.position}
+                            onClick={() =>
+                              setSelectedCountryId((prevState) => {
+                                return prevState === item.id ? 0 : item.id;
+                              })
+                            }
+                            title={`Markers located at ${item.name}`}
+                          >
+                            <div
+                              className={cn(
+                                "w-5 h-5 bg-red-300 flex justify-center items-center rounded-full p-3",
+                                item.id === selectedCountryId && "bg-red-400"
+                              )}
+                            >
+                              <span>{item.count}</span>
+                            </div>
+                          </AdvancedMarker>
+                        ))
+                      : null}
+                  </Map>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section className="bg-white py-4 sm:py-8">
+            <div className="container mx-auto px-4">
+              <h2 className="text-xl font-bold text-black sm:text-2xl mb-5">
+                Group Results
+              </h2>
+              <div className="grid grid-cols-3 gap-4 w-full">
+                <InfiniteScroll
+                  swr={swrGroup}
+                  loadingIndicator={<SkeletonList />}
+                  endingIndicator={
+                    <div className="w-full flex justify-center mt-5">
+                      <Badge variant="secondary" className="text-gray-400">
+                        Not more groups to show! 🎉
+                      </Badge>
+                    </div>
+                  }
+                  isReachingEnd={(swr) => {
+                    const lastPosition = swr.data?.at(-1);
+                    return (
+                      swrGroup.data?.at(0)?.length === 0 ||
+                      (typeof lastPosition !== "undefined" &&
+                        lastPosition.length < 10)
+                    );
+                  }}
+                  classNameWrapper="w-full col-span-3"
+                  offset={-600}
+                >
+                  {(response) =>
+                    response.map(({ group, lang, countryLang }) => (
+                      <Link
+                        href={`/group/${group.id}`}
+                        className="bg-gray-50 hover:bg-gray-100 hover:cursor-pointer p-4 space-y-3 rounded-lg w-full justify-self-center"
+                        target="_blank"
+                        key={group.id}
+                      >
+                        <div className="relative w-full h-[250px]">
+                          <Image
+                            fill
+                            src={"/placeholder.svg"}
+                            alt="Profile Festival Picture"
+                            className="rounded-lg aspect-video"
+                            blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOsbmysBwAE+gH+lB3PkwAAAABJRU5ErkJggg=="
+                          />
+                        </div>
+                        <h3 className="text-black mt-2 text-sm sm:text-base">
+                          {lang.name}
+                        </h3>
+                        <p className="text-gray-700 text-xs sm:text-sm flex gap-1">
+                          <span className="flex gap-1 items-center">
+                            <MapPin size={16} />
+                            <span>{countryLang?.name}</span>
+                          </span>
+                        </p>
+                        <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">
+                          {lang.description}
+                        </p>
+                      </Link>
+                    ))
+                  }
+                </InfiniteScroll>
+              </div>
+            </div>
+          </section>
+        </TabsContent>
+      </Tabs>
     </>
   );
 }
 
 function BaseWrapperFilter({
   searchParams,
+  categories,
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
+  categories: CategoriesType;
 }) {
   return (
     <APIProvider apiKey={constants.google.apiKey!} libraries={["marker"]}>
-      <WrapperFilter searchParams={searchParams} />
+      <WrapperFilter searchParams={searchParams} categories={categories} />
     </APIProvider>
   );
 }
@@ -459,17 +740,19 @@ export default function GlobalFilter({
   fallbackFestivals,
   fallbackCountryCast,
   searchParams,
+  categories,
 }: {
   fallbackFestivals: { festivals: SelectFestival }[];
   fallbackCountryCast: CountryCastFestivals;
   searchParams: { [key: string]: string | string[] | undefined };
+  categories: CategoriesType;
 }) {
   return (
     <SWRProvider
       fallbackCountryCast={fallbackCountryCast}
       fallbackFestivals={fallbackFestivals}
     >
-      <BaseWrapperFilter searchParams={searchParams} />;
+      <BaseWrapperFilter searchParams={searchParams} categories={categories} />;
     </SWRProvider>
   );
 }

@@ -110,8 +110,7 @@ async function buildFilter(request: NextRequest) {
     filters.push(inArray(categories.id, categoriesIn.map(Number)));
   }
 
-  if (countriesIn.length) {
-    console.log({ countriesIn });
+  if (countriesIn.length && !countryId) {
     filters.push(inArray(groups.countryId, countriesIn.map(Number)));
   }
 

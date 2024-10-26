@@ -53,7 +53,6 @@ export async function getAllCountryCastFestivals(
     .from(countries)
     .leftJoin(countriesLang, eq(countries.id, countriesLang.countryId))
     .leftJoin(festivals, eq(countries.id, festivals.countryId))
-    // .leftJoin(events, eq(events.festivalId, festivals.id))
     .$dynamic();
 
   filters.push(
