@@ -144,7 +144,7 @@ async function buildFilter(request: NextRequest) {
         country: SelectCountries | null;
         lang: SelectFestivalLang;
         countryLang: SelectCountryLang;
-        event: SelectEvent;
+        event: SelectEvent | null;
         logo: SelectStorage;
         events: SelectEvent[];
       }
@@ -163,7 +163,7 @@ async function buildFilter(request: NextRequest) {
         country,
         lang: lang!,
         countryLang: countryLang!,
-        event: event,
+        event: event || null,
         logo: logo!,
         events: [],
       };
