@@ -12,6 +12,19 @@ import { getAllCountryCastFestivals } from "@/db/queries/countries";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Locale } from "@/i18n/config";
 import { getAllCategories } from "@/db/queries/categories";
+import { getAllArticles } from "@/lib/articles";
+import { format } from "date-fns";
+
+interface ArticleData {
+  id: number;
+  texts: Array<{
+    title: string;
+    description: string;
+    sections: string;
+    lang: number;
+    subPageId: number;
+  }>;
+}
 
 export default async function Home() {
   const locale = await getLocale();
@@ -19,6 +32,7 @@ export default async function Home() {
   const festivals = await getAllNestedFestivals();
   const countryCast = await getAllCountryCastFestivals(locale as Locale);
   const categories = await getAllCategories(locale as Locale);
+  const articles = (await getAllArticles()) as ArticleData[];
 
   const t = await getTranslations("home");
 
@@ -62,49 +76,45 @@ export default async function Home() {
               Latest news
             </h2>
             <div className="flex flex-col space-y-4 mt-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-              <div className="flex-1 bg-gray-100 p-4 rounded-lg">
-                <div className="animate-pulse">
-                  <div className="h-32 sm:h-48 bg-gray-700 rounded-lg" />
-                </div>
-                <h3 className="text-black mt-2 text-sm sm:text-base">
-                  Bruno Ravnikar – In memoriam
-                </h3>
-                <p className="text-gray-700 text-xs sm:text-sm">11 Sept 2023</p>
-                <p className="text-gray-700 text-xs sm:text-sm">
-                  We are hear to remember the Master, colleague and dear friend
-                  Bruno...
-                </p>
-              </div>
-              <div className="flex-1 bg-gray-100 p-4 rounded-lg">
-                <div className="animate-pulse">
-                  <div className="h-32 sm:h-48 bg-gray-700 rounded-lg" />
-                </div>
-                <h3 className="text-black mt-2 text-sm sm:text-base">
-                  51st CIOFF World Congress in Puerto Vallarta, Jalisco; Mexico.
-                </h3>
-                <p className="text-gray-700 text-xs sm:text-sm">19 Oct 2022</p>
-                <p className="text-gray-700 text-xs sm:text-sm">
-                  We want to thank Dr. Ismael García Ávila, President of CIOFF
-                  Mexico...
-                </p>
-              </div>
-              <div className="flex-1 bg-gray-100 p-4 rounded-lg">
-                <div className="animate-pulse">
-                  <div className="h-32 sm:h-48 bg-gray-700 rounded-lg" />
-                </div>
-                <h3 className="text-black mt-2 text-sm sm:text-base">
-                  Welcome to the Netherlands
-                </h3>
-                <p className="text-gray-700 text-xs sm:text-sm">19 Oct 2022</p>
-                <p className="text-gray-700 text-xs sm:text-sm">
-                  Sector Meeting CIOFF® Central and Northern Europe Fifteen
-                  delegates...
-                </p>
-              </div>
+              {articles.slice(0, 2).map((articleData: ArticleData) => {
+                const text = articleData?.texts?.[0];
+                if (!text) return null;
+
+                type ArticleSection = {
+                  id: string;
+                  type: 'image' | 'title' | 'subtitle' | 'paragraph' | 'list';
+                  content: string;
+                };
+
+                const sections = JSON.parse(text.sections ?? '[]') as ArticleSection[];
+                const coverImage = sections.find(
+                  section => section.type === 'image'
+                )?.content;
+
+                return (
+                  <Link 
+                    key={articleData.id} 
+                    href={`/news/${articleData.id}`}
+                    className="flex-1 bg-gray-100 p-4 rounded-lg hover:bg-gray-200 transition-colors group"
+                  >
+                    {coverImage ? (
+                      <Image
+                        src={coverImage}
+                        alt={text.title ?? 'Article image'}
+                        width={800}
+                        height={400}
+                        className="w-full h-48 object-cover rounded-lg"
+                      />
+                    ) : (
+                      <div className="h-48 bg-gray-700 rounded-lg" />
+                    )}
+                    <h3 className="text-black mt-4 text-lg font-semibold group-hover:text-blue-600 transition-colors">
+                      {text.title}
+                    </h3>
+                  </Link>
+                );
+              })}
             </div>
-            <Button variant="default" className="mt-4">
-              All News
-            </Button>
           </div>
         </section>
         <section className="bg-white py-4 sm:py-8">
