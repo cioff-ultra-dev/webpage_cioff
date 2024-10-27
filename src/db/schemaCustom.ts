@@ -499,6 +499,7 @@ export const SubPagesTextsLangProd = cioffSchema.table("sub_pages_texts_lang", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
+  sections: text("sections"),
   lang: integer("lang").references(() => LanguagesProd.id),
   subPageId: integer("subpage_id").references(() => SubPagesProd.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),

@@ -816,6 +816,7 @@ export const SubPagesTextsLangProd = pgTable("sub_pages_texts_lang", {
   title: text("title").notNull(),
   description: text("description").notNull(),
   lang: integer("lang").references(() => languages.id),
+  sections: text("sections"),
   subPageId: integer("subpage_id").references(() => SubPagesProd.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
