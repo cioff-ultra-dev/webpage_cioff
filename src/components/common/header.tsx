@@ -89,7 +89,7 @@ export async function Header({
             <Link href="#" prefetch={false}>
               Folkloriada
             </Link>
-            <Link href="#" prefetch={false}>
+            <Link href="/news" prefetch={false}>
               News
             </Link>
             <Link href="/event" prefetch={false}>
@@ -116,7 +116,7 @@ export async function Header({
         <Link href="#" className={`${text}`} prefetch={false}>
           Folkloriadas
         </Link>
-        <Link href="#" className={`${text}`} prefetch={false}>
+        <Link href="/news" className={`${text}`} prefetch={false}>
           News
         </Link>
         <Link href="/event" className={`${text}`} prefetch={false}>
