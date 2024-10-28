@@ -505,7 +505,7 @@ export function WrapperFilter({
                   {(response) =>
                     response.map(({ festival, country, lang, countryLang }) => (
                       <Link
-                        href={`/event/${festival.id}`}
+                        href={`/festivals/${festival.id}`}
                         className="bg-gray-50 hover:bg-gray-100 hover:cursor-pointer p-4 space-y-3 rounded-lg w-full justify-self-center"
                         target="_blank"
                         key={festival.id}
@@ -683,7 +683,7 @@ export function WrapperFilter({
                   {(response) =>
                     response.map(({ group, lang, countryLang }) => (
                       <Link
-                        href={`/group/${group.id}`}
+                        href={`/groups/${group.id}`}
                         className="bg-gray-50 hover:bg-gray-100 hover:cursor-pointer p-4 space-y-3 rounded-lg w-full justify-self-center"
                         target="_blank"
                         key={group.id}
