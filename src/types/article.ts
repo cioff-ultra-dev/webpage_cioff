@@ -1,6 +1,6 @@
 export type Section = {
   id: string;
-  type: 'title' | 'subtitle' | 'paragraph' | 'image' | 'list' | 'video' | 'audio';
+  type: 'title' | 'subtitle' | 'paragraph' | 'image' | 'list';
   content: string;
 };
 
