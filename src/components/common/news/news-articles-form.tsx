@@ -2,18 +2,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import NextImage from 'next/image';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { useEditor, EditorContent, BubbleMenu, Extension } from '@tiptap/react';
-import { Editor, ChainedCommands } from '@tiptap/core';
+import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import TiptapImage from '@tiptap/extension-image';
+import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
-import Underline from '@tiptap/extension-underline';
-import TextAlign from '@tiptap/extension-text-align';
-import Heading from '@tiptap/extension-heading';
-import FontFamily from '@tiptap/extension-font-family';
-import TextStyle from '@tiptap/extension-text-style';
-import Color from '@tiptap/extension-color';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -33,45 +26,9 @@ declare module '@tiptap/core' {
   }
 }
 
-// Custom extension for font size
-const FontSize = Extension.create({
-  name: 'fontSize',
-
-  addGlobalAttributes() {
-    return [
-      {
-        types: ['textStyle'],
-        attributes: {
-          fontSize: {
-            default: null,
-            parseHTML: element => element.style.fontSize || null,
-            renderHTML: attributes => {
-              if (!attributes.fontSize) {
-                return {};
-              }
-              return {
-                style: `font-size: ${attributes.fontSize}`,
-              };
-            },
-          },
-        },
-      },
-    ];
-  },
-
-  addCommands() {
-    return {
-      setFontSize:
-        (fontSize: string) =>
-        ({ chain }) =>
-          chain().setMark('textStyle', { fontSize }).run(),
-    };
-  },
-});
-
 type Section = {
   id: string;
-  type: 'title' | 'subtitle' | 'paragraph' | 'image' | 'list' | 'video' | 'audio';
+  type: 'title' | 'subtitle' | 'paragraph' | 'image' | 'list';
   content: string;
 };
 
@@ -90,28 +47,23 @@ type EditableArticleTemplateProps = {
 };
 
 const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({ initialContent, onSave, currentUser }) => {
-  const [draggedFile, setDraggedFile] = useState<File | null>(null);  const [title, setTitle] = useState(initialContent.title);
+  const [draggedFile, setDraggedFile] = useState<File | null>(null);
+  const [title, setTitle] = useState(initialContent.title);
   const [description, setDescription] = useState(initialContent.description);
   const [sections, setSections] = useState<Section[]>(initialContent.sections);
 
   const editor = useEditor({
     extensions: [
-      //StarterKit,
-      TextStyle,
-      FontSize,
-      Color,
-      FontFamily,
-      TextAlign.configure({
-        types: ['heading', 'paragraph'],
+      StarterKit,
+      Image,
+      Link.configure({
+        openOnClick: false,
       }),
-      Underline,
-      Link,
       Placeholder.configure({
         placeholder: 'Write something...',
       }),
-      TiptapImage,
     ],
-    content: '',
+    content: description,
   });
 
   useEffect(() => {
@@ -177,24 +129,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({ initi
       <Button size="sm" onClick={() => editor?.chain().focus().setMark('italic').run()}>
         Italic
       </Button>
-      <Button size="sm" onClick={() => editor?.chain().focus().toggleUnderline().run()}>
-        Underline
-      </Button>
-      <Button size="sm" onClick={() => editor?.chain().focus().setTextAlign('left').run()}>
-        Left
-      </Button>
-      <Button size="sm" onClick={() => editor?.chain().focus().setTextAlign('center').run()}>
-        Center
-      </Button>
-      <Button size="sm" onClick={() => editor?.chain().focus().setTextAlign('right').run()}>
-        Right
-      </Button>
-      <Button size="sm" onClick={() => editor?.chain().focus().setTextAlign('justify').run()}>
-        Justify
-      </Button>
-      <Button size="sm" onClick={() => editor?.chain().focus().unsetTextAlign().run()}>
-        Unset align
-      </Button>
+    
       <Button size="sm" onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}>
         H1
       </Button>
@@ -204,7 +139,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({ initi
       <Button size="sm" onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}>
         H3
       </Button>
-      <Select onValueChange={(value) => editor?.chain().focus().setFontFamily(value).run()}>
+      {/* <Select onValueChange={(value) => editor?.chain().focus().setFontFamily(value).run()}>
         <SelectTrigger>
           <SelectValue placeholder="Font" />
         </SelectTrigger>
@@ -225,7 +160,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({ initi
           <SelectItem value="#00FF00">Green</SelectItem>
           <SelectItem value="#0000FF">Blue</SelectItem>
         </SelectContent>
-      </Select>
+      </Select> */}
       <Select onValueChange={(value) => editor?.chain().focus().setFontSize(value).run()}>
         <SelectTrigger>
           <SelectValue placeholder="Size" />
@@ -250,12 +185,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({ initi
       case 'subtitle':
       case 'paragraph':
       case 'list':
-        return (
-          <>
-            {renderTextFormatButtons()}
-            <EditorContent editor={editor} className="border p-2 rounded" />
-          </>
-        );
+        return <EditorContent editor={editor} className="border p-2 rounded" />;
       case 'image':
         return (
           <div
@@ -270,39 +200,9 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({ initi
                 width={800}
                 height={400}
                 className="rounded-lg"
-                draggable
-                onDragStart={(e) => handleFileDragStart(e, new File([section.content], 'image'))}
               />
             ) : (
               <p>Drag and drop an image here, or click to select</p>
-            )}
-          </div>
-        );
-      case 'video':
-        return (
-          <div
-            onDrop={(e) => handleFileDrop(e, section.id, 'video')}
-            onDragOver={(e) => e.preventDefault()}
-            className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center"
-          >
-            {section.content ? (
-              <video src={section.content} controls className="w-full" />
-            ) : (
-              <p>Drag and drop a video here, or click to select</p>
-            )}
-          </div>
-        );
-      case 'audio':
-        return (
-          <div
-            onDrop={(e) => handleFileDrop(e, section.id, 'audio')}
-            onDragOver={(e) => e.preventDefault()}
-            className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center"
-          >
-            {section.content ? (
-              <audio src={section.content} controls className="w-full" />
-            ) : (
-              <p>Drag and drop an audio file here, or click to select</p>
             )}
           </div>
         );
@@ -364,8 +264,6 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({ initi
               <Button onClick={() => addSection('subtitle')}>Add Subtitle</Button>
               <Button onClick={() => addSection('paragraph')}>Add Paragraph</Button>
               <Button onClick={() => addSection('image')}>Add Image</Button>
-              <Button onClick={() => addSection('video')}>Add Video</Button>
-              <Button onClick={() => addSection('audio')}>Add Audio</Button>
               <Button onClick={() => addSection('list')}>Add List</Button>
             </div>
           </PopoverContent>
@@ -378,30 +276,29 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({ initi
 
       {editor && (
         <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
-          <Button
-            onClick={() => {
-              const isActive = editor.isActive('bold');
-              editor.chain().focus()[isActive ? 'unsetMark' : 'setMark']('bold').run();
-            }}
-          >
-            Bold
-          </Button>
-          <Button
-            onClick={() => {
-              const isActive = editor.isActive('italic');
-              editor.chain().focus()[isActive ? 'unsetMark' : 'setMark']('italic').run();
-            }}
-          >
-            Italic
-          </Button>
-          <Button
-            onClick={() => {
-              const isActive = editor.isActive('underline');
-              editor.chain().focus()[isActive ? 'unsetMark' : 'setMark']('underline').run();
-            }}
-          >
-            Underline
-          </Button>
+          <div className="flex gap-2 bg-white p-2 rounded shadow-lg">
+            <Button
+              size="sm"
+              variant={editor.isActive('bold') ? 'default' : 'outline'}
+              onClick={() => editor.chain().focus().toggleBold().run()}
+            >
+              B
+            </Button>
+            <Button
+              size="sm"
+              variant={editor.isActive('italic') ? 'default' : 'outline'}
+              onClick={() => editor.chain().focus().toggleItalic().run()}
+            >
+              I
+            </Button>
+            <Button
+              size="sm"
+              variant={editor.isActive('heading') ? 'default' : 'outline'}
+              onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+            >
+              H2
+            </Button>
+          </div>
         </BubbleMenu>
       )}
     </div>
