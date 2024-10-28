@@ -7,6 +7,8 @@ import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
+import TextAlign from '@tiptap/extension-text-align';
+import CharacterCount from '@tiptap/extension-character-count';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,6 +18,7 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useRouter } from 'next/navigation';
 import { RawCommands, Command, CommandProps } from '@tiptap/core';
+import { Bold, Italic, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify, Quote } from 'lucide-react';
 
 // Extend the ChainedCommands interface to include setFontSize
 declare module '@tiptap/core' {
@@ -54,13 +57,42 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({ initi
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
-      Image,
+      StarterKit.configure({
+        bulletList: {
+          keepMarks: true,
+          keepAttributes: false,
+        },
+        orderedList: {
+          keepMarks: true,
+          keepAttributes: false,
+        },
+        blockquote: {
+          HTMLAttributes: {
+            class: 'border-l-4 border-gray-300 pl-4 my-4',
+          },
+        },
+      }),
+      Image.configure({
+        HTMLAttributes: {
+          class: 'rounded-lg max-w-full',
+        },
+      }),
       Link.configure({
         openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-blue-500 hover:text-blue-700 underline',
+        },
       }),
       Placeholder.configure({
         placeholder: 'Write something...',
+      }),
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+        alignments: ['left', 'center', 'right', 'justify'],
+        defaultAlignment: 'left',
+      }),
+      CharacterCount.configure({
+        limit: 10000,
       }),
     ],
     content: description,
@@ -122,60 +154,99 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({ initi
   };
 
   const renderTextFormatButtons = () => (
-    <div className="flex flex-wrap space-x-2 mb-2">
-      <Button size="sm" onClick={() => editor?.chain().focus().setMark('bold').run()}>
-        Bold
-      </Button>
-      <Button size="sm" onClick={() => editor?.chain().focus().setMark('italic').run()}>
-        Italic
-      </Button>
-    
-      <Button size="sm" onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}>
-        H1
-      </Button>
-      <Button size="sm" onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}>
-        H2
-      </Button>
-      <Button size="sm" onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}>
-        H3
-      </Button>
-      {/* <Select onValueChange={(value) => editor?.chain().focus().setFontFamily(value).run()}>
-        <SelectTrigger>
-          <SelectValue placeholder="Font" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="Arial">Arial</SelectItem>
-          <SelectItem value="Helvetica">Helvetica</SelectItem>
-          <SelectItem value="Times New Roman">Times New Roman</SelectItem>
-          <SelectItem value="Courier">Courier</SelectItem>
-        </SelectContent>
-      </Select>
-      <Select onValueChange={(value) => editor?.chain().focus().setColor(value).run()}>
-        <SelectTrigger>
-          <SelectValue placeholder="Color" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="#000000">Black</SelectItem>
-          <SelectItem value="#FF0000">Red</SelectItem>
-          <SelectItem value="#00FF00">Green</SelectItem>
-          <SelectItem value="#0000FF">Blue</SelectItem>
-        </SelectContent>
-      </Select> */}
-      <Select onValueChange={(value) => editor?.chain().focus().setFontSize(value).run()}>
-        <SelectTrigger>
-          <SelectValue placeholder="Size" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="12px">12px</SelectItem>
-          <SelectItem value="14px">14px</SelectItem>
-          <SelectItem value="16px">16px</SelectItem>
-          <SelectItem value="18px">18px</SelectItem>
-          <SelectItem value="20px">20px</SelectItem>
-          <SelectItem value="24px">24px</SelectItem>
-          <SelectItem value="28px">28px</SelectItem>
-          <SelectItem value="32px">32px</SelectItem>
-        </SelectContent>
-      </Select>
+    <div className="flex flex-wrap gap-2 mb-2 p-2 bg-white border rounded-lg shadow-sm">
+      {/* Text Style */}
+      <div className="flex gap-1 border-r pr-2">
+        <Button 
+          size="sm" 
+          variant={editor?.isActive('bold') ? 'default' : 'outline'}
+          onClick={() => editor?.chain().focus().toggleBold().run()}
+          title="Bold (Cmd+B)"
+        >
+          <Bold className="h-4 w-4" />
+        </Button>
+        <Button 
+          size="sm"
+          variant={editor?.isActive('italic') ? 'default' : 'outline'}
+          onClick={() => editor?.chain().focus().toggleItalic().run()}
+          title="Italic (Cmd+I)"
+        >
+          <Italic className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {/* Lists */}
+      <div className="flex gap-1 border-r pr-2">
+        <Button 
+          size="sm"
+          variant={editor?.isActive('bulletList') ? 'default' : 'outline'}
+          onClick={() => editor?.chain().focus().toggleBulletList().run()}
+          title="Bullet List (Cmd+Shift+8)"
+        >
+          <List className="h-4 w-4" />
+        </Button>
+        <Button 
+          size="sm"
+          variant={editor?.isActive('orderedList') ? 'default' : 'outline'}
+          onClick={() => editor?.chain().focus().toggleOrderedList().run()}
+          title="Numbered List (Cmd+Shift+7)"
+        >
+          <ListOrdered className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {/* Alignment */}
+      <div className="flex gap-1 border-r pr-2">
+        <Button 
+          size="sm"
+          variant={editor?.isActive({ textAlign: 'left' }) ? 'default' : 'outline'}
+          onClick={() => editor?.chain().focus().setTextAlign('left').run()}
+          title="Align Left"
+        >
+          <AlignLeft className="h-4 w-4" />
+        </Button>
+        <Button 
+          size="sm"
+          variant={editor?.isActive({ textAlign: 'center' }) ? 'default' : 'outline'}
+          onClick={() => editor?.chain().focus().setTextAlign('center').run()}
+          title="Align Center"
+        >
+          <AlignCenter className="h-4 w-4" />
+        </Button>
+        <Button 
+          size="sm"
+          variant={editor?.isActive({ textAlign: 'right' }) ? 'default' : 'outline'}
+          onClick={() => editor?.chain().focus().setTextAlign('right').run()}
+          title="Align Right"
+        >
+          <AlignRight className="h-4 w-4" />
+        </Button>
+        <Button 
+          size="sm"
+          variant={editor?.isActive({ textAlign: 'justify' }) ? 'default' : 'outline'}
+          onClick={() => editor?.chain().focus().setTextAlign('justify').run()}
+          title="Justify"
+        >
+          <AlignJustify className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {/* Block Quote */}
+      <div className="flex gap-1 border-r pr-2">
+        <Button 
+          size="sm"
+          variant={editor?.isActive('blockquote') ? 'default' : 'outline'}
+          onClick={() => editor?.chain().focus().toggleBlockquote().run()}
+          title="Block Quote (Cmd+Shift+B)"
+        >
+          <Quote className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {/* Character Count */}
+      <div className="flex items-center text-sm text-gray-500">
+        {editor?.storage.characterCount.characters()} characters
+      </div>
     </div>
   );
 
