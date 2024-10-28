@@ -9,11 +9,17 @@ import GlobalFilterPreview from "@/components/common/global-filter-preview";
 import { getAllNestedFestivals } from "@/db/queries/events";
 import CarouselHistory from "@/components/common/carousel-history";
 import { getAllCountryCastFestivals } from "@/db/queries/countries";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Locale } from "@/i18n/config";
+import { getAllCategories } from "@/db/queries/categories";
 
 export default async function Home() {
+  const locale = await getLocale();
+
   const festivals = await getAllNestedFestivals();
-  const countryCast = await getAllCountryCastFestivals();
+  const countryCast = await getAllCountryCastFestivals(locale as Locale);
+  const categories = await getAllCategories(locale as Locale);
+
   const t = await getTranslations("home");
 
   return (
@@ -22,7 +28,6 @@ export default async function Home() {
       <main>
         <section className="flex flex-col items-center justify-center h-screen bg-cover bg-center relative">
           <video
-            autoPlay
             loop
             muted
             className="absolute inset-0 w-full h-full object-cover"
@@ -48,6 +53,7 @@ export default async function Home() {
         <GlobalFilterPreview
           fallbackFestivals={festivals}
           fallbackCountryCast={countryCast}
+          categories={categories}
         />
         <section className="bg-white py-4 sm:py-8">
           <div className="container mx-auto px-4">

@@ -1,8 +1,6 @@
-"use client";
-
 import * as React from "react";
 import { CalendarIcon } from "@radix-ui/react-icons";
-import { addDays, format, subDays } from "date-fns";
+import { format } from "date-fns";
 import { DateRange, Matcher } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
@@ -37,7 +35,7 @@ export function DatePickerWithRange({
 
   React.useEffect(() => {
     onValueChange(date);
-  }, [date]);
+  }, [date, onValueChange]);
 
   return (
     <div className={cn("grid gap-2", className)}>
@@ -49,7 +47,7 @@ export function DatePickerWithRange({
             className={cn(
               "w-[300px] justify-start text-left font-normal text-muted-foreground",
               !date && "text-muted-foreground",
-              buttonClassName
+              buttonClassName,
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />

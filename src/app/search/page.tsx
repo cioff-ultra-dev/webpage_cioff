@@ -3,6 +3,9 @@ import { Header } from "@/components/common/header";
 import GlobalFilter from "@/components/common/global-filter";
 import { getAllNestedFestivals } from "@/db/queries/events";
 import { getAllCountryCastFestivals } from "@/db/queries/countries";
+import { getLocale } from "next-intl/server";
+import { Locale } from "@/i18n/config";
+import { getAllCategories } from "@/db/queries/categories";
 
 export default async function SearchPage({
   searchParams,
@@ -10,8 +13,10 @@ export default async function SearchPage({
   params: { slug: string };
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
+  const locale = await getLocale();
   const festivals = await getAllNestedFestivals();
-  const countryCast = await getAllCountryCastFestivals();
+  const countryCast = await getAllCountryCastFestivals(locale as Locale);
+  const categories = await getAllCategories(locale as Locale);
   return (
     <div>
       <Header text="text-black" className="border-b" />
@@ -20,6 +25,7 @@ export default async function SearchPage({
           fallbackFestivals={festivals}
           fallbackCountryCast={countryCast}
           searchParams={searchParams}
+          categories={categories}
         />
       </main>
       <footer className="bg-gray-50 py-4 sm:py-8">
