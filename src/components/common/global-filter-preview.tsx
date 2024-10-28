@@ -124,10 +124,10 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
       () =>
         tabSelected === "festivals"
           ? `/api/filter/country?locale=${locale}&regions=${JSON.stringify(
-              selectedRegions
+              selectedRegions,
             )}`
           : null,
-      fetcher
+      fetcher,
     );
 
   const { data: countryGroupCast = [], isLoading: isLoadingCountryGroupCast } =
@@ -135,10 +135,10 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
       () =>
         tabSelected === "groups"
           ? `/api/filter/country/group?locale=${locale}&regions=${JSON.stringify(
-              selectedRegions
+              selectedRegions,
             )}`
           : null,
-      fetcher
+      fetcher,
     );
 
   const { data: itemList = [], isLoading: isLoadingItemList } =
@@ -146,16 +146,16 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
       () =>
         tabSelected === "festivals"
           ? `api/filter?categories=${JSON.stringify(
-              selectedCategories
+              selectedCategories,
             )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&regions=${JSON.stringify(
-              selectedRegions
+              selectedRegions,
             )}&countries=${JSON.stringify(
               selectedCountries.length
                 ? selectedCountries
-                : countryCast.map((item) => item.id)
+                : countryCast.map((item) => item.id),
             )}&page=1${search ? `&${search}` : ""}`
           : null,
-      fetcher
+      fetcher,
     );
 
   const { data: itemGroupList = [], isLoading: isLoadingItemGroupList } =
@@ -163,16 +163,16 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
       () =>
         tabSelected === "groups"
           ? `api/filter/group?categories=${JSON.stringify(
-              selectedCategories
+              selectedCategories,
             )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&regions=${JSON.stringify(
-              selectedRegions
+              selectedRegions,
             )}&countries=${JSON.stringify(
               selectedCountries.length
                 ? selectedCountries
-                : countryGroupCast.map((item) => item.id)
+                : countryGroupCast.map((item) => item.id),
             )}&page=1${search ? `&${search}` : ""}`
           : null,
-      fetcher
+      fetcher,
     );
 
   const countryMapClusters = useMemo(() => {
@@ -300,7 +300,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
       setPredictionResults(response.predictions);
       return response.predictions;
     },
-    [autocompleteService, sessionToken]
+    [autocompleteService, sessionToken],
   );
 
   const handleSuggestion = useCallback(
@@ -314,7 +314,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
       };
 
       const detailsRequestCallback = (
-        placeDetails: google.maps.places.PlaceResult | null
+        placeDetails: google.maps.places.PlaceResult | null,
       ) => {
         setPredictionResults([]);
         setSelectedPlace(placeDetails);
@@ -323,7 +323,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
 
       placesService?.getDetails(detailRequestOptions, detailsRequestCallback);
     },
-    [places, placesService, sessionToken]
+    [places, placesService, sessionToken],
   );
 
   async function handleSubmit(event: React.FormEvent<SearchFormElement>) {
@@ -335,7 +335,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
         dateRange?.from ? Math.floor(dateRange!.from!.getTime() / 1000) : ""
       }&rangeDateTo=${
         dateRange?.to ? Math.floor(dateRange!.to!.getTime() / 1000) : ""
-      }`
+      }`,
     );
   }
 
@@ -343,7 +343,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
     festival: BuildFilterType[number]["festival"],
     _country: BuildFilterType[number]["country"],
     lang: BuildFilterType[number]["lang"],
-    countryLang: BuildFilterType[number]["countryLang"]
+    countryLang: BuildFilterType[number]["countryLang"],
   ) {
     if (festival.id === selectedFestival?.id) {
       if (!places) return;
@@ -354,9 +354,9 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
 
     if (!lang && !festival?.location) return;
 
-    const possiblePredicctionAddress = `${festival?.location || ""} ${
-      countryLang?.name
-    }`;
+    const possiblePredicctionAddress = `${
+      festival?.location || ""
+    } ${countryLang?.name}`;
 
     const locationPredictionAddress = {
       lat: Number(festival.lat ?? 0),
@@ -365,7 +365,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
 
     const predictions = await fetchPredictions(
       possiblePredicctionAddress,
-      locationPredictionAddress
+      locationPredictionAddress,
     );
 
     handleSuggestion(predictions?.at(0)?.place_id || "");
@@ -493,7 +493,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                               <div
                                 className={cn(
                                   "w-5 h-5 bg-red-300 flex justify-center items-center rounded-full p-3",
-                                  item.id === selectedCountryId && "bg-red-400"
+                                  item.id === selectedCountryId && "bg-red-400",
                                 )}
                               >
                                 <span>{item.count}</span>
@@ -524,14 +524,14 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                                   "flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-200 hover:cursor-pointer",
                                   festival.id === selectedFestival?.id
                                     ? "bg-gray-200"
-                                    : null
+                                    : null,
                                 )}
                                 onClick={() =>
                                   handleClickSelected(
                                     festival,
                                     country,
                                     lang,
-                                    countryLang
+                                    countryLang,
                                   )
                                 }
                               >
@@ -561,7 +561,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                                                 year: "numeric",
                                                 month: "long",
                                                 day: "numeric",
-                                              }
+                                              },
                                             )
                                           : null}
                                         {" - "}
@@ -573,7 +573,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                                                 year: "numeric",
                                                 month: "long",
                                                 day: "numeric",
-                                              }
+                                              },
                                             )
                                           : null}
                                       </span>
@@ -586,7 +586,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                                 </div>
                                 <div className="flex-1 flex justify-end">
                                   <Link
-                                    href={`/event/${festival.id}`}
+                                    href={`/festivals/${festival.id}`}
                                     target="_blank"
                                     tabIndex={-1}
                                   >
@@ -600,7 +600,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                                   </Link>
                                 </div>
                               </div>
-                            )
+                            ),
                           )
                         )}
                         {itemList?.length ? (
@@ -608,7 +608,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                             <Button variant="link" size="sm" asChild>
                               <Link
                                 href={`/search?categories=${JSON.stringify(
-                                  selectedCategories
+                                  selectedCategories,
                                 )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&page=1${
                                   search ? `&${search}` : ""
                                 }`}
@@ -728,13 +728,13 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                                   className={cn(
                                     "w-5 h-5 bg-red-300 flex justify-center items-center rounded-full p-3",
                                     item.id === selectedCountryId &&
-                                      "bg-red-400"
+                                      "bg-red-400",
                                   )}
                                 >
                                   <span>{item.count}</span>
                                 </div>
                               </AdvancedMarker>
-                            ) : null
+                            ) : null,
                           )
                         : null}
                     </Map>
@@ -750,7 +750,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                               <div
                                 key={group.id}
                                 className={cn(
-                                  "flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-200 hover:cursor-pointer"
+                                  "flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-200 hover:cursor-pointer",
                                 )}
                                 // onClick={() =>
                                 //   handleClickSelected(
@@ -783,7 +783,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                                 </div>
                                 <div className="flex-1 flex justify-end">
                                   <Link
-                                    href={`/group/${group.id}`}
+                                    href={`/groups/${group.id}`}
                                     target="_blank"
                                     tabIndex={-1}
                                   >
@@ -797,7 +797,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                                   </Link>
                                 </div>
                               </div>
-                            )
+                            ),
                           )
                         )}
                         {itemGroupList?.length ? (
@@ -805,7 +805,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                             <Button variant="link" size="sm" asChild>
                               <Link
                                 href={`/search?categories=${JSON.stringify(
-                                  selectedCategories
+                                  selectedCategories,
                                 )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&page=1${
                                   search ? `&${search}` : ""
                                 }`}

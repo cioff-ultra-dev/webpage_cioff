@@ -18,7 +18,7 @@ const slides = images.map(({ original, width, height }) => ({
   height,
 }));
 
-export default function Event() {
+export default function Groups() {
   const [index, setIndex] = useState(-1);
 
   const handleClick = (index: number, _item: CustomImage) => setIndex(index);

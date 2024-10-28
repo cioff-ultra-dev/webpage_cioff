@@ -86,7 +86,18 @@ export async function getGroupById(id: SelectGroup["id"]) {
       },
       groupToCategories: {
         with: {
-          category: true,
+          category: {
+            with: {
+              langs: {
+                where(fields, { inArray }) {
+                  return inArray(fields.lang, sq);
+                },
+                with: {
+                  l: true,
+                },
+              },
+            },
+          },
         },
       },
       langs: {
@@ -267,7 +278,7 @@ export type CountryCastGroups = {
 
 export async function getAllCountryCastGroups(
   locale: Locale,
-  regionsIn: string[] = [],
+  regionsIn: string[] = []
 ): Promise<CountryCastGroups> {
   const sq = db
     .select({ id: languages.id })
@@ -294,7 +305,7 @@ export async function getAllCountryCastGroups(
 
   filters.push(
     // isNotNull(festivals.countryId),
-    eq(countriesLang.lang, sq),
+    eq(countriesLang.lang, sq)
   );
 
   if (regionsIn.length) {

@@ -36,7 +36,7 @@ export async function newFestival(festival: InsertFestival) {
 
 export async function getFestivalById(
   id: SelectFestival["id"],
-  locale: string,
+  locale: string
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
@@ -57,6 +57,31 @@ export async function getFestivalById(
       return eq(fields.id, id);
     },
     with: {
+      logo: true,
+      coverPhoto: true,
+      photos: {
+        with: {
+          photo: true,
+        },
+      },
+      events: true,
+      social: true,
+      festivalsToCategories: {
+        with: {
+          category: {
+            with: {
+              langs: {
+                where(fields, { inArray }) {
+                  return inArray(fields.lang, sq);
+                },
+                with: {
+                  l: true,
+                },
+              },
+            },
+          },
+        },
+      },
       langs: {
         where(fields, { inArray }) {
           return inArray(fields.lang, sq);
@@ -71,7 +96,7 @@ export async function getFestivalById(
 
 export async function getFestivalBySlug(
   slug: SelectFestival["slug"],
-  locale: string = defaultLocale as SelectLanguages["code"],
+  locale: string = defaultLocale as SelectLanguages["code"]
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];

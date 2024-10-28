@@ -389,7 +389,7 @@ export default function EventForm({
       toast.error(result.error);
     }
 
-    customRevalidatePath(`/dashboard/national-sections/${slug}/edit`);
+    // customRevalidatePath(`/dashboard/national-sections/${slug}/edit`);
     customRevalidatePath("/dashboard/festivals");
 
     if (result.success) {

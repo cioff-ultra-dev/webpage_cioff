@@ -6,13 +6,30 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getFestivalById } from "@/db/queries/events";
 import { Header } from "@/components/common/header";
-import { format } from "date-fns";
 import { MapMarkerEvent } from "@/components/common/event/map-marker";
 import { GalleryImageEvent } from "@/components/common/event/gallery-images";
 import { CoverImageEvent } from "@/components/common/event/cover";
-import { getLocale } from "next-intl/server";
+import { getFormatter, getLocale } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
 import { SelectFestival } from "@/db/schema";
+import Link from "next/link";
+import { ExternalLink, Facebook, Instagram, Link2, Phone } from "lucide-react";
+import { Image as GalleryImage } from "react-grid-gallery";
+import {
+  Timeline,
+  TimelineItem,
+  TimelineConnector,
+  TimelineHeader,
+  TimelineTitle,
+  TimelineIcon,
+  TimelineDescription,
+  TimelineContent,
+  TimelineTime,
+} from "@/components/extension/timeline";
+import { InstagramLogoIcon } from "@radix-ui/react-icons";
+import { getGroupById } from "@/db/queries/groups";
+
+export interface CustomImage extends GalleryImage {}
 
 export default async function EventDetail({
   params,
@@ -20,19 +37,41 @@ export default async function EventDetail({
   params: { id: string };
 }) {
   const locale = await getLocale();
-  const festival = await getFestivalById(Number(params.id), locale);
+  const formatter = await getFormatter();
+  const festival = await getGroupById(Number(params.id));
+
+  let youtubeId = "";
+
+  if (festival?.youtubeId) {
+    const url = new URL(festival.youtubeId);
+    const sp = new URLSearchParams(url.search);
+    youtubeId = sp.get("v") ?? "";
+  }
+
+  const gallery: CustomImage[] =
+    festival?.photos.map((item) => ({
+      src: item.photo?.url!,
+      width: 600,
+      height: 600,
+    })) || [];
 
   return (
     <div className="flex flex-col w-full min-h-screen">
       <Header className="border-b" text="text-black" />
       <main className="flex flex-col flex-1 gap-4 md:gap-8 bg-gray-50">
         <div className="relative w-full h-[400px]">
-          <CoverImageEvent cover={String(festival?.coverId) || ""} />
+          <CoverImageEvent
+            cover={
+              festival?.coverPhoto
+                ? festival.coverPhoto.url
+                : "/placeholder.svg"
+            }
+          />
           <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent">
             <div className="flex items-center gap-2">
               <Avatar>
                 <AvatarImage
-                  src={String(festival?.logoId) || "/placeholder-user.jpg"}
+                  src={String(festival?.logo?.url) || "/placeholder-user.jpg"}
                   alt="Logo"
                 />
                 <AvatarFallback>
@@ -45,7 +84,6 @@ export default async function EventDetail({
               </Avatar>
               <div>
                 <h1 className="text-2xl font-bold text-white">
-                  {" "}
                   {festival?.langs.find((item) => item.l?.code === locale)
                     ?.name ||
                     festival?.langs.find(
@@ -68,11 +106,21 @@ export default async function EventDetail({
             <TabsContent value="profile">
               <div className="flex flex-col gap-4">
                 <div className="flex gap-3">
-                  <Button variant="outline">Get directions</Button>
-                  <Button variant="outline">Call now</Button>
-                  <Button variant="outline">Website</Button>
+                  {/* <Button variant="outline">Get directions</Button> */}
+                  <Button variant="outline" asChild>
+                    <Link href={`tel:${festival?.phone}`}>Call now</Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    asChild
+                    disabled={!festival?.websiteLink}
+                  >
+                    <Link href={festival?.websiteLink ?? ""} target="_blank">
+                      Website
+                    </Link>
+                  </Button>
                   {/* <Button variant="outline">Bookmark</Button> */}
-                  <Button variant="outline">Share</Button>
+                  {/* <Button variant="outline">Share</Button> */}
                   {/* <Button variant="outline">Leave a review</Button> */}
                   {/* <Button variant="outline">Claim listing</Button> */}
                   {/* <Button variant="outline">Report</Button> */}
@@ -92,33 +140,48 @@ export default async function EventDetail({
                       </p>
                     </CardContent>
                   </Card>
-                  <Card className="col-span-1">
+                  {/* <Card className="col-span-1">
                     <CardHeader>
                       <CardTitle>Location</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <MapMarkerEvent location={festival?.location ?? ""} />
-                      <Button variant="outline" className="mt-2">
-                        Get Directions
+                      <MapMarkerEvent
+                        location={festival?.location ?? ""}
+                        lat={festival?.lat!}
+                        lng={festival?.lng!}
+                      />
+                      <Button
+                        variant="outline"
+                        className="mt-2 flex gap-1 items-center"
+                        asChild
+                        disabled={
+                          !festival?.location &&
+                          !festival?.lat &&
+                          !festival?.lng
+                        }
+                      >
+                        <Link
+                          href={`https://maps.google.com?q=${festival?.location}&loc:${festival?.lat}+${festival?.lng}`}
+                          target="_blank"
+                        >
+                          <ExternalLink size={14} />
+                          <span>Get Direction</span>
+                        </Link>
                       </Button>
                     </CardContent>
-                  </Card>
+                  </Card> */}
                 </div>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Card className="col-span-1">
                     <CardHeader>
-                      <CardTitle>Tags</CardTitle>
+                      <CardTitle>Categories</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-wrap gap-2">
-                      <Badge>International</Badge>
-                      <Badge>CIOFF</Badge>
-                      <Badge>Folk dance</Badge>
-                      <Badge>Folk music</Badge>
-                      <Badge>Folk Singing</Badge>
-                      <Badge>Traditional food</Badge>
-                      <Badge>Traditional costumes</Badge>
-                      <Badge>Handicrafts</Badge>
-                      <Badge>Local culture</Badge>
+                      {festival?.groupToCategories.map((item) => (
+                        <Badge key={`category-${item.categoryId}`}>
+                          {item?.category?.langs.at(0)?.name}
+                        </Badge>
+                      ))}
                     </CardContent>
                   </Card>
                   <Card className="col-span-1">
@@ -133,41 +196,88 @@ export default async function EventDetail({
                             (item) => item.l?.code === defaultLocale
                           )?.address}
                       </p>
+                      <p className="flex gap-1 items-center">
+                        <Phone size={14} className="text-gray-500" />
+                        <span className="text-gray-500">{festival?.phone}</span>
+                      </p>
+                      <p className="flex gap-2 pt-6">
+                        {festival?.websiteLink ? (
+                          <Link
+                            href={festival?.websiteLink}
+                            target="_blank"
+                            title="Website"
+                          >
+                            <Link2 size={20} className="text-gray-500" />
+                          </Link>
+                        ) : null}
+                        {festival?.facebookLink ? (
+                          <Link
+                            href={festival?.facebookLink}
+                            target="_blank"
+                            title="Facebook Link"
+                          >
+                            <Facebook size={20} className="text-gray-500" />
+                          </Link>
+                        ) : null}
+                        {festival?.instagramLink ? (
+                          <Link
+                            href={festival?.instagramLink}
+                            target="_blank"
+                            title="Instagram Link"
+                          >
+                            <Instagram size={20} className="text-gray-500" />
+                          </Link>
+                        ) : null}
+                      </p>
                     </CardContent>
                   </Card>
                 </div>
-                <Card className="col-span-1">
+                {/* <Card className="col-span-1">
                   <CardHeader>
-                    <CardTitle>Festival Date</CardTitle>
+                    <CardTitle>Events</CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-wrap gap-2">
-                    {/* {festival?.currentDates?.split(",").map((item) => {
-                      return (
-                        <Badge key={item}>
-                          {format(new Date(Number(item) * 1000), "PPP")}
-                        </Badge>
-                      );
-                    })} */}
+                    <Timeline>
+                      {festival?.events.map((item) => (
+                        <TimelineItem key={`event-${item.id}`}>
+                          <TimelineConnector />
+                          <TimelineHeader>
+                            <TimelineIcon />
+                            <TimelineTitle>
+                              {formatter.dateTimeRange(
+                                item.startDate,
+                                item.endDate,
+                                {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                }
+                              )}
+                            </TimelineTitle>
+                          </TimelineHeader>
+                        </TimelineItem>
+                      ))}
+                    </Timeline>
                   </CardContent>
-                </Card>
+                </Card> */}
                 <Card className="col-span-1">
                   <CardHeader>
                     <CardTitle>Gallery</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <GalleryImageEvent event={festival as SelectFestival} />
+                    <GalleryImageEvent gallery={gallery} />
                   </CardContent>
                 </Card>
-                {festival?.youtubeId ? (
+                {youtubeId ? (
                   <Card className="col-span-1">
                     <CardHeader>
                       <CardTitle>Video</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <iframe
-                        width="560"
-                        height="315"
-                        src={`https://www.youtube.com/embed/${festival?.youtubeId}`}
+                        height="600"
+                        className="w-full"
+                        src={`https://www.youtube.com/embed/${youtubeId}`}
                         title="YouTube video player"
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
