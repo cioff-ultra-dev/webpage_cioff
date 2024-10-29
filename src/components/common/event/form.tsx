@@ -660,10 +660,10 @@ export default function EventForm({
                           <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
                             {t("location")}
                           </FormLabel>
-                          <FormControl>
+                          <FormControl>                            
                             <AutocompletePlaces
                               id="location_festival"
-                              {...field}
+                              {...field}                              
                               defaultPlace={field.value!}
                               disabled={isNSAccount}
                               onPlaceSelect={(currentPlace) => {
@@ -762,7 +762,7 @@ export default function EventForm({
                             />
                           </FormControl>
                           <FormDescription>
-                            You can use max. 500 words for this input
+                            {t("max_500_words_input")}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -770,7 +770,7 @@ export default function EventForm({
                     />
                   </div>
                   <div className="border-b pb-4">
-                    <h2 className="text-lg font-semibold">Current Dates</h2>
+                    <h2 className="text-lg font-semibold">{t("current_dates")}</h2>
                     {currentDateFields.map((field, index) => {
                       const positionIndex = index + 1;
                       return (
@@ -796,7 +796,7 @@ export default function EventForm({
                               name={`_currentDates.${index}._rangeDate`}
                               render={({ field: { value, onChange } }) => (
                                 <FormItem>
-                                  <FormLabel>Agenda {positionIndex}</FormLabel>
+                                  <FormLabel>{t("agenda")} {positionIndex}</FormLabel>
                                   <FormControl>
                                     <>
                                       <DatePickerWithRange
@@ -882,7 +882,7 @@ export default function EventForm({
                       className="mt-2"
                       disabled={isNSAccount}
                     >
-                      <PlusCircle className="mr-2 h-4 w-4" /> Add Current Date
+                      <PlusCircle className="mr-2 h-4 w-4" /> {t("add_current_Date")}
                     </Button>
                     <input
                       type="hidden"
