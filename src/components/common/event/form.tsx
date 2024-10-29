@@ -658,7 +658,7 @@ export default function EventForm({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                            Location
+                            {t("location")}
                           </FormLabel>
                           <FormControl>
                             <AutocompletePlaces
@@ -681,7 +681,7 @@ export default function EventForm({
                             />
                           </FormControl>
                           <FormDescription>
-                            Enter the correct location place
+                            {t("enter_correct_location")}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -750,11 +750,11 @@ export default function EventForm({
                       render={({ field: { value, ...restField } }) => (
                         <FormItem>
                           <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                            Description
+                            {t("description")}
                           </FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="Please write the year of creation of your festival"
+                              placeholder={t("year_creation_your_festival")}
                               className="resize-none h-32"
                               {...restField}
                               value={value ?? ""}

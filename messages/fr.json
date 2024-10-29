@@ -76,6 +76,7 @@
       "phone_number": "Numéro de téléphone (code pays)",
       "enter_phone_number": "Entrez votre numéro de téléphone",
       "email_address": "Email Address",
+      "current_user_this_festival": "Propriétaire actuel de ce festival",
       "tag": {
         "typeOfFestival": "Type de festival",
         "ageOfParticipants": "Âge des participants",
@@ -87,7 +88,9 @@
       "contact": "Contact",
       "description": "Description",
       "location": "Localisation",
+      "enter_correct_location": " Saisir le lieu correct de l'emplacement",
       "directorName": "Nom du directeur",
+      "year_creation_your_festival": "Veuillez indiquer l'année de création de votre festival",
       "_currentDates": "Date actuelle",
       "_ageOfParticipants": "Âge des participants",
       "_styleOfFestival": "Style de festival",
