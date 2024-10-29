@@ -77,7 +77,7 @@
       "phone_number": "Phone Number (country code)",
       "enter_phone_number": "Enter a phone number",
       "email_address": "Email Address",
-      "current_user_this_festival": "Current user owner of this festival",
+      "current_user_this_festival": "Current user owner of this festival",      
       "tag": {
         "typeOfFestival": "Type of Festival",
         "ageOfParticipants": "Age of Participants",
@@ -89,7 +89,9 @@
       "contact": "Contact",
       "description": "Description",
       "location": "Location",
+      "enter_correct_location": "Enter the correct location place",
       "directorName": "Name of director",
+      "year_creation_your_festival": "Please write the year of creation of your festival",
       "_currentDates": "Current datest",
       "_ageOfParticipants": "Age of participants",
       "_styleOfFestival": "Style of festival",
