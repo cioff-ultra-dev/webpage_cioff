@@ -890,7 +890,7 @@ export default function EventForm({
                     />
                   </div>
                   <div className="border-b pb-4">
-                    <h2 className="text-lg font-semibold">Next Dates</h2>
+                    <h2 className="text-lg font-semibold">{t("next_dates")}</h2>
                     {nextDateFields.map((field, index) => {
                       const positionIndex = index + 1;
                       return (
@@ -917,7 +917,7 @@ export default function EventForm({
                               render={({ field: { value, onChange } }) => (
                                 <FormItem>
                                   <FormLabel>
-                                    Next Agenda {positionIndex}
+                                    {t("next_agenda")} {positionIndex}
                                   </FormLabel>
                                   <FormControl>
                                     <>
@@ -1012,7 +1012,7 @@ export default function EventForm({
                       className="mt-2"
                       disabled={isNSAccount}
                     >
-                      <PlusCircle className="mr-2 h-4 w-4" /> Add Next Date
+                      <PlusCircle className="mr-2 h-4 w-4" /> {t("add_next_date")}
                     </Button>
                     <input
                       type="hidden"
@@ -1024,7 +1024,7 @@ export default function EventForm({
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>Filters</CardTitle>
+                  <CardTitle>{t("filters")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {categoryGroups.map((item) => {
@@ -1161,7 +1161,7 @@ export default function EventForm({
                         name="_accomodationPhoto"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Upload a picture</FormLabel>
+                            <FormLabel>{t("upload_a_picture")}</FormLabel>
                             <FormControl>
                               <FilepondImageUploader
                                 name={field.name}
@@ -1184,7 +1184,7 @@ export default function EventForm({
                               />
                             </FormControl>
                             <FormDescription>
-                              Only available for users
+                              {t("only_available_for_users")}
                             </FormDescription>
                             <FormMessage />
                             <input
@@ -1206,8 +1206,8 @@ export default function EventForm({
                       name="_transportLocation"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Transport</FormLabel>
-                          <FormControl>
+                          <FormLabel>{t("transport")}</FormLabel>
+                          <FormControl>                                
                             <AutocompletePlaces
                               id="transport_location_festival"
                               {...field}
@@ -1221,9 +1221,10 @@ export default function EventForm({
                                 });
                               }}
                             />
+                            
                           </FormControl>
                           <FormDescription>
-                            What is the arrival city?
+                            {t("what_arrival_city")}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -1317,7 +1318,7 @@ export default function EventForm({
                         return (
                           <FormItem>
                             <FormLabel>
-                              What languages do your translators speak?
+                              {t("what_languages_transl_speak")}
                             </FormLabel>
                             <FormControl>
                               <MultiSelect
@@ -1354,7 +1355,7 @@ export default function EventForm({
                       render={({ field: { value, ...restFields } }) => (
                         <FormItem>
                           <FormLabel>
-                            Other language your translator know to speak
+                            {t("other_langu_tran_know_speak")}
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -1364,7 +1365,7 @@ export default function EventForm({
                             />
                           </FormControl>
                           <FormDescription>
-                            Include another language that support
+                            {t("Include_another_lang_support")}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -1379,7 +1380,7 @@ export default function EventForm({
                         return (
                           <FormItem>
                             <FormLabel>
-                              How many persons do you accept per delegation?
+                              {t("How_many_persons_accept_delegation")}
                             </FormLabel>
                             <Input
                               ref={field.ref}
@@ -1408,9 +1409,9 @@ export default function EventForm({
                       render={({ field }) => (
                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                           <div className="space-y-0.5">
-                            <FormLabel>Festivals Connected</FormLabel>
+                            <FormLabel>{t("festivals_connected")}</FormLabel>
                             <FormDescription>
-                              Are you connected with other festivals?
+                              {t("are_connected_other_fest")}
                             </FormDescription>
                           </div>
                           <FormControl>
@@ -1431,7 +1432,7 @@ export default function EventForm({
                         name="_countrySelected"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Select Country</FormLabel>
+                            <FormLabel>{t("select_country")}</FormLabel>
                             <Select
                               onValueChange={field.onChange}
                               defaultValue={field.value}
@@ -1439,7 +1440,7 @@ export default function EventForm({
                             >
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select a verified country to display" />
+                                  <SelectValue placeholder={t("Sel_verifiedcount_display")} />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
@@ -1487,7 +1488,7 @@ export default function EventForm({
                               })) ?? [];
                             return (
                               <FormItem>
-                                <FormLabel>Select Festivals</FormLabel>
+                                <FormLabel>{t("select_festivals")}</FormLabel>
                                 <FormControl>
                                   <MultiSelect
                                     options={options}
@@ -1621,7 +1622,7 @@ export default function EventForm({
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="hidden">
                 <CardHeader>
-                  <CardTitle>Status and Details</CardTitle>
+                  <CardTitle>{t("status_and_details")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
@@ -1631,7 +1632,7 @@ export default function EventForm({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                            Status
+                            {t("_status")}
                           </FormLabel>
                           <Select
                             onValueChange={field.onChange}
@@ -1673,7 +1674,7 @@ export default function EventForm({
                       <Card>
                         <CardHeader>
                           <CardTitle className="text-base">
-                            Recognition
+                            {t("recognition")}
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -1683,7 +1684,7 @@ export default function EventForm({
                               name="_recognizedSince"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Recognized Since</FormLabel>
+                                  <FormLabel>{t("recognized_since")}</FormLabel>
                                   <FormControl>
                                     <Input {...field} disabled={isNSAccount} />
                                   </FormControl>
@@ -1699,7 +1700,7 @@ export default function EventForm({
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>
-                                    Range of last recognition
+                                    {t("range_last_recognition")}
                                   </FormLabel>
                                   <FormControl>
                                     <Input
@@ -1721,7 +1722,7 @@ export default function EventForm({
                       <Card>
                         <CardHeader>
                           <CardTitle className="text-base">
-                            Type of Compensation
+                            {t("type_compensation")}
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -1739,21 +1740,20 @@ export default function EventForm({
                                   >
                                     <FormControl>
                                       <SelectTrigger>
-                                        <SelectValue placeholder="Select your type of compensation to display" />
+                                        <SelectValue placeholder={t("select_type_compensation_display")} />
                                       </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
                                       <SelectItem value="financial">
-                                        Financial Compensation
+                                        {t("financial_compensation")}
                                       </SelectItem>
                                       <SelectItem value="in-kind">
-                                        In kind Compensation
+                                        {t("in_kind_compensation")}
                                       </SelectItem>
                                     </SelectContent>
                                   </Select>
                                   <FormDescription>
-                                    You can manage your type of compensation
-                                    here.
+                                    {t("you_can_manage_type_compensation")}
                                   </FormDescription>
                                   <FormMessage />
                                 </FormItem>
@@ -1921,11 +1921,11 @@ export default function EventForm({
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>Media</CardTitle>
+                  <CardTitle>{t("media")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="photos">Photos</Label>
+                    <Label htmlFor="photos">{t("photos")}</Label>
                     <FilepondImageUploader
                       id="photos"
                       name="photos"
@@ -2056,7 +2056,7 @@ export default function EventForm({
             </div>
             <Card>
               <CardHeader>
-                <CardTitle>Additional Information</CardTitle>
+                <CardTitle>{t("additional_information")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -2065,18 +2065,17 @@ export default function EventForm({
                     name="linkConditions"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Link Conditions and Applications</FormLabel>
+                        <FormLabel>{t("link_conditions_Applica")}</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
                             value={field.value || ""}
-                            placeholder="Provide your URL of your conditions here"
+                            placeholder={t("provide_URL_conditions")}
                             disabled={isNSAccount}
                           />
                         </FormControl>
                         <FormDescription>
-                          Link to document with conditions and application
-                          procedure.
+                          {t("Link_document_conditions_procedure")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -2089,7 +2088,7 @@ export default function EventForm({
                     name="stagePhotos"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Pictures of your stages</FormLabel>
+                        <FormLabel>{t("pictures_your_stages")}</FormLabel>
                         <FormControl>
                           <FilepondImageUploader
                             id="stagePhotos"
@@ -2113,7 +2112,7 @@ export default function EventForm({
                           />
                         </FormControl>
                         <FormDescription>
-                          Max 5 photos - min 600x600px
+                          {t("max_5_photos_min_600_600")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -2127,9 +2126,9 @@ export default function EventForm({
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                         <div className="space-y-0.5">
-                          <FormLabel>Groups Confirmed</FormLabel>
+                          <FormLabel>{t("groups_confirmed")}</FormLabel>
                           <FormDescription>
-                            Do you have any CIOFF groups confirmed so far?
+                            {t("do_you_have_CIOFF_confirmed")}
                           </FormDescription>
                         </div>
                         <FormControl>
@@ -2150,7 +2149,7 @@ export default function EventForm({
                       name="_countryGroupSelected"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Select Country</FormLabel>
+                          <FormLabel>{t("select_country")}</FormLabel>
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
@@ -2158,7 +2157,7 @@ export default function EventForm({
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select a verified country to display" />
+                                <SelectValue placeholder={t("Sel_verifiedcount_display")} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -2202,7 +2201,7 @@ export default function EventForm({
                             })) ?? [];
                           return (
                             <FormItem>
-                              <FormLabel>Select Groups</FormLabel>
+                              <FormLabel>{t("select_groups")}</FormLabel>
                               <FormControl>
                                 <MultiSelect
                                   options={options}
@@ -2330,9 +2329,9 @@ export default function EventForm({
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                         <div className="space-y-0.5">
-                          <FormLabel>Search Groups</FormLabel>
+                          <FormLabel>{t("search_groups")}</FormLabel>
                           <FormDescription>
-                            Are you looking for groups?
+                            {t("are_looking_groups")}
                           </FormDescription>
                         </div>
                         <FormControl>
@@ -2363,7 +2362,7 @@ export default function EventForm({
                           })) ?? [];
                         return (
                           <FormItem>
-                            <FormLabel>Select Regions</FormLabel>
+                            <FormLabel>{t("select_regions")}</FormLabel>
                             <FormControl>
                               <MultiSelect
                                 options={options}
@@ -2375,8 +2374,7 @@ export default function EventForm({
                               />
                             </FormControl>
                             <FormDescription>
-                              This region will help you for groups of interest
-                              on selected region.
+                              {t("this_region_help_groups_region")}
                             </FormDescription>
                             <FormMessage />
                             <input
@@ -2494,10 +2492,10 @@ export default function EventForm({
                     </div>
                     <div className="flex gap-2">
                       <Button variant="ghost" asChild>
-                        <Link href="/dashboard/festivals">Cancel</Link>
+                        <Link href="/dashboard/festivals">{t("cancel")}</Link>
                       </Button>
                       <Submit
-                        label="Save"
+                        label={t("save")}
                         isLoading={form.formState.isSubmitting}
                       />
                     </div>
