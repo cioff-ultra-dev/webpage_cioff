@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useEffect, useState } from "react";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { format } from "date-fns";
 import { DateRange, Matcher } from "react-day-picker";
@@ -11,6 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useCallbackRef } from "@/hooks/use-callback-ref";
 
 export type DateRangeProps = DateRange;
 
@@ -28,14 +29,16 @@ export function DatePickerWithRange({
   fromDate?: Date | undefined;
   disabled?: Matcher;
 }) {
-  const [date, setDate] = React.useState<DateRange | undefined>({
+  const [date, setDate] = useState<DateRange | undefined>({
     from: defaultDates?.from ?? undefined,
     to: defaultDates?.to ?? undefined,
   });
 
-  React.useEffect(() => {
-    onValueChange(date);
-  }, [date, onValueChange]);
+  const handleValueChange = useCallbackRef(onValueChange);
+
+  useEffect(() => {
+    handleValueChange(date);
+  }, [date, handleValueChange]);
 
   return (
     <div className={cn("grid gap-2", className)}>
