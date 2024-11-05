@@ -1948,11 +1948,11 @@ export default function EventForm({
                       }
                     />
                     <p className="text-sm text-gray-500">
-                      Max 5 photos x 3MB each
+                      {t("max_5_photos_x_each")}
                     </p>
                   </div>
                   <div>
-                    <Label htmlFor="coverPhoto">Cover photo</Label>
+                    <Label htmlFor="coverPhoto">{t("cover_photo")}</Label>
                     <FilepondImageUploader
                       id="coverPhoto"
                       name="coverPhoto"
@@ -1971,7 +1971,7 @@ export default function EventForm({
                           : []
                       }
                     />
-                    <p className="text-sm text-gray-500">Size TBC</p>
+                    <p className="text-sm text-gray-500">{t("size_tbc")}</p>
                     <input
                       name="coverPhotoId"
                       type="hidden"
@@ -1979,7 +1979,7 @@ export default function EventForm({
                     />
                   </div>
                   <div>
-                    <Label htmlFor="logo">Logo</Label>
+                    <Label htmlFor="logo"> {t("logo")} </Label>
                     <FilepondImageUploader
                       id="logo"
                       name="logo"
@@ -2000,7 +2000,7 @@ export default function EventForm({
                           : []
                       }
                     />
-                    <p className="text-sm text-gray-500">Size TBC</p>
+                    <p className="text-sm text-gray-500">{t("size_tbc")}</p>
                     <input
                       name="logoId"
                       type="hidden"
@@ -2008,7 +2008,7 @@ export default function EventForm({
                     />
                   </div>
                   <div>
-                    <Label htmlFor="youtubeId">Youtube</Label>
+                    <Label htmlFor="youtubeId">{t("youtube")}</Label>
                     <Input
                       id="youtubeId"
                       name="youtubeId"
@@ -2018,7 +2018,7 @@ export default function EventForm({
                     />
                   </div>
                   <div>
-                    <Label>Social media</Label>
+                    <Label>{t("social_media")}</Label>
                     <div className="space-y-2">
                       <Input
                         name="socialId"
@@ -2028,7 +2028,7 @@ export default function EventForm({
                       />
                       <Input
                         name="facebook"
-                        placeholder="Facebook link"
+                        placeholder={t("facebook_link")}
                         defaultValue={
                           currentFestival?.social?.facebookLink || undefined
                         }
@@ -2036,7 +2036,7 @@ export default function EventForm({
                       />
                       <Input
                         name="instagram"
-                        placeholder="Instagram Link"
+                        placeholder={t("instagram_link")}
                         defaultValue={
                           currentFestival?.social?.instagramLink || undefined
                         }
@@ -2044,7 +2044,7 @@ export default function EventForm({
                       />
                       <Input
                         name="website"
-                        placeholder="Website link"
+                        placeholder={t(t("website_link"))}
                         defaultValue={
                           currentFestival?.social?.websiteLink || undefined
                         }
