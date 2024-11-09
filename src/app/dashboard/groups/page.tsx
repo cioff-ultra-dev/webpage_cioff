@@ -107,9 +107,7 @@ export default async function DashboardPage() {
         <Card x-chunk="dashboard-06-chunk-0">
           <CardHeader>
             <CardTitle>{t("groups")}</CardTitle>
-            <CardDescription>
-              {t("Manage_your_groups_details")}
-            </CardDescription>
+            <CardDescription>{t("Manage_your_groups_details")}</CardDescription>
           </CardHeader>
           <CardContent>
             {groups.length ? (
@@ -117,7 +115,9 @@ export default async function DashboardPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t("name")}</TableHead>
-                    <TableHead className="hidden md:table-cell">{t("date")}</TableHead>
+                    <TableHead className="hidden md:table-cell">
+                      {t("owner")}
+                    </TableHead>
                     <TableHead className="hidden md:table-cell">
                       {t("country")}
                     </TableHead>
@@ -134,16 +134,19 @@ export default async function DashboardPage() {
                           {item?.langs.find((item) => item.l?.code === locale)
                             ?.name ||
                             item?.langs.find(
-                              (item) => item.l?.code === defaultLocale
+                              (item) => item.l?.code === defaultLocale,
                             )?.name}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
-                          {item?.createdAt
-                            ? format(item?.createdAt, "PPP")
-                            : null}
+                          {item?.owners.at(0)?.user?.email}
                         </TableCell>
-                        <TableCell className="hidden md:table-cell capitalize">
-                          {/* {item.country?.id} */}
+                        <TableCell className="hidden md:table-cell">
+                          {item?.country?.langs.find(
+                            (lang) => lang.l?.code === locale,
+                          )?.name ||
+                            item?.country?.langs.find(
+                              (lang) => lang.l?.code === defaultLocale,
+                            )?.name}
                         </TableCell>
                         <TableCell>
                           <MenuActions item={item} roleName="Groups">
@@ -159,7 +162,9 @@ export default async function DashboardPage() {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>{t("actions")}</DropdownMenuLabel>
+                                <DropdownMenuLabel>
+                                  {t("actions")}
+                                </DropdownMenuLabel>
                                 {/* <DropdownMenuItem
                                 asChild
                                 className="cursor-pointer"

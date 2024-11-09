@@ -139,6 +139,18 @@ export async function getAllGroupsByOwner(locale: string) {
         with: {
           groups: {
             with: {
+              country: {
+                with: {
+                  langs: {
+                    where(fields, { inArray }) {
+                      return inArray(fields.lang, sq);
+                    },
+                    with: {
+                      l: true,
+                    },
+                  },
+                },
+              },
               owners: {
                 with: {
                   user: true,
@@ -169,6 +181,18 @@ export async function getAllGroupsByOwner(locale: string) {
             },
             with: {
               l: true,
+            },
+          },
+          country: {
+            with: {
+              langs: {
+                where(fields, { inArray }) {
+                  return inArray(fields.lang, sq);
+                },
+                with: {
+                  l: true,
+                },
+              },
             },
           },
         },
@@ -278,7 +302,7 @@ export type CountryCastGroups = {
 
 export async function getAllCountryCastGroups(
   locale: Locale,
-  regionsIn: string[] = []
+  regionsIn: string[] = [],
 ): Promise<CountryCastGroups> {
   const sq = db
     .select({ id: languages.id })
@@ -305,7 +329,7 @@ export async function getAllCountryCastGroups(
 
   filters.push(
     // isNotNull(festivals.countryId),
-    eq(countriesLang.lang, sq)
+    eq(countriesLang.lang, sq),
   );
 
   if (regionsIn.length) {
