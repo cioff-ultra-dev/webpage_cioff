@@ -1454,6 +1454,7 @@ export const componentLangRelations = relations(componentsLang, ({ one }) => ({
   }),
 }));
 
+// TODO: We need to include the rest of scope queries for this relations
 export const groupsRelations = relations(groups, ({ one, many }) => ({
   country: one(countries, {
     fields: [groups.countryId],
@@ -1492,6 +1493,7 @@ export const groupsRelations = relations(groups, ({ one, many }) => ({
   }),
 }));
 
+// TODO: We need to give support for all the language context for this sections
 export const groupLangRelations = relations(groupsLang, ({ one }) => ({
   group: one(groups, {
     fields: [groupsLang.groupId],
@@ -1530,6 +1532,10 @@ export const nationalSectionRelations = relations(
     festivals: many(festivals),
     groups: many(groups),
     otherEvents: many(events),
+    country: one(countries, {
+      fields: [nationalSections.countryId],
+      references: [countries.id],
+    }),
   })
 );
 
