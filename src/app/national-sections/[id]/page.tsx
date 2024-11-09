@@ -2,12 +2,10 @@ import Image from "next/image";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { getFestivalById } from "@/db/queries/events";
 import { Header } from "@/components/common/header";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
 import { Music, UserCircle, Users } from "lucide-react";
-import { Image as GalleryImage } from "react-grid-gallery";
 import {
   Timeline,
   TimelineItem,
@@ -245,18 +243,11 @@ export default async function NationaSectionDetail({
                       </p>
                     </CardContent>
                   </Card>
-                  {/* <Card className="col-span-1"> */}
-                  {/*   <CardHeader> */}
-                  {/*     <CardTitle>Location</CardTitle> */}
-                  {/*   </CardHeader> */}
-                  {/*   <CardContent> */}
                   <Positions
                     positions={ns?.positions ?? []}
                     currentLocale={locale}
                     title={t("ns.positions")}
                   />
-                  {/*   </CardContent> */}
-                  {/* </Card> */}
                 </div>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Festivals
