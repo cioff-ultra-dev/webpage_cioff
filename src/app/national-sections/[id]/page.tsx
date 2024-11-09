@@ -220,14 +220,14 @@ export default async function NationaSectionDetail({
             </TabsList> */}
             <TabsContent value="profile">
               <div className="flex flex-col gap-4">
-                <div className="flex gap-3">
-                  {/* <Button variant="outline">Get directions</Button> */}
-                  {/* <Button variant="outline">Bookmark</Button> */}
-                  {/* <Button variant="outline">Share</Button> */}
-                  {/* <Button variant="outline">Leave a review</Button> */}
-                  {/* <Button variant="outline">Claim listing</Button> */}
-                  {/* <Button variant="outline">Report</Button> */}
-                </div>
+                {/* <div className="flex gap-3"> */}
+                {/* <Button variant="outline">Get directions</Button> */}
+                {/* <Button variant="outline">Bookmark</Button> */}
+                {/* <Button variant="outline">Share</Button> */}
+                {/* <Button variant="outline">Leave a review</Button> */}
+                {/* <Button variant="outline">Claim listing</Button> */}
+                {/* <Button variant="outline">Report</Button> */}
+                {/* </div> */}
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Card className="col-span-1">
                     <CardHeader>
