@@ -216,7 +216,18 @@
       "presid_general_dir_name":"Nombre del Presidente/Director General",
       "presi_gene_dire_profile":"Perfil del Presidente/Director General",
       "write_short_descrip":"Escribe una breve descripción de tus principales logros, estudios, etc.",
-      "you_can_max_500_input":"Puede utilizar un máximo de 500 palabras para esta entrada"
+      "you_can_max_500_input":"Puede utilizar un máximo de 500 palabras para esta entrada",
+      "presid_general_direc_photo":"Foto del Presidente/Director General",
+      "arti_director_name":"Nombre del director artístico",
+      "arti_direc_profile":"Perfil del Director Artístico",
+      "Write_descrip_studies":"Escribe una breve descripción de tus principales logros, estudios, etc.",
+      "arti_director_photo":"Foto del Director Artístico",
+      "musical_director_name":"Nombre del director musical",
+      "musi_director_profile":"Perfil del director musical",
+      "Musi_director_photo":"Foto del director musical",
+      "phone_country_code":"Teléfono (prefijo del país)",
+      "enter_phone_number":"Introducir un número de teléfono",
+      "mail_ddress":"Dirección de correo"
     }
   },
   "maps": {

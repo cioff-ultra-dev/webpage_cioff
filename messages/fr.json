@@ -216,7 +216,18 @@
       "presid_general_dir_name": "Nom du président/chef de la direction",
       "presi_gene_dire_profile": "Profil du président/chef de la direction",
       "write_short_descrip": "Décrivez brièvement vos principales réalisations, études, etc.",
-      "you_can_max_500_input": "Vous pouvez utiliser un maximum de 500 mots pour cet article."
+      "you_can_max_500_input": "Vous pouvez utiliser un maximum de 500 mots pour cet article.",
+      "presid_general_direc_photo": "Photo du président/directeur général",
+      "arti_director_name": "Nom du directeur artistique",
+      "arti_direc_profile": "Profil du directeur artistique",
+      "Write_descrip_studies": "Décrivez brièvement vos principales réalisations, vos études, etc.",
+      "arti_director_photo": "Photo du directeur artistique",
+      "musical_director_name": "Photo du directeur artistique",
+      "musi_director_profile": "Profil du directeur musical",
+      "Musi_director_photo": "Photo du directeur musical",
+      "phone_country_code": "Téléphone (code pays)",
+      "enter_phone_number": "Entrer un numéro de téléphone",
+      "mail_ddress": "Adresse électronique"
     }
   },
   "maps": {

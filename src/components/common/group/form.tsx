@@ -565,7 +565,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          President/General Director's photo
+                          {t("presid_general_direc_photo")}
                         </FormLabel>
                         <FormControl>
                           <FilepondImageUploader
@@ -610,7 +610,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Artistic Director name
+                          {t("arti_director_name")}
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -634,13 +634,12 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Artistic Director profile
+                          {t("arti_direc_profile")}
                         </FormLabel>
                         <FormControl>
                           <Textarea
                             className="resize-none"
-                            placeholder="Write a short description of your main achievements,
-                            studies, etc"
+                            placeholder={t("Write_descrip_studies")}
                             name={field.name}
                             onChange={field.onChange}
                             value={field.value || ""}
@@ -650,7 +649,7 @@ export default function GroupForm({
                           />
                         </FormControl>
                         <FormDescription>
-                          You can use max. 500 words for this input
+                          {t("you_can_max_500_input")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -664,7 +663,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Artistic Director's photo
+                          {t("arti_director_photo")}
                         </FormLabel>
                         <FormControl>
                           <FilepondImageUploader
@@ -709,7 +708,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Musical Director name
+                          {t("musical_director_name")}
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -733,13 +732,12 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Musical Director profile
+                          {t("musi_director_profile")}
                         </FormLabel>
                         <FormControl>
                           <Textarea
                             className="resize-none"
-                            placeholder="Write a short description of your main achievements,
-                            studies, etc"
+                            placeholder={t("write_short_descrip")}
                             name={field.name}
                             onChange={field.onChange}
                             value={field.value || ""}
@@ -749,7 +747,7 @@ export default function GroupForm({
                           />
                         </FormControl>
                         <FormDescription>
-                          You can use max. 500 words for this input
+                          {t("you_can_max_500_input")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -763,7 +761,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Musical Director's photo
+                          {t("Musi_director_photo")}
                         </FormLabel>
                         <FormControl>
                           <FilepondImageUploader
@@ -807,19 +805,19 @@ export default function GroupForm({
                     render={({ field: { value, ...fieldRest } }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Phone (country code)
+                          {t("phone_country_code")}
                         </FormLabel>
                         <FormControl>
                           <PhoneInput
                             value={value as RPNInput.Value}
                             id="phone"
-                            placeholder="Enter a phone number"
+                            placeholder={t("enter_phone_number")}
                             international
                             {...fieldRest}
                             disabled={isNSAccount}
                           />
                         </FormControl>
-                        <FormDescription>Enter a phone number</FormDescription>
+                        <FormDescription>{t("enter_phone_number")}</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -832,7 +830,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Mail Address
+                          {t("mail_ddress")}
                         </FormLabel>
                         <FormControl>
                           <Input

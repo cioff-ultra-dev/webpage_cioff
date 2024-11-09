@@ -216,7 +216,18 @@
       "presid_general_dir_name": "President/General Director name",
       "presi_gene_dire_profile": "President/General Director profile",
       "write_short_descrip": "Write a short description of your main achievements,  studies, etc",
-      "you_can_max_500_input": "You can use max. 500 words for this input"
+      "you_can_max_500_input": "You can use max. 500 words for this input",
+      "presid_general_direc_photo": "President/General Director's photo",
+      "arti_director_name": "Artistic Director name",
+      "arti_direc_profile": "Artistic Director profile",
+      "Write_descrip_studies": "Write a short description of your main achievements, studies, etc",
+      "arti_director_photo": "Artistic Director's photo",
+      "musical_director_name": "Musical Director name",
+      "musi_director_profile": "Musical Director profile",
+      "Musi_director_photo": "Musical Director's photo",
+      "phone_country_code": "Phone (country code)",
+      "enter_phone_number": "Enter a phone number",
+      "mail_ddress": "Mail Address"
     }
   },
   "maps": {
