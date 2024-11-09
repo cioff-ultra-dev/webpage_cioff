@@ -37,11 +37,12 @@ export default async function Home() {
       <Header text="text-white" className="absolute left-0 right-0 top-0" />
       <main>
         <section className="flex flex-col items-center justify-center h-screen bg-cover bg-center relative">
-        <img
-          src="/hero-image.webp"
-          alt="Hero background"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+          <Image
+            src="/hero-image.webp"
+            alt="Hero background"
+            className="absolute inset-0 w-full h-full object-cover"
+            fill
+          />
           <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-center text-white">
             <h1 className="text-6xl font-bold">{t("title")}</h1>
             <h2 className="text-8xl font-bold mt-4">CIOFF</h2>
