@@ -426,9 +426,9 @@ export default function GroupForm({
 
   return (
     <div className="w-full p-4 md:p-6 ">
-      <h1 className="text-2xl font-bold">ADD A GROUP</h1>
-      <p className="text-sm text-muted-foreground pb-10">
-        The fields with * are mandatory.
+      <h1 className="text-2xl font-bold">{t("add_a_group")}</h1>
+      <p className="text-sm text-muted-foreground pb-10 after:content-['*'] after:ml-0.5 after:text-red-500">
+        {t("the_fields_mandatory")}
       </p>
       <Form {...form}>
         <form
@@ -475,7 +475,7 @@ export default function GroupForm({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>Group Information</CardTitle>
+                <CardTitle> {t("group_nformation")} </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -485,7 +485,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Name of the group
+                          {t("name_of_the_group")}
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -498,7 +498,7 @@ export default function GroupForm({
                           />
                         </FormControl>
                         <FormDescription>
-                          Filled automatically from the list provided by NS
+                          {t("filled_auto_from_list_NS")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -512,7 +512,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          President/General Director name
+                          {t("presid_general_dir_name")}
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -536,13 +536,12 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          President/General Director profile
+                          {t("presi_gene_dire_profile")}
                         </FormLabel>
                         <FormControl>
                           <Textarea
                             className="resize-none"
-                            placeholder="Write a short description of your main achievements,
-                            studies, etc"
+                            placeholder={t("write_short_descrip")}
                             name={field.name}
                             onChange={field.onChange}
                             value={field.value || ""}
@@ -552,7 +551,7 @@ export default function GroupForm({
                           />
                         </FormControl>
                         <FormDescription>
-                          You can use max. 500 words for this input
+                          {t("you_can_max_500_input")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>

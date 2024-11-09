@@ -207,7 +207,16 @@
     "group": {
       "_lang": {
         "name": "Nombre del grupo"
-      }
+      },
+      "add_a_group":"AÑADIR UN GRUPO",
+      "the_fields_mandatory": "Campos obligatorios",
+      "group_nformation":"Información del grupo",
+      "name_of_the_group":"Nombre del grupo",
+      "filled_auto_from_list_NS":"Se rellena automáticamente a partir de la lista proporcionada por NS",
+      "presid_general_dir_name":"Nombre del Presidente/Director General",
+      "presi_gene_dire_profile":"Perfil del Presidente/Director General",
+      "write_short_descrip":"Escribe una breve descripción de tus principales logros, estudios, etc.",
+      "you_can_max_500_input":"Puede utilizar un máximo de 500 palabras para esta entrada"
     }
   },
   "maps": {
