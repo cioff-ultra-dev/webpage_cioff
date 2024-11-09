@@ -148,7 +148,7 @@ export async function Header({
             asChild
           >
             <Link href="/dashboard">
-              <UserIcon className={`${text}`} />
+              <UserIcon />
             </Link>
           </Button>
         ) : (
