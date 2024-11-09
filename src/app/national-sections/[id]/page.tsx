@@ -24,8 +24,6 @@ import {
 } from "@/db/queries/national-sections";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-export interface CustomImage extends GalleryImage {}
-
 function Positions({
   positions,
   currentLocale,
