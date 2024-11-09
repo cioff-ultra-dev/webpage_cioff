@@ -317,3 +317,41 @@ export async function getNationaSectionById(
 export type NationalSectionTypeById = Awaited<
   ReturnType<typeof getNationaSectionById>
 >;
+
+export async function getAllNationalSectionsPage(locale: string) {
+  const localeValue = locale as SelectLanguages["code"];
+  const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
+
+  const pushLocales = [localeValue];
+
+  if (localeValue !== currentDefaultLocale) {
+    pushLocales.push(currentDefaultLocale);
+  }
+
+  const sq = db
+    .select({ id: languages.id })
+    .from(languages)
+    .where(inArray(languages.code, pushLocales));
+
+  return db.query.nationalSections.findMany({
+    with: {
+      owners: {
+        with: {
+          user: true,
+        },
+      },
+      langs: {
+        where(fields, { inArray }) {
+          return inArray(fields.lang, sq);
+        },
+        with: {
+          l: true,
+        },
+      },
+    },
+  });
+}
+
+export type NationalSectionsPageType = Awaited<
+  ReturnType<typeof getAllNationalSectionsPage>
+>;
