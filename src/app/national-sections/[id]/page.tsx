@@ -1,27 +1,12 @@
 import Image from "next/image";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { getFestivalById } from "@/db/queries/events";
 import { Header } from "@/components/common/header";
-import { MapMarkerEvent } from "@/components/common/event/map-marker";
-import { GalleryImageEvent } from "@/components/common/event/gallery-images";
-import { CoverImageEvent } from "@/components/common/event/cover";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
-import Link from "next/link";
-import {
-  ExternalLink,
-  Facebook,
-  Instagram,
-  Link2,
-  Music,
-  Phone,
-  UserCircle,
-  Users,
-} from "lucide-react";
+import { Music, UserCircle, Users } from "lucide-react";
 import { Image as GalleryImage } from "react-grid-gallery";
 import {
   Timeline,
@@ -44,16 +29,18 @@ export interface CustomImage extends GalleryImage {}
 function Positions({
   positions,
   currentLocale,
+  title,
 }: {
   positions: NonNullable<NationalSectionTypeById>["positions"];
   currentLocale: string;
+  title?: string;
 }) {
   return (
     <Card className="col-span-1">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Users className="h-6 w-6" />
-          Positions
+          {title}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -90,16 +77,18 @@ function Positions({
 function Festivals({
   festivals,
   currentLocale,
+  title,
 }: {
   festivals: NonNullable<NationalSectionTypeById>["festivals"];
   currentLocale: string;
+  title?: string;
 }) {
   return (
     <Card className="col-span-1">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Music className="h-6 w-6" />
-          Festivals
+          {title}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -132,7 +121,7 @@ function Festivals({
                     }
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Owner: {festival.owners.at(0)?.user?.email}
+                    {festival.owners.at(0)?.user?.email}
                   </p>
                 </div>
               </li>
@@ -147,16 +136,18 @@ function Festivals({
 function Groups({
   groups,
   currentLocale,
+  title,
 }: {
   groups: NonNullable<NationalSectionTypeById>["groups"];
   currentLocale: string;
+  title?: string;
 }) {
   return (
     <Card className="col-span-1">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <UserCircle className="h-6 w-6" />
-          Groups
+          {title}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -185,7 +176,7 @@ function Groups({
                       ?.name ?? ""}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Owner: {group.owners.at(0)?.user?.email}
+                    {group.owners.at(0)?.user?.email}
                   </p>
                 </div>
               </li>
@@ -205,23 +196,7 @@ export default async function NationaSectionDetail({
   const locale = await getLocale();
   const t = await getTranslations("page");
   const formatter = await getFormatter();
-  const festival = await getFestivalById(Number(params.id), locale);
   const ns = await getNationaSectionById(Number(params.id), locale);
-
-  let youtubeId = "";
-
-  if (festival?.youtubeId) {
-    const url = new URL(festival.youtubeId);
-    const sp = new URLSearchParams(url.search);
-    youtubeId = sp.get("v") ?? "";
-  }
-
-  const gallery: CustomImage[] =
-    festival?.photos.map((item) => ({
-      src: item.photo?.url!,
-      width: 600,
-      height: 600,
-    })) || [];
 
   return (
     <div className="flex flex-col w-full min-h-screen">
@@ -263,7 +238,7 @@ export default async function NationaSectionDetail({
                       <CardTitle>{t("description")}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p>
+                      <p className="line-clamp-4">
                         {ns?.langs.find((item) => item.l?.code === locale)
                           ?.about ||
                           ns?.langs.find(
@@ -280,6 +255,7 @@ export default async function NationaSectionDetail({
                   <Positions
                     positions={ns?.positions ?? []}
                     currentLocale={locale}
+                    title={t("ns.positions")}
                   />
                   {/*   </CardContent> */}
                   {/* </Card> */}
@@ -288,8 +264,13 @@ export default async function NationaSectionDetail({
                   <Festivals
                     festivals={ns?.festivals ?? []}
                     currentLocale={locale}
+                    title={t("ns.festivals")}
                   />
-                  <Groups groups={ns?.groups ?? []} currentLocale={locale} />
+                  <Groups
+                    groups={ns?.groups ?? []}
+                    currentLocale={locale}
+                    title={t("ns.groups")}
+                  />
                   {/* <Card className="col-span-1"> */}
                   {/*   <CardHeader> */}
                   {/*     <CardTitle>Contact</CardTitle> */}
@@ -340,7 +321,7 @@ export default async function NationaSectionDetail({
                 </div>
                 <Card className="col-span-1">
                   <CardHeader>
-                    <CardTitle>Events</CardTitle>
+                    <CardTitle>{t("ns.events")}</CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-wrap gap-2">
                     <Timeline>
