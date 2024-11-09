@@ -1,7 +1,7 @@
 {
   "home": {
     "title": "Hello world!"
-  },  
+  },
   "page":{
     "all": "Tous",
     "add_national_section": "Ajouter section nationale",
@@ -27,9 +27,8 @@
     "not_found_festivals": "Festivals non trouvés...",
     "gener_fest_invit": "Générer une invitation à un festival",
     "Gener_group_invitat": "Générer une invitation de groupe",
-    "send_invitation": "Send Invitation"  
-    
-  },
+    "send_invitation": "Send Invitation"    
+  },   
   "locale_switch": {
     "select": "Sélectionner la langue",
     "es": "Español",
@@ -117,8 +116,10 @@
       "logo":"Logo",
       "youtube":"Youtube",
       "social_media":"Médias sociaux",
-      "facebook_link":"Lien Facebook",
-      "select_festivals":"Sélectionner les festivals",
+      "facebook_link":"Lien Facebook",      
+	  "instagram_link":"Enlace de Instagram",
+      "website_link":"Enlace web",
+	  "select_festivals":"Sélectionner les festivals",
       "status_and_details":"Statut et détails",
       "upload_a_picture":"Télécharger une image",
       "only_available_for_users":"Uniquement disponible pour les utilisateurs",
@@ -130,11 +131,26 @@
       "financial_compensation":"Compensation financière",
       "in_kind_compensation":"Compensation en nature",
       "you_can_manage_type_compensation": "Vous pouvez gérer votre type d'indemnisation ici.",
+	  "additional_information":"Informations complémentaires",
+      "link_conditions_Applica":"Condiciones de enlace y aplicaciones",
+      "provide_URL_conditions":"Relier les conditions et les applications",
+      "Link_document_conditions_procedure":"Lien vers le document contenant les conditions et la procédure de demande.",
+      "pictures_your_stages":"Photos de leurs étapes",
+      "max_5_photos_min_600_600":"Max 5 photos - min 600x600px",
+      "groups_confirmed":"Groupes confirmés",
+      "do_you_have_CIOFF_confirmed":"Avez-vous des groupes CIOFF confirmés à ce jour ?",
+      "select_groups":"Sélectionner les groupes",
+      "search_groups":"Recherche de groupes",
+      "select_regions":"Sélectionner une région",
+      "are_looking_groups":"Vous cherchez des groupes ?",
+      "this_region_help_groups_region":"Cette région vous aidera à trouver des groupes d'intérêt dans la région sélectionnée.",
+      "save":"Économiser",
+      "cancel":"Annuler",			  
       "_currentDates": "Date actuelle",
       "_ageOfParticipants": "Âge des participants",
       "_styleOfFestival": "Style de festival",
-      "_typeOfFestival": "Type of festival",
-      "_status": "Status"
+      "_typeOfFestival": "Type de festival",
+      "_status": "Statut"
     },
     "ns": {
       "title": "AJOUTER UNE SECTION NATIONALE",
@@ -179,7 +195,7 @@
             "shortBio": "Brève biographie"
           }
         }
-      ]      
+      ]
     },
     "profile": {
       "password_match": "Le mot de passe ne correspond pas",
@@ -190,7 +206,16 @@
     "group": {
       "_lang": {
         "name": "Nom du groupe"
-      } 
+      },
+      "add_a_group":"AJOUTER UN GROUPE",
+      "the_fields_mandatory": "Champs obligatoires",
+      "group_nformation":"Informations sur le groupe",
+      "name_of_the_group":"Nom du groupe",
+      "filled_auto_from_list_NS":"Il est alimenté automatiquement à partir de la liste fournie par les NS.",
+      "presid_general_dir_name":"Nom du président/chef de la direction",
+      "presi_gene_dire_profile":"Profil du président/chef de la direction",
+      "write_short_descrip":"Décrivez brièvement vos principales réalisations, études, etc.",
+      "you_can_max_500_input":"Vous pouvez utiliser un maximum de 500 mots pour cet article."
     }
   },
   "customErrors": {

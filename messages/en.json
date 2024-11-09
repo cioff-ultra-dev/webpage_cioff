@@ -27,9 +27,8 @@
     "not_found_festivals": "Not found festivals...",
     "gener_fest_invit": "Generate Festival Invitation",
     "Gener_group_invitat": "Generate Group Invitation",
-    "send_invitation": "Send Invitation"    
-
-  },
+    "send_invitation": "Send Invitation"
+   },
   "locale_switch": {
     "select": "Select language",
     "es": "Español",
@@ -147,7 +146,7 @@
       "this_region_help_groups_region":"This region will help you for groups of interest on selected region.",
       "save":"Save",
       "cancel":"Cancel",
-      "_currentDates": "Current datest",      
+      "_currentDates": "Current datest",
       "_ageOfParticipants": "Age of participants",
       "_styleOfFestival": "Style of festival",
       "_typeOfFestival": "Type of festival",
@@ -208,7 +207,16 @@
     "group": {
       "_lang": {
         "name": "Name of the group"
-      }
+      },
+      "add_a_group":"ADD A GROUP",
+      "the_fields_mandatory": "Fields marked are required",
+      "group_nformation":"Group Information",
+      "name_of_the_group":"Name of the group",
+      "filled_auto_from_list_NS":"Filled automatically from the list provided by NS",
+      "presid_general_dir_name":"President/General Director name",
+      "presi_gene_dire_profile":"President/General Director profile",
+      "write_short_descrip":"Write a short description of your main achievements,  studies, etc",
+      "you_can_max_500_input":"You can use max. 500 words for this input"
     }
   },
   "customErrors": {
