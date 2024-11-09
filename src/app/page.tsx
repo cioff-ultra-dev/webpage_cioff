@@ -15,22 +15,11 @@ import { getAllCategories } from "@/db/queries/categories";
 
 export default async function Home() {
   const locale = await getLocale();
+  const t = await getTranslations("home");
 
   const festivals = await getAllNestedFestivals();
   const countryCast = await getAllCountryCastFestivals(locale as Locale);
   const categories = await getAllCategories(locale as Locale);
-
-  const t = await getTranslations("home");
-
-  /*
-  <video
-            loop
-            muted
-            className="absolute inset-0 w-full h-full object-cover"
-          >
-            <source src="/hero-video.mp4" type="video/mp4" />
-          </video>
-  */
 
   return (
     <div>
