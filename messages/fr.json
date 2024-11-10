@@ -29,6 +29,7 @@
     "Gener_group_invitat": "Générer une invitation de groupe",
     "send_invitation": "Send Invitation"
   },
+
   "locale_switch": {
     "select": "Sélectionner la langue",
     "es": "Español",
@@ -220,11 +221,11 @@
       "presid_general_direc_photo": "Photo du président/directeur général",
       "arti_director_name": "Nom du directeur artistique",
       "arti_direc_profile": "Profil du directeur artistique",
-      "Write_descrip_studies": "Décrivez brièvement vos principales réalisations, vos études, etc.",
+      "write_descrip_studies": "Décrivez brièvement vos principales réalisations, vos études, etc.",
       "arti_director_photo": "Photo du directeur artistique",
       "musical_director_name": "Photo du directeur artistique",
       "musi_director_profile": "Profil du directeur musical",
-      "Musi_director_photo": "Photo du directeur musical",
+      "musi_director_photo": "Photo du directeur musical",
       "phone_country_code": "Téléphone (code pays)",
       "enter_phone_number": "Entrer un numéro de téléphone",
       "mail_ddress": "Adresse électronique",

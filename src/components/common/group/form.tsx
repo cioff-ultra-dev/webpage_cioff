@@ -761,7 +761,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          {t("Musi_director_photo")}
+                          {t("musi_director_photo")}
                         </FormLabel>
                         <FormControl>
                           <FilepondImageUploader
