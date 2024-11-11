@@ -54,6 +54,13 @@ export default function FormStateNS({
     },
   });
 
+  const formTest = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      _status: currentStatusId ? currentStatusId : undefined,
+    },
+  });
+
   const formRef = useRef<HTMLFormElement>(null);
 
   const onSubmitForm: SubmitHandler<z.infer<typeof formSchema>> = async (

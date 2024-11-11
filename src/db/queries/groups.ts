@@ -341,7 +341,5 @@ export async function getAllCountryCastGroups(
     .groupBy(countries.id, countriesLang.id)
     .orderBy(countries.slug);
 
-  console.log(query.toSQL());
-
   return query;
 }
