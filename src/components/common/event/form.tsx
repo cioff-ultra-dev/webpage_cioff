@@ -98,6 +98,7 @@ import { RegionsType } from "@/db/queries/regions";
 import { buildGroup } from "@/db/queries/groups";
 import { FilepondImageUploader } from "@/components/extension/filepond-image-uploader";
 import constants from "@/constants";
+import FormStateNS from "./form-state-ns";
 
 const dateRangeSchema = z.object({
   id: z.string().optional(),
@@ -498,6 +499,13 @@ export default function EventForm({
         <p className="text-sm text-muted-foreground pb-6 after:content-['*'] after:ml-0.5 after:text-red-500">
           {t("the_fields_mandatory")} 
         </p>
+        {isNSAccount ? (
+          <FormStateNS
+            statuses={statuses}
+            festivalId={id}
+            currentStatusId={currentStatusId}
+          />
+        ) : null}
         <Form {...form}>
           <form
             ref={formRef}
@@ -1621,7 +1629,7 @@ export default function EventForm({
               </Card>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="hidden">
+              <Card className="">
                 <CardHeader>
                   <CardTitle>{t("status_and_details")}</CardTitle>
                 </CardHeader>
@@ -1639,7 +1647,7 @@ export default function EventForm({
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                             name={field.name}
-                            disabled={!isNSAccount}
+                            disabled
                           >
                             <FormControl>
                               <SelectTrigger>
@@ -1657,9 +1665,6 @@ export default function EventForm({
                               ))}
                             </SelectContent>
                           </Select>
-                          {/* <FormDescription> */}
-                          {/*   This is your current festival name */}
-                          {/* </FormDescription> */}
                           <FormMessage />
                         </FormItem>
                       )}
