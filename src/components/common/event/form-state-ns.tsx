@@ -32,6 +32,7 @@ import { useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
+import { customRevalidatePath } from "../revalidateTag";
 
 const formSchema = z.object({
   _status: z.string(),
@@ -64,7 +65,8 @@ export default function FormStateNS({
     } else if (result.error) {
       toast.error(result.error);
     }
-    console.log({ _data, result });
+
+    customRevalidatePath("/dashboard/festivals");
   };
 
   return (
