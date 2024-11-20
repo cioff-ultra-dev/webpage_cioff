@@ -1,7 +1,7 @@
-import { eq, and } from 'drizzle-orm';
-import { Section } from '@/types/article';
-import { db } from '@/db';
-import { SubPagesProd, SubPagesTextsLangProd } from '@/db/schema';
+import { eq, and } from "drizzle-orm";
+import { Section } from "@/types/article";
+import { db } from "@/db";
+import { SubPagesProd, SubPagesTextsLangProd } from "@/db/schema";
 
 interface ArticleText {
   title: string;
@@ -19,7 +19,7 @@ interface SubPage {
 
 export async function getArticleById(id: string): Promise<SubPage | null> {
   try {
-    const result = await db.query.SubPagesProd.findFirst({
+    const result = (await db.query.SubPagesProd.findFirst({
       where: and(
         eq(SubPagesProd.id, parseInt(id)),
         eq(SubPagesProd.isNews, true)
@@ -27,45 +27,47 @@ export async function getArticleById(id: string): Promise<SubPage | null> {
       with: {
         texts: true,
       },
-    }) as SubPage | null;
+    })) as SubPage | null;
 
     if (result && result.texts[0]) {
-      result.texts[0].sections = JSON.parse(result.texts[0].sections || '[]');
+      result.texts[0].sections = JSON.parse(result.texts[0].sections || "[]");
     }
     return result;
   } catch (error) {
-    console.error('Error fetching article:', error);
+    console.error("Error fetching article:", error);
     return null;
   }
 }
 
-export async function updateArticle(id: string, content: { title: string; description: string; sections: Section[] }) {
+export async function updateArticle(
+  id: string,
+  content: { title: string; description: string; sections: Section[] }
+) {
   try {
     const result = await db.transaction(async (tx) => {
       const updatedSubPage = await tx
         .update(SubPagesProd)
-        .set({ 
+        .set({
           updatedAt: new Date(),
           slug: generateSlug(content.title),
-          url: '/news/' + generateSlug(content.title),
+          url: "/news/" + generateSlug(content.title),
         })
-        .where(and(
-          eq(SubPagesProd.id, parseInt(id)),
-          eq(SubPagesProd.isNews, true)
-        ))
+        .where(
+          and(eq(SubPagesProd.id, parseInt(id)), eq(SubPagesProd.isNews, true))
+        )
         .returning();
 
       if (updatedSubPage.length === 0) {
-        throw new Error('Article not found or not a news article');
+        throw new Error("Article not found or not a news article");
       }
 
       await tx
         .update(SubPagesTextsLangProd)
-        .set({ 
+        .set({
           title: content.title,
           description: content.description,
           sections: JSON.stringify(content.sections),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(SubPagesTextsLangProd.subPageId, parseInt(id)));
 
@@ -73,21 +75,27 @@ export async function updateArticle(id: string, content: { title: string; descri
     });
     return result;
   } catch (error) {
-    console.error('Error updating article:', error);
+    console.error("Error updating article:", error);
     throw error;
   }
 }
 
-export async function saveArticle(content: { title: string; description: string; sections: Section[] }, userId: string) {
+export async function saveArticle(
+  content: { title: string; description: string; sections: Section[] },
+  userId: string
+) {
   return db.transaction(async (tx) => {
-    const [subPage] = await tx.insert(SubPagesProd).values({
-      slug: generateSlug(content.title),
-      url: '/news/' + generateSlug(content.title),
-      isNews: true,
-      originalDate: new Date(),
-      published: false,
-      createdBy: userId,
-    }).returning();
+    const [subPage] = await tx
+      .insert(SubPagesProd)
+      .values({
+        slug: generateSlug(content.title),
+        url: "/news/" + generateSlug(content.title),
+        isNews: true,
+        originalDate: new Date(),
+        published: false,
+        createdBy: userId,
+      })
+      .returning();
 
     await tx.insert(SubPagesTextsLangProd).values({
       title: content.title,
@@ -112,11 +120,14 @@ export async function getAllArticles() {
     });
     return articles;
   } catch (error) {
-    console.error('Error fetching all articles:', error);
+    console.error("Error fetching all articles:", error);
     throw error;
   }
 }
 
 function generateSlug(title: string) {
-  return title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+  return title
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]+/g, "");
 }

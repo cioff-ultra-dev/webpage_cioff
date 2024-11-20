@@ -1,0 +1,1 @@
+ALTER TABLE "sub_pages_texts_lang" ADD COLUMN "sections" text;
