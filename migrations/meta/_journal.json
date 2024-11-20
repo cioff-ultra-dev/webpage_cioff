@@ -288,6 +288,13 @@
       "when": 1729561138714,
       "tag": "0037_red_captain_cross",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1731776316061,
+      "tag": "0038_gorgeous_sunfire",
+      "breakpoints": true
     }
   ]
 }
