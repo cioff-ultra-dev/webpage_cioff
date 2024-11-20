@@ -65,7 +65,7 @@ export async function Header({
     <header
       className={cn(
         "z-10 flex items-center justify-between px-4 py-4 sm:px-8 md:px-6",
-        className
+        className,
       )}
       {...props}
     >
@@ -98,6 +98,9 @@ export async function Header({
             <Link href="#" prefetch={false}>
               Members
             </Link>
+            <Link href="/national-sections" prefetch={false}>
+              National Sections
+            </Link>
             <Link href="#" prefetch={false}>
               About
             </Link>
@@ -125,6 +128,9 @@ export async function Header({
         <Link href="#" className={`${text}`} prefetch={false}>
           Members
         </Link>
+        <Link href="/national-sections" className={`${text}`} prefetch={false}>
+          National Sections
+        </Link>
         <Link href="#" className={`${text}`} prefetch={false}>
           About
         </Link>
@@ -142,7 +148,7 @@ export async function Header({
             asChild
           >
             <Link href="/dashboard">
-              <UserIcon className={`${text}`} />
+              <UserIcon />
             </Link>
           </Button>
         ) : (

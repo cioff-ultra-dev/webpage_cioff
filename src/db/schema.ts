@@ -173,6 +173,7 @@ export const users = pgTable(
     emailVerified: timestamp("emailVerified", { mode: "date" }),
     photoId: integer("image_id").references(() => storages.id),
     isCreationNotified: boolean("is_creation_notified").default(false),
+    stripeCustomerId: text("stripe_customer_id"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   },
@@ -1526,6 +1527,10 @@ export const nationalSectionRelations = relations(
     festivals: many(festivals),
     groups: many(groups),
     otherEvents: many(events),
+    country: one(countries, {
+      fields: [nationalSections.countryId],
+      references: [countries.id],
+    }),
   }),
 );
 

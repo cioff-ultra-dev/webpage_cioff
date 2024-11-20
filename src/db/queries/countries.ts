@@ -70,8 +70,6 @@ export async function getAllCountryCastFestivals(
     .groupBy(countries.id, countriesLang.id)
     .orderBy(countries.slug);
 
-  console.log(query.toSQL());
-
   return query;
 }
 

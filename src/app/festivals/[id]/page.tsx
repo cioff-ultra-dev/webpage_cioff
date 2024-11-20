@@ -11,7 +11,6 @@ import { GalleryImageEvent } from "@/components/common/event/gallery-images";
 import { CoverImageEvent } from "@/components/common/event/cover";
 import { getFormatter, getLocale } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
-import { SelectFestival } from "@/db/schema";
 import Link from "next/link";
 import { ExternalLink, Facebook, Instagram, Link2, Phone } from "lucide-react";
 import { Image as GalleryImage } from "react-grid-gallery";
@@ -22,11 +21,7 @@ import {
   TimelineHeader,
   TimelineTitle,
   TimelineIcon,
-  TimelineDescription,
-  TimelineContent,
-  TimelineTime,
 } from "@/components/extension/timeline";
-import { InstagramLogoIcon } from "@radix-ui/react-icons";
 
 export interface CustomImage extends GalleryImage {}
 
@@ -77,7 +72,7 @@ export default async function EventDetail({
                   {festival?.langs.find((item) => item.l?.code === locale)
                     ?.name ||
                     festival?.langs.find(
-                      (item) => item.l?.code === defaultLocale
+                      (item) => item.l?.code === defaultLocale,
                     )?.name}
                 </AvatarFallback>
               </Avatar>
@@ -86,7 +81,7 @@ export default async function EventDetail({
                   {festival?.langs.find((item) => item.l?.code === locale)
                     ?.name ||
                     festival?.langs.find(
-                      (item) => item.l?.code === defaultLocale
+                      (item) => item.l?.code === defaultLocale,
                     )?.name}
                 </h1>
               </div>
@@ -137,7 +132,7 @@ export default async function EventDetail({
                         {festival?.langs.find((item) => item.l?.code === locale)
                           ?.description ||
                           festival?.langs.find(
-                            (item) => item.l?.code === defaultLocale
+                            (item) => item.l?.code === defaultLocale,
                           )?.description}
                       </p>
                     </CardContent>
@@ -195,7 +190,7 @@ export default async function EventDetail({
                         {festival?.langs.find((item) => item.l?.code === locale)
                           ?.address ||
                           festival?.langs.find(
-                            (item) => item.l?.code === defaultLocale
+                            (item) => item.l?.code === defaultLocale,
                           )?.address}
                       </p>
                       <p className="flex gap-1 items-center">
@@ -253,7 +248,7 @@ export default async function EventDetail({
                                   year: "numeric",
                                   month: "long",
                                   day: "numeric",
-                                }
+                                },
                               )}
                             </TimelineTitle>
                           </TimelineHeader>

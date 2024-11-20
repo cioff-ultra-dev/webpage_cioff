@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -51,7 +51,7 @@ import {
   insertSubGroupSchema,
 } from "@/db/schema";
 import { cn, formatBytes } from "@/lib/utils";
-import { PlusCircle, X } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import {
   AgeGroupsType,
   GroupDetailsType,
@@ -116,6 +116,10 @@ const globalGroupSchema = insertGroupSchema.extend({
 
 interface FilePreviewProps {
   file: File & { preview: string };
+}
+
+function FilePreviewContainer(props: FilePreviewProps) {
+
 }
 
 function FilePreview({ file }: FilePreviewProps) {
