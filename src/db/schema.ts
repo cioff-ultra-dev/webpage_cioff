@@ -1,4 +1,4 @@
-import { relations, SQL, sql } from "drizzle-orm";
+import {InferModel, relations, SQL, sql } from "drizzle-orm";
 import {
   AnyPgColumn,
   boolean,
@@ -11,6 +11,7 @@ import {
   text,
   timestamp,
   uniqueIndex,
+  json  
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import type { AdapterAccountType } from "next-auth/adapters";
@@ -793,7 +794,19 @@ export const announcementsFiles = pgTable("announcements_files", {
 Sub Pages
 Sub Pages Docs
 Sub Pages Texts Lang
+news
 */
+// Define la tabla
+export const new_pages = pgTable("new_pages", {
+  id: serial("id").primaryKey(),
+  type_new: text("type_new").notNull(),
+  content_new: json("content_new").notNull(),
+});
+
+// Define los tipos
+export type Insertnewpages = InferModel<typeof new_pages, "insert">; // Tipo para inserciones
+export type Selectnewpages = InferModel<typeof new_pages, "select">; // Tipo para consultas
+
 
 export const SubPagesProd = pgTable("sub_pages", {
   id: serial("id").primaryKey(),
