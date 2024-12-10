@@ -55,7 +55,8 @@
     "groups": "Groupes",
     "edit": "Editer",
     "settings": "Paramètres",
-    "sub-pages": "Sous-pages"
+    "sub-pages": "Sous-pages",
+    "send-emails": "Envoyer un courrier"
   },
   "form": {
     "name": "Nom",

@@ -60,7 +60,8 @@
     "groups": "Groups",
     "edit": "Edit",
     "settings": "Settings",
-    "sub-pages": "Subpages"
+    "sub-pages": "Subpages",
+    "send-emails": "Send emails"
   },
   "form": {
     "name": "Name",
