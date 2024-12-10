@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { SignOut } from "@/components/common/signout-button";
-import { Globe } from "lucide-react";
+import { Globe, NewspaperIcon } from "lucide-react";
 import DashboardBreadcrumb from "./dashboard/breadcrumbs";
 import { getAllLanguages } from "@/db/queries/languages";
 import LocaleSwitcher from "./locale-switcher";
@@ -99,6 +99,19 @@ export default async function Dashboard({
                 </Link>
               </TooltipTrigger>
               <TooltipContent side="right">{t("groups")}</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/dashboard/news"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                  prefetch={false}
+                >
+                  <NewspaperIcon className="h-5 w-5" />
+                  <span className="sr-only">{t("news")}</span>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right">{t("news")}</TooltipContent>
             </Tooltip>
             {/* <Tooltip>
               <TooltipTrigger asChild>

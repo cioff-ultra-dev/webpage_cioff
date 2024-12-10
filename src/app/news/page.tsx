@@ -1,54 +1,39 @@
 import Image from "next/image";
 import Link from "next/link";
+
 import { getAllArticles } from "@/lib/articles";
-
-interface ArticleSection {
-  id: string;
-  type: 'image' | 'title' | 'subtitle' | 'paragraph' | 'list';
-  content: string;
-}
-
-interface ArticleData {
-  id: number;
-  texts: Array<{
-    title: string;
-    description: string;
-    sections: string;
-    lang: number;
-    subPageId: number;
-  }>;
-}
+import { SelectedSubPage, Section } from "@/types/article";
 
 export default async function NewsPage() {
-  const articles = (await getAllArticles()) as ArticleData[];
+  const articles = (await getAllArticles()) as SelectedSubPage[];
 
   return (
     <div className="bg-white min-h-screen">
       <main className="py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-bold mb-6">Latest News</h2>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
             {articles.map((articleData) => {
               const text = articleData?.texts?.[0];
               if (!text) return null;
 
-              const sections = JSON.parse(text.sections ?? '[]') as ArticleSection[];
+              const sections = JSON.parse(text.sections ?? "[]") as Section[];
               const coverImage = sections.find(
-                (section: ArticleSection) => section.type === 'image'
+                (section: Section) => section.type === "image"
               )?.content;
 
-              const firstParagraph = sections.find(
-                (section: ArticleSection) => section.type === 'paragraph'
-              )?.content || '';
-              
-              const description = firstParagraph
-                .split(' ')
-                .slice(0, 30)
-                .join(' ') + (firstParagraph.split(' ').length > 30 ? '...' : '');
+              const firstParagraph =
+                sections.find(
+                  (section: Section) => section.type === "paragraph"
+                )?.content || "";
+
+              const description =
+                firstParagraph.split(" ").slice(0, 30).join(" ") +
+                (firstParagraph.split(" ").length > 30 ? "..." : "");
 
               return (
-                <Link 
+                <Link
                   key={articleData.id}
                   href={`/news/${articleData.id}`}
                   className="group border rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300"
@@ -69,9 +54,7 @@ export default async function NewsPage() {
                     <h3 className="text-xl font-bold mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
                       {text.title}
                     </h3>
-                    <p className="text-gray-600 line-clamp-3">
-                      {description}
-                    </p>
+                    <p className="text-gray-600 line-clamp-3">{description}</p>
                   </div>
                 </Link>
               );

@@ -1,133 +1,143 @@
-'use client'
-import React, { useState, useCallback, useEffect } from 'react';
-import NextImage from 'next/image';
-import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
-import Link from '@tiptap/extension-link';
-import Placeholder from '@tiptap/extension-placeholder';
-import TextAlign from '@tiptap/extension-text-align';
-import CharacterCount from '@tiptap/extension-character-count';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { useRouter } from 'next/navigation';
-import { Bold, Italic, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify, Quote } from 'lucide-react';
-import { new_pages } from '@/db/schema';
-import { saveNew } from '@/db/queries/news';
+"use client";
 
+import React, { useState, useCallback, useMemo } from "react";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "@hello-pangea/dnd";
+import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { FilePondFile, FilePondErrorDescription } from "filepond";
+import { useForm } from "react-hook-form";
+import { useTranslations } from "next-intl";
+import { z } from "zod";
 
-
-type Section = {
-  id: string;
-  type: 'title' | 'subtitle' | 'paragraph' | 'image' | 'list';
-  content: string;
-};
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { FilepondImageUploader } from "@/components/extension/filepond-image-uploader";
+import { Editor } from "@/components/common/editor";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { CountrySelect } from "@/components/common/country-select";
+import { Input } from "@/components/ui/input";
+import { SelectCountries } from "@/db/schema";
+import { Section, SelectedSubPage } from "@/types/article";
 
 type EditableArticleTemplateProps = {
-  initialContent: {
+  initialContent: SelectedSubPage;
+  onSave: (content: {
+    isNews: boolean;
+    originalDate: Date;
     title: string;
-    description: string;
+    subtitle: string;
+    url: string;
+    countryId: number;
     sections: Section[];
-  };
-  onSave: (content: { title: string; description: string; sections: Section[] }) => void;
+  }) => Promise<void>;
   currentUser?: {
     id: string;
     name: string;
     image?: string;
   };
+  onExit: () => void;
+  countries: SelectCountries[];
+  userId: number;
 };
 
-const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({ initialContent, onSave, currentUser }) => {
-  const [draggedFile, setDraggedFile] = useState<File | null>(null);
-  const [title, setTitle] = useState(initialContent.title);
-  const [description, setDescription] = useState(initialContent.description);
-  const [sections, setSections] = useState<Section[]>(initialContent.sections);
-  const [sectionEditors, setSectionEditors] = useState<Record<string, ReturnType<typeof useEditor>>>({});
+export const formSubPageSchema = z.object({
+  title: z.string().min(1),
+  subtitle: z.string(),
+  originalDate: z.string(),
+  country: z.string(),
+  isNews: z.boolean().optional(),
+  url: z.string(),
+});
 
+const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
+  initialContent,
+  onSave,
+  currentUser,
+  onExit,
+  countries,
+  userId,
+}) => {
+  const [sections, setSections] = useState<Section[]>([
+    { id: Date.now().toString(), type: "paragraph", content: "" },
+  ]);
 
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        bulletList: {
-          keepMarks: true,
-          keepAttributes: false,
-        },
-        orderedList: {
-          keepMarks: true,
-          keepAttributes: false,
-        },
-        blockquote: {
-          HTMLAttributes: {
-            class: 'border-l-4 border-gray-300 pl-4 my-4',
-          },
-        },
-      }),
-      Image.configure({
-        HTMLAttributes: {
-          class: 'rounded-lg max-w-full',
-        },
-      }),
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: {
-          class: 'text-blue-500 hover:text-blue-700 underline',
-        },
-      }),
-      Placeholder.configure({
-        placeholder: 'Write something...',
-      }),
-      TextAlign.configure({
-        types: ['heading', 'paragraph'],
-        alignments: ['left', 'center', 'right', 'justify'],
-        defaultAlignment: 'left',
-      }),
-      CharacterCount.configure({
-        limit: 10000,
-      }),
-    ],
-    content: description,
+  const router = useRouter();
+
+  const initialValues = useMemo(() => {
+    const article = initialContent.texts?.find(
+      (text) => text.lang === initialContent?.country?.id
+    );
+
+    setSections(article?.sections ?? []);
+    return {
+      title: article?.title,
+      subtitle: article?.subtitle ?? "",
+      url: initialContent.url,
+      isNews: initialContent.published,
+      originalDate: initialContent.originalDate?.toISOString()?.split("T")[0],
+    };
+  }, [initialContent]);
+
+  const form = useForm<z.infer<typeof formSubPageSchema>>({
+    resolver: zodResolver(formSubPageSchema),
+    defaultValues: {
+      title: initialValues.title ?? "",
+      subtitle: initialValues.subtitle ?? "",
+      url: initialValues.url ?? "",
+      isNews: initialValues.isNews ?? false,
+      originalDate: initialValues.originalDate ?? "",
+    },
   });
 
-  useEffect(() => {
-    if (editor) {
-      editor.commands.setContent(description);
-    }
-  }, [editor, description]);
+  const t = useTranslations("form.festival");
 
-  const handleSaveClick = async () => {
-    if (editor) {
-      const updatedDescription = editor.getHTML();
-  
-      
+  const handleSaveClick = async (values: z.infer<typeof formSubPageSchema>) => {
+    console.log(values);
+    console.log(sections);
+    try {
       const contentToSave = {
-        type_new: "article", // O cualquier tipo correspondiente
-        content_new: {
-          title,
-          description: updatedDescription,
-          sections,
-        },
+        countryId: +values.country,
+        url: window.location.origin.concat(
+          "/article/",
+          values.url.toLowerCase().replaceAll(" ", "-")
+        ),
+        isNews: values.isNews ?? false,
+        originalDate: new Date(values.originalDate),
+        title: values.title,
+        subtitle: values.subtitle,
+        sections,
       };
-      
 
-  
-      try {
-        // Llamada al método `saveNew` para guardar los datos
-        const response = await saveNew(contentToSave);
-  
-        console.log('Datos guardados con éxito:', response);
-        alert('El artículo se guardó correctamente.');
-      } catch (error) {
-        console.error('Error al guardar el artículo:', error);
-        alert('Ocurrió un error al guardar el artículo.');
-      }
+      const response = await onSave(contentToSave);
+      console.log(response);
+      toast.success("El artículo guardado correctamente.");
+    } catch (error) {
+      console.error("Error al guardar el artículo:", error);
+
+      toast.error("El artículo no se ha podido guardar.");
     }
+
+    onExit();
   };
-  
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -137,178 +147,78 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({ initi
     setSections(items);
   };
 
-  const addSection = (type: Section['type']) => {
-    const newSection: Section = { id: Date.now().toString(), type, content: '' };
+  const addSection = (type: Section["type"]) => {
+    const newSection: Section = {
+      id: Date.now().toString(),
+      type,
+      content: "",
+    };
     setSections([...sections, newSection]);
-  }; 
-  
-  const handleEditorUpdate = (id: string) => {
-    const editor = sectionEditors[id];
-    if (editor) {
-      const updatedContent = editor.getHTML();
-      setSections((prev) =>
-        prev.map((section) =>
-          section.id === id ? { ...section, content: updatedContent } : section
-        )
-      );
-    }
   };
-  
-  
-
 
   const updateSection = useCallback((id: string, content: string) => {
-    setSections(sections => sections.map(section =>
-      section.id === id ? { ...section, content } : section
-    ));
+    setSections((sections) =>
+      sections.map((section) =>
+        section.id === id ? { ...section, content } : section
+      )
+    );
   }, []);
 
   const removeSection = (id: string) => {
     setSections(sections.filter((section) => section.id !== id));
-    const editor = sectionEditors[id];
-    if (editor) {
-      editor.destroy();
-      setSectionEditors((prev) => {
-        const { [id]: _, ...remainingEditors } = prev;
-        return remainingEditors;
-      });
-    }
   };
-  
 
-  const handleFileDrop = (e: React.DragEvent<HTMLDivElement>, sectionId: string, fileType: 'image' | 'video' | 'audio') => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith(fileType)) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target) {
-          updateSection(sectionId, event.target.result as string);
+  const onProcessFile = useCallback(
+    (section: Section) =>
+      (error: FilePondErrorDescription | null, file: FilePondFile) => {
+        if (error) {
+          console.error(error);
+          return;
         }
-      };
-      reader.readAsDataURL(file);
-    }
-    setDraggedFile(null);
-  };
 
-  const handleFileDragStart = (e: React.DragEvent<HTMLElement>, file: File) => {
-    setDraggedFile(file);
-  };
-
-  
-
-  const renderTextFormatButtons = () => (
-    <div className="flex flex-wrap gap-2 mb-2 p-2 bg-white border rounded-lg shadow-sm">
-      {/* Text Style */}
-      <div className="flex gap-1 border-r pr-2">
-        <Button 
-          size="sm" 
-          variant={editor?.isActive('bold') ? 'default' : 'outline'}
-          onClick={() => editor?.chain().focus().toggleBold().run()}
-          title="Bold (Cmd+B)"
-        >
-          <Bold className="h-4 w-4" />
-        </Button>
-        <Button 
-          size="sm"
-          variant={editor?.isActive('italic') ? 'default' : 'outline'}
-          onClick={() => editor?.chain().focus().toggleItalic().run()}
-          title="Italic (Cmd+I)"
-        >
-          <Italic className="h-4 w-4" />
-        </Button>
-      </div>
-
-      {/* Lists */}
-      <div className="flex gap-1 border-r pr-2">
-        <Button 
-          size="sm"
-          variant={editor?.isActive('bulletList') ? 'default' : 'outline'}
-          onClick={() => editor?.chain().focus().toggleBulletList().run()}
-          title="Bullet List (Cmd+Shift+8)"
-        >
-          <List className="h-4 w-4" />
-        </Button>
-        <Button 
-          size="sm"
-          variant={editor?.isActive('orderedList') ? 'default' : 'outline'}
-          onClick={() => editor?.chain().focus().toggleOrderedList().run()}
-          title="Numbered List (Cmd+Shift+7)"
-        >
-          <ListOrdered className="h-4 w-4" />
-        </Button>
-      </div>
-
-      {/* Alignment */}
-      <div className="flex gap-1 border-r pr-2">
-        <Button 
-          size="sm"
-          variant={editor?.isActive({ textAlign: 'left' }) ? 'default' : 'outline'}
-          onClick={() => editor?.chain().focus().setTextAlign('left').run()}
-          title="Align Left"
-        >
-          <AlignLeft className="h-4 w-4" />
-        </Button>
-        <Button 
-          size="sm"
-          variant={editor?.isActive({ textAlign: 'center' }) ? 'default' : 'outline'}
-          onClick={() => editor?.chain().focus().setTextAlign('center').run()}
-          title="Align Center"
-        >
-          <AlignCenter className="h-4 w-4" />
-        </Button>
-        <Button 
-          size="sm"
-          variant={editor?.isActive({ textAlign: 'right' }) ? 'default' : 'outline'}
-          onClick={() => editor?.chain().focus().setTextAlign('right').run()}
-          title="Align Right"
-        >
-          <AlignRight className="h-4 w-4" />
-        </Button>
-        <Button 
-          size="sm"
-          variant={editor?.isActive({ textAlign: 'justify' }) ? 'default' : 'outline'}
-          onClick={() => editor?.chain().focus().setTextAlign('justify').run()}
-          title="Justify"
-        >
-          <AlignJustify className="h-4 w-4" />
-        </Button>
-      </div>
-
-      {/* Block Quote */}
-      <div className="flex gap-1 border-r pr-2">
-        <Button 
-          size="sm"
-          variant={editor?.isActive('blockquote') ? 'default' : 'outline'}
-          onClick={() => editor?.chain().focus().toggleBlockquote().run()}
-          title="Block Quote (Cmd+Shift+B)"
-        >
-          <Quote className="h-4 w-4" />
-        </Button>
-      </div>
-
-      {/* Character Count */}
-      <div className="flex items-center text-sm text-gray-500">
-        {editor?.storage.characterCount.characters()} characters
-      </div>
-    </div>
+        updateSection(
+          section.id,
+          section.content.length > 0
+            ? section.content.concat(",", file.serverId)
+            : file.serverId
+        );
+      },
+    [updateSection]
   );
 
-  
   const renderSection = (section: Section) => {
-    if (section.type === 'title' || section.type === 'subtitle' || section.type === 'paragraph') {
-      const editor = sectionEditors[section.id];
+    if (section.type === "paragraph") {
       return (
-        <EditorContent
-          editor={editor}
-          className="border p-2 rounded"
-          onBlur={() => handleEditorUpdate(section.id)} // Actualiza contenido al perder foco
+        <Editor
+          className="border p-2 rounded [&>div>p]:min-h-12 editor"
+          content={section.content}
+          onContentChange={(content: string) =>
+            updateSection(section.id, content)
+          }
         />
       );
     }
-    // Renderiza otros tipos como imágenes aquí
+
+    if (section.type === "image" || section.type === "video") {
+      const callback = onProcessFile(section);
+      const isImage = section.type === "image";
+      const props = {
+        acceptedFileTypes: [isImage ? "image/*" : "video/mp4"],
+        id: isImage ? "photos" : "videos",
+        name: isImage ? "photos" : "videos",
+      };
+
+      return (
+        <FilepondImageUploader
+          allowMultiple
+          maxFiles={5}
+          defaultFiles={[]}
+          onprocessfile={callback}
+          {...props}
+        />
+      );
+    }
   };
-  
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -321,16 +231,114 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({ initi
           <span className="text-sm text-gray-500">By {currentUser.name}</span>
         </div>
       )}
-
+      <Form {...form}>
+        <div className="grid grid-cols-4 gap-4 mb-6">
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem className="col-span-2">
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormDescription>name of the article</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="subtitle"
+            render={({ field }) => (
+              <FormItem className="col-span-2">
+                <FormLabel>Subtitle</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormDescription>subtitle of the article</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="originalDate"
+            render={({ field }) => (
+              <FormItem className="col-span-2">
+                <FormLabel>original date</FormLabel>
+                <FormControl>
+                  <Input type="date" {...field} />
+                </FormControl>
+                <FormDescription>date of the article</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="country"
+            render={({ field }) => (
+              <FormItem className="col-span-2">
+                <FormLabel>Country</FormLabel>
+                <FormControl className="w-full">
+                  <CountrySelect
+                    countries={countries}
+                    handleChange={field.onChange}
+                  />
+                </FormControl>
+                <FormDescription>Select a country</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="isNews"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Is News</FormLabel>
+                <FormControl className="w-full h-10 flex items-center">
+                  <div>
+                    <Input type="checkbox" className="h-5 w-5" {...field} />
+                  </div>
+                </FormControl>
+                <FormDescription>mark if the article is news.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="url"
+            render={({ field }) => (
+              <FormItem className="col-span-3">
+                <FormLabel>Url</FormLabel>
+                <FormControl className="w-full">
+                  <Input {...field} />
+                </FormControl>
+                <FormDescription>
+                  {window.location.origin.concat(
+                    "/article/",
+                    field.value.toLowerCase().replaceAll(" ", "-")
+                  )}
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+      </Form>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="article">
           {(provided) => (
-            <article
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-            >
+            <article {...provided.droppableProps} ref={provided.innerRef}>
               {sections.map((section, index) => (
-                <Draggable key={section.id} draggableId={section.id} index={index}>
+                <Draggable
+                  key={section.id}
+                  draggableId={section.id}
+                  index={index}
+                >
                   {(provided) => (
                     <div
                       ref={provided.innerRef}
@@ -339,7 +347,12 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({ initi
                       className="mb-4 p-2 border border-gray-200 rounded"
                     >
                       {renderSection(section)}
-                      <Button onClick={() => removeSection(section.id)} variant="destructive" size="sm" className="mt-2">
+                      <Button
+                        onClick={() => removeSection(section.id)}
+                        variant="destructive"
+                        size="sm"
+                        className="mt-2"
+                      >
                         Remove Section
                       </Button>
                     </div>
@@ -359,46 +372,27 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({ initi
           </PopoverTrigger>
           <PopoverContent className="w-56">
             <div className="grid gap-4">
-              <Button onClick={() => addSection('title')}>Add Title</Button>
-              <Button onClick={() => addSection('subtitle')}>Add Subtitle</Button>
-              <Button onClick={() => addSection('paragraph')}>Add Paragraph</Button>
-              <Button onClick={() => addSection('image')}>Add Image</Button>
-              <Button onClick={() => addSection('list')}>Add List</Button>
+              <Button onClick={() => addSection("paragraph")}>
+                Add Paragraph
+              </Button>
+              <Button onClick={() => addSection("image")}>Add Image</Button>
+              <Button onClick={() => addSection("video")}>Add Video</Button>
             </div>
           </PopoverContent>
         </Popover>
 
-        <Button onClick={handleSaveClick} className="bg-green-500 hover:bg-green-600 text-white">
-          Save Article
-        </Button>
+        <div className="flex gap-6">
+          <Button variant="secondary" onClick={onExit}>
+            Cancel
+          </Button>
+          <Button
+            onClick={form.handleSubmit(handleSaveClick)}
+            className="bg-green-500 hover:bg-green-600 text-white"
+          >
+            Save Article
+          </Button>
+        </div>
       </div>
-
-      {editor && (
-        <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
-          <div className="flex gap-2 bg-white p-2 rounded shadow-lg">
-            <Button
-              size="sm"
-              variant={editor.isActive('bold') ? 'default' : 'outline'}
-              onClick={() => editor.chain().focus().toggleBold().run()}
-            >
-              B
-            </Button>
-            <Button
-              size="sm"
-              variant={editor.isActive('italic') ? 'default' : 'outline'}
-              onClick={() => editor.chain().focus().toggleItalic().run()}
-            >
-              I
-            </Button>
-            <Button
-              size="sm"
-              variant={editor.isActive('heading') ? 'default' : 'outline'}
-              onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-            >
-            </Button>
-          </div>
-        </BubbleMenu>
-      )}
     </div>
   );
 };

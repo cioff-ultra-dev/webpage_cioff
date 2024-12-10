@@ -240,7 +240,7 @@ export const FestivalsProd = cioffSchema.table("festivals", {
   transportLat: text("transport_lat"),
   transportLng: text("transport_lng"),
   youtubeId: text("youtube_id"),
-  published: boolean("published").default(false),
+  published: boolean("publish").default(false),
   countryId: integer("country_id").references(() => CountriesProd.id),
   logoId: integer("logo_id").references(() => StorageProd.id),
   coverId: integer("cover_id").references(() => StorageProd.id),

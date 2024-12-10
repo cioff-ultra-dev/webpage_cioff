@@ -1,8 +1,8 @@
-'use client'
-import { Article, Section } from '@/types/article';
-import { saveArticle } from '@/lib/articles';
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+"use client";
+import { Section, SelectedSubPage } from "@/types/article";
+import { saveArticle, deleteArticle, publishArticle } from "@/lib/articles";
+import React, { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Card,
@@ -28,7 +28,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import ArticleEditor from './news-articles-form';
+import { SelectCountries } from "@/db/schema";
+import { useLocale, useTranslations } from "next-intl";
+
+import ConfirmDialog from "./confirmDialog";
+import { DialogTrigger } from "@/components/ui/dialog";
+import ArticleEditor from "./news-articles-form";
+import { Locale } from "@/i18n/config";
 
 type NewsArticlesTableProps = {
   user: {
@@ -41,88 +47,200 @@ type NewsArticlesTableProps = {
       name: string;
     } | null;
   };
-  articles: Array<{
-    id: number;
-    slug: string;
-    originalDate: Date;
-    texts: Array<{
-      title: string;
-      description: string;
-      sections?: string;
-    }>;
-  }>;
+  articles: Array<SelectedSubPage>;
+  countries: SelectCountries[];
 };
 
-const ArticleTable = ({ articles, onEdit }: { articles: NewsArticlesTableProps['articles'], onEdit: (id: string) => void }) => (
-  <Table>
-    <TableHeader>
-      <TableRow>
-        <TableHead>Name</TableHead>
-        <TableHead>Date</TableHead>
-        <TableHead>Description</TableHead>
-        <TableHead className="w-[100px]">Actions</TableHead>
-      </TableRow>
-    </TableHeader>
-    <TableBody>
-      {articles.map((article) => (
-        <TableRow key={article.id}>
-          <TableCell>{article.texts[0]?.title || 'No title'}</TableCell>
-          <TableCell>{new Date(article.originalDate).toLocaleDateString()}</TableCell>
-          <TableCell>{article.texts[0]?.description || 'No description'}</TableCell>
-          <TableCell>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">Open menu</span>
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => onEdit(article.id.toString())}>Edit</DropdownMenuItem>
-                <DropdownMenuItem>Delete</DropdownMenuItem>
-                <DropdownMenuItem>Post</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </TableCell>
+const ArticleTable = ({
+  articles,
+  onEdit,
+  removeArticle,
+  changePublishArticleStatus,
+}: {
+  articles: NewsArticlesTableProps["articles"];
+  onEdit: (article: SelectedSubPage) => void;
+  removeArticle: (id: number) => void;
+  changePublishArticleStatus: (id: number, isPublished: boolean) => void;
+}) => {
+  const translations = useTranslations("news");
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Name</TableHead>
+          <TableHead>Date</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead className="w-[100px]">Actions</TableHead>
         </TableRow>
-      ))}
-    </TableBody>
-  </Table>
-);
+      </TableHeader>
+      <TableBody>
+        {articles.map((article) => (
+          <TableRow key={article.id}>
+            <TableCell>{article.texts[0]?.title || "No title"}</TableCell>
+            <TableCell>
+              {new Date(article.originalDate).toLocaleDateString()}
+            </TableCell>
+            <TableCell>
+              <span
+                className={
+                  article.published ? "text-green-500" : "text-orange-500"
+                }
+              >
+                {article.published ? "Published" : "Draft"}
+              </span>
+            </TableCell>
+            <TableCell>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuItem onClick={() => onEdit(article)}>
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => e.preventDefault()}>
+                    <ConfirmDialog
+                      buttonMessage={translations("remove.button")}
+                      buttonVariant="destructive"
+                      message={translations("remove.message", {
+                        name: article.texts[0].title ?? "title",
+                      })}
+                      title={translations("remove.title")}
+                      handleClick={() => removeArticle(article.id)}
+                    >
+                      <DialogTrigger asChild>
+                        <button>Delete</button>
+                      </DialogTrigger>
+                    </ConfirmDialog>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => e.preventDefault()}>
+                    <ConfirmDialog
+                      buttonMessage={translations(
+                        article.published
+                          ? "unpublish.button"
+                          : "publish.button"
+                      )}
+                      buttonVariant={
+                        article.published ? "destructive" : "default"
+                      }
+                      message={translations(
+                        article.published
+                          ? "unpublish.message"
+                          : "publish.message",
+                        {
+                          name: article.texts[0].title ?? "title",
+                        }
+                      )}
+                      title={translations(
+                        article.published ? "unpublish.title" : "publish.title"
+                      )}
+                      handleClick={() =>
+                        changePublishArticleStatus(
+                          article.id,
+                          !article.published
+                        )
+                      }
+                    >
+                      <DialogTrigger asChild>
+                        <button>
+                          {translations(
+                            article.published
+                              ? "unpublish.button"
+                              : "publish.button"
+                          )}
+                        </button>
+                      </DialogTrigger>
+                    </ConfirmDialog>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => window.open(article.url, "_blank")}
+                  >
+                    {translations("view")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+};
 
-export default function NewsArticlesTable({ user, articles }: NewsArticlesTableProps) {
-  const [editingArticle, setEditingArticle] = useState<string | null>(null);
+export default function NewsArticlesTable({
+  user,
+  articles,
+  countries,
+}: NewsArticlesTableProps) {
+  const [editingArticle, setEditingArticle] = useState<SelectedSubPage | null>(
+    null
+  );
   const [isCreating, setIsCreating] = useState(false);
-  const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+
+  const locale = useLocale();
   const router = useRouter();
 
-  const handleEdit = (id: string) => {
-    setEditingArticle(id);
+  const handleEdit = (article: SelectedSubPage) => {
+    console.log(article);
+    setEditingArticle(article);
   };
 
-  const handleSave = async (content: { title: string; description: string; sections: Section[] }) => {
-    try {
-      await saveArticle(content, user.id);
-      setNotification({ type: 'success', message: 'Article saved successfully' });
-      setTimeout(() => {
-        router.push('/dashboard/news');
-      }, 2000);
-    } catch (error) {
-      setNotification({ type: 'error', message: 'Failed to save article: ' + (error as Error).message });
-    }
-  };
+  const removeArticle = useCallback(
+    async (subPageId: number) => {
+      await deleteArticle(subPageId);
+      router.refresh();
+    },
+    [router]
+  );
+
+  const changePublishArticleStatus = useCallback(
+    async (subPageId: number, isPublished: boolean) => {
+      await publishArticle(subPageId, isPublished);
+      router.refresh();
+    },
+    [router]
+  );
+
+  const handleSave = useCallback(
+    async (content: {
+      isNews: boolean;
+      originalDate: Date;
+      title: string;
+      subtitle: string;
+      url: string;
+      countryId: number;
+      sections: Section[];
+    }): Promise<void> => {
+      await saveArticle(content, user.id, locale as Locale);
+
+      router.refresh();
+    },
+    [locale, router, user.id]
+  );
 
   const renderContent = () => {
     if (editingArticle || isCreating) {
-      return <ArticleEditor
-        initialContent={{
-          title: '',
-          description: '',
-          sections: []
-        }}
-        onSave={handleSave}
-      />;    }
+      return (
+        <ArticleEditor
+          countries={countries}
+          initialContent={{
+            title: "",
+            description: "",
+            sections: [],
+          }}
+          onSave={handleSave}
+          userId={+user.id}
+          onExit={() => {
+            setEditingArticle(null);
+            setIsCreating(false);
+          }}
+        />
+      );
+    }
 
     return (
       <Tabs defaultValue="all">
@@ -133,7 +251,12 @@ export default function NewsArticlesTable({ user, articles }: NewsArticlesTableP
             <TabsTrigger value="draft">Draft</TabsTrigger>
           </TabsList>
           <div className="ml-auto">
-            <Button size="sm" className="h-8 gap-1" onClick={() => setIsCreating(true)}>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="h-8 gap-1"
+              onClick={() => setIsCreating(true)}
+            >
               <PlusCircle className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
                 Add Article
@@ -150,7 +273,12 @@ export default function NewsArticlesTable({ user, articles }: NewsArticlesTableP
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ArticleTable articles={articles} onEdit={handleEdit} />
+              <ArticleTable
+                articles={articles}
+                onEdit={handleEdit}
+                removeArticle={removeArticle}
+                changePublishArticleStatus={changePublishArticleStatus}
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -163,7 +291,12 @@ export default function NewsArticlesTable({ user, articles }: NewsArticlesTableP
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ArticleTable articles={articles} onEdit={handleEdit} />
+              <ArticleTable
+                articles={articles}
+                onEdit={handleEdit}
+                removeArticle={removeArticle}
+                changePublishArticleStatus={changePublishArticleStatus}
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -176,7 +309,12 @@ export default function NewsArticlesTable({ user, articles }: NewsArticlesTableP
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ArticleTable articles={articles} onEdit={handleEdit} />
+              <ArticleTable
+                articles={articles}
+                onEdit={handleEdit}
+                removeArticle={removeArticle}
+                changePublishArticleStatus={changePublishArticleStatus}
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -187,13 +325,8 @@ export default function NewsArticlesTable({ user, articles }: NewsArticlesTableP
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h2>Welcome, {user.name || 'User'}</h2>
+        <h2>Welcome, {user.name || "User"}</h2>
       </div>
-      {notification && (
-        <div className={`fixed top-0 right-0 m-4 p-4 rounded ${notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`}>
-          {notification.message}
-        </div>
-      )}
       {renderContent()}
     </div>
   );

@@ -1,4 +1,4 @@
-import {InferModel, relations, SQL, sql } from "drizzle-orm";
+import { InferModel, relations, SQL, sql } from "drizzle-orm";
 import {
   AnyPgColumn,
   boolean,
@@ -11,7 +11,7 @@ import {
   text,
   timestamp,
   uniqueIndex,
-  json  
+  json,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import type { AdapterAccountType } from "next-auth/adapters";
@@ -398,15 +398,6 @@ export const categoriesLang = pgTable("categories_lang", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
-export const transportLocations = pgTable("transport_locations", {
-  id: serial("id").primaryKey(),
-  location: text("location"),
-  lat: text("lat"),
-  lng: text("lng"),
-  festivalId: integer("festival_id").references(() => festivals.id),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
-});
 export const festivals = pgTable("festivals", {
   id: serial("id").primaryKey(),
   slug: text("slug").default(""),
@@ -443,6 +434,15 @@ export const festivals = pgTable("festivals", {
   accomodationPhotoId: integer("accomodation_id").references(() => storages.id),
   createdBy: text("created_by").references(() => users.id),
   updatedBy: text("updated_by").references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const transportLocations = pgTable("transport_locations", {
+  id: serial("id").primaryKey(),
+  location: text("location"),
+  lat: text("lat"),
+  lng: text("lng"),
+  festivalId: integer("festival_id").references(() => festivals.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -796,17 +796,6 @@ Sub Pages Docs
 Sub Pages Texts Lang
 news
 */
-// Define la tabla
-export const new_pages = pgTable("new_pages", {
-  id: serial("id").primaryKey(),
-  type_new: text("type_new").notNull(),
-  content_new: json("content_new").notNull(),
-});
-
-// Define los tipos
-export type Insertnewpages = InferModel<typeof new_pages, "insert">; // Tipo para inserciones
-export type Selectnewpages = InferModel<typeof new_pages, "select">; // Tipo para consultas
-
 
 export const SubPagesProd = pgTable("sub_pages", {
   id: serial("id").primaryKey(),
@@ -827,9 +816,9 @@ export const SubPagesProd = pgTable("sub_pages", {
 export const SubPagesTextsLangProd = pgTable("sub_pages_texts_lang", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
-  description: text("description").notNull(),
+  subtitle: text("subtitle").notNull(),
   lang: integer("lang").references(() => languages.id),
-  sections: text("sections"),
+  sections: json("sections"),
   subPageId: integer("subpage_id").references(() => SubPagesProd.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
@@ -1744,8 +1733,12 @@ export const subgroupsToCategoriesRelations = relations(
   })
 );
 
-export const SubPagesRelations = relations(SubPagesProd, ({ many }) => ({
+export const SubPagesRelations = relations(SubPagesProd, ({ many, one }) => ({
   texts: many(SubPagesTextsLangProd),
+  country: one(countries, {
+    fields: [SubPagesProd.countryId],
+    references: [countries.id],
+  }),
 }));
 
 export const SubPagesTextsRelations = relations(
@@ -1930,8 +1923,13 @@ export const insertFestivalPhotosSchema = createInsertSchema(festivalPhotos);
 
 export const selectFestivalPhotosSchema = createSelectSchema(festivalPhotos);
 
-/* Infered Types */
+export const insertSubPagesSchema = createInsertSchema(SubPagesProd);
 
+export const insertSubPagesTextsLangSchema = createInsertSchema(
+  SubPagesTextsLangProd
+);
+
+/* Infered Types */
 export type InsertUser = typeof users.$inferInsert;
 export type SelectUser = typeof users.$inferSelect;
 

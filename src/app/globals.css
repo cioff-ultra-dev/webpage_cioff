@@ -45,3 +45,19 @@
     @apply font-heading;
   }
 }
+
+.editor ol,
+.editor ul {
+  list-style: auto;
+  margin: inherit;
+  padding: revert-layer;
+}
+
+.editor ul {
+  list-style: disc;
+}
+
+.ProseMirror-focused {
+  outline: none;
+  cursor: text;
+}

@@ -52,7 +52,8 @@
     "national-sections": "Sección Nacional",
     "festivals": "Festivales",
     "groups": "Grupos",
-    "edit": "Editar"
+    "edit": "Editar",
+    "news": "Noticias"
   },
   "form": {
     "name": "Nombre",
@@ -149,5 +150,26 @@
     "file_required": "Archivo es requerido",
     "invalid_phone_number": "Número de teléfono inválido",
     "password_match": "Password does not match"
+  },
+  "formNews": {
+    "countrySelect": "Seleccionar país"
+  },
+  "news": {
+    "remove": {
+      "title": "Eliminar artículo",
+      "message": "¿Estás seguro de que deseas eliminar \"{name}\"?",
+      "button": "Eliminar"
+    },
+    "publish": {
+      "title": "Publicar artículo",
+      "message": "¿Estás seguro de que deseas publicar \"{name}\"?",
+      "button": "Publicar"
+    },
+    "unpublish": {
+      "title": "Despublicar artículo",
+      "message": "¿Estás seguro de que deseas despublicar \"{name}\"?",
+      "button": "Despublicar"
+    },
+    "view": "Ver"
   }
 }

@@ -1,6 +1,6 @@
 export type Section = {
   id: string;
-  type: 'title' | 'subtitle' | 'paragraph' | 'image' | 'list';
+  type: "paragraph" | "image" | "video";
   content: string;
 };
 
@@ -12,3 +12,22 @@ export type Article = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export interface SelectedSubPage {
+  id: number;
+  slug: string;
+  originalDate: Date;
+  published: boolean;
+  url: string;
+  texts: Array<{
+    sections?: Section[];
+    lang: number;
+    subtitle: string;
+    title: string;
+  }>;
+  country: {
+    id: number;
+    name: string;
+    slug: string;
+  };
+}
