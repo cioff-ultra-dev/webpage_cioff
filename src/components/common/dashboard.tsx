@@ -100,6 +100,19 @@ export default async function Dashboard({
               </TooltipTrigger>
               <TooltipContent side="right">{t("groups")}</TooltipContent>
             </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/dashboard/send-emails"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                  prefetch={false}
+                >
+                  <MailIcon className="h-5 w-5" />
+                  <span className="sr-only">{t("send-emails")}</span>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right">{t("send-emails")}</TooltipContent>
+            </Tooltip>
             {/* <Tooltip>
               <TooltipTrigger asChild>
                 <Link
@@ -496,6 +509,25 @@ function UsersIcon(props: SVGComponentProps) {
       <circle cx="9" cy="7" r="4" />
       <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
       <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  );
+}
+function MailIcon(props: SVGComponentProps) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M22 5H2v14h20V5Z" />
+      <path d="m22 5-10 7L2 5" />
     </svg>
   );
 }

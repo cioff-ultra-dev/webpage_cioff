@@ -53,7 +53,8 @@
     "festivals": "Festivals",
     "groups": "Groupes",
     "edit": "Editer",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "send-emails": "Envoyer un courrier"
   },
   "form": {
     "name": "Nom",

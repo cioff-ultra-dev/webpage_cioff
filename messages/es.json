@@ -52,7 +52,8 @@
     "national-sections": "Sección Nacional",
     "festivals": "Festivales",
     "groups": "Grupos",
-    "edit": "Editar"
+    "edit": "Editar",
+    "send-emails": "Enviar correos"
   },
   "form": {
     "name": "Nombre",
