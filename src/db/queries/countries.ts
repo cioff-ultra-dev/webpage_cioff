@@ -32,7 +32,7 @@ export type CountryCastFestivals = {
 
 export async function getAllCountryCastFestivals(
   locale: Locale,
-  regionsIn: string[] = [],
+  regionsIn: string[] = []
 ): Promise<CountryCastFestivals> {
   const sq = db
     .select({ id: languages.id })
@@ -58,7 +58,7 @@ export async function getAllCountryCastFestivals(
   filters.push(
     // isNotNull(festivals.countryId),
     isNotNull(festivals.location),
-    eq(countriesLang.lang, sq),
+    eq(countriesLang.lang, sq)
   );
 
   if (regionsIn.length) {

@@ -53,7 +53,8 @@
     "festivals": "Festivals",
     "groups": "Groupes",
     "edit": "Editer",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "news": "Nouvelles"
   },
   "form": {
     "name": "Nom",
@@ -138,5 +139,26 @@
     "file_required": "Le fichier est requis",
     "invalid_phone_number": "Numéro de téléphone invalide",
     "password_match": "Le mot de passe ne correspond pas"
+  },
+  "formNews": {
+    "countrySelect": "Sélectionner un pays"
+  },
+  "news": {
+    "remove": {
+      "title": "Supprimer l'article",
+      "message": "Êtes-vous sûr de vouloir supprimer \"{name}\" ?",
+      "button": "Supprimer"
+    },
+    "publish": {
+      "title": "Publier l'article",
+      "message": "Êtes-vous sûr de vouloir publier \"{name}\" ?",
+      "button": "Publier"
+    },
+    "unpublish": {
+      "title": "Dépublier l'article",
+      "message": "Êtes-vous sûr de vouloir dépublier \"{name}\" ?",
+      "button": "Dépublier"
+    },
+    "view": "Vue"
   }
 }

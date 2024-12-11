@@ -38,10 +38,10 @@ export type BuildFilterType = Awaited<ReturnType<typeof buildFilter>>;
 
 async function buildFilter(request: NextRequest) {
   const categoriesIn: string[] = JSON.parse(
-    request.nextUrl.searchParams.get("categories") || "[]",
+    request.nextUrl.searchParams.get("categories") || "[]"
   );
   const countriesIn: string[] = JSON.parse(
-    request.nextUrl.searchParams.get("countries") || "[]",
+    request.nextUrl.searchParams.get("countries") || "[]"
   );
   const search: string = request.nextUrl.searchParams.get("search") || "";
   const type: string = request.nextUrl.searchParams.get("type") || "";
@@ -51,10 +51,10 @@ async function buildFilter(request: NextRequest) {
     request.nextUrl.searchParams.get("rangeDateTo") || "";
   const page: number = Number(request.nextUrl.searchParams.get("page") || "1");
   const countryId: number = Number(
-    request.nextUrl.searchParams.get("countryId") || "0",
+    request.nextUrl.searchParams.get("countryId") || "0"
   );
   const festivalId: number = Number(
-    request.nextUrl.searchParams.get("festivalId") || "0",
+    request.nextUrl.searchParams.get("festivalId") || "0"
   );
 
   const locale: Locale =
@@ -94,10 +94,7 @@ async function buildFilter(request: NextRequest) {
   if (rangeDateFrom || rangeDateTo) {
     filters.push(
       gte(events.startDate, new Date(Number(rangeDateFrom) * 1000)),
-      lte(
-        events.endDate,
-        new Date(Number(rangeDateTo || rangeDateFrom) * 1000),
-      ),
+      lte(events.endDate, new Date(Number(rangeDateTo || rangeDateFrom) * 1000))
     );
   } else {
     // filters.push(gte(events.startDate, new Date()));
@@ -131,7 +128,7 @@ async function buildFilter(request: NextRequest) {
       events.id,
       festivalsLang.id,
       countriesLang.id,
-      logoStorage.id,
+      logoStorage.id
     )
     .limit(PAGE_SIZE)
     .offset((page - 1) * PAGE_SIZE);
