@@ -12,19 +12,6 @@ import { getAllCountryCastFestivals } from "@/db/queries/countries";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Locale } from "@/i18n/config";
 import { getAllCategories } from "@/db/queries/categories";
-import { getAllArticles } from "@/lib/articles";
-import { format } from "date-fns";
-
-interface ArticleData {
-  id: number;
-  texts: Array<{
-    title: string;
-    description: string;
-    sections: string;
-    lang: number;
-    subPageId: number;
-  }>;
-}
 
 export default async function Home() {
   const locale = await getLocale();
@@ -32,10 +19,9 @@ export default async function Home() {
   const festivals = await getAllNestedFestivals();
   const countryCast = await getAllCountryCastFestivals(locale as Locale);
   const categories = await getAllCategories(locale as Locale);
-  const articles = (await getAllArticles()) as unknown as ArticleData[];
 
   const t = await getTranslations("home");
-
+  const articles: any = []; // testing
   /*
   <video
             loop
@@ -83,7 +69,8 @@ export default async function Home() {
               Latest news
             </h2>
             <div className="flex flex-col space-y-4 mt-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-              {articles?.slice(0, 2).map((articleData: ArticleData) => {
+              {articles?.slice(0, 2).map((articleData: any) => {
+                // ArticleData
                 const text = articleData?.texts?.[0];
                 if (!text) return null;
 
