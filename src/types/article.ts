@@ -27,7 +27,17 @@ export interface SelectedSubPage {
   }>;
   country: {
     id: number;
-    name: string;
     slug: string;
   };
+}
+
+export interface ArticleBody {
+  isNews: boolean;
+  originalDate: Date;
+  title: string;
+  subtitle: string;
+  url: string;
+  countryId: number;
+  sections: Section[];
+  subPageId?: number;
 }

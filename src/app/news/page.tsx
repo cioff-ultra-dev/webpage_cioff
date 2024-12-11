@@ -2,10 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { getAllArticles } from "@/lib/articles";
-import { SelectedSubPage, Section } from "@/types/article";
+import { Section } from "@/types/article";
 
 export default async function NewsPage() {
-  const articles = (await getAllArticles()) as SelectedSubPage[];
+  const articles = await getAllArticles();
 
   return (
     <div className="bg-white min-h-screen">
@@ -18,7 +18,7 @@ export default async function NewsPage() {
               const text = articleData?.texts?.[0];
               if (!text) return null;
 
-              const sections = JSON.parse(text.sections ?? "[]") as Section[];
+              const sections = text.sections ?? [];
               const coverImage = sections.find(
                 (section: Section) => section.type === "image"
               )?.content;

@@ -36,27 +36,18 @@ import {
 import { CountrySelect } from "@/components/common/country-select";
 import { Input } from "@/components/ui/input";
 import { SelectCountries } from "@/db/schema";
-import { Section, SelectedSubPage } from "@/types/article";
+import { Section, SelectedSubPage, ArticleBody } from "@/types/article";
 
 type EditableArticleTemplateProps = {
-  initialContent: SelectedSubPage;
-  onSave: (content: {
-    isNews: boolean;
-    originalDate: Date;
-    title: string;
-    subtitle: string;
-    url: string;
-    countryId: number;
-    sections: Section[];
-  }) => Promise<void>;
+  initialContent?: SelectedSubPage;
+  onSave: (content: ArticleBody) => Promise<void>;
   currentUser?: {
     id: string;
     name: string;
     image?: string;
   };
-  onExit: () => void;
+  onExit?: () => void;
   countries: SelectCountries[];
-  userId: number;
 };
 
 export const formSubPageSchema = z.object({
@@ -74,7 +65,6 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
   currentUser,
   onExit,
   countries,
-  userId,
 }) => {
   const [sections, setSections] = useState<Section[]>([
     { id: Date.now().toString(), type: "paragraph", content: "" },
@@ -83,17 +73,17 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
   const router = useRouter();
 
   const initialValues = useMemo(() => {
-    const article = initialContent.texts?.find(
+    const article = initialContent?.texts?.find(
       (text) => text.lang === initialContent?.country?.id
     );
 
-    setSections(article?.sections ?? []);
+    article?.sections && setSections(article?.sections);
     return {
       title: article?.title,
       subtitle: article?.subtitle ?? "",
-      url: initialContent.url,
-      isNews: initialContent.published,
-      originalDate: initialContent.originalDate?.toISOString()?.split("T")[0],
+      url: initialContent?.url,
+      isNews: initialContent?.published,
+      originalDate: initialContent?.originalDate?.toISOString()?.split("T")[0],
     };
   }, [initialContent]);
 
@@ -136,7 +126,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
       toast.error("El artículo no se ha podido guardar.");
     }
 
-    onExit();
+    onExit && onExit();
   };
 
   const onDragEnd = (result: DropResult) => {
@@ -295,12 +285,17 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
           <FormField
             control={form.control}
             name="isNews"
-            render={({ field }) => (
+            render={({ field: { value, ...field } }) => (
               <FormItem>
                 <FormLabel>Is News</FormLabel>
                 <FormControl className="w-full h-10 flex items-center">
                   <div>
-                    <Input type="checkbox" className="h-5 w-5" {...field} />
+                    <Input
+                      type="checkbox"
+                      className="h-5 w-5"
+                      value={String(value || false)}
+                      {...field}
+                    />
                   </div>
                 </FormControl>
                 <FormDescription>mark if the article is news.</FormDescription>
@@ -382,9 +377,11 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
         </Popover>
 
         <div className="flex gap-6">
-          <Button variant="secondary" onClick={onExit}>
-            Cancel
-          </Button>
+          {onExit && (
+            <Button variant="secondary" onClick={onExit}>
+              Cancel
+            </Button>
+          )}
           <Button
             onClick={form.handleSubmit(handleSaveClick)}
             className="bg-green-500 hover:bg-green-600 text-white"

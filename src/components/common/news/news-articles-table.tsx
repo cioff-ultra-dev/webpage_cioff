@@ -1,5 +1,5 @@
 "use client";
-import { Section, SelectedSubPage } from "@/types/article";
+import { Section, SelectedSubPage, ArticleBody } from "@/types/article";
 import { saveArticle, deleteArticle, publishArticle } from "@/lib/articles";
 import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -206,15 +206,7 @@ export default function NewsArticlesTable({
   );
 
   const handleSave = useCallback(
-    async (content: {
-      isNews: boolean;
-      originalDate: Date;
-      title: string;
-      subtitle: string;
-      url: string;
-      countryId: number;
-      sections: Section[];
-    }): Promise<void> => {
+    async (content: ArticleBody): Promise<void> => {
       await saveArticle(content, user.id, locale as Locale);
 
       router.refresh();
@@ -227,13 +219,7 @@ export default function NewsArticlesTable({
       return (
         <ArticleEditor
           countries={countries}
-          initialContent={{
-            title: "",
-            description: "",
-            sections: [],
-          }}
           onSave={handleSave}
-          userId={+user.id}
           onExit={() => {
             setEditingArticle(null);
             setIsCreating(false);
