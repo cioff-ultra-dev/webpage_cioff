@@ -1,6 +1,6 @@
 {
   "home": {
-    "title": "Hello world!"
+    "title": "For Living Traditions"
   },
   "page": {
     "all": "All",
@@ -149,6 +149,15 @@
   },
   "categories": {
     "select_options": "Select categories"
+  },
+  "filters": {
+    "search": "Search",
+    "categories": "Categories",
+    "events": "Events",
+    "regions": "Regions",
+    "countries": "Countries",
+    "select_regions": "Select regions",
+    "select_countries": "Select countries"
   },
   "customErrors": {
     "file_required": "File is required",

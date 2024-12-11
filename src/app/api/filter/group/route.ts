@@ -43,7 +43,10 @@ export type BuildGroupFilterType = Awaited<ReturnType<typeof buildFilter>>;
 
 async function buildFilter(request: NextRequest) {
   const categoriesIn: string[] = JSON.parse(
-    request.nextUrl.searchParams.get("categories") || "[]",
+    request.nextUrl.searchParams.get("categories") || "[]"
+  );
+  const countriesIn: string[] = JSON.parse(
+    request.nextUrl.searchParams.get("countries") || "[]"
   );
   const search: string = request.nextUrl.searchParams.get("search") || "";
   const type: string = request.nextUrl.searchParams.get("type") || "";
@@ -53,10 +56,10 @@ async function buildFilter(request: NextRequest) {
     request.nextUrl.searchParams.get("rangeDateTo") || "";
   const page: number = Number(request.nextUrl.searchParams.get("page") || "1");
   const countryId: number = Number(
-    request.nextUrl.searchParams.get("countryId") || "0",
+    request.nextUrl.searchParams.get("countryId") || "0"
   );
   const groupId: number = Number(
-    request.nextUrl.searchParams.get("groupId") || "0",
+    request.nextUrl.searchParams.get("groupId") || "0"
   );
 
   const locale: Locale =
@@ -107,6 +110,10 @@ async function buildFilter(request: NextRequest) {
     filters.push(inArray(categories.id, categoriesIn.map(Number)));
   }
 
+  if (countriesIn.length && !countryId) {
+    filters.push(inArray(groups.countryId, countriesIn.map(Number)));
+  }
+
   if (countryId) {
     filters.push(eq(groups.countryId, countryId));
   }
@@ -126,7 +133,7 @@ async function buildFilter(request: NextRequest) {
       groupsLang.id,
       countries.id,
       countriesLang.id,
-      logoStorage.id,
+      logoStorage.id
     )
     .limit(PAGE_SIZE)
     .offset((page - 1) * PAGE_SIZE);

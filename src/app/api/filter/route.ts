@@ -38,7 +38,10 @@ export type BuildFilterType = Awaited<ReturnType<typeof buildFilter>>;
 
 async function buildFilter(request: NextRequest) {
   const categoriesIn: string[] = JSON.parse(
-    request.nextUrl.searchParams.get("categories") || "[]",
+    request.nextUrl.searchParams.get("categories") || "[]"
+  );
+  const countriesIn: string[] = JSON.parse(
+    request.nextUrl.searchParams.get("countries") || "[]"
   );
   const search: string = request.nextUrl.searchParams.get("search") || "";
   const type: string = request.nextUrl.searchParams.get("type") || "";
@@ -48,13 +51,11 @@ async function buildFilter(request: NextRequest) {
     request.nextUrl.searchParams.get("rangeDateTo") || "";
   const page: number = Number(request.nextUrl.searchParams.get("page") || "1");
   const countryId: number = Number(
-    request.nextUrl.searchParams.get("countryId") || "0",
+    request.nextUrl.searchParams.get("countryId") || "0"
   );
   const festivalId: number = Number(
-    request.nextUrl.searchParams.get("festivalId") || "0",
+    request.nextUrl.searchParams.get("festivalId") || "0"
   );
-
-  console.log({ type });
 
   const locale: Locale =
     (request.nextUrl.searchParams.get("locale") as Locale) || defaultLocale;
@@ -77,7 +78,7 @@ async function buildFilter(request: NextRequest) {
     })
     .from(festivalToCategories)
     .innerJoin(festivals, eq(festivalToCategories.festivalId, festivals.id))
-    .innerJoin(events, eq(events.festivalId, festivals.id))
+    .leftJoin(events, eq(events.festivalId, festivals.id))
     .leftJoin(festivalsLang, eq(festivals.id, festivalsLang.festivalId))
     .leftJoin(countries, eq(festivals.countryId, countries.id))
     .leftJoin(countriesLang, eq(countriesLang.countryId, countries.id))
@@ -93,17 +94,18 @@ async function buildFilter(request: NextRequest) {
   if (rangeDateFrom || rangeDateTo) {
     filters.push(
       gte(events.startDate, new Date(Number(rangeDateFrom) * 1000)),
-      lte(
-        events.endDate,
-        new Date(Number(rangeDateTo || rangeDateFrom) * 1000),
-      ),
+      lte(events.endDate, new Date(Number(rangeDateTo || rangeDateFrom) * 1000))
     );
   } else {
-    filters.push(gte(events.startDate, new Date()));
+    // filters.push(gte(events.startDate, new Date()));
   }
 
   if (categoriesIn.length) {
     filters.push(inArray(categories.id, categoriesIn.map(Number)));
+  }
+
+  if (countriesIn.length) {
+    filters.push(inArray(festivals.countryId, countriesIn.map(Number)));
   }
 
   if (countryId) {
@@ -126,7 +128,7 @@ async function buildFilter(request: NextRequest) {
       events.id,
       festivalsLang.id,
       countriesLang.id,
-      logoStorage.id,
+      logoStorage.id
     )
     .limit(PAGE_SIZE)
     .offset((page - 1) * PAGE_SIZE);
@@ -139,8 +141,9 @@ async function buildFilter(request: NextRequest) {
         country: SelectCountries | null;
         lang: SelectFestivalLang;
         countryLang: SelectCountryLang;
-        event: SelectEvent;
+        event: SelectEvent | null;
         logo: SelectStorage;
+        events: SelectEvent[];
       }
     >
   >((acc, row) => {
@@ -157,9 +160,14 @@ async function buildFilter(request: NextRequest) {
         country,
         lang: lang!,
         countryLang: countryLang!,
-        event: event,
+        event: event || null,
         logo: logo!,
+        events: [],
       };
+    }
+
+    if (event) {
+      acc[festival.id].events.push(event);
     }
 
     return acc;

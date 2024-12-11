@@ -32,23 +32,30 @@ export default async function Home() {
   const festivals = await getAllNestedFestivals();
   const countryCast = await getAllCountryCastFestivals(locale as Locale);
   const categories = await getAllCategories(locale as Locale);
-  const articles = (await getAllArticles()) as ArticleData[];
+  const articles = (await getAllArticles()) as unknown as ArticleData[];
 
   const t = await getTranslations("home");
 
-  return (
-    <div>
-      <Header text="text-white" className="absolute left-0 right-0 top-0" />
-      <main>
-        <section className="flex flex-col items-center justify-center h-screen bg-cover bg-center relative">
-          <video
-            autoPlay
+  /*
+  <video
             loop
             muted
             className="absolute inset-0 w-full h-full object-cover"
           >
             <source src="/hero-video.mp4" type="video/mp4" />
           </video>
+  */
+
+  return (
+    <div>
+      <Header text="text-white" className="absolute left-0 right-0 top-0" />
+      <main>
+        <section className="flex flex-col items-center justify-center h-screen bg-cover bg-center relative">
+          <img
+            src="/hero-image.webp"
+            alt="Hero background"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
           <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-center text-white">
             <h1 className="text-6xl font-bold">{t("title")}</h1>
             <h2 className="text-8xl font-bold mt-4">CIOFF</h2>
@@ -76,31 +83,33 @@ export default async function Home() {
               Latest news
             </h2>
             <div className="flex flex-col space-y-4 mt-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-              {articles.slice(0, 2).map((articleData: ArticleData) => {
+              {articles?.slice(0, 2).map((articleData: ArticleData) => {
                 const text = articleData?.texts?.[0];
                 if (!text) return null;
 
                 type ArticleSection = {
                   id: string;
-                  type: 'image' | 'title' | 'subtitle' | 'paragraph' | 'list';
+                  type: "image" | "title" | "subtitle" | "paragraph" | "list";
                   content: string;
                 };
 
-                const sections = JSON.parse(text.sections ?? '[]') as ArticleSection[];
+                const sections = JSON.parse(
+                  text.sections ?? "[]"
+                ) as ArticleSection[];
                 const coverImage = sections.find(
-                  section => section.type === 'image'
+                  (section) => section.type === "image"
                 )?.content;
 
                 return (
-                  <Link 
-                    key={articleData.id} 
+                  <Link
+                    key={articleData.id}
                     href={`/news/${articleData.id}`}
                     className="flex-1 bg-gray-100 p-4 rounded-lg hover:bg-gray-200 transition-colors group"
                   >
                     {coverImage ? (
                       <Image
                         src={coverImage}
-                        alt={text.title ?? 'Article image'}
+                        alt={text.title ?? "Article image"}
                         width={800}
                         height={400}
                         className="w-full h-48 object-cover rounded-lg"

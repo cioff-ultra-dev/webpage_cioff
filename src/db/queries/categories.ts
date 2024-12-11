@@ -10,6 +10,9 @@ export async function getAllCategories(locale: Locale = defaultLocale) {
     .where(eq(languages.code, locale));
 
   return db.query.categories.findMany({
+    where(fields, operators) {
+      return operators.notInArray(fields.slug, ["international", "cioff"]);
+    },
     with: {
       langs: {
         where(fields, { eq }) {
