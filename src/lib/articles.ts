@@ -3,53 +3,36 @@
 import { eq, and } from "drizzle-orm";
 import { JSDOM } from "jsdom";
 
-import { Article, Section } from "@/types/article";
+import { SelectedSubPage, Section, ArticleBody } from "@/types/article";
 import { db } from "@/db";
 import { SubPagesProd, SubPagesTextsLangProd } from "@/db/schema";
 import { getTranslateText } from "@/lib/translate";
 import { Locale, pickLocales } from "@/i18n/config";
 import { getAllLanguages } from "@/db/queries/languages";
 
-interface ArticleText {
-  title: string;
-  description: string;
-  sections: string;
-  lang: number;
-  subPageId: number;
-}
-
-interface SubPage {
-  id: number;
-  texts: ArticleText[];
-  //... Any other fields needed will goes here
-}
-
-export async function getArticleById(id: string): Promise<SubPage | null> {
+export async function getArticleById(
+  id: string
+): Promise<SelectedSubPage | null> {
   try {
-    const result = (await db.query.SubPagesProd.findFirst({
+    const result = await db.query.SubPagesProd.findFirst({
       where: and(
         eq(SubPagesProd.id, parseInt(id)),
         eq(SubPagesProd.isNews, true)
       ),
       with: {
-        texts: false,
+        texts: true,
+        country: true,
       },
-    })) as SubPage | null;
+    });
 
-    if (result && result.texts[0]) {
-      result.texts[0].sections = JSON.parse(result.texts[0].sections || "[]");
-    }
-    return result;
+    return result as SelectedSubPage | null;
   } catch (error) {
     console.error("Error fetching article:", error);
     return null;
   }
 }
 
-export async function updateArticle(
-  id: string,
-  content: { title: string; description: string; sections: Section[] }
-) {
+export async function updateArticle(id: string, content: ArticleBody) {
   try {
     const result = await db.transaction(async (tx) => {
       const updatedSubPage = await tx
@@ -72,7 +55,7 @@ export async function updateArticle(
         .update(SubPagesTextsLangProd)
         .set({
           title: content.title,
-          subtitle: content.description,
+          subtitle: content.subtitle,
           sections: JSON.stringify(content.sections),
           updatedAt: new Date(),
         })
@@ -223,7 +206,7 @@ export async function saveArticle(
   });
 }
 
-export async function getAllArticles() {
+export async function getAllArticles(): Promise<SelectedSubPage[]> {
   try {
     const articles = await db?.query?.SubPagesProd?.findMany({
       where: eq(SubPagesProd.isNews, true),
@@ -233,9 +216,11 @@ export async function getAllArticles() {
       },
       orderBy: (subPages, { desc }) => [desc(subPages.createdAt)],
     });
-    return articles;
+
+    return articles as SelectedSubPage[];
   } catch (error) {
     console.error("Error fetching all articles:", error);
+
     throw error;
   }
 }
@@ -275,7 +260,9 @@ export async function publishArticle(subPageId: number, published: boolean) {
   }
 }
 
-export async function getArticleByUrl(url: string) {
+export async function getArticleByUrl(
+  url: string
+): Promise<SelectedSubPage | null> {
   try {
     const articles = await db?.query?.SubPagesProd?.findFirst({
       where: eq(SubPagesProd.url, url),
@@ -285,10 +272,10 @@ export async function getArticleByUrl(url: string) {
       },
     });
 
-    return articles;
+    return articles as SelectedSubPage | null;
   } catch (error) {
     console.error("Error fetching article:", error);
 
-    return {};
+    return null;
   }
 }

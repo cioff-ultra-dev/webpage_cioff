@@ -1,48 +1,33 @@
 import Image from "next/image";
-import { Header } from "@/components/common/header";
 import { getLocale } from "next-intl/server";
 import { Locale } from "@/i18n/config";
 import { headers } from "next/headers";
 
+import { Header } from "@/components/common/header";
 import { getArticleByUrl } from "@/lib/articles";
 import { getLanguageByLocale } from "@/db/queries/languages";
 import { Section } from "@/types/article";
 import RenderSections from "@/components/common/news/render-articles";
-
-interface SelectedSubPage {
-  id: number;
-  slug: string;
-  originalDate: Date;
-  published: boolean;
-  url: string;
-  texts: Array<{
-    sections?: Section[];
-    lang: number;
-    subtitle: string;
-    title: string;
-  }>;
-  country: {
-    id: number;
-    name: string;
-    slug: string;
-  };
-}
 
 export default async function DetailArticle({
   params,
 }: {
   params: { slug: string };
 }) {
-  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
-
   const headersList = headers();
   const locale = await getLocale();
   const lang = await getLanguageByLocale(locale as Locale);
+
+  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
   const host = headersList.get("host");
-  const article = (await getArticleByUrl(
-    `${protocol}://${host}/article/${params.slug}`
-  )) as SelectedSubPage;
-  console.log(article);
+  const url = `${protocol}://${host}/article/${params.slug}`;
+
+  const article = await getArticleByUrl(url);
+
+  if (!article) {
+    return <p>Article not found</p>;
+  }
+
   const articleTranslated = article?.texts?.find(
     (article) => article.lang === lang?.id
   );
