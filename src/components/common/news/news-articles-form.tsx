@@ -9,7 +9,11 @@ import {
 } from "@hello-pangea/dnd";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { FilePondFile, FilePondErrorDescription } from "filepond";
+import {
+  FilePondFile,
+  FilePondErrorDescription,
+  FilePondInitialFile,
+} from "filepond";
 import { useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { z } from "zod";
@@ -111,6 +115,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
   const handleSaveClick = async (values: z.infer<typeof formSubPageSchema>) => {
     console.log(values);
     console.log(sections);
+
     try {
       const contentToSave = {
         countryId: +values.country,
@@ -122,7 +127,18 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
         originalDate: new Date(values.originalDate),
         title: values.title,
         subtitle: values.subtitle,
-        sections,
+        sections: sections.map((section) => {
+          if (section.type !== "image") return section;
+
+          const splitUrls = section.content.split(",");
+
+          return {
+            ...section,
+            content: splitUrls
+              .filter((item, index) => splitUrls.indexOf(item) === index)
+              .join(","),
+          };
+        }),
       };
 
       await onSave(contentToSave);
@@ -206,15 +222,21 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
         name: isImage ? "photos" : "videos",
       };
 
+      const initialFiles: FilePondInitialFile[] =
+        Object.keys(initialValues).length > 0 && section.content.length > 0
+          ? section.content.split(",").map((source) => ({
+              source,
+              options: {
+                type: "local",
+              },
+            }))
+          : [];
+
       return (
         <FilepondImageUploader
           allowMultiple
           maxFiles={5}
-          defaultFiles={
-            Object.keys(initialValues).length > 0 && section.content.length > 0
-              ? section.content.split(",") ?? []
-              : []
-          }
+          defaultFiles={initialFiles}
           onprocessfile={callback}
           {...props}
         />
