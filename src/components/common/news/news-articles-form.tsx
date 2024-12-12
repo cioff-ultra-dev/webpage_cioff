@@ -7,7 +7,6 @@ import {
   Draggable,
   DropResult,
 } from "@hello-pangea/dnd";
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { FilePondFile, FilePondErrorDescription } from "filepond";
@@ -48,6 +47,7 @@ type EditableArticleTemplateProps = {
   };
   onExit?: () => void;
   countries: SelectCountries[];
+  localeId: number;
 };
 
 export const formSubPageSchema = z.object({
@@ -65,27 +65,34 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
   currentUser,
   onExit,
   countries,
+  localeId,
 }) => {
   const [sections, setSections] = useState<Section[]>([
     { id: Date.now().toString(), type: "paragraph", content: "" },
   ]);
 
-  const router = useRouter();
-
   const initialValues = useMemo(() => {
     const article = initialContent?.texts?.find(
-      (text) => text.lang === initialContent?.country?.id
+      (text) => text.lang === localeId
     );
 
-    article?.sections && setSections(article?.sections);
+    if (article?.sections && article?.sections?.length > 0) {
+      const sections = article?.sections?.sort(
+        (a: any, b: any) => a.id - b.id
+      ) as Section[];
+
+      setSections(sections);
+    }
+
     return {
       title: article?.title,
       subtitle: article?.subtitle ?? "",
-      url: initialContent?.url,
-      isNews: initialContent?.published,
+      url: initialContent?.url?.split("article/")[1],
+      isNews: initialContent?.isNews,
       originalDate: initialContent?.originalDate?.toISOString()?.split("T")[0],
+      country: String(initialContent?.countryId || ""),
     };
-  }, [initialContent]);
+  }, [initialContent, localeId]);
 
   const form = useForm<z.infer<typeof formSubPageSchema>>({
     resolver: zodResolver(formSubPageSchema),
@@ -95,6 +102,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
       url: initialValues.url ?? "",
       isNews: initialValues.isNews ?? false,
       originalDate: initialValues.originalDate ?? "",
+      country: initialValues?.country ?? "",
     },
   });
 
@@ -117,8 +125,8 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
         sections,
       };
 
-      const response = await onSave(contentToSave);
-      console.log(response);
+      await onSave(contentToSave);
+
       toast.success("El artículo guardado correctamente.");
     } catch (error) {
       console.error("Error al guardar el artículo:", error);
@@ -202,7 +210,11 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
         <FilepondImageUploader
           allowMultiple
           maxFiles={5}
-          defaultFiles={[]}
+          defaultFiles={
+            Object.keys(initialValues).length > 0 && section.content.length > 0
+              ? section.content.split(",") ?? []
+              : []
+          }
           onprocessfile={callback}
           {...props}
         />
@@ -275,6 +287,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
                   <CountrySelect
                     countries={countries}
                     handleChange={field.onChange}
+                    {...field}
                   />
                 </FormControl>
                 <FormDescription>Select a country</FormDescription>
@@ -293,7 +306,8 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
                     <Input
                       type="checkbox"
                       className="h-5 w-5"
-                      value={String(value || false)}
+                      value={String(value)}
+                      checked={value}
                       {...field}
                     />
                   </div>

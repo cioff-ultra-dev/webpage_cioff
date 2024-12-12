@@ -19,6 +19,8 @@ export interface SelectedSubPage {
   originalDate: Date;
   published: boolean;
   url: string;
+  countryId: number;
+  isNews: boolean;
   texts: Array<{
     sections?: Section[];
     lang: number;

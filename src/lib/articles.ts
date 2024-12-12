@@ -10,6 +10,24 @@ import { getTranslateText } from "@/lib/translate";
 import { Locale, pickLocales } from "@/i18n/config";
 import { getAllLanguages } from "@/db/queries/languages";
 
+interface SubPage {
+  isNews: boolean;
+  originalDate: Date;
+  title: string;
+  subtitle: string;
+  url: string;
+  countryId: number;
+  sections: Section[];
+}
+
+interface SubPageText {
+  title: string;
+  subtitle: string;
+  sections: Section[];
+  subPageId: number;
+  lang: number;
+}
+
 export async function getArticleById(
   id: string
 ): Promise<SelectedSubPage | null> {
@@ -69,6 +87,7 @@ export async function updateArticle(id: string, content: ArticleBody) {
     throw error;
   }
 }
+
 function extractTextFromHTML(html: string): string[] {
   const dom = new JSDOM(html);
   const document = dom.window.document;
@@ -84,30 +103,9 @@ function extractTextFromHTML(html: string): string[] {
   return Array.from(textSet);
 }
 
-export async function saveArticle(
-  content: {
-    isNews: boolean;
-    originalDate: Date;
-    title: string;
-    subtitle: string;
-    url: string;
-    countryId: number;
-    sections: Section[];
-  },
-  userId: string,
-  locale: Locale
-) {
+async function TranslateSubPage(content: SubPage, locale: Locale) {
   const filteredLocales = pickLocales(locale);
-  const translatedSections: Record<
-    string,
-    {
-      title: string;
-      subtitle: string;
-      sections: Section[];
-      subPageId: number;
-      lang: number;
-    }
-  > = Object.fromEntries(
+  const translatedSections: Record<string, SubPageText> = Object.fromEntries(
     filteredLocales.map((item) => [
       item,
       { title: "", subtitle: "", sections: [], subPageId: 0, lang: 0 },
@@ -173,6 +171,21 @@ export async function saveArticle(
     translatedSections[locale].lang = lang?.id ?? 0;
   });
 
+  return {
+    otherLanguages: filteredLocales,
+    translatedSections,
+    currentLang: lang,
+  };
+}
+
+export async function saveArticle(
+  content: SubPage,
+  userId: string,
+  locale: Locale
+) {
+  const { otherLanguages, translatedSections, currentLang } =
+    await TranslateSubPage(content, locale);
+
   return db.transaction(async (tx) => {
     const [subPage] = await tx
       .insert(SubPagesProd)
@@ -187,7 +200,7 @@ export async function saveArticle(
       })
       .returning();
 
-    filteredLocales.map(
+    otherLanguages.map(
       (locale) => (translatedSections[locale].subPageId = subPage.id)
     );
 
@@ -197,7 +210,7 @@ export async function saveArticle(
         subtitle: content.subtitle,
         sections: content.sections,
         subPageId: subPage.id,
-        lang: lang?.id ?? 1,
+        lang: currentLang?.id ?? 1,
       },
       ...Object.values(translatedSections),
     ]);
@@ -277,5 +290,72 @@ export async function getArticleByUrl(
     console.error("Error fetching article:", error);
 
     return null;
+  }
+}
+
+export async function updateSubPage(
+  subPageId: number,
+  content: SubPage,
+  userId: string,
+  locale: Locale
+) {
+  try {
+    const { otherLanguages, translatedSections, currentLang } =
+      await TranslateSubPage(content, locale);
+
+    return db.transaction(async (tx) => {
+      const subPage = await tx
+        .update(SubPagesProd)
+        .set({
+          updatedAt: new Date(),
+          url: content.url,
+          isNews: content.isNews,
+          originalDate: content.originalDate,
+          updatedBy: userId,
+          countryId: content.countryId,
+        })
+        .where(eq(SubPagesProd.id, subPageId))
+        .returning();
+
+      otherLanguages.map(
+        (locale) => (translatedSections[locale].subPageId = subPageId)
+      );
+
+      const subPagesTexts = await tx.query.SubPagesTextsLangProd.findMany({
+        where: eq(SubPagesTextsLangProd.subPageId, subPageId),
+      });
+
+      const sections = [
+        {
+          title: content.title,
+          subtitle: content.subtitle,
+          sections: content.sections,
+          subPageId: subPageId,
+          lang: currentLang?.id ?? 1,
+        },
+        ...Object.values(translatedSections),
+      ];
+
+      await subPagesTexts.reduce(async (accum, item) => {
+        await accum;
+
+        const currentSection = sections.find(
+          (section) => section.lang === item.lang
+        );
+        if (!currentSection) return;
+        console.log(JSON.stringify({ currentSection, item }));
+
+        await tx
+          .update(SubPagesTextsLangProd)
+          .set(currentSection)
+          .where(eq(SubPagesTextsLangProd.id, item.id));
+      }, Promise.resolve());
+
+      console.log(subPage);
+      return subPage;
+    });
+  } catch (error) {
+    console.error("Error updating article:", error);
+    throw error;
   }
 }

@@ -1,6 +1,11 @@
 "use client";
-import { Section, SelectedSubPage, ArticleBody } from "@/types/article";
-import { saveArticle, deleteArticle, publishArticle } from "@/lib/articles";
+import { SelectedSubPage, ArticleBody } from "@/types/article";
+import {
+  saveArticle,
+  deleteArticle,
+  publishArticle,
+  updateSubPage,
+} from "@/lib/articles";
 import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -49,6 +54,7 @@ type NewsArticlesTableProps = {
   };
   articles: Array<SelectedSubPage>;
   countries: SelectCountries[];
+  localeId: number;
 };
 
 const ArticleTable = ({
@@ -175,6 +181,7 @@ export default function NewsArticlesTable({
   user,
   articles,
   countries,
+  localeId,
 }: NewsArticlesTableProps) {
   const [editingArticle, setEditingArticle] = useState<SelectedSubPage | null>(
     null
@@ -185,7 +192,6 @@ export default function NewsArticlesTable({
   const router = useRouter();
 
   const handleEdit = (article: SelectedSubPage) => {
-    console.log(article);
     setEditingArticle(article);
   };
 
@@ -207,17 +213,29 @@ export default function NewsArticlesTable({
 
   const handleSave = useCallback(
     async (content: ArticleBody): Promise<void> => {
-      await saveArticle(content, user.id, locale as Locale);
+      if (editingArticle) {
+        const response = await updateSubPage(
+          editingArticle.id,
+          content,
+          user.id,
+          locale as Locale
+        );
 
+        console.log(response);
+      } else {
+        await saveArticle(content, user.id, locale as Locale);
+      }
       router.refresh();
     },
-    [locale, router, user.id]
+    [locale, router, user.id, editingArticle]
   );
 
   const renderContent = () => {
     if (editingArticle || isCreating) {
       return (
         <ArticleEditor
+          localeId={localeId}
+          initialContent={editingArticle!}
           countries={countries}
           onSave={handleSave}
           onExit={() => {

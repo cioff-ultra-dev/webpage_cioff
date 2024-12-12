@@ -20,7 +20,10 @@ export async function POST(request: Request): Promise<NextResponse> {
 }
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  const load: string = request.nextUrl.searchParams.get("load") || "";
+  const load: string =
+    request.nextUrl.searchParams.get("load") ||
+    request.nextUrl.searchParams.get("fetch") ||
+    "";
 
   const result = await fetch(load);
   const _head = await head(load);
