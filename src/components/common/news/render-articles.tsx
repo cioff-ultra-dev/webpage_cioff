@@ -1,9 +1,9 @@
-"use client";
-
-import { useMemo } from "react";
+import { useMemo, Suspense } from "react";
 import Image from "next/image";
 
+import CarouselHistory from "@/components/common/carousel-history";
 import { Section } from "@/types/article";
+import LatestNews from "@/components/common/news/latest-news";
 
 function RenderArticles({ sections }: { sections: Section[] }) {
   const items = useMemo(
@@ -41,6 +41,14 @@ function RenderArticles({ sections }: { sections: Section[] }) {
                   type="video/mp4"
                 />
               </video>
+            );
+          case "carousel":
+            return <CarouselHistory key={section.id} />;
+          case "news":
+            return (
+              <Suspense key={section.id} fallback={<p>Loading...</p>}>
+                <LatestNews limit={3} classes="w-full" />
+              </Suspense>
             );
           default:
             return section.content;

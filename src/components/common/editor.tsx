@@ -5,7 +5,6 @@ import {
   Editor as EditorTipTap,
 } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import TextAlign from "@tiptap/extension-text-align";
@@ -154,11 +153,13 @@ const Editor = ({ content, onContentChange, ...props }: EditorProps) => {
         blockquote: {
           HTMLAttributes: {
             class: "border-l-4 border-gray-300 pl-4 my-4",
+            rel: "noopener noreferrer",
+            target: "_blank",
           },
         },
       }),
       Link.configure({
-        openOnClick: false,
+        openOnClick: true,
         HTMLAttributes: {
           class: "text-blue-500 hover:text-blue-700 underline",
         },

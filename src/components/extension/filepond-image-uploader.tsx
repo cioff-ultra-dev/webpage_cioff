@@ -9,6 +9,7 @@ import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orien
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 import FilePondPluginImageCrop from "filepond-plugin-image-crop";
+import FilePondPluginFileValidateSize from "filepond-plugin-file-validate-size";
 
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import { useRef, useState } from "react";
@@ -18,6 +19,7 @@ registerPlugin(
   FilePondPluginImageExifOrientation,
   FilePondPluginFileValidateType,
   FilePondPluginImageCrop,
+  FilePondPluginFileValidateSize
 );
 
 export function FilepondImageUploader({
@@ -32,6 +34,7 @@ export function FilepondImageUploader({
     <div className="w-full">
       <FilePond
         ref={fileRef}
+        maxFileSize="20MB"
         files={files}
         server={{
           url: "/api/upload/image",

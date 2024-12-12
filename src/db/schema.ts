@@ -812,6 +812,7 @@ export const SubPagesProd = pgTable("sub_pages", {
   updatedBy: text("updated_by").references(() => users.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  mainImage: text("main_image"),
 });
 export const SubPagesTextsLangProd = pgTable("sub_pages_texts_lang", {
   id: serial("id").primaryKey(),

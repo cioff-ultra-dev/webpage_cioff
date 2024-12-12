@@ -32,7 +32,7 @@ export default async function DetailArticle({
     (article) => article.lang === lang?.id
   );
   const sections = articleTranslated?.sections?.sort(
-    (a: any, b: any) => a.id - b.id
+    (a: any, b: any) => a?.position || a.id - b?.position || b.id
   ) as Section[];
 
   return (
@@ -53,8 +53,22 @@ export default async function DetailArticle({
             <h1 className="font-bold mb-12 text-2xl">
               {articleTranslated?.title}
             </h1>
-            <div className="h-[35rem] w-full bg-gray-400 flex justify-center items-center">
-              Image here
+            <div
+              style={{ position: "relative", width: "100%", height: "40rem" }}
+            >
+              {article.mainImage ? (
+                <Image
+                  src={article.mainImage}
+                  layout="fill"
+                  objectFit="cover"
+                  quality={100}
+                  alt="main-image"
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-200 flex justify-center items-center">
+                  Image here
+                </div>
+              )}
             </div>
           </div>
           <RenderSections sections={sections ?? []} />

@@ -191,6 +191,9 @@ importers:
       filepond:
         specifier: ^4.31.4
         version: 4.31.4
+      filepond-plugin-file-validate-size:
+        specifier: ^2.2.8
+        version: 2.2.8(filepond@4.31.4)
       filepond-plugin-file-validate-type:
         specifier: ^1.2.9
         version: 1.2.9(filepond@4.31.4)
@@ -2916,6 +2919,11 @@ packages:
   file-selector@0.6.0:
     resolution: {integrity: sha512-QlZ5yJC0VxHxQQsQhXvBaC7VRJ2uaxTf+Tfpu4Z/OcVQJVpZO+DGU0rkoVW5ce2SccxugvpBJoMvUs59iILYdw==}
     engines: {node: '>= 12'}
+
+  filepond-plugin-file-validate-size@2.2.8:
+    resolution: {integrity: sha512-yzb8scATmkWqPTP7oKQz6L8WwJm6Xmgc/fuq6DFGRaLz0I7372BUvBsxagBk/hypMIjvieNzhggm33Y60x3rcw==}
+    peerDependencies:
+      filepond: '>=3.1.2 <5.x'
 
   filepond-plugin-file-validate-type@1.2.9:
     resolution: {integrity: sha512-Tzv07aNdZvjUXDRA3XL16QMEvh6llDrXlcZ6W0eTHQ+taHaVg/JKJTFs/AViO+6ZcpPCcQStbhYEL2HoS+vldw==}
@@ -7595,6 +7603,10 @@ snapshots:
   file-selector@0.6.0:
     dependencies:
       tslib: 2.6.3
+
+  filepond-plugin-file-validate-size@2.2.8(filepond@4.31.4):
+    dependencies:
+      filepond: 4.31.4
 
   filepond-plugin-file-validate-type@1.2.9(filepond@4.31.4):
     dependencies:

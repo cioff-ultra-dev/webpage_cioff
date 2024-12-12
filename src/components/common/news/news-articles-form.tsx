@@ -71,8 +71,9 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
   countries,
   localeId,
 }) => {
+  const [mainImage, setMainImage] = useState<string>("");
   const [sections, setSections] = useState<Section[]>([
-    { id: Date.now().toString(), type: "paragraph", content: "" },
+    { id: Date.now().toString(), type: "paragraph", content: "", position: 0 },
   ]);
 
   const initialValues = useMemo(() => {
@@ -80,9 +81,20 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
       (text) => text.lang === localeId
     );
 
+    const initialMainImage: FilePondInitialFile[] = initialContent?.mainImage
+      ? [
+          {
+            source: initialContent?.mainImage,
+            options: {
+              type: "local",
+            },
+          },
+        ]
+      : [];
+
     if (article?.sections && article?.sections?.length > 0) {
       const sections = article?.sections?.sort(
-        (a: any, b: any) => a.id - b.id
+        (a: any, b: any) => a?.position || a.id - b?.position || b.id
       ) as Section[];
 
       setSections(sections);
@@ -95,6 +107,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
       isNews: initialContent?.isNews,
       originalDate: initialContent?.originalDate?.toISOString()?.split("T")[0],
       country: String(initialContent?.countryId || ""),
+      mainImage: initialMainImage,
     };
   }, [initialContent, localeId]);
 
@@ -113,9 +126,6 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
   const t = useTranslations("form.festival");
 
   const handleSaveClick = async (values: z.infer<typeof formSubPageSchema>) => {
-    console.log(values);
-    console.log(sections);
-
     try {
       const contentToSave = {
         countryId: +values.country,
@@ -127,8 +137,9 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
         originalDate: new Date(values.originalDate),
         title: values.title,
         subtitle: values.subtitle,
-        sections: sections.map((section) => {
-          if (section.type !== "image") return section;
+        mainImage,
+        sections: sections.map((section, index) => {
+          if (section.type !== "image") return { ...section, position: index };
 
           const splitUrls = section.content.split(",");
 
@@ -137,6 +148,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
             content: splitUrls
               .filter((item, index) => splitUrls.indexOf(item) === index)
               .join(","),
+            position: index,
           };
         }),
       };
@@ -166,6 +178,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
       id: Date.now().toString(),
       type,
       content: "",
+      position: sections.length,
     };
     setSections([...sections, newSection]);
   };
@@ -198,6 +211,18 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
         );
       },
     [updateSection]
+  );
+
+  const onLoadMainImage = useCallback(
+    (error: FilePondErrorDescription | null, file: FilePondFile) => {
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      setMainImage(file.serverId);
+    },
+    []
   );
 
   const renderSection = (section: Section) => {
@@ -242,6 +267,15 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
         />
       );
     }
+
+    if (section.type === "carousel" || section.type === "news")
+      return (
+        <div className="w-full h-10 bg-gray-200 rounded-xl flex justify-center items-center font-bold">
+          {section.type === "carousel"
+            ? "Carousel Content"
+            : "Latest news content"}
+        </div>
+      );
   };
 
   return (
@@ -360,6 +394,14 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
           />
         </div>
       </Form>
+      <div className="flex flex-col gap-4 my-4">
+        <label>Main image</label>
+        <FilepondImageUploader
+          maxFiles={1}
+          defaultFiles={initialValues.mainImage}
+          onprocessfile={onLoadMainImage}
+        />
+      </div>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="article">
           {(provided) => (
@@ -408,6 +450,12 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
               </Button>
               <Button onClick={() => addSection("image")}>Add Image</Button>
               <Button onClick={() => addSection("video")}>Add Video</Button>
+              <Button onClick={() => addSection("carousel")}>
+                Add Carousel
+              </Button>
+              <Button onClick={() => addSection("news")}>
+                Add Latest news
+              </Button>
             </div>
           </PopoverContent>
         </Popover>

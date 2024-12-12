@@ -18,6 +18,7 @@ interface SubPage {
   url: string;
   countryId: number;
   sections: Section[];
+  mainImage: string;
 }
 
 interface SubPageText {
@@ -197,6 +198,7 @@ export async function saveArticle(
         published: false,
         createdBy: userId,
         countryId: content.countryId,
+        mainImage: content.mainImage,
       })
       .returning();
 
@@ -219,7 +221,9 @@ export async function saveArticle(
   });
 }
 
-export async function getAllArticles(): Promise<SelectedSubPage[]> {
+export async function getAllArticles(
+  limit?: number
+): Promise<SelectedSubPage[]> {
   try {
     const articles = await db?.query?.SubPagesProd?.findMany({
       where: eq(SubPagesProd.isNews, true),
@@ -228,6 +232,7 @@ export async function getAllArticles(): Promise<SelectedSubPage[]> {
         country: true,
       },
       orderBy: (subPages, { desc }) => [desc(subPages.createdAt)],
+      limit,
     });
 
     return articles as SelectedSubPage[];
@@ -313,6 +318,7 @@ export async function updateSubPage(
           originalDate: content.originalDate,
           updatedBy: userId,
           countryId: content.countryId,
+          mainImage: content.mainImage,
         })
         .where(eq(SubPagesProd.id, subPageId))
         .returning();
@@ -343,7 +349,6 @@ export async function updateSubPage(
           (section) => section.lang === item.lang
         );
         if (!currentSection) return;
-        console.log(JSON.stringify({ currentSection, item }));
 
         await tx
           .update(SubPagesTextsLangProd)
@@ -351,7 +356,6 @@ export async function updateSubPage(
           .where(eq(SubPagesTextsLangProd.id, item.id));
       }, Promise.resolve());
 
-      console.log(subPage);
       return subPage;
     });
   } catch (error) {

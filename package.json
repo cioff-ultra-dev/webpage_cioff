@@ -71,6 +71,7 @@
     "embla-carousel-react": "^8.2.1",
     "eslint-plugin-drizzle": "^0.2.3",
     "filepond": "^4.31.4",
+    "filepond-plugin-file-validate-size": "^2.2.8",
     "filepond-plugin-file-validate-type": "^1.2.9",
     "filepond-plugin-image-crop": "^2.0.6",
     "filepond-plugin-image-exif-orientation": "^1.0.11",

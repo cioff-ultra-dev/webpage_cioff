@@ -214,14 +214,12 @@ export default function NewsArticlesTable({
   const handleSave = useCallback(
     async (content: ArticleBody): Promise<void> => {
       if (editingArticle) {
-        const response = await updateSubPage(
+        await updateSubPage(
           editingArticle.id,
           content,
           user.id,
           locale as Locale
         );
-
-        console.log(response);
       } else {
         await saveArticle(content, user.id, locale as Locale);
       }

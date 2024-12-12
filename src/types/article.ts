@@ -1,7 +1,8 @@
 export type Section = {
   id: string;
-  type: "paragraph" | "image" | "video";
+  type: "paragraph" | "image" | "video" | "carousel" | "news";
   content: string;
+  position: number;
 };
 
 export type Article = {
@@ -21,6 +22,7 @@ export interface SelectedSubPage {
   url: string;
   countryId: number;
   isNews: boolean;
+  mainImage: string;
   texts: Array<{
     sections?: Section[];
     lang: number;
@@ -42,4 +44,5 @@ export interface ArticleBody {
   countryId: number;
   sections: Section[];
   subPageId?: number;
+  mainImage: string;
 }
