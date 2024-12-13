@@ -94,7 +94,8 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
 
     if (article?.sections && article?.sections?.length > 0) {
       const sections = article?.sections?.sort(
-        (a: any, b: any) => a?.position || a.id - b?.position || b.id
+        (a: Section, b: Section) =>
+          (a?.position ?? a.id) - (b?.position ?? b.id)
       ) as Section[];
 
       setSections(sections);

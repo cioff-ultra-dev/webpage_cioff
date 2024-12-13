@@ -24,7 +24,7 @@ export default async function ArticleViewPage({
     (article) => article.lang === lang?.id
   );
   const sections = articleTranslated?.sections?.sort(
-    (a: any, b: any) => a.id - b.id
+    (a: Section, b: Section) => (a?.position ?? a.id) - (b?.position ?? b.id)
   ) as Section[];
 
   return (

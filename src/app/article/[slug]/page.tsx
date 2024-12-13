@@ -32,9 +32,9 @@ export default async function DetailArticle({
     (article) => article.lang === lang?.id
   );
   const sections = articleTranslated?.sections?.sort(
-    (a: any, b: any) => a?.position || a.id - b?.position || b.id
+    (a: Section, b: Section) => (a?.position ?? a?.id) - (b?.position ?? b?.id)
   ) as Section[];
-
+  console.log(sections);
   return (
     <div>
       <Header text="text-black" className="border-b" />
