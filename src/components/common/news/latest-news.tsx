@@ -20,9 +20,9 @@ async function LatestNews({ limit, classes }: LatestNewsProps) {
 
     const sections = text.sections ?? [];
 
-    const firstParagraph =
-      sections.find((section: Section) => section.type === "paragraph")
-        ?.content || "";
+    const firstParagraph = (sections.find(
+      (section: Section) => section.type === "paragraph"
+    )?.content || "") as string;
 
     const description =
       firstParagraph.split(" ").slice(0, 30).join(" ") +

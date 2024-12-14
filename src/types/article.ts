@@ -1,7 +1,27 @@
+export type ButtonContent = {
+  buttonLabel: string;
+  url: string;
+  openNewTab: boolean;
+  variant:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link";
+};
+
 export type Section = {
   id: string;
-  type: "paragraph" | "image" | "video" | "carousel" | "news";
-  content: string;
+  type:
+    | "paragraph"
+    | "image"
+    | "video"
+    | "carousel"
+    | "news"
+    | "youtube"
+    | "button";
+  content: ButtonContent | string;
   position: number;
 };
 

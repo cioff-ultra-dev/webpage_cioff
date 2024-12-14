@@ -1,4 +1,5 @@
 "use client";
+
 import { SelectedSubPage, ArticleBody } from "@/types/article";
 import {
   saveArticle,
@@ -6,7 +7,7 @@ import {
   publishArticle,
   updateSubPage,
 } from "@/lib/articles";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
@@ -183,11 +184,12 @@ export default function NewsArticlesTable({
   countries,
   localeId,
 }: NewsArticlesTableProps) {
+  const [isCreating, setIsCreating] = useState(false);
   const [editingArticle, setEditingArticle] = useState<SelectedSubPage | null>(
     null
   );
-  const [isCreating, setIsCreating] = useState(false);
 
+  const translations = useTranslations("news.table");
   const locale = useLocale();
   const router = useRouter();
 
@@ -228,7 +230,7 @@ export default function NewsArticlesTable({
     [locale, router, user.id, editingArticle]
   );
 
-  const renderContent = () => {
+  const content = useMemo(() => {
     if (editingArticle || isCreating) {
       return (
         <ArticleEditor
@@ -248,9 +250,11 @@ export default function NewsArticlesTable({
       <Tabs defaultValue="all">
         <div className="flex items-center mb-4">
           <TabsList>
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="published">Published</TabsTrigger>
-            <TabsTrigger value="draft">Draft</TabsTrigger>
+            <TabsTrigger value="all">{translations("all")}</TabsTrigger>
+            <TabsTrigger value="published">
+              {translations("published")}
+            </TabsTrigger>
+            <TabsTrigger value="draft">{translations("draft")}</TabsTrigger>
           </TabsList>
           <div className="ml-auto">
             <Button
@@ -322,14 +326,17 @@ export default function NewsArticlesTable({
         </TabsContent>
       </Tabs>
     );
-  };
+  }, [
+    articles,
+    changePublishArticleStatus,
+    countries,
+    editingArticle,
+    handleSave,
+    isCreating,
+    localeId,
+    removeArticle,
+    translations,
+  ]);
 
-  return (
-    <div>
-      <div className="flex items-center justify-between">
-        <h2>Welcome, {user.name || "User"}</h2>
-      </div>
-      {renderContent()}
-    </div>
-  );
+  return <div>{content}</div>;
 }

@@ -159,6 +159,38 @@
       "message": "Êtes-vous sûr de vouloir dépublier \"{name}\" ?",
       "button": "Dépublier"
     },
-    "view": "Vue"
+    "view": "Vue",
+    "table": {
+      "all": "Tout",
+      "published": "Publié",
+      "draft": "Brouillons"
+    },
+    "form": {
+      "sections": {
+        "paragraph": "Ajouter un paragraphe",
+        "image": "Ajouter une image",
+        "video": "Ajouter une vidéo",
+        "carousel": "Ajouter un carrousel",
+        "news": "Ajouter les actualités récentes",
+        "youtube": "Ajouter une vidéo YouTube",
+        "button": "Ajouter un bouton",
+        "save": "Enregistrer",
+        "cancel": "Annuler",
+        "remove": "Supprimer la section",
+        "youtubePlaceholder": "Entrez l'URL de la vidéo YouTube",
+        "buttonTitle": "Bouton",
+        "buttonPlaceholder": "Entrez le nom du bouton",
+        "buttonUrl": "URL du bouton",
+        "openLink": "Ouvrir comme lien externe",
+        "default": "Par défaut",
+        "destructive": "Danger",
+        "outline": "Contour",
+        "secondary": "Secondaire",
+        "ghost": "Fantôme",
+        "link": "Lien",
+        "variant": "Variante",
+        "variantPlaceholder": "Sélectionnez la variante du bouton"
+      }
+    }
   }
 }

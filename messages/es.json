@@ -178,6 +178,38 @@
       "message": "¿Estás seguro de que deseas despublicar \"{name}\"?",
       "button": "Despublicar"
     },
-    "view": "Ver"
+    "view": "Ver",
+    "table": {
+      "all": "Todo",
+      "published": "Publicados",
+      "draft": "Borradores"
+    },
+    "form": {
+      "sections": {
+        "paragraph": "Agregar parrafo",
+        "image": "Agregar imagen",
+        "video": "Agregar video",
+        "carousel": "Agregar carrusel",
+        "news": "Agregar noticias recientes",
+        "youtube": "agregar video de yotube",
+        "button": "Agregar botón",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "remove": "Eliminar sección",
+        "youtubePlaceholder": "ingrese la url del video de yotube",
+        "buttonTitle": "Botón",
+        "buttonPlaceholder": "ingrese el bombre del botón",
+        "buttonUrl": "Url del botón",
+        "openLink": "Abrir como enlace externo",
+        "default": "Por defecto",
+        "destructive": "Peligro",
+        "outline": "Delineado",
+        "secondary": "secundario",
+        "ghost": "fantasma",
+        "link": "link",
+        "variant": "Variante",
+        "variantPlaceholder": "Seleccione la variante del botón"
+      }
+    }
   }
 }

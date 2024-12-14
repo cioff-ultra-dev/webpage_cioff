@@ -17,14 +17,19 @@ import {
 import { useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { z } from "zod";
+import {
+  Pilcrow,
+  ImageIcon,
+  VideoIcon,
+  GalleryHorizontal,
+  Newspaper,
+  Youtube,
+  Trash2,
+  SquareMinus,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
 import { FilepondImageUploader } from "@/components/extension/filepond-image-uploader";
 import { Editor } from "@/components/common/editor";
 import {
@@ -39,7 +44,14 @@ import {
 import { CountrySelect } from "@/components/common/country-select";
 import { Input } from "@/components/ui/input";
 import { SelectCountries } from "@/db/schema";
-import { Section, SelectedSubPage, ArticleBody } from "@/types/article";
+import {
+  Section,
+  SelectedSubPage,
+  ArticleBody,
+  ButtonContent,
+} from "@/types/article";
+import { Card, CardContent } from "@/components/ui/card";
+import VariantSelector from "./variant-selector";
 
 type EditableArticleTemplateProps = {
   initialContent?: SelectedSubPage;
@@ -124,7 +136,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
     },
   });
 
-  const t = useTranslations("form.festival");
+  const translations = useTranslations("news.form");
 
   const handleSaveClick = async (values: z.infer<typeof formSubPageSchema>) => {
     try {
@@ -142,7 +154,10 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
         sections: sections.map((section, index) => {
           if (section.type !== "image") return { ...section, position: index };
 
-          const splitUrls = section.content.split(",");
+          const splitUrls =
+            typeof section.content === "string"
+              ? section.content.split(",")
+              : [];
 
           return {
             ...section,
@@ -178,19 +193,30 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
     const newSection: Section = {
       id: Date.now().toString(),
       type,
-      content: "",
+      content:
+        type === "button"
+          ? {
+              buttonLabel: "",
+              openNewTab: false,
+              url: "",
+              variant: "default",
+            }
+          : "",
       position: sections.length,
     };
     setSections([...sections, newSection]);
   };
 
-  const updateSection = useCallback((id: string, content: string) => {
-    setSections((sections) =>
-      sections.map((section) =>
-        section.id === id ? { ...section, content } : section
-      )
-    );
-  }, []);
+  const updateSection = useCallback(
+    (id: string, content: string | ButtonContent) => {
+      setSections((sections) =>
+        sections.map((section) =>
+          section.id === id ? { ...section, content } : section
+        )
+      );
+    },
+    []
+  );
 
   const removeSection = (id: string) => {
     setSections(sections.filter((section) => section.id !== id));
@@ -206,10 +232,23 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
 
         updateSection(
           section.id,
-          section.content.length > 0
+          typeof section.content === "string" && section.content.length > 0
             ? section.content.concat(",", file.serverId)
             : file.serverId
         );
+      },
+    [updateSection]
+  );
+
+  const onChangeButton = useCallback(
+    (section: Section) =>
+      (property: keyof ButtonContent, value: string | boolean) => {
+        const updatedContent = {
+          ...(section.content as ButtonContent),
+          [property]: value,
+        };
+
+        updateSection(section.id, updatedContent);
       },
     [updateSection]
   );
@@ -231,7 +270,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
       return (
         <Editor
           className="border p-2 rounded [&>div>p]:min-h-12 editor"
-          content={section.content}
+          content={typeof section.content === "string" ? section.content : ""}
           onContentChange={(content: string) =>
             updateSection(section.id, content)
           }
@@ -249,7 +288,9 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
       };
 
       const initialFiles: FilePondInitialFile[] =
-        Object.keys(initialValues).length > 0 && section.content.length > 0
+        Object.keys(initialValues).length > 0 &&
+        typeof section.content === "string" &&
+        section.content.length > 0
           ? section.content.split(",").map((source) => ({
               source,
               options: {
@@ -277,6 +318,78 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
             : "Latest news content"}
         </div>
       );
+
+    if (section.type === "youtube")
+      return (
+        <div className="mb-4 px-1">
+          <label className="text-sm font-medium">Youtube url</label>
+          <Input
+            placeholder={translations("sections.youtubePlaceholder")}
+            value={section.content as string}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              updateSection(section.id, e.target.value)
+            }
+            className="focus-visible:ring-0  mt-2"
+          />
+        </div>
+      );
+    if (section.type === "button") {
+      const buttonInfo = section.content as ButtonContent;
+      const callback = onChangeButton(section);
+
+      return (
+        <div className="mb-4 px-1 grid grid-cols-1 gap-y-3">
+          <div>
+            <label className="text-sm font-medium">
+              {translations("sections.buttonTitle")}
+            </label>
+            <Input
+              placeholder={translations("sections.buttonPlaceholder")}
+              value={buttonInfo.buttonLabel}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                callback("buttonLabel", e.target.value)
+              }
+              className="focus-visible:ring-0  mt-2"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">
+              {translations("sections.buttonUrl")}
+            </label>
+            <Input
+              placeholder="https://www.youtube.com/watch?v=example"
+              value={buttonInfo.url}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                callback("url", e.target.value)
+              }
+              className="focus-visible:ring-0  mt-2"
+            />
+          </div>
+          <div className="grid grid-cols-4">
+            <div className="grid grid-cols-1 gap-3">
+              <label className="text-sm font-medium">
+                {translations("sections.openLink")}
+              </label>
+              <Input
+                type="checkbox"
+                className="h-5 w-5"
+                value={String(buttonInfo.openNewTab)}
+                checked={buttonInfo.openNewTab}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  callback("openNewTab", e.target.checked)
+                }
+              />
+            </div>
+            <div className="col-span-3 grid grid-cols-1 gap-3">
+              <label className="text-sm font-medium">
+                {translations("sections.variant")}
+              </label>
+              <VariantSelector buttonInfo={buttonInfo} callback={callback} />
+            </div>
+          </div>
+        </div>
+      );
+    }
   };
 
   return (
@@ -426,8 +539,9 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
                         variant="destructive"
                         size="sm"
                         className="mt-2"
+                        title={translations("sections.remove")}
                       >
-                        Remove Section
+                        <Trash2 className="h-5 w-5" />
                       </Button>
                     </div>
                   )}
@@ -438,43 +552,78 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
           )}
         </Droppable>
       </DragDropContext>
-
-      <div className="flex justify-between mt-6">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button>Add Section</Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-56">
-            <div className="grid gap-4">
-              <Button onClick={() => addSection("paragraph")}>
-                Add Paragraph
-              </Button>
-              <Button onClick={() => addSection("image")}>Add Image</Button>
-              <Button onClick={() => addSection("video")}>Add Video</Button>
-              <Button onClick={() => addSection("carousel")}>
-                Add Carousel
-              </Button>
-              <Button onClick={() => addSection("news")}>
-                Add Latest news
-              </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
-
-        <div className="flex gap-6">
-          {onExit && (
-            <Button variant="secondary" onClick={onExit}>
-              Cancel
-            </Button>
-          )}
+      <Card className="sticky bottom-5 mt-4 right-0 flex justify-between items-center gap-4 w-full ">
+        <CardContent className="flex-row items-center p-4 gap-2 flex w-full">
           <Button
-            onClick={form.handleSubmit(handleSaveClick)}
-            className="bg-green-500 hover:bg-green-600 text-white"
+            size="sm"
+            variant="outline"
+            title={translations("sections.paragraph")}
+            onClick={() => addSection("paragraph")}
           >
-            Save Article
+            <Pilcrow className="h-5 w-5" />
           </Button>
-        </div>
-      </div>
+          <Button
+            size="sm"
+            variant="outline"
+            title={translations("sections.image")}
+            onClick={() => addSection("image")}
+          >
+            <ImageIcon className="h-5 w-5" />
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            title={translations("sections.video")}
+            onClick={() => addSection("video")}
+          >
+            <VideoIcon className="h-5 w-5" />
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            title={translations("sections.carousel")}
+            onClick={() => addSection("carousel")}
+          >
+            <GalleryHorizontal className="h-5 w-5" />
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            title={translations("sections.news")}
+            onClick={() => addSection("news")}
+          >
+            <Newspaper className="h-5 w-5" />
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            title={translations("sections.youtube")}
+            onClick={() => addSection("youtube")}
+          >
+            <Youtube className="h-5 w-5" />
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            title={translations("sections.button")}
+            onClick={() => addSection("button")}
+          >
+            <SquareMinus className="h-5 w-5" />
+          </Button>
+        </CardContent>
+        <CardContent className="flex-row items-center p-4 flex w-full justify-end">
+          <div className="flex gap-2">
+            {onExit && (
+              <Button variant="secondary" onClick={onExit}>
+                {translations("sections.cancel")}
+              </Button>
+            )}
+            <Button onClick={form.handleSubmit(handleSaveClick)}>
+              {translations("sections.save")}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

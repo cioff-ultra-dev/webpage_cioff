@@ -126,7 +126,7 @@ async function TranslateSubPage(content: SubPage, locale: Locale) {
       const obj: Record<string, string> = Object.fromEntries(
         filteredLocales.map((item) => [item, ""])
       );
-      const textArray = extractTextFromHTML(section.content);
+      const textArray = extractTextFromHTML(section.content as string);
 
       const texts = await Promise.all(
         textArray.map(async (text) => {
@@ -137,7 +137,7 @@ async function TranslateSubPage(content: SubPage, locale: Locale) {
       );
 
       texts.flat().map(({ result, locale, initialText }) => {
-        obj[locale] = obj[locale] ? obj[locale] : section.content;
+        obj[locale] = (obj[locale] ? obj[locale] : section.content) as string;
 
         obj[locale] = obj[locale].replace(initialText, result);
       });

@@ -183,6 +183,38 @@
       "message": "Are you sure you want to unpublish \"{name}\"?",
       "button": "Unpublish"
     },
-    "view": "View"
+    "view": "View",
+    "table": {
+      "all": "All",
+      "published": "Published",
+      "draft": "Draft"
+    },
+    "form": {
+      "sections": {
+        "paragraph": "Add paragraph",
+        "image": "Add image",
+        "video": "Add video",
+        "carousel": "Add carousel",
+        "news": "Add recent news",
+        "youtube": "Add YouTube video",
+        "button": "Add button",
+        "save": "Save",
+        "cancel": "Cancel",
+        "remove": "Remove section",
+        "youtubePlaceholder": "Enter the YouTube video URL",
+        "buttonTitle": "Button",
+        "buttonPlaceholder": "Enter the button name",
+        "buttonUrl": "Button URL",
+        "openLink": "Open as external link",
+        "default": "Default",
+        "destructive": "Danger",
+        "outline": "Outlined",
+        "secondary": "Secondary",
+        "ghost": "Ghost",
+        "link": "Link",
+        "variant": "Variant",
+        "variantPlaceholder": "Select the button variant"
+      }
+    }
   }
 }
