@@ -9,10 +9,15 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { cn } from "@/lib/utils";
 import Autoplay from "embla-carousel-autoplay";
 import React from "react";
 
-export default function CarouselHistory() {
+export default function CarouselHistory({
+  containerClass = "",
+}: {
+  containerClass?: string;
+}) {
   const plugin = React.useRef(
     Autoplay({ delay: 2000, stopOnInteraction: false })
   );
@@ -34,7 +39,7 @@ export default function CarouselHistory() {
   }, [api]);
 
   return (
-    <div className="w-full">
+    <div className={cn("w-full", containerClass)}>
       <Carousel
         className="w-full"
         plugins={[plugin.current]}

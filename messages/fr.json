@@ -54,7 +54,7 @@
     "groups": "Groupes",
     "edit": "Editer",
     "settings": "Paramètres",
-    "news": "Nouvelles"
+    "subPage": "Sous-pages"
   },
   "form": {
     "name": "Nom",
@@ -166,6 +166,17 @@
       "draft": "Brouillons"
     },
     "form": {
+      "title": "Titre",
+      "titleDescription": "Titre de la nouvelle/page",
+      "subtitle": "Sous-titre",
+      "subtitleDescription": "Sous-titre de la nouvelle/page",
+      "originalDate": "Date",
+      "originalDateDescription": "Date de publication",
+      "country": "Pays",
+      "countryDescription": "Pays depuis lequel la nouvelle/page est publiée",
+      "isNews": "Est-ce une nouvelle ?",
+      "isNewsDescription": "Cochez pour créer une nouvelle; sinon, ce sera une page.",
+      "mainImage": "Image principale",
       "sections": {
         "paragraph": "Ajouter un paragraphe",
         "image": "Ajouter une image",
@@ -189,7 +200,9 @@
         "ghost": "Fantôme",
         "link": "Lien",
         "variant": "Variante",
-        "variantPlaceholder": "Sélectionnez la variante du bouton"
+        "variantPlaceholder": "Sélectionnez la variante du bouton",
+        "carouselContent": "Contenu du carrousel",
+        "latestNewsContent": "Contenu des actualités récentes"
       }
     }
   }

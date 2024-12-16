@@ -135,6 +135,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
       country: initialValues?.country ?? "",
     },
   });
+  const formValues = form.watch();
 
   const translations = useTranslations("news.form");
 
@@ -143,7 +144,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
       const contentToSave = {
         countryId: +values.country,
         url: window.location.origin.concat(
-          "/article/",
+          values.isNews ? "/news/" : "/",
           values.url.toLowerCase().replaceAll(" ", "-")
         ),
         isNews: values.isNews ?? false,
@@ -313,9 +314,11 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
     if (section.type === "carousel" || section.type === "news")
       return (
         <div className="w-full h-10 bg-gray-200 rounded-xl flex justify-center items-center font-bold">
-          {section.type === "carousel"
-            ? "Carousel Content"
-            : "Latest news content"}
+          {translations(
+            section.type === "carousel"
+              ? "sections.carouselContent"
+              : "sections.latestNewsContent"
+          )}
         </div>
       );
 
@@ -410,11 +413,13 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
             name="title"
             render={({ field }) => (
               <FormItem className="col-span-2">
-                <FormLabel>Title</FormLabel>
+                <FormLabel>{translations("title")}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormDescription>name of the article</FormDescription>
+                <FormDescription>
+                  {translations("titleDescription")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -424,11 +429,13 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
             name="subtitle"
             render={({ field }) => (
               <FormItem className="col-span-2">
-                <FormLabel>Subtitle</FormLabel>
+                <FormLabel>{translations("subtitle")}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormDescription>subtitle of the article</FormDescription>
+                <FormDescription>
+                  {translations("subtitleDescription")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -438,11 +445,13 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
             name="originalDate"
             render={({ field }) => (
               <FormItem className="col-span-2">
-                <FormLabel>original date</FormLabel>
+                <FormLabel>{translations("originalDate")}</FormLabel>
                 <FormControl>
                   <Input type="date" {...field} />
                 </FormControl>
-                <FormDescription>date of the article</FormDescription>
+                <FormDescription>
+                  {translations("originalDateDescription")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -452,7 +461,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
             name="country"
             render={({ field }) => (
               <FormItem className="col-span-2">
-                <FormLabel>Country</FormLabel>
+                <FormLabel>{translations("country")}</FormLabel>
                 <FormControl className="w-full">
                   <CountrySelect
                     countries={countries}
@@ -460,7 +469,9 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>Select a country</FormDescription>
+                <FormDescription>
+                  {translations("countryDescription")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -470,7 +481,10 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
             name="isNews"
             render={({ field: { value, ...field } }) => (
               <FormItem>
-                <FormLabel>Is News</FormLabel>
+                <FormLabel>
+                  {" "}
+                  <FormDescription>{translations("isNews")}</FormDescription>
+                </FormLabel>
                 <FormControl className="w-full h-10 flex items-center">
                   <div>
                     <Input
@@ -482,7 +496,9 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
                     />
                   </div>
                 </FormControl>
-                <FormDescription>mark if the article is news.</FormDescription>
+                <FormDescription>
+                  {translations("isNewsDescription")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -498,7 +514,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
                 </FormControl>
                 <FormDescription>
                   {window.location.origin.concat(
-                    "/article/",
+                    formValues.isNews ? "/news/" : "/",
                     field.value.toLowerCase().replaceAll(" ", "-")
                   )}
                 </FormDescription>
@@ -509,7 +525,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
         </div>
       </Form>
       <div className="flex flex-col gap-4 my-4">
-        <label>Main image</label>
+        <label>{translations("mainImage")}</label>
         <FilepondImageUploader
           maxFiles={1}
           defaultFiles={initialValues.mainImage}

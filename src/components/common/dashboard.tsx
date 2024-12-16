@@ -108,10 +108,10 @@ export default async function Dashboard({
                   prefetch={false}
                 >
                   <NewspaperIcon className="h-5 w-5" />
-                  <span className="sr-only">{t("news")}</span>
+                  <span className="sr-only">{t("subPage")}</span>
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">{t("news")}</TooltipContent>
+              <TooltipContent side="right">{t("subPage")}</TooltipContent>
             </Tooltip>
             {/* <Tooltip>
               <TooltipTrigger asChild>

@@ -54,7 +54,7 @@
     "groups": "Groups",
     "edit": "Edit",
     "settings": "Settings",
-    "news": "News"
+    "subPage": "Subpages"
   },
   "form": {
     "name": "Name",
@@ -190,6 +190,17 @@
       "draft": "Draft"
     },
     "form": {
+      "title": "Title",
+      "titleDescription": "Title of the news/page",
+      "subtitle": "Subtitle",
+      "subtitleDescription": "Subtitle of the news/page",
+      "originalDate": "Date",
+      "originalDateDescription": "Publication date",
+      "country": "Country",
+      "countryDescription": "Country from which the news/page is published",
+      "isNews": "Is it news?",
+      "isNewsDescription": "Check to create news; otherwise, it will be a page.",
+      "mainImage": "Main image",
       "sections": {
         "paragraph": "Add paragraph",
         "image": "Add image",
@@ -213,7 +224,9 @@
         "ghost": "Ghost",
         "link": "Link",
         "variant": "Variant",
-        "variantPlaceholder": "Select the button variant"
+        "variantPlaceholder": "Select the button variant",
+        "carouselContent": "Carousel content",
+        "latestNewsContent": "Latest news content"
       }
     }
   }

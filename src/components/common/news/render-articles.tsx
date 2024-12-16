@@ -1,5 +1,6 @@
 import { useMemo, Suspense } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 import CarouselHistory from "@/components/common/carousel-history";
 import { ButtonContent, Section } from "@/types/article";
@@ -7,6 +8,8 @@ import LatestNews from "@/components/common/news/latest-news";
 import Button from "./button-content";
 
 function RenderArticles({ sections }: { sections: Section[] }) {
+  const translations = useTranslations("news.form");
+
   const items = useMemo(
     () =>
       sections.map((section: Section) => {
@@ -60,7 +63,7 @@ function RenderArticles({ sections }: { sections: Section[] }) {
               </video>
             );
           case "carousel":
-            return <CarouselHistory key={section.id} />;
+            return <CarouselHistory key={section.id} containerClass="my-8" />;
           case "news":
             return (
               <Suspense key={section.id} fallback={<p>Loading...</p>}>

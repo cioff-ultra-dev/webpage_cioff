@@ -18,7 +18,7 @@ export default async function DetailArticle({
 
   const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
   const host = headersList.get("host");
-  const url = `${protocol}://${host}/article/${params.slug}`;
+  const url = `${protocol}://${host}/news/${params.slug}`;
 
   const article = await getArticleByUrl(url);
 

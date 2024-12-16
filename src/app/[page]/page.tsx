@@ -7,10 +7,10 @@ import { getLanguageByLocale } from "@/db/queries/languages";
 import { Section } from "@/types/article";
 import NewsDetailTemplate from "@/components/common/news/news-detail-template";
 
-export default async function DetailArticle({
+export default async function DynamicPage({
   params,
 }: {
-  params: { slug: string };
+  params: { page: string };
 }) {
   const headersList = headers();
   const locale = await getLocale();
@@ -18,12 +18,12 @@ export default async function DetailArticle({
 
   const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
   const host = headersList.get("host");
-  const url = `${protocol}://${host}/article/${params.slug}`;
+  const url = `${protocol}://${host}/${params.page}`;
 
   const article = await getArticleByUrl(url);
 
   if (!article) {
-    return <p>Article not found</p>;
+    return <p>Page not found</p>;
   }
 
   const articleTranslated = article?.texts?.find(

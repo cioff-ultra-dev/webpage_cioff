@@ -53,7 +53,7 @@
     "festivals": "Festivales",
     "groups": "Grupos",
     "edit": "Editar",
-    "news": "Noticias"
+    "subPage": "Subpáginas"
   },
   "form": {
     "name": "Nombre",
@@ -185,6 +185,17 @@
       "draft": "Borradores"
     },
     "form": {
+      "title": "Título",
+      "titleDescription": "Título de la noticia/página",
+      "subtitle": "Subtítulo",
+      "subtitleDescription": "Subtítulo de la noticia/página",
+      "originalDate": "Fecha",
+      "originalDateDescription": "Fecha de publicación",
+      "country": "País",
+      "countryDescription": "País desde donde se publica la noticia/página",
+      "isNews": "¿Es noticia?",
+      "isNewsDescription": "Marque para crear una noticia; si no, será una página",
+      "mainImage": "Imagen principal",
       "sections": {
         "paragraph": "Agregar parrafo",
         "image": "Agregar imagen",
@@ -208,7 +219,9 @@
         "ghost": "fantasma",
         "link": "link",
         "variant": "Variante",
-        "variantPlaceholder": "Seleccione la variante del botón"
+        "variantPlaceholder": "Seleccione la variante del botón",
+        "carouselContent": "Contenido de carrusel",
+        "latestNewsContent": "Contenido de noticias recientes"
       }
     }
   }
