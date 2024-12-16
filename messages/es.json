@@ -53,7 +53,7 @@
     "festivals": "Festivales",
     "groups": "Grupos",
     "edit": "Editar",
-    "subPage": "Subpáginas"
+    "sub-pages": "Subpáginas"
   },
   "form": {
     "name": "Nombre",
@@ -182,9 +182,28 @@
     "table": {
       "all": "Todo",
       "published": "Publicados",
-      "draft": "Borradores"
+      "draft": "Borradores",
+      "allTitle": "todas las subpáginas",
+      "publishedTitle": "Subpáginas publicadas",
+      "draftTitle": "Subpáginas en borrador",
+      "allDescription": "Vea y administre todas las subpáginas.",
+      "publishedDescription": "Vea y administre subpáginas publicadas.",
+      "draftDescription": "Vea y administre las subpáginas en borrador.",
+      "addSubpage": "Agregar subpágina",
+      "name": "Nombre",
+      "date": "Fecha",
+      "status": "Estado",
+      "actions": "Acciones",
+      "type": "Tipo",
+      "subpage": "Subpágina",
+      "news": "Noticia",
+      "publishedStatus": "Publicado",
+      "draftStatus": "Borrador",
+      "edit": "Editar",
+      "delete": "Eliminar"
     },
     "form": {
+      "subPages": "Subpáginas",
       "title": "Título",
       "titleDescription": "Título de la noticia/página",
       "subtitle": "Subtítulo",
@@ -224,5 +243,11 @@
         "latestNewsContent": "Contenido de noticias recientes"
       }
     }
+  },
+  "header": {
+    "festivalsAndGroups": "Festivales y grupos",
+    "aboutUs": "Sobre nosotros",
+    "organizationChart": "Organigrama",
+    "young": "CIOFF juventud"
   }
 }

@@ -54,7 +54,7 @@
     "groups": "Groups",
     "edit": "Edit",
     "settings": "Settings",
-    "subPage": "Subpages"
+    "sub-pages": "Subpages"
   },
   "form": {
     "name": "Name",
@@ -187,9 +187,28 @@
     "table": {
       "all": "All",
       "published": "Published",
-      "draft": "Draft"
+      "draft": "Draft",
+      "allTitle": "All subpages",
+      "publishedTitle": "Published subpages",
+      "draftTitle": "Draft subpages",
+      "allDescription": "View and manage all subpages.",
+      "publishedDescription": "View and manage published subpages.",
+      "draftDescription": "View and manage draft subpages.",
+      "addSubpage": "Add subpage",
+      "name": "Name",
+      "date": "Date",
+      "status": "Status",
+      "actions": "Actions",
+      "type": "Type",
+      "subpage": "Subpage",
+      "news": "News",
+      "publishedStatus": "Published",
+      "draftStatus": "Draft",
+      "edit": "Edit",
+      "delete": "Delete"
     },
     "form": {
+      "subPages": "Sub-pages",
       "title": "Title",
       "titleDescription": "Title of the news/page",
       "subtitle": "Subtitle",
@@ -229,5 +248,11 @@
         "latestNewsContent": "Latest news content"
       }
     }
+  },
+  "header": {
+    "festivalsAndGroups": "Festivals and groups",
+    "aboutUs": "About us",
+    "organizationChart": "Organization chart",
+    "young": "CIOFF young"
   }
 }

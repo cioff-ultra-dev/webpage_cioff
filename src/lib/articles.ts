@@ -222,11 +222,18 @@ export async function saveArticle(
 }
 
 export async function getAllArticles(
-  limit?: number
+  limit?: number,
+  isPublished?: boolean
 ): Promise<SelectedSubPage[]> {
   try {
+    console.log({
+      isPublished: isPublished !== undefined ? isPublished : undefined,
+    });
     const articles = await db?.query?.SubPagesProd?.findMany({
-      where: eq(SubPagesProd.isNews, true),
+      where:
+        typeof isPublished !== "undefined"
+          ? eq(SubPagesProd.published, isPublished)
+          : undefined,
       with: {
         texts: true,
         country: true,

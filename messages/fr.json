@@ -54,7 +54,7 @@
     "groups": "Groupes",
     "edit": "Editer",
     "settings": "Paramètres",
-    "subPage": "Sous-pages"
+    "sub-pages": "Sous-pages"
   },
   "form": {
     "name": "Nom",
@@ -163,9 +163,28 @@
     "table": {
       "all": "Tout",
       "published": "Publié",
-      "draft": "Brouillons"
+      "draft": "Brouillons",
+      "allTitle": "Toutes les sous-pages",
+      "publishedTitle": "Sous-pages publiées",
+      "draftTitle": "Sous-pages en brouillon",
+      "allDescription": "Voir et gérer toutes les sous-pages.",
+      "publishedDescription": "Voir et gérer les sous-pages publiées.",
+      "draftDescription": "Voir et gérer les sous-pages en brouillon.",
+      "addSubpage": "Ajouter une sous-page",
+      "name": "Nom",
+      "date": "Date",
+      "status": "Statut",
+      "actions": "Actions",
+      "type": "Type",
+      "subpage": "Sous-page",
+      "news": "Actualité",
+      "publishedStatus": "Publié",
+      "draftStatus": "Brouillon",
+      "edit": "Modifier",
+      "delete": "Supprimer"
     },
     "form": {
+      "subPages": "Sous-pages",
       "title": "Titre",
       "titleDescription": "Titre de la nouvelle/page",
       "subtitle": "Sous-titre",
@@ -205,5 +224,11 @@
         "latestNewsContent": "Contenu des actualités récentes"
       }
     }
+  },
+  "header": {
+    "festivalsAndGroups": "Festivals et groupes",
+    "aboutUs": "À propos de nous",
+    "organizationChart": "Organigramme",
+    "young": "CIOFF Jeunesse"
   }
 }

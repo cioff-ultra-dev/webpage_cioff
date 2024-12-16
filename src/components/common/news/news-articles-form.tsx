@@ -396,250 +396,253 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      {currentUser && (
-        <div className="flex items-center mb-6">
-          <Avatar className="h-10 w-10 mr-4">
-            <AvatarImage src={currentUser.image} />
-            <AvatarFallback>{currentUser.name.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <span className="text-sm text-gray-500">By {currentUser.name}</span>
-        </div>
-      )}
-      <Form {...form}>
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem className="col-span-2">
-                <FormLabel>{translations("title")}</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormDescription>
-                  {translations("titleDescription")}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="subtitle"
-            render={({ field }) => (
-              <FormItem className="col-span-2">
-                <FormLabel>{translations("subtitle")}</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormDescription>
-                  {translations("subtitleDescription")}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="originalDate"
-            render={({ field }) => (
-              <FormItem className="col-span-2">
-                <FormLabel>{translations("originalDate")}</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormDescription>
-                  {translations("originalDateDescription")}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="country"
-            render={({ field }) => (
-              <FormItem className="col-span-2">
-                <FormLabel>{translations("country")}</FormLabel>
-                <FormControl className="w-full">
-                  <CountrySelect
-                    countries={countries}
-                    handleChange={field.onChange}
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription>
-                  {translations("countryDescription")}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="isNews"
-            render={({ field: { value, ...field } }) => (
-              <FormItem>
-                <FormLabel>
-                  {" "}
-                  <FormDescription>{translations("isNews")}</FormDescription>
-                </FormLabel>
-                <FormControl className="w-full h-10 flex items-center">
-                  <div>
-                    <Input
-                      type="checkbox"
-                      className="h-5 w-5"
-                      value={String(value)}
-                      checked={value}
+    <div className="w-full p-4 md:p-6 ">
+      <h1 className="text-3xl font-semibold">{translations("subPages")}</h1>
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        {currentUser && (
+          <div className="flex items-center mb-6">
+            <Avatar className="h-10 w-10 mr-4">
+              <AvatarImage src={currentUser.image} />
+              <AvatarFallback>{currentUser.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <span className="text-sm text-gray-500">By {currentUser.name}</span>
+          </div>
+        )}
+        <Form {...form}>
+          <div className="grid grid-cols-4 gap-4 mb-6">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormLabel>{translations("title")}</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    {translations("titleDescription")}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="subtitle"
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormLabel>{translations("subtitle")}</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    {translations("subtitleDescription")}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="originalDate"
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormLabel>{translations("originalDate")}</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    {translations("originalDateDescription")}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="country"
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormLabel>{translations("country")}</FormLabel>
+                  <FormControl className="w-full">
+                    <CountrySelect
+                      countries={countries}
+                      handleChange={field.onChange}
                       {...field}
                     />
-                  </div>
-                </FormControl>
-                <FormDescription>
-                  {translations("isNewsDescription")}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="url"
-            render={({ field }) => (
-              <FormItem className="col-span-3">
-                <FormLabel>Url</FormLabel>
-                <FormControl className="w-full">
-                  <Input {...field} />
-                </FormControl>
-                <FormDescription>
-                  {window.location.origin.concat(
-                    formValues.isNews ? "/news/" : "/",
-                    field.value.toLowerCase().replaceAll(" ", "-")
-                  )}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
+                  </FormControl>
+                  <FormDescription>
+                    {translations("countryDescription")}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="isNews"
+              render={({ field: { value, ...field } }) => (
+                <FormItem>
+                  <FormLabel>
+                    {" "}
+                    <FormDescription>{translations("isNews")}</FormDescription>
+                  </FormLabel>
+                  <FormControl className="w-full h-10 flex items-center">
+                    <div>
+                      <Input
+                        type="checkbox"
+                        className="h-5 w-5"
+                        value={String(value)}
+                        checked={value}
+                        {...field}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormDescription>
+                    {translations("isNewsDescription")}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="url"
+              render={({ field }) => (
+                <FormItem className="col-span-3">
+                  <FormLabel>Url</FormLabel>
+                  <FormControl className="w-full">
+                    <Input {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    {window.location.origin.concat(
+                      formValues.isNews ? "/news/" : "/",
+                      field.value.toLowerCase().replaceAll(" ", "-")
+                    )}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </Form>
+        <div className="flex flex-col gap-4 my-4">
+          <label>{translations("mainImage")}</label>
+          <FilepondImageUploader
+            maxFiles={1}
+            defaultFiles={initialValues.mainImage}
+            onprocessfile={onLoadMainImage}
           />
         </div>
-      </Form>
-      <div className="flex flex-col gap-4 my-4">
-        <label>{translations("mainImage")}</label>
-        <FilepondImageUploader
-          maxFiles={1}
-          defaultFiles={initialValues.mainImage}
-          onprocessfile={onLoadMainImage}
-        />
-      </div>
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="article">
-          {(provided) => (
-            <article {...provided.droppableProps} ref={provided.innerRef}>
-              {sections.map((section, index) => (
-                <Draggable
-                  key={section.id}
-                  draggableId={section.id}
-                  index={index}
-                >
-                  {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      className="mb-4 p-2 border border-gray-200 rounded"
-                    >
-                      {renderSection(section)}
-                      <Button
-                        onClick={() => removeSection(section.id)}
-                        variant="destructive"
-                        size="sm"
-                        className="mt-2"
-                        title={translations("sections.remove")}
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="article">
+            {(provided) => (
+              <article {...provided.droppableProps} ref={provided.innerRef}>
+                {sections.map((section, index) => (
+                  <Draggable
+                    key={section.id}
+                    draggableId={section.id}
+                    index={index}
+                  >
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        className="mb-4 p-2 border border-gray-200 rounded"
                       >
-                        <Trash2 className="h-5 w-5" />
-                      </Button>
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </article>
-          )}
-        </Droppable>
-      </DragDropContext>
-      <Card className="sticky bottom-5 mt-4 right-0 flex justify-between items-center gap-4 w-full ">
-        <CardContent className="flex-row items-center p-4 gap-2 flex w-full">
-          <Button
-            size="sm"
-            variant="outline"
-            title={translations("sections.paragraph")}
-            onClick={() => addSection("paragraph")}
-          >
-            <Pilcrow className="h-5 w-5" />
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            title={translations("sections.image")}
-            onClick={() => addSection("image")}
-          >
-            <ImageIcon className="h-5 w-5" />
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            title={translations("sections.video")}
-            onClick={() => addSection("video")}
-          >
-            <VideoIcon className="h-5 w-5" />
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            title={translations("sections.carousel")}
-            onClick={() => addSection("carousel")}
-          >
-            <GalleryHorizontal className="h-5 w-5" />
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            title={translations("sections.news")}
-            onClick={() => addSection("news")}
-          >
-            <Newspaper className="h-5 w-5" />
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            title={translations("sections.youtube")}
-            onClick={() => addSection("youtube")}
-          >
-            <Youtube className="h-5 w-5" />
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            title={translations("sections.button")}
-            onClick={() => addSection("button")}
-          >
-            <SquareMinus className="h-5 w-5" />
-          </Button>
-        </CardContent>
-        <CardContent className="flex-row items-center p-4 flex w-full justify-end">
-          <div className="flex gap-2">
-            {onExit && (
-              <Button variant="secondary" onClick={onExit}>
-                {translations("sections.cancel")}
-              </Button>
+                        {renderSection(section)}
+                        <Button
+                          onClick={() => removeSection(section.id)}
+                          variant="destructive"
+                          size="sm"
+                          className="mt-2"
+                          title={translations("sections.remove")}
+                        >
+                          <Trash2 className="h-5 w-5" />
+                        </Button>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </article>
             )}
-            <Button onClick={form.handleSubmit(handleSaveClick)}>
-              {translations("sections.save")}
+          </Droppable>
+        </DragDropContext>
+        <Card className="sticky bottom-5 mt-4 right-0 flex justify-between items-center gap-4 w-full ">
+          <CardContent className="flex-row items-center p-4 gap-2 flex w-full">
+            <Button
+              size="sm"
+              variant="outline"
+              title={translations("sections.paragraph")}
+              onClick={() => addSection("paragraph")}
+            >
+              <Pilcrow className="h-5 w-5" />
             </Button>
-          </div>
-        </CardContent>
-      </Card>
+            <Button
+              size="sm"
+              variant="outline"
+              title={translations("sections.image")}
+              onClick={() => addSection("image")}
+            >
+              <ImageIcon className="h-5 w-5" />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              title={translations("sections.video")}
+              onClick={() => addSection("video")}
+            >
+              <VideoIcon className="h-5 w-5" />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              title={translations("sections.carousel")}
+              onClick={() => addSection("carousel")}
+            >
+              <GalleryHorizontal className="h-5 w-5" />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              title={translations("sections.news")}
+              onClick={() => addSection("news")}
+            >
+              <Newspaper className="h-5 w-5" />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              title={translations("sections.youtube")}
+              onClick={() => addSection("youtube")}
+            >
+              <Youtube className="h-5 w-5" />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              title={translations("sections.button")}
+              onClick={() => addSection("button")}
+            >
+              <SquareMinus className="h-5 w-5" />
+            </Button>
+          </CardContent>
+          <CardContent className="flex-row items-center p-4 flex w-full justify-end">
+            <div className="flex gap-2">
+              {onExit && (
+                <Button variant="secondary" onClick={onExit}>
+                  {translations("sections.cancel")}
+                </Button>
+              )}
+              <Button onClick={form.handleSubmit(handleSaveClick)}>
+                {translations("sections.save")}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

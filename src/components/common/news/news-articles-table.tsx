@@ -6,8 +6,9 @@ import {
   deleteArticle,
   publishArticle,
   updateSubPage,
+  getAllArticles,
 } from "@/lib/articles";
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
@@ -70,110 +71,125 @@ const ArticleTable = ({
   changePublishArticleStatus: (id: number, isPublished: boolean) => void;
 }) => {
   const translations = useTranslations("news");
+  const locale = useLocale();
+
+  const items = useMemo(
+    () =>
+      articles.map((article) => (
+        <TableRow key={article.id}>
+          <TableCell>{article.texts[0]?.title || "No title"}</TableCell>
+          <TableCell>
+            <span>
+              {translations(article.isNews ? "table.news" : "table.subpage")}
+            </span>
+          </TableCell>
+          <TableCell>
+            {new Date(article.originalDate).toLocaleDateString()}
+          </TableCell>
+          <TableCell>
+            <span
+              className={
+                article.published ? "text-green-500" : "text-orange-500"
+              }
+            >
+              {translations(
+                article.published
+                  ? "table.publishedStatus"
+                  : "table.draftStatus"
+              )}
+            </span>
+          </TableCell>
+          <TableCell>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>
+                  {translations("table.actions")}
+                </DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => onEdit(article)}>
+                  {translations("table.edit")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={(e) => e.preventDefault()}>
+                  <ConfirmDialog
+                    buttonMessage={translations("remove.button")}
+                    buttonVariant="destructive"
+                    message={translations("remove.message", {
+                      name: article.texts[0].title ?? "title",
+                    })}
+                    title={translations("remove.title")}
+                    handleClick={() => removeArticle(article.id)}
+                  >
+                    <DialogTrigger asChild>
+                      <button>{translations("table.delete")}</button>
+                    </DialogTrigger>
+                  </ConfirmDialog>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={(e) => e.preventDefault()}>
+                  <ConfirmDialog
+                    buttonMessage={translations(
+                      article.published ? "unpublish.button" : "publish.button"
+                    )}
+                    buttonVariant={
+                      article.published ? "destructive" : "default"
+                    }
+                    message={translations(
+                      article.published
+                        ? "unpublish.message"
+                        : "publish.message",
+                      {
+                        name: article.texts[0].title ?? "title",
+                      }
+                    )}
+                    title={translations(
+                      article.published ? "unpublish.title" : "publish.title"
+                    )}
+                    handleClick={() =>
+                      changePublishArticleStatus(article.id, !article.published)
+                    }
+                  >
+                    <DialogTrigger asChild>
+                      <button>
+                        {translations(
+                          article.published
+                            ? "unpublish.button"
+                            : "publish.button"
+                        )}
+                      </button>
+                    </DialogTrigger>
+                  </ConfirmDialog>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => window.open(article.url, "_blank")}
+                >
+                  {translations("view")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </TableCell>
+        </TableRow>
+      )),
+    [articles, locale]
+  );
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>Date</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="w-[100px]">Actions</TableHead>
+          <TableHead>{translations("table.name")}</TableHead>
+          <TableHead>{translations("table.type")}</TableHead>
+          <TableHead>{translations("table.date")}</TableHead>
+          <TableHead>{translations("table.status")}</TableHead>
+          <TableHead className="w-[100px]">
+            {translations("table.actions")}
+          </TableHead>
         </TableRow>
       </TableHeader>
-      <TableBody>
-        {articles.map((article) => (
-          <TableRow key={article.id}>
-            <TableCell>{article.texts[0]?.title || "No title"}</TableCell>
-            <TableCell>
-              {new Date(article.originalDate).toLocaleDateString()}
-            </TableCell>
-            <TableCell>
-              <span
-                className={
-                  article.published ? "text-green-500" : "text-orange-500"
-                }
-              >
-                {article.published ? "Published" : "Draft"}
-              </span>
-            </TableCell>
-            <TableCell>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem onClick={() => onEdit(article)}>
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={(e) => e.preventDefault()}>
-                    <ConfirmDialog
-                      buttonMessage={translations("remove.button")}
-                      buttonVariant="destructive"
-                      message={translations("remove.message", {
-                        name: article.texts[0].title ?? "title",
-                      })}
-                      title={translations("remove.title")}
-                      handleClick={() => removeArticle(article.id)}
-                    >
-                      <DialogTrigger asChild>
-                        <button>Delete</button>
-                      </DialogTrigger>
-                    </ConfirmDialog>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={(e) => e.preventDefault()}>
-                    <ConfirmDialog
-                      buttonMessage={translations(
-                        article.published
-                          ? "unpublish.button"
-                          : "publish.button"
-                      )}
-                      buttonVariant={
-                        article.published ? "destructive" : "default"
-                      }
-                      message={translations(
-                        article.published
-                          ? "unpublish.message"
-                          : "publish.message",
-                        {
-                          name: article.texts[0].title ?? "title",
-                        }
-                      )}
-                      title={translations(
-                        article.published ? "unpublish.title" : "publish.title"
-                      )}
-                      handleClick={() =>
-                        changePublishArticleStatus(
-                          article.id,
-                          !article.published
-                        )
-                      }
-                    >
-                      <DialogTrigger asChild>
-                        <button>
-                          {translations(
-                            article.published
-                              ? "unpublish.button"
-                              : "publish.button"
-                          )}
-                        </button>
-                      </DialogTrigger>
-                    </ConfirmDialog>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => window.open(article.url, "_blank")}
-                  >
-                    {translations("view")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
+      <TableBody>{items}</TableBody>
     </Table>
   );
 };
@@ -184,6 +200,7 @@ export default function NewsArticlesTable({
   countries,
   localeId,
 }: NewsArticlesTableProps) {
+  const [subPages, setSubPages] = useState<SelectedSubPage[]>(articles);
   const [isCreating, setIsCreating] = useState(false);
   const [editingArticle, setEditingArticle] = useState<SelectedSubPage | null>(
     null
@@ -192,6 +209,19 @@ export default function NewsArticlesTable({
   const translations = useTranslations("news.table");
   const locale = useLocale();
   const router = useRouter();
+
+  const handleTabChange = useCallback(async (value: string) => {
+    setSubPages([]);
+
+    const isPublished = value === "published";
+
+    const subPagesResponse = await getAllArticles(
+      undefined,
+      value === "all" ? undefined : isPublished
+    );
+
+    setSubPages(subPagesResponse);
+  }, []);
 
   const handleEdit = (article: SelectedSubPage) => {
     setEditingArticle(article);
@@ -247,7 +277,7 @@ export default function NewsArticlesTable({
     }
 
     return (
-      <Tabs defaultValue="all">
+      <Tabs defaultValue="all" onValueChange={handleTabChange}>
         <div className="flex items-center mb-4">
           <TabsList>
             <TabsTrigger value="all">{translations("all")}</TabsTrigger>
@@ -265,7 +295,7 @@ export default function NewsArticlesTable({
             >
               <PlusCircle className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Add Article
+                {translations("addSubpage")}
               </span>
             </Button>
           </div>
@@ -273,14 +303,14 @@ export default function NewsArticlesTable({
         <TabsContent value="all">
           <Card>
             <CardHeader>
-              <CardTitle>All News Articles</CardTitle>
+              <CardTitle>{translations("allTitle")}</CardTitle>
               <CardDescription>
-                View and manage all your news articles.
+                {translations("allDescription")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <ArticleTable
-                articles={articles}
+                articles={subPages}
                 onEdit={handleEdit}
                 removeArticle={removeArticle}
                 changePublishArticleStatus={changePublishArticleStatus}
@@ -291,14 +321,14 @@ export default function NewsArticlesTable({
         <TabsContent value="published">
           <Card>
             <CardHeader>
-              <CardTitle>Published News Articles</CardTitle>
+              <CardTitle>{translations("publishedTitle")}</CardTitle>
               <CardDescription>
-                View and manage your published news articles.
+                {translations("publishedDescription")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <ArticleTable
-                articles={articles}
+                articles={subPages}
                 onEdit={handleEdit}
                 removeArticle={removeArticle}
                 changePublishArticleStatus={changePublishArticleStatus}
@@ -309,14 +339,14 @@ export default function NewsArticlesTable({
         <TabsContent value="draft">
           <Card>
             <CardHeader>
-              <CardTitle>Draft News Articles</CardTitle>
+              <CardTitle>{translations("draftTitle")}</CardTitle>
               <CardDescription>
-                View and manage your draft news articles.
+                {translations("draftDescription")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <ArticleTable
-                articles={articles}
+                articles={subPages}
                 onEdit={handleEdit}
                 removeArticle={removeArticle}
                 changePublishArticleStatus={changePublishArticleStatus}
@@ -327,7 +357,7 @@ export default function NewsArticlesTable({
       </Tabs>
     );
   }, [
-    articles,
+    subPages,
     changePublishArticleStatus,
     countries,
     editingArticle,

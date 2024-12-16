@@ -103,7 +103,7 @@ export default async function Dashboard({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
-                  href="/dashboard/news"
+                  href="/dashboard/sub-pages"
                   className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                   prefetch={false}
                 >

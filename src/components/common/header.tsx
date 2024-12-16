@@ -7,6 +7,7 @@ import { auth } from "@/auth";
 import { LogIn } from "lucide-react";
 import LocaleSwitcher from "./locale-switcher";
 import { getAllLanguages } from "@/db/queries/languages";
+import { getTranslations } from "next-intl/server";
 
 type SVGComponentProps = React.ComponentPropsWithoutRef<"svg">;
 
@@ -60,6 +61,7 @@ export async function Header({
 }: HeaderProps) {
   const session = await auth();
   const locales = await getAllLanguages();
+  const translations = await getTranslations("header");
 
   return (
     <header
@@ -86,23 +88,17 @@ export async function Header({
                 alt="CIOFF Logo"
               />
             </Link>
-            <Link href="#" prefetch={false}>
-              Folkloriada
+            <Link href="/search" prefetch={false}>
+              {translations("festivalsAndGroups")}
             </Link>
-            <Link href="/news" prefetch={false}>
-              News
+            <Link href="/about-us" prefetch={false}>
+              {translations("aboutUs")}
             </Link>
-            <Link href="/event" prefetch={false}>
-              Events
+            <Link href="/cioff-young" prefetch={false}>
+              {translations("young")}
             </Link>
-            <Link href="#" prefetch={false}>
-              Members
-            </Link>
-            <Link href="#" prefetch={false}>
-              About
-            </Link>
-            <Link href="#" prefetch={false}>
-              Contact
+            <Link href="/organization-chart" prefetch={false}>
+              {translations("organizationChart")}
             </Link>
           </nav>
         </SheetContent>
@@ -113,23 +109,17 @@ export async function Header({
         </Link>
       </nav>
       <nav className="hidden lg:flex space-x-4 sm:space-x-6">
-        <Link href="#" className={`${text}`} prefetch={false}>
-          Folkloriadas
+        <Link href="/search" prefetch={false} className={text}>
+          {translations("festivalsAndGroups")}
         </Link>
-        <Link href="/news" className={`${text}`} prefetch={false}>
-          News
+        <Link href="/about-us" prefetch={false} className={text}>
+          {translations("aboutUs")}
         </Link>
-        <Link href="/event" className={`${text}`} prefetch={false}>
-          Events
+        <Link href="/cioff-young" prefetch={false} className={text}>
+          {translations("young")}
         </Link>
-        <Link href="#" className={`${text}`} prefetch={false}>
-          Members
-        </Link>
-        <Link href="#" className={`${text}`} prefetch={false}>
-          About
-        </Link>
-        <Link href="#" className={`${text}`} prefetch={false}>
-          Contact
+        <Link href="/organization-chart" prefetch={false} className={text}>
+          {translations("organizationChart")}
         </Link>
       </nav>
       <div className="flex items-center space-x-4">
