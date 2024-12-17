@@ -153,7 +153,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
         originalDate: new Date(values.originalDate),
         title: values.title,
         subtitle: values.subtitle,
-        mainImage,
+        mainImage: mainImage || initialValues.mainImage?.[0]?.source || "",
         sections: sections.map((section, index) => {
           if (section.type !== "image") return { ...section, position: index };
 
