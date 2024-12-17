@@ -116,7 +116,9 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
     return {
       title: article?.title,
       subtitle: article?.subtitle ?? "",
-      url: initialContent?.url?.split("article/")[1],
+      url: initialContent?.url?.split(
+        initialContent.isNews ? "/news/" : window.location.origin + "/"
+      )[1],
       isNews: initialContent?.isNews,
       originalDate: initialContent?.originalDate?.toISOString()?.split("T")[0],
       country: String(initialContent?.countryId || ""),

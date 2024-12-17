@@ -7,7 +7,15 @@ import { getAllArticles } from "@/lib/articles";
 import { Locale } from "@/i18n/config";
 import { getLanguageByLocale } from "@/db/queries/languages";
 
-export default async function NewsPage() {
+interface NewsArticlesTableProps {
+  searchParams: {
+    tab: "all" | "published" | "draft";
+  };
+}
+
+export default async function NewsPage({
+  searchParams: { tab = "all" },
+}: NewsArticlesTableProps) {
   const locale = await getLocale();
   const session = await auth();
   const countryCast = await getAllCountries();
@@ -17,7 +25,12 @@ export default async function NewsPage() {
   }
 
   const localeId = await getLanguageByLocale(locale as Locale);
-  const articles = await getAllArticles();
+  const isPublished = tab === "published";
+
+  const articles = await getAllArticles(
+    undefined,
+    tab === "all" ? undefined : isPublished
+  );
 
   return (
     <NewsArticlesTable

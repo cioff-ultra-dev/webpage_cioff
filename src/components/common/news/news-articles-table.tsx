@@ -173,7 +173,15 @@ const ArticleTable = ({
           </TableCell>
         </TableRow>
       )),
-    [articles, locale]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      articles,
+      changePublishArticleStatus,
+      onEdit,
+      removeArticle,
+      translations,
+      locale,
+    ]
   );
 
   return (
@@ -200,7 +208,6 @@ export default function NewsArticlesTable({
   countries,
   localeId,
 }: NewsArticlesTableProps) {
-  const [subPages, setSubPages] = useState<SelectedSubPage[]>(articles);
   const [isCreating, setIsCreating] = useState(false);
   const [editingArticle, setEditingArticle] = useState<SelectedSubPage | null>(
     null
@@ -210,18 +217,10 @@ export default function NewsArticlesTable({
   const locale = useLocale();
   const router = useRouter();
 
-  const handleTabChange = useCallback(async (value: string) => {
-    setSubPages([]);
-
-    const isPublished = value === "published";
-
-    const subPagesResponse = await getAllArticles(
-      undefined,
-      value === "all" ? undefined : isPublished
-    );
-
-    setSubPages(subPagesResponse);
-  }, []);
+  const handleTabChange = useCallback(
+    async (value: string) => router.push(`?tab=${value}`),
+    [router]
+  );
 
   const handleEdit = (article: SelectedSubPage) => {
     setEditingArticle(article);
@@ -310,7 +309,7 @@ export default function NewsArticlesTable({
             </CardHeader>
             <CardContent>
               <ArticleTable
-                articles={subPages}
+                articles={articles}
                 onEdit={handleEdit}
                 removeArticle={removeArticle}
                 changePublishArticleStatus={changePublishArticleStatus}
@@ -328,7 +327,7 @@ export default function NewsArticlesTable({
             </CardHeader>
             <CardContent>
               <ArticleTable
-                articles={subPages}
+                articles={articles}
                 onEdit={handleEdit}
                 removeArticle={removeArticle}
                 changePublishArticleStatus={changePublishArticleStatus}
@@ -346,7 +345,7 @@ export default function NewsArticlesTable({
             </CardHeader>
             <CardContent>
               <ArticleTable
-                articles={subPages}
+                articles={articles}
                 onEdit={handleEdit}
                 removeArticle={removeArticle}
                 changePublishArticleStatus={changePublishArticleStatus}
@@ -357,11 +356,12 @@ export default function NewsArticlesTable({
       </Tabs>
     );
   }, [
-    subPages,
+    articles,
     changePublishArticleStatus,
     countries,
     editingArticle,
     handleSave,
+    handleTabChange,
     isCreating,
     localeId,
     removeArticle,

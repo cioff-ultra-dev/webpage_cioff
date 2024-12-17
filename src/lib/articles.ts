@@ -226,9 +226,6 @@ export async function getAllArticles(
   isPublished?: boolean
 ): Promise<SelectedSubPage[]> {
   try {
-    console.log({
-      isPublished: isPublished !== undefined ? isPublished : undefined,
-    });
     const articles = await db?.query?.SubPagesProd?.findMany({
       where:
         typeof isPublished !== "undefined"
