@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, and } from "drizzle-orm";
+import { eq, and, not } from "drizzle-orm";
 import { JSDOM } from "jsdom";
 
 import { SelectedSubPage, Section, ArticleBody } from "@/types/article";
@@ -9,6 +9,7 @@ import { SubPagesProd, SubPagesTextsLangProd } from "@/db/schema";
 import { getTranslateText } from "@/lib/translate";
 import { Locale, pickLocales } from "@/i18n/config";
 import { getAllLanguages } from "@/db/queries/languages";
+import { buildConditions } from "@/lib/query";
 
 interface SubPage {
   isNews: boolean;
@@ -19,6 +20,7 @@ interface SubPage {
   countryId: number;
   sections: Section[];
   mainImage: string;
+  published?: boolean;
 }
 
 interface SubPageText {
@@ -28,6 +30,10 @@ interface SubPageText {
   subPageId: number;
   lang: number;
 }
+
+type SubPagesParams = Partial<typeof SubPagesProd.$inferSelect> & {
+  limit?: number;
+};
 
 export async function getArticleById(
   id: string
@@ -53,6 +59,15 @@ export async function getArticleById(
 
 export async function updateArticle(id: string, content: ArticleBody) {
   try {
+    const subPage = await db?.query?.SubPagesProd?.findFirst({
+      where: and(
+        eq(SubPagesProd.url, content.url),
+        not(eq(SubPagesProd.id, parseInt(id)))
+      ),
+    });
+
+    if (subPage !== undefined) return "repeated url";
+
     const result = await db.transaction(async (tx) => {
       const updatedSubPage = await tx
         .update(SubPagesProd)
@@ -187,6 +202,12 @@ export async function saveArticle(
   const { otherLanguages, translatedSections, currentLang } =
     await TranslateSubPage(content, locale);
 
+  const subPage = await db?.query?.SubPagesProd?.findFirst({
+    where: eq(SubPagesProd.url, content.url),
+  });
+
+  if (subPage !== undefined) return "repeated url";
+
   return db.transaction(async (tx) => {
     const [subPage] = await tx
       .insert(SubPagesProd)
@@ -221,16 +242,15 @@ export async function saveArticle(
   });
 }
 
-export async function getAllArticles(
-  limit?: number,
-  isPublished?: boolean
-): Promise<SelectedSubPage[]> {
+export async function getAllSubPages({
+  limit,
+  ...restParams
+}: SubPagesParams): Promise<SelectedSubPage[]> {
   try {
+    const where = buildConditions(restParams, SubPagesProd);
+
     const articles = await db?.query?.SubPagesProd?.findMany({
-      where:
-        typeof isPublished !== "undefined"
-          ? eq(SubPagesProd.published, isPublished)
-          : undefined,
+      where,
       with: {
         texts: true,
         country: true,
@@ -282,12 +302,14 @@ export async function publishArticle(subPageId: number, published: boolean) {
   }
 }
 
-export async function getArticleByUrl(
-  url: string
+export async function getSubPage(
+  params: Partial<typeof SubPagesProd.$inferSelect>
 ): Promise<SelectedSubPage | null> {
   try {
+    const where = buildConditions(params, SubPagesProd);
+
     const articles = await db?.query?.SubPagesProd?.findFirst({
-      where: eq(SubPagesProd.url, url),
+      where,
       with: {
         texts: true,
         country: true,
@@ -311,6 +333,15 @@ export async function updateSubPage(
   try {
     const { otherLanguages, translatedSections, currentLang } =
       await TranslateSubPage(content, locale);
+
+    const subPage = await db?.query?.SubPagesProd?.findFirst({
+      where: and(
+        eq(SubPagesProd.url, content.url),
+        not(eq(SubPagesProd.id, subPageId))
+      ),
+    });
+
+    if (subPage !== undefined) return "repeated url";
 
     return db.transaction(async (tx) => {
       const subPage = await tx

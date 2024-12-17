@@ -230,5 +230,9 @@
     "aboutUs": "À propos de nous",
     "organizationChart": "Organigramme",
     "young": "CIOFF Jeunesse"
+  },
+  "latestNews": {
+    "title": "Dernières nouvelles",
+    "emptyContent": "Il n'y a pas d'actualités récentes."
   }
 }

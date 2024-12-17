@@ -6,7 +6,6 @@ import {
   deleteArticle,
   publishArticle,
   updateSubPage,
-  getAllArticles,
 } from "@/lib/articles";
 import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -57,6 +56,7 @@ type NewsArticlesTableProps = {
   articles: Array<SelectedSubPage>;
   countries: SelectCountries[];
   localeId: number;
+  currentTab: "all" | "published" | "draft";
 };
 
 const ArticleTable = ({
@@ -207,6 +207,7 @@ export default function NewsArticlesTable({
   articles,
   countries,
   localeId,
+  currentTab,
 }: NewsArticlesTableProps) {
   const [isCreating, setIsCreating] = useState(false);
   const [editingArticle, setEditingArticle] = useState<SelectedSubPage | null>(
@@ -245,14 +246,18 @@ export default function NewsArticlesTable({
   const handleSave = useCallback(
     async (content: ArticleBody): Promise<void> => {
       if (editingArticle) {
-        await updateSubPage(
+        const updateResponse = await updateSubPage(
           editingArticle.id,
           content,
           user.id,
           locale as Locale
         );
+
+        if (typeof updateResponse === "string") throw updateResponse;
       } else {
-        await saveArticle(content, user.id, locale as Locale);
+        const response = await saveArticle(content, user.id, locale as Locale);
+
+        if (typeof response === "string") throw response;
       }
       router.refresh();
     },
@@ -276,7 +281,7 @@ export default function NewsArticlesTable({
     }
 
     return (
-      <Tabs defaultValue="all" onValueChange={handleTabChange}>
+      <Tabs defaultValue={currentTab} onValueChange={handleTabChange}>
         <div className="flex items-center mb-4">
           <TabsList>
             <TabsTrigger value="all">{translations("all")}</TabsTrigger>
@@ -366,6 +371,7 @@ export default function NewsArticlesTable({
     localeId,
     removeArticle,
     translations,
+    currentTab,
   ]);
 
   return <div>{content}</div>;

@@ -254,5 +254,9 @@
     "aboutUs": "About us",
     "organizationChart": "Organization chart",
     "young": "CIOFF young"
+  },
+  "latestNews": {
+    "title": "Latest news",
+    "emptyContent": "There are no recent news."
   }
 }

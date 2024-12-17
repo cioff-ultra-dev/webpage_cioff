@@ -2,7 +2,7 @@ import { getLocale } from "next-intl/server";
 import { Locale } from "@/i18n/config";
 import { headers } from "next/headers";
 
-import { getArticleByUrl } from "@/lib/articles";
+import { getSubPage } from "@/lib/articles";
 import { getLanguageByLocale } from "@/db/queries/languages";
 import { Section } from "@/types/article";
 import NewsDetailTemplate from "@/components/common/news/news-detail-template";
@@ -20,10 +20,10 @@ export default async function DetailArticle({
   const host = headersList.get("host");
   const url = `${protocol}://${host}/news/${params.slug}`;
 
-  const article = await getArticleByUrl(url);
+  const article = await getSubPage({ url, published: true });
 
   if (!article) {
-    return <p>Article not found</p>;
+    return <p>News not found</p>;
   }
 
   const articleTranslated = article?.texts?.find(

@@ -176,6 +176,12 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
 
       toast.success("El artículo guardado correctamente.");
     } catch (error) {
+      if (error === "repeated url") {
+        toast.error("Ya existe un articulo con la misma url.");
+
+        return;
+      }
+
       console.error("Error al guardar el artículo:", error);
 
       toast.error("El artículo no se ha podido guardar.");

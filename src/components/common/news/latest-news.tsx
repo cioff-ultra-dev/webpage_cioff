@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
+import { getTranslations } from "next-intl/server";
 
-import { getAllArticles } from "@/lib/articles";
+import { getAllSubPages } from "@/lib/articles";
 import { Section } from "@/types/article";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +13,12 @@ interface LatestNewsProps {
 }
 
 async function LatestNews({ limit, classes }: LatestNewsProps) {
-  const articles = await getAllArticles(limit);
+  const translations = await getTranslations("latestNews");
+  const articles = await getAllSubPages({
+    limit,
+    isNews: true,
+    published: true,
+  });
 
   const items = articles.map((articleData) => {
     const text = articleData?.texts?.[0];
@@ -43,8 +49,16 @@ async function LatestNews({ limit, classes }: LatestNewsProps) {
     <div className={cn("bg-white", classes)}>
       <section className="py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold mb-6">Latest News</h2>
-          <div className="grid md:grid-cols-3 gap-8">{items}</div>
+          <h2 className="text-3xl font-bold mb-6">{translations("title")}</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {items.length > 0 ? (
+              items
+            ) : (
+              <div className="col-span-3 h-[300px] w-full flex justify-center items-center">
+                {translations("emptyContent")}
+              </div>
+            )}
+          </div>
         </div>
       </section>
     </div>
