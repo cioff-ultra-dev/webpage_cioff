@@ -213,7 +213,8 @@ export async function getNationaSectionById(
   const sq = db
     .select({ id: languages.id })
     .from(languages)
-    .where(inArray(languages.code, pushLocales));
+    .where(inArray(languages.code, pushLocales))
+    .limit(1);
 
   return db.query.nationalSections.findFirst({
     where(fields, { eq }) {

@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { inArray } from "drizzle-orm";
-import { languages, SelectLanguages } from "../schema";
+import { languages, SelectLanguages } from "@/db/schema";
 import { defaultLocale } from "@/i18n/config";
 import { getLocale } from "next-intl/server";
 
