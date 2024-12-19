@@ -8,5 +8,5 @@ export async function GET(_request: NextRequest) {
   //
   // const [mainProduct] = products.data;
   //
-  // return Response.json({ mainProduct });
+  return Response.json({ test: "hello" });
 }
