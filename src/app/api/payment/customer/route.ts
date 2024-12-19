@@ -41,5 +41,5 @@ export async function POST(request: Request) {
   //   }
   // }
   //
-  // return Response.json({ currentUser });
+  return Response.json({ test: "hello" });
 }
