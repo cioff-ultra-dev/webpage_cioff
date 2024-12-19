@@ -118,10 +118,6 @@ interface FilePreviewProps {
   file: File & { preview: string };
 }
 
-function FilePreviewContainer(props: FilePreviewProps) {
-
-}
-
 function FilePreview({ file }: FilePreviewProps) {
   if (file.type.startsWith("image/")) {
     return (

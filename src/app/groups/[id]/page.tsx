@@ -78,7 +78,7 @@ export default async function EventDetail({
                   {festival?.langs.find((item) => item.l?.code === locale)
                     ?.name ||
                     festival?.langs.find(
-                      (item) => item.l?.code === defaultLocale
+                      (item) => item.l?.code === defaultLocale,
                     )?.name}
                 </AvatarFallback>
               </Avatar>
@@ -87,7 +87,7 @@ export default async function EventDetail({
                   {festival?.langs.find((item) => item.l?.code === locale)
                     ?.name ||
                     festival?.langs.find(
-                      (item) => item.l?.code === defaultLocale
+                      (item) => item.l?.code === defaultLocale,
                     )?.name}
                 </h1>
               </div>
@@ -135,41 +135,49 @@ export default async function EventDetail({
                         {festival?.langs.find((item) => item.l?.code === locale)
                           ?.description ||
                           festival?.langs.find(
-                            (item) => item.l?.code === defaultLocale
+                            (item) => item.l?.code === defaultLocale,
                           )?.description}
                       </p>
                     </CardContent>
                   </Card>
-                  {/* <Card className="col-span-1">
+                  <Card className="col-span-1">
                     <CardHeader>
-                      <CardTitle>Location</CardTitle>
+                      <CardTitle>Profiles</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <MapMarkerEvent
-                        location={festival?.location ?? ""}
-                        lat={festival?.lat!}
-                        lng={festival?.lng!}
-                      />
-                      <Button
-                        variant="outline"
-                        className="mt-2 flex gap-1 items-center"
-                        asChild
-                        disabled={
-                          !festival?.location &&
-                          !festival?.lat &&
-                          !festival?.lng
-                        }
-                      >
-                        <Link
-                          href={`https://maps.google.com?q=${festival?.location}&loc:${festival?.lat}+${festival?.lng}`}
-                          target="_blank"
-                        >
-                          <ExternalLink size={14} />
-                          <span>Get Direction</span>
-                        </Link>
-                      </Button>
+                      <ul className="space-y-4">
+                        <li className="flex items-center gap-4">
+                          <Avatar>
+                            <AvatarImage
+                              src={festival?.directorPhoto?.url}
+                              alt={festival?.generalDirectorName ?? ""}
+                            />
+                            <AvatarFallback>
+                              {festival?.generalDirectorName
+                                ?.at(0)
+                                ?.toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <h3 className="font-semibold">
+                              {festival?.generalDirectorName}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              {festival?.langs.find(
+                                (item) => item.l?.code === locale,
+                              )?.generalDirectorProfile ||
+                                festival?.langs.find(
+                                  (item) => item.l?.code === defaultLocale,
+                                )?.generalDirectorProfile}
+                            </p>
+                            <span className="text-xs text-gray-400">
+                              President
+                            </span>
+                          </div>
+                        </li>
+                      </ul>
                     </CardContent>
-                  </Card> */}
+                  </Card>
                 </div>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Card className="col-span-1">
@@ -193,7 +201,7 @@ export default async function EventDetail({
                         {festival?.langs.find((item) => item.l?.code === locale)
                           ?.address ||
                           festival?.langs.find(
-                            (item) => item.l?.code === defaultLocale
+                            (item) => item.l?.code === defaultLocale,
                           )?.address}
                       </p>
                       <p className="flex gap-1 items-center">
