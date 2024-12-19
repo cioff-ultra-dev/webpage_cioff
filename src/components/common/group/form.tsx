@@ -426,9 +426,9 @@ export default function GroupForm({
 
   return (
     <div className="w-full p-4 md:p-6 ">
-      <h1 className="text-2xl font-bold">ADD A GROUP</h1>
-      <p className="text-sm text-muted-foreground pb-10">
-        The fields with * are mandatory.
+      <h1 className="text-2xl font-bold">{t("add_a_group")}</h1>
+      <p className="text-sm text-muted-foreground pb-10 after:content-['*'] after:ml-0.5 after:text-red-500">
+        {t("the_fields_mandatory")}
       </p>
       <Form {...form}>
         <form
@@ -475,7 +475,7 @@ export default function GroupForm({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>Group Information</CardTitle>
+                <CardTitle> {t("group_nformation")} </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -485,7 +485,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Name of the group
+                          {t("name_of_the_group")}
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -498,7 +498,7 @@ export default function GroupForm({
                           />
                         </FormControl>
                         <FormDescription>
-                          Filled automatically from the list provided by NS
+                          {t("filled_auto_from_list_NS")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -512,7 +512,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          President/General Director name
+                          {t("presid_general_dir_name")}
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -536,13 +536,12 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          President/General Director profile
+                          {t("presi_gene_dire_profile")}
                         </FormLabel>
                         <FormControl>
                           <Textarea
                             className="resize-none"
-                            placeholder="Write a short description of your main achievements,
-                            studies, etc"
+                            placeholder={t("write_short_descrip")}
                             name={field.name}
                             onChange={field.onChange}
                             value={field.value || ""}
@@ -552,7 +551,7 @@ export default function GroupForm({
                           />
                         </FormControl>
                         <FormDescription>
-                          You can use max. 500 words for this input
+                          {t("you_can_max_500_input")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -566,7 +565,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          President/General Director's photo
+                          {t("presid_general_direc_photo")}
                         </FormLabel>
                         <FormControl>
                           <FilepondImageUploader
@@ -611,7 +610,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Artistic Director name
+                          {t("arti_director_name")}
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -635,13 +634,12 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Artistic Director profile
+                          {t("arti_direc_profile")}
                         </FormLabel>
                         <FormControl>
                           <Textarea
                             className="resize-none"
-                            placeholder="Write a short description of your main achievements,
-                            studies, etc"
+                            placeholder={t("write_descrip_studies")}
                             name={field.name}
                             onChange={field.onChange}
                             value={field.value || ""}
@@ -651,7 +649,7 @@ export default function GroupForm({
                           />
                         </FormControl>
                         <FormDescription>
-                          You can use max. 500 words for this input
+                          {t("you_can_max_500_input")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -665,7 +663,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Artistic Director's photo
+                          {t("arti_director_photo")}
                         </FormLabel>
                         <FormControl>
                           <FilepondImageUploader
@@ -710,7 +708,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Musical Director name
+                          {t("musical_director_name")}
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -734,13 +732,12 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Musical Director profile
+                          {t("musi_director_profile")}
                         </FormLabel>
                         <FormControl>
                           <Textarea
                             className="resize-none"
-                            placeholder="Write a short description of your main achievements,
-                            studies, etc"
+                            placeholder={t("write_short_descrip")}
                             name={field.name}
                             onChange={field.onChange}
                             value={field.value || ""}
@@ -750,7 +747,7 @@ export default function GroupForm({
                           />
                         </FormControl>
                         <FormDescription>
-                          You can use max. 500 words for this input
+                          {t("you_can_max_500_input")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -764,7 +761,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Musical Director's photo
+                          {t("musi_director_photo")}
                         </FormLabel>
                         <FormControl>
                           <FilepondImageUploader
@@ -808,19 +805,19 @@ export default function GroupForm({
                     render={({ field: { value, ...fieldRest } }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Phone (country code)
+                          {t("phone_country_code")}
                         </FormLabel>
                         <FormControl>
                           <PhoneInput
                             value={value as RPNInput.Value}
                             id="phone"
-                            placeholder="Enter a phone number"
+                            placeholder={t("enter_phone_number")}
                             international
                             {...fieldRest}
                             disabled={isNSAccount}
                           />
                         </FormControl>
-                        <FormDescription>Enter a phone number</FormDescription>
+                        <FormDescription>{t("enter_phone_number")}</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -833,7 +830,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Mail Address
+                          {t("mail_ddress")}
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -855,7 +852,7 @@ export default function GroupForm({
 
             <Card>
               <CardHeader>
-                <CardTitle>Group Details</CardTitle>
+                <CardTitle>{t("group_details")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -875,7 +872,7 @@ export default function GroupForm({
 
                       return (
                         <FormItem>
-                          <FormLabel>Type of group</FormLabel>
+                          <FormLabel>{t("type_of_group")}</FormLabel>
                           <FormControl>
                             <MultiSelect
                               ref={field.ref}
@@ -913,7 +910,7 @@ export default function GroupForm({
                       <FormItem className="flex flex-row items-center justify-between">
                         <div className="space-y-0.5">
                           <FormLabel>
-                            Are you able to travel with live music?
+                            {t("are_you_live_music")}
                           </FormLabel>
                         </div>
                         <FormControl>
@@ -935,7 +932,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Short description
+                          {t("short_description")}
                         </FormLabel>
                         <FormControl>
                           <Textarea
@@ -948,7 +945,7 @@ export default function GroupForm({
                             disabled={isNSAccount}
                           />
                         </FormControl>
-                        <FormDescription>Max 500 words</FormDescription>
+                        <FormDescription>{t("max_500_words")}</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -971,7 +968,7 @@ export default function GroupForm({
 
                       return (
                         <FormItem>
-                          <FormLabel>Group age</FormLabel>
+                          <FormLabel>{t("group_age")}</FormLabel>
                           <FormControl>
                             <MultiSelect
                               ref={field.ref}
@@ -1008,7 +1005,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          Number of members
+                          {t("number_of_members")}
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -1029,7 +1026,7 @@ export default function GroupForm({
                           />
                         </FormControl>
                         <FormDescription>
-                          Write number of members
+                          {t("write_number_members")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -1053,7 +1050,7 @@ export default function GroupForm({
 
                       return (
                         <FormItem>
-                          <FormLabel>Style of group</FormLabel>
+                          <FormLabel>{t("style_of_group")}</FormLabel>
                           <FormControl>
                             <MultiSelect
                               ref={field.ref}
@@ -1084,7 +1081,7 @@ export default function GroupForm({
                   />
                 </div>
                 <div className="space-y-4 border-t pt-4">
-                  <h2 className="text-lg font-semibold">Sub Groups</h2>
+                  <h2 className="text-lg font-semibold">{t("sub_groups")}</h2>
                   {subGroupFields.map((field, index) => (
                     <Card
                       key={field.id}
@@ -1131,7 +1128,7 @@ export default function GroupForm({
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                                  Name of the sub group
+                                  {t("name_the_sub_group")}
                                 </FormLabel>
                                 <FormControl>
                                   <Input
@@ -1144,7 +1141,7 @@ export default function GroupForm({
                                   />
                                 </FormControl>
                                 <FormDescription>
-                                  Enter your current sub group name
+                                  {t("enter_cur_group_name")}
                                 </FormDescription>
                                 <FormMessage />
                               </FormItem>
@@ -1158,7 +1155,7 @@ export default function GroupForm({
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                                  Number of members
+                                  {t("number_members")}
                                 </FormLabel>
                                 <FormControl>
                                   <Input
@@ -1177,7 +1174,7 @@ export default function GroupForm({
                                   />
                                 </FormControl>
                                 <FormDescription>
-                                  Write number of members
+                                  {t("write_number_members")}
                                 </FormDescription>
                                 <FormMessage />
                               </FormItem>
@@ -1201,7 +1198,7 @@ export default function GroupForm({
 
                               return (
                                 <FormItem>
-                                  <FormLabel>Group age</FormLabel>
+                                  <FormLabel>{t("group_age")}</FormLabel>
                                   <FormControl>
                                     <MultiSelect
                                       ref={field.ref}
@@ -1232,11 +1229,10 @@ export default function GroupForm({
                               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                                 <div className="space-y-0.5">
                                   <FormLabel className="text-base">
-                                    Another Contact
+                                    {t("another_contact")}
                                   </FormLabel>
                                   <FormDescription>
-                                    Do you have another contact person for your
-                                    other group?
+                                    {t("Do_anot_cont_person_group")}
                                   </FormDescription>
                                 </div>
                                 <FormControl>
@@ -1258,7 +1254,7 @@ export default function GroupForm({
                                 name={`_subgroups.${index}.contactName`}
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Contact Name</FormLabel>
+                                    <FormLabel>{t("contact_name")}</FormLabel>
                                     <FormControl>
                                       <Input
                                         {...field}
@@ -1266,7 +1262,7 @@ export default function GroupForm({
                                       />
                                     </FormControl>
                                     <FormDescription>
-                                      Provide the current main contact name
+                                      {t("prov_curr_contact_name")}
                                     </FormDescription>
                                     <FormMessage />
                                   </FormItem>
@@ -1279,7 +1275,7 @@ export default function GroupForm({
                                 name={`_subgroups.${index}.contactMail`}
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Contact Email</FormLabel>
+                                    <FormLabel>{t("contact_email")}</FormLabel>
                                     <FormControl>
                                       <Input
                                         {...field}
@@ -1287,7 +1283,7 @@ export default function GroupForm({
                                       />
                                     </FormControl>
                                     <FormDescription>
-                                      Provide the current main contact email
+                                      {t("prov_curr_contact_email")}
                                     </FormDescription>
                                     <FormMessage />
                                   </FormItem>
@@ -1300,7 +1296,7 @@ export default function GroupForm({
                                 name={`_subgroups.${index}.contactPhone`}
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Contact Phone</FormLabel>
+                                    <FormLabel>{t("contact_phone")}</FormLabel>
                                     <FormControl>
                                       <PhoneInput
                                         placeholder="Enter a phone number"
@@ -1311,7 +1307,7 @@ export default function GroupForm({
                                       />
                                     </FormControl>
                                     <FormDescription>
-                                      Provide the current main contact phone
+                                      {t("prov_curr_contact_phone")}
                                     </FormDescription>
                                     <FormMessage />
                                   </FormItem>
@@ -1339,7 +1335,7 @@ export default function GroupForm({
                       })
                     }
                   >
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add Event
+                    <PlusCircle className="mr-2 h-4 w-4" /> {t("add_event")}
                   </Button>
                 </div>
               </CardContent>
@@ -1347,7 +1343,7 @@ export default function GroupForm({
 
             <Card>
               <CardHeader>
-                <CardTitle>Travel Information</CardTitle>
+                <CardTitle>{t("travel_information")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -1357,7 +1353,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem className="space-y-3">
                         <FormLabel>
-                          Are you available for travelling this year?
+                          {t("are_avail_trave_year")}
                         </FormLabel>
                         <FormControl>
                           <RadioGroup
@@ -1372,13 +1368,13 @@ export default function GroupForm({
                               <FormControl>
                                 <RadioGroupItem value="yes" />
                               </FormControl>
-                              <FormLabel className="font-normal">Yes</FormLabel>
+                              <FormLabel className="font-normal">{t("yes")}</FormLabel>
                             </FormItem>
                             <FormItem className="flex items-center space-x-3 space-y-0">
                               <FormControl>
                                 <RadioGroupItem value="no" />
                               </FormControl>
-                              <FormLabel className="font-normal">No</FormLabel>
+                              <FormLabel className="font-normal">{t("no")}</FormLabel>
                             </FormItem>
                           </RadioGroup>
                         </FormControl>
@@ -1396,7 +1392,7 @@ export default function GroupForm({
                         render={({ field: { value, onChange } }) => (
                           <FormItem>
                             <FormLabel>
-                              Any specific date? (calendar option)
+                              {t("any_specific_date")}
                             </FormLabel>
                             <FormControl>
                               <>
@@ -1464,7 +1460,7 @@ export default function GroupForm({
                         render={({ field }) => {
                           return (
                             <FormItem>
-                              <FormLabel>Any specific region?</FormLabel>
+                              <FormLabel>{t("any_specific_region")}</FormLabel>
                               <Select
                                 onValueChange={field.onChange}
                                 disabled={isNSAccount}
@@ -1475,7 +1471,7 @@ export default function GroupForm({
                               >
                                 <FormControl>
                                   <SelectTrigger className="font-medium data-[placeholder]:text-muted-foreground">
-                                    <SelectValue placeholder="Select a region" />
+                                    <SelectValue placeholder={t("select_a_region")} />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
@@ -1508,11 +1504,11 @@ export default function GroupForm({
 
             <Card>
               <CardHeader>
-                <CardTitle>Media</CardTitle>
+                <CardTitle>{t("media")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="photos">Photos</Label>
+                  <Label htmlFor="photos">{t("photos")}</Label>
                   <FilepondImageUploader
                     id="photos"
                     name="photos"
@@ -1533,11 +1529,11 @@ export default function GroupForm({
                     }
                   />
                   <p className="text-sm text-gray-500">
-                    Max 5 photos x 3MB each
+                    {t("max_5_photos_x_each")}
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="coverPhoto">Cover photo</Label>
+                  <Label htmlFor="coverPhoto">{t("cover_photo")}</Label>
                   <FilepondImageUploader
                     id="coverPhoto"
                     name="coverPhoto"
@@ -1555,7 +1551,7 @@ export default function GroupForm({
                         : []
                     }
                   />
-                  <p className="text-sm text-gray-500">Size TBC</p>
+                  <p className="text-sm text-gray-500">{t("size_tbc")}</p>
                   <input
                     name="coverPhotoId"
                     type="hidden"
@@ -1563,7 +1559,7 @@ export default function GroupForm({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="logo">Logo</Label>
+                  <Label htmlFor="logo">{t("logo")}</Label>
                   <FilepondImageUploader
                     id="logo"
                     name="logo"
@@ -1583,7 +1579,7 @@ export default function GroupForm({
                         : []
                     }
                   />
-                  <p className="text-sm text-gray-500">Size TBC</p>
+                  <p className="text-sm text-gray-500">{t("size_tbc")}</p>
                   <input
                     name="logoId"
                     type="hidden"
@@ -1591,7 +1587,7 @@ export default function GroupForm({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="video">Video</Label>
+                  <Label htmlFor="video">{t("video")}</Label>
                   <Input
                     id="video"
                     name="youtube"
@@ -1601,7 +1597,7 @@ export default function GroupForm({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="facebook">Facebook link</Label>
+                  <Label htmlFor="facebook">{t("facebook_link")}</Label>
                   <Input
                     id="facebook"
                     name="facebook"
@@ -1611,7 +1607,7 @@ export default function GroupForm({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="instagram">Instagram Link</Label>
+                  <Label htmlFor="instagram">{t("instagram_link")}</Label>
                   <Input
                     id="instagram"
                     type="url"
@@ -1621,7 +1617,7 @@ export default function GroupForm({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="website">Website link</Label>
+                  <Label htmlFor="website">{t("website_link")}</Label>
                   <Input
                     id="website"
                     type="url"
@@ -1634,9 +1630,9 @@ export default function GroupForm({
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>Repertoire</CardTitle>
+                <CardTitle>{t("repertoire")}</CardTitle>
                 <CardDescription>
-                  Add your performance repertoire details below
+                  {t("add_your_perfo_repe_below")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -1692,7 +1688,7 @@ export default function GroupForm({
                         name={`_repertories.${index}._lang.name`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Name</FormLabel>
+                            <FormLabel>{t("name")}</FormLabel>
                             <FormControl>
                               <Input
                                 ref={field.ref}
@@ -1704,7 +1700,7 @@ export default function GroupForm({
                               />
                             </FormControl>
                             <FormDescription>
-                              Enter your current section name of the repertory
+                              {t("enter_current_repertory")}
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -1717,7 +1713,7 @@ export default function GroupForm({
                         name={`_repertories.${index}._lang.description`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Description</FormLabel>
+                            <FormLabel>{t("description")}</FormLabel>
                             <FormControl>
                               <Textarea
                                 className="resize-none"
@@ -1729,7 +1725,7 @@ export default function GroupForm({
                                 disabled={isNSAccount}
                               />
                             </FormControl>
-                            <FormDescription>Max 500 words</FormDescription>
+                            <FormDescription>{t("max_500_words")}</FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -1737,7 +1733,7 @@ export default function GroupForm({
                     </div>
                     <div className="space-y-2 hidden">
                       <Label htmlFor={`section${item.id}Photos`}>
-                        Photos in costume
+                        {t("photos_costume")}
                       </Label>
                       <Input
                         id={`section${item.id}Photos`}
@@ -1752,7 +1748,7 @@ export default function GroupForm({
                         name={`_repertories.${index}.youtubeId`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Video (Youtube Link)</FormLabel>
+                            <FormLabel>{t("video_youtube_link")}</FormLabel>
                             <FormControl>
                               <Input
                                 ref={field.ref}
@@ -1764,7 +1760,7 @@ export default function GroupForm({
                               />
                             </FormControl>
                             <FormDescription>
-                              Enter your video link by Youtube
+                              {t("enter_video_link_youtube")}
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -1784,14 +1780,14 @@ export default function GroupForm({
                   onClick={() => appendRepertory({ _lang: {} })}
                   className="w-full"
                 >
-                  <PlusCircle className="mr-2 h-4 w-4" /> Add Repertoire
+                  <PlusCircle className="mr-2 h-4 w-4" /> {t("add_repertoire")}
                 </Button>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Additional Information</CardTitle>
+                <CardTitle>{t("additional_information")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -1800,7 +1796,7 @@ export default function GroupForm({
                     name="linkPortfolio"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Upload group portfolio/brochure</FormLabel>
+                        <FormLabel>{t("upload_group_port_brochure")}</FormLabel>
                         <FormControl>
                           <Input
                             ref={field.ref}
@@ -1812,7 +1808,7 @@ export default function GroupForm({
                             placeholder="Provide the link of your portfolio/brochure"
                           />
                         </FormControl>
-                        <FormDescription>Only PDF - max 10MB</FormDescription>
+                        <FormDescription>{t("only_pdf_max_10MB")}</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -1822,12 +1818,12 @@ export default function GroupForm({
             </Card>
             <Card className="hidden">
               <CardHeader>
-                <CardTitle>Recognition Certification</CardTitle>
+                <CardTitle>{t("recognition_certification")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
                   <Label htmlFor="recognitionCertificate">
-                    Upload recognition certificate
+                    {t("upload_recogn_cert")}
                   </Label>
                   <Input
                     id="recognitionCertificate"
@@ -1845,10 +1841,10 @@ export default function GroupForm({
                 <CardContent className="flex-row items-center p-4 flex w-full justify-end">
                   <div className="flex gap-2">
                     <Button variant="ghost" asChild>
-                      <Link href="/dashboard/national-sections">Cancel</Link>
+                      <Link href="/dashboard/national-sections">{t("cancel")}</Link>
                     </Button>
                     <Submit
-                      label="Save"
+                      label={t("save")}
                       isLoading={form.formState.isSubmitting}
                     />
                   </div>
