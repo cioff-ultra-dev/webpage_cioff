@@ -1,7 +1,24 @@
 import { db } from "@/db";
-import { countries, festivals, languages, SelectLanguages } from "@/db/schema";
-import { defaultLocale } from "@/i18n/config";
-import { and, count, eq, inArray, isNotNull } from "drizzle-orm";
+import {
+  countries,
+  countriesLang,
+  events,
+  festivals,
+  festivalsLang,
+  languages,
+  SelectLanguages,
+} from "@/db/schema";
+import { defaultLocale, Locale } from "@/i18n/config";
+import {
+  and,
+  count,
+  countDistinct,
+  eq,
+  gte,
+  inArray,
+  isNotNull,
+  SQLWrapper,
+} from "drizzle-orm";
 import { getLocale } from "next-intl/server";
 
 export type CountryCastFestivals = {
@@ -9,23 +26,51 @@ export type CountryCastFestivals = {
   country: string | null;
   lat: string | null;
   lng: string | null;
+  name: string | null;
   festivalsCount: number;
 }[];
 
-export async function getAllCountryCastFestivals(): Promise<CountryCastFestivals> {
-  return db
+export async function getAllCountryCastFestivals(
+  locale: Locale,
+  regionsIn: string[] = [],
+): Promise<CountryCastFestivals> {
+  const sq = db
+    .select({ id: languages.id })
+    .from(languages)
+    .where(eq(languages.code, locale));
+
+  const filters: SQLWrapper[] = [];
+
+  const query = db
     .select({
       id: countries.id,
       country: countries.slug,
       lat: countries.lat,
       lng: countries.lng,
-      festivalsCount: count(festivals.id),
+      name: countriesLang.name,
+      festivalsCount: countDistinct(festivals.id),
     })
     .from(countries)
+    .leftJoin(countriesLang, eq(countries.id, countriesLang.countryId))
     .leftJoin(festivals, eq(countries.id, festivals.countryId))
-    .where(and(isNotNull(festivals.countryId), eq(festivals.published, true)))
-    .groupBy(countries.id)
+    .$dynamic();
+
+  filters.push(
+    // isNotNull(festivals.countryId),
+    isNotNull(festivals.location),
+    eq(countriesLang.lang, sq),
+  );
+
+  if (regionsIn.length) {
+    filters.push(inArray(countries.regionId, regionsIn.map(Number)));
+  }
+
+  query
+    .where(and(...filters))
+    .groupBy(countries.id, countriesLang.id)
     .orderBy(countries.slug);
+
+  return query;
 }
 
 export async function getAllCountries() {

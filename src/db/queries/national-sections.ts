@@ -196,3 +196,163 @@ export async function getAllTypePositionsforNS(locale: string) {
 export type PositionTypeForNSType = Awaited<
   ReturnType<typeof getAllTypePositionsforNS>
 >;
+
+export async function getNationaSectionById(
+  id: SelectNationalSection["id"],
+  locale: string,
+) {
+  const localeValue = locale as SelectLanguages["code"];
+  const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
+
+  const pushLocales = [localeValue];
+
+  if (localeValue !== currentDefaultLocale) {
+    pushLocales.push(currentDefaultLocale);
+  }
+
+  const sq = db
+    .select({ id: languages.id })
+    .from(languages)
+    .where(inArray(languages.code, pushLocales))
+    .limit(1);
+
+  return db.query.nationalSections.findFirst({
+    where(fields, { eq }) {
+      return eq(fields.id, id);
+    },
+    with: {
+      festivals: {
+        with: {
+          logo: true,
+          owners: {
+            with: {
+              user: true,
+            },
+          },
+          langs: {
+            where(fields, { eq }) {
+              return eq(fields.lang, sq);
+            },
+            with: {
+              l: true,
+            },
+          },
+        },
+      },
+      groups: {
+        with: {
+          logo: true,
+          owners: {
+            with: {
+              user: true,
+            },
+          },
+          langs: {
+            where(fields, { eq }) {
+              return eq(fields.lang, sq);
+            },
+            with: {
+              l: true,
+            },
+          },
+        },
+      },
+      positions: {
+        with: {
+          type: {
+            with: {
+              langs: {
+                where(fields, { eq }) {
+                  return eq(fields.lang, sq);
+                },
+                with: {
+                  l: true,
+                },
+              },
+            },
+          },
+          photo: true,
+          langs: {
+            where(fields, { eq }) {
+              return eq(fields.lang, sq);
+            },
+            with: {
+              l: true,
+            },
+          },
+        },
+      },
+      otherEvents: {
+        with: {
+          langs: {
+            where(fields, { eq }) {
+              return eq(fields.lang, sq);
+            },
+            with: {
+              l: true,
+            },
+          },
+        },
+      },
+      country: {
+        with: {
+          langs: {
+            with: {
+              l: true,
+            },
+          },
+        },
+      },
+      langs: {
+        where(fields, { inArray }) {
+          return inArray(fields.lang, sq);
+        },
+        with: {
+          l: true,
+        },
+      },
+    },
+  });
+}
+
+export type NationalSectionTypeById = Awaited<
+  ReturnType<typeof getNationaSectionById>
+>;
+
+export async function getAllNationalSectionsPage(locale: string) {
+  const localeValue = locale as SelectLanguages["code"];
+  const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
+
+  const pushLocales = [localeValue];
+
+  if (localeValue !== currentDefaultLocale) {
+    pushLocales.push(currentDefaultLocale);
+  }
+
+  const sq = db
+    .select({ id: languages.id })
+    .from(languages)
+    .where(inArray(languages.code, pushLocales));
+
+  return db.query.nationalSections.findMany({
+    with: {
+      owners: {
+        with: {
+          user: true,
+        },
+      },
+      langs: {
+        where(fields, { inArray }) {
+          return inArray(fields.lang, sq);
+        },
+        with: {
+          l: true,
+        },
+      },
+    },
+  });
+}
+
+export type NationalSectionsPageType = Awaited<
+  ReturnType<typeof getAllNationalSectionsPage>
+>;

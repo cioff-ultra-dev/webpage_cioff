@@ -89,7 +89,7 @@ const positionsSchema = insertNationalSectionPositionsSchema.merge(
     // .refine((item) => item instanceof File || typeof item === "undefined", {
     //   params: { i18n: "file_required" },
     // }),
-  }),
+  })
 );
 
 const formNationalSectionSchema = insertNationalSectionSchema.merge(
@@ -106,10 +106,10 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
           to: z.string().optional(),
         }),
         _lang: insertEventLangSchema,
-      }),
+      })
     ),
     _social: insertSocialMediaLinkSchema,
-  }),
+  })
 );
 
 function Submit({
@@ -152,6 +152,8 @@ export default function NationalSectionForm({
   locale?: string;
 }) {
   useI18nZodErrors("ns");
+
+  const isNSAccount = session?.user.role?.name === "National Sections";
 
   const form = useForm<z.infer<typeof formNationalSectionSchema>>({
     resolver: zodResolver(formNationalSectionSchema),
@@ -216,7 +218,7 @@ export default function NationalSectionForm({
     },
   });
 
-  const t = useTranslations("form.ns");  
+  const t = useTranslations("form.ns");
   const router = useRouter();
 
   useEffect(() => {
@@ -229,27 +231,27 @@ export default function NationalSectionForm({
     currentNationalSection?.positions.forEach((position, index) => {
       form.setValue(
         `_positions.${index}._lang.shortBio`,
-        position.langs.at(0)?.shortBio || "",
+        position.langs.at(0)?.shortBio || ""
       );
       form.setValue(
         `_positions.${index}._lang.otherMemberName`,
-        position.langs.at(0)?.otherMemberName || "",
+        position.langs.at(0)?.otherMemberName || ""
       );
       form.setValue(
         `_positions.${index}._lang.id`,
-        position.langs.at(0)?.id ?? 0,
+        position.langs.at(0)?.id ?? 0
       );
     });
 
     currentNationalSection?.otherEvents.forEach((event, index) => {
       form.setValue(
         `_events.${index}._lang.name`,
-        event.langs.at(0)?.name || "",
+        event.langs.at(0)?.name || ""
       );
 
       form.setValue(
         `_events.${index}._lang.description`,
-        event.langs.at(0)?.description || "",
+        event.langs.at(0)?.description || ""
       );
       form.setValue(`_events.${index}._lang.id`, event.langs.at(0)?.id ?? 0);
     });
@@ -313,13 +315,13 @@ export default function NationalSectionForm({
           <Card className="w-full mx-auto">
             <CardHeader>
               <CardTitle>{t("organi_registra_form")}</CardTitle>
-              <CardDescription>
-                {t("please_fill_out_details")}
-              </CardDescription>
+              <CardDescription>{t("please_fill_out_details")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
               <div className="space-y-4">
-                <h2 className="text-lg font-semibold">{t("module_1_profile")}</h2>
+                <h2 className="text-lg font-semibold">
+                  {t("module_1_profile")}
+                </h2>
                 <FormField
                   control={form.control}
                   name="slug"
@@ -333,6 +335,7 @@ export default function NationalSectionForm({
                           value={field.value}
                           name={field.name}
                           type="hidden"
+                          disabled={!isNSAccount}
                         />
                       </FormControl>
                     </FormItem>
@@ -351,6 +354,7 @@ export default function NationalSectionForm({
                           value={field.value}
                           name={field.name}
                           type="hidden"
+                          disabled={!isNSAccount}
                         />
                       </FormControl>
                     </FormItem>
@@ -369,6 +373,7 @@ export default function NationalSectionForm({
                           value={field.value}
                           name={field.name}
                           type="hidden"
+                          disabled={!isNSAccount}
                         />
                       </FormControl>
                     </FormItem>
@@ -390,6 +395,7 @@ export default function NationalSectionForm({
                             onBlur={field.onBlur}
                             value={field.value}
                             name={field.name}
+                            disabled={!isNSAccount}
                           />
                         </FormControl>
                         <FormDescription>
@@ -418,6 +424,7 @@ export default function NationalSectionForm({
                             value={field.value || ""}
                             onBlur={field.onBlur}
                             ref={field.ref}
+                            disabled={!isNSAccount}
                           />
                         </FormControl>
                         <FormDescription>
@@ -433,7 +440,10 @@ export default function NationalSectionForm({
                 const positionIndex = index + 1;
                 return (
                   <div key={field.id} className="space-y-4 border-t pt-4">
-                    <h3 className="font-medium"> {t("position")} {positionIndex}</h3>
+                    <h3 className="font-medium">
+                      {" "}
+                      {t("position")} {positionIndex}
+                    </h3>
                     <FormField
                       control={form.control}
                       name={`_positions.${index}.id`}
@@ -444,6 +454,7 @@ export default function NationalSectionForm({
                             value={field.value}
                             name={field.name}
                             type="hidden"
+                            disabled={!isNSAccount}
                           />
                         </FormControl>
                       )}
@@ -466,6 +477,7 @@ export default function NationalSectionForm({
                                   field.value === "" ? undefined : field.value
                                 }
                                 name={field.name}
+                                disabled={!isNSAccount}
                               />
                             </FormControl>
                             <FormDescription>
@@ -492,20 +504,21 @@ export default function NationalSectionForm({
                                     data-test={field.value}
                                     className={cn(
                                       "justify-between capitalize",
-                                      !field.value && "text-muted-foreground",
+                                      !field.value && "text-muted-foreground"
                                     )}
+                                    disabled={!isNSAccount}
                                   >
                                     {field.value
                                       ? typePositions
                                           ?.find(
                                             (typePosition) =>
                                               String(typePosition.id) ===
-                                              field.value,
+                                              field.value
                                           )
                                           ?.langs.find(
-                                            (lang) => lang.l?.code === locale,
+                                            (lang) => lang.l?.code === locale
                                           )?.name
-                                      : t("select_type_positi") }
+                                      : t("select_type_positi")}
                                     <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                   </Button>
                                 </FormControl>
@@ -513,7 +526,7 @@ export default function NationalSectionForm({
                               <PopoverContent className="w-full p-0">
                                 <Command>
                                   <CommandInput
-                                    placeholder= {t("search_type")}
+                                    placeholder={t("search_type")}
                                     className="h-9"
                                   />
                                   <CommandList>
@@ -525,23 +538,23 @@ export default function NationalSectionForm({
                                         <CommandItem
                                           value={String(
                                             typePosition.langs.find(
-                                              (lang) => lang.l?.code === locale,
-                                            )?.name,
+                                              (lang) => lang.l?.code === locale
+                                            )?.name
                                           )}
                                           key={`_positions.${index}._type.${String(
-                                            typePosition.id,
+                                            typePosition.id
                                           )}`}
                                           className="capitalize"
                                           onSelect={() => {
                                             form.setValue(
                                               `_positions.${index}._type`,
-                                              String(typePosition.id),
+                                              String(typePosition.id)
                                             );
                                           }}
                                         >
                                           {
                                             typePosition.langs.find(
-                                              (lang) => lang.l?.code === locale,
+                                              (lang) => lang.l?.code === locale
                                             )?.name
                                           }
                                           <CheckIcon
@@ -550,7 +563,7 @@ export default function NationalSectionForm({
                                               String(typePosition.id) ===
                                                 field.value
                                                 ? "opacity-100"
-                                                : "opacity-0",
+                                                : "opacity-0"
                                             )}
                                           />
                                         </CommandItem>
@@ -568,13 +581,14 @@ export default function NationalSectionForm({
                               type="hidden"
                               name={`_positions.${index}._type`}
                               value={field.value}
+                              disabled={!isNSAccount}
                             />
                           </FormItem>
                         )}
                       />
                     </div>
                     {typePositions?.find(
-                      (item) => item.id === Number(positions?.[index]?._type),
+                      (item) => item.id === Number(positions?.[index]?._type)
                     )?.slug === "other-member" ? (
                       <div className="grid w-full items-center gap-1.5 pl-5 border-l">
                         <FormField
@@ -590,10 +604,11 @@ export default function NationalSectionForm({
                                   onBlur={field.onBlur}
                                   value={field.value || ""}
                                   name={field.name}
+                                  disabled={!isNSAccount}
                                 />
                               </FormControl>
                               <FormDescription>
-                                {("enter_custom_me_name")} 
+                                {"enter_custom_me_name"}
                               </FormDescription>
                               <FormMessage />
                             </FormItem>
@@ -608,7 +623,6 @@ export default function NationalSectionForm({
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-
                               {t("email_address")}
                             </FormLabel>
                             <FormControl>
@@ -618,6 +632,7 @@ export default function NationalSectionForm({
                                 onBlur={field.onBlur}
                                 value={field.value || ""}
                                 name={field.name}
+                                disabled={!isNSAccount}
                               />
                             </FormControl>
                             <FormDescription>
@@ -642,6 +657,7 @@ export default function NationalSectionForm({
                                 value={value as RPNInput.Value}
                                 id="phone"
                                 international
+                                disabled={!isNSAccount}
                                 {...fieldRest}
                               />
                             </FormControl>
@@ -664,6 +680,7 @@ export default function NationalSectionForm({
                               <FilepondImageUploader
                                 id={field.name}
                                 name={field.name}
+                                disabled={!isNSAccount}
                                 acceptedFileTypes={["image/*"]}
                                 defaultFiles={
                                   field.value?.url
@@ -684,6 +701,7 @@ export default function NationalSectionForm({
                               name={`_positions.${index}._photo.id`}
                               value={field.value?.id ?? undefined}
                               type="hidden"
+                              disabled={!isNSAccount}
                             />
                           </FormItem>
                         )}
@@ -702,6 +720,7 @@ export default function NationalSectionForm({
                               onBlur={field.onBlur}
                               ref={field.ref}
                               type="hidden"
+                              disabled={!isNSAccount}
                             />
                           </FormControl>
                         )}
@@ -721,6 +740,7 @@ export default function NationalSectionForm({
                                 value={field.value || undefined}
                                 onBlur={field.onBlur}
                                 ref={field.ref}
+                                disabled={!isNSAccount}
                               />
                             </FormControl>
                             <FormDescription>
@@ -751,6 +771,7 @@ export default function NationalSectionForm({
                                     defaultChecked={field.value}
                                     onCheckedChange={field.onChange}
                                     name={field.name}
+                                    disabled={!isNSAccount}
                                   />
                                 </FormControl>
                               </FormItem>
@@ -772,8 +793,9 @@ export default function NationalSectionForm({
                                             className={cn(
                                               "w-full pl-3 text-left font-normal",
                                               !field.value &&
-                                                "text-muted-foreground",
+                                                "text-muted-foreground"
                                             )}
+                                            disabled={!isNSAccount}
                                           >
                                             {field.value ? (
                                               format(field.value, "PPP")
@@ -804,7 +826,8 @@ export default function NationalSectionForm({
                                           }
                                           disabled={(date: Date) =>
                                             date > new Date() ||
-                                            date < new Date("1900-01-01")
+                                            date < new Date("1900-01-01") ||
+                                            !isNSAccount
                                           }
                                         />
                                       </PopoverContent>
@@ -814,6 +837,7 @@ export default function NationalSectionForm({
                                       type="hidden"
                                       name={`_positions.${index}._birthDate`}
                                       value={field.value}
+                                      disabled={!isNSAccount}
                                     />
                                   </FormItem>
                                 )}
@@ -832,8 +856,9 @@ export default function NationalSectionForm({
                                             className={cn(
                                               "w-full pl-3 text-left font-normal",
                                               !field.value &&
-                                                "text-muted-foreground",
+                                                "text-muted-foreground"
                                             )}
+                                            disabled={!isNSAccount}
                                           >
                                             {field.value ? (
                                               format(field.value, "PPP")
@@ -864,7 +889,8 @@ export default function NationalSectionForm({
                                           }
                                           disabled={(date: Date) =>
                                             date > new Date() ||
-                                            date < new Date("1900-01-01")
+                                            date < new Date("1900-01-01") ||
+                                            !isNSAccount
                                           }
                                         />
                                       </PopoverContent>
@@ -874,6 +900,7 @@ export default function NationalSectionForm({
                                       type="hidden"
                                       name={`_positions.${index}._deathDate`}
                                       value={field.value}
+                                      disabled={!isNSAccount}
                                     />
                                   </FormItem>
                                 )}
@@ -897,6 +924,7 @@ export default function NationalSectionForm({
               <Button
                 type="button"
                 variant="outline"
+                disabled={!isNSAccount}
                 onClick={(_) =>
                   appendPosition({
                     name: "",
@@ -914,6 +942,7 @@ export default function NationalSectionForm({
                 type="hidden"
                 name="_positionSize"
                 value={positionFields.length}
+                disabled={!isNSAccount}
               />
               {/* <div className="space-y-4 border-t pt-4"> */}
               {/*   <h2 className="text-lg font-semibold after:content-['*'] after:ml-0.5 after:text-red-500"> */}
@@ -959,6 +988,7 @@ export default function NationalSectionForm({
                         value={field.value}
                         name={field.name}
                         type="hidden"
+                        disabled={!isNSAccount}
                       />
                     </FormControl>
                   )}
@@ -977,6 +1007,7 @@ export default function NationalSectionForm({
                             onBlur={field.onBlur}
                             value={field.value || ""}
                             name={field.name}
+                            disabled={!isNSAccount}
                           />
                         </FormControl>
                         <FormDescription>Enter Facebook URL</FormDescription>
@@ -999,6 +1030,7 @@ export default function NationalSectionForm({
                             onBlur={field.onBlur}
                             value={field.value || ""}
                             name={field.name}
+                            disabled={!isNSAccount}
                           />
                         </FormControl>
                         <FormDescription>Enter Instagram URL</FormDescription>
@@ -1021,6 +1053,7 @@ export default function NationalSectionForm({
                             onBlur={field.onBlur}
                             value={field.value || ""}
                             name={field.name}
+                            disabled={!isNSAccount}
                           />
                         </FormControl>
                         <FormDescription>Enter Website URL</FormDescription>
@@ -1049,6 +1082,7 @@ export default function NationalSectionForm({
                             value={field.value}
                             name={field.name}
                             type="hidden"
+                            disabled={!isNSAccount}
                           />
                         </FormControl>
                       )}
@@ -1065,6 +1099,7 @@ export default function NationalSectionForm({
                             value={field.value}
                             name={field.name}
                             type="hidden"
+                            disabled={!isNSAccount}
                           />
                         </FormControl>
                       )}
@@ -1086,6 +1121,7 @@ export default function NationalSectionForm({
                                   onBlur={field.onBlur}
                                   value={field.value ?? ""}
                                   name={field.name}
+                                  disabled={!isNSAccount}
                                 />
                               </FormControl>
                               <FormDescription>
@@ -1111,6 +1147,7 @@ export default function NationalSectionForm({
                                   value={field.value || ""}
                                   onBlur={field.onBlur}
                                   ref={field.ref}
+                                  disabled={!isNSAccount}
                                 />
                               </FormControl>
                               <FormDescription>
@@ -1135,28 +1172,28 @@ export default function NationalSectionForm({
                                     buttonClassName="w-full"
                                     defaultDates={{
                                       from: form.getValues(
-                                        `_events.${index}._rangeDate.from`,
+                                        `_events.${index}._rangeDate.from`
                                       )
                                         ? new Date(
                                             form.getValues(
-                                              `_events.${index}._rangeDate.from`,
-                                            ),
+                                              `_events.${index}._rangeDate.from`
+                                            )
                                           )
                                         : undefined,
                                       to:
                                         form.getValues(
-                                          `_events.${index}._rangeDate.to`,
+                                          `_events.${index}._rangeDate.to`
                                         ) &&
                                         form.getValues(
-                                          `_events.${index}._rangeDate.from`,
+                                          `_events.${index}._rangeDate.from`
                                         ) !==
                                           form.getValues(
-                                            `_events.${index}._rangeDate.to`,
+                                            `_events.${index}._rangeDate.to`
                                           )
                                           ? new Date(
                                               form.getValues(
-                                                `_events.${index}._rangeDate.to`,
-                                              )!,
+                                                `_events.${index}._rangeDate.to`
+                                              )!
                                             )
                                           : undefined,
                                     }}
@@ -1166,30 +1203,33 @@ export default function NationalSectionForm({
                                         to: rangeValue?.to?.toUTCString() ?? "",
                                       });
                                     }}
+                                    disabled={!isNSAccount}
                                   />
                                   <input
                                     type="hidden"
                                     name={`_events.${index}._rangeDate.from`}
                                     value={value.from}
+                                    disabled={!isNSAccount}
                                   />
                                   <input
                                     type="hidden"
                                     name={`_events.${index}._rangeDate.to`}
                                     value={value.to}
+                                    disabled={!isNSAccount}
                                   />
                                 </>
                               </FormControl>
                               {form?.getFieldState(
-                                `_events.${index}._rangeDate.from`,
+                                `_events.${index}._rangeDate.from`
                               ).error?.message ? (
                                 <p
                                   className={cn(
-                                    "text-sm font-medium text-destructive",
+                                    "text-sm font-medium text-destructive"
                                   )}
                                 >
                                   {
                                     form?.getFieldState(
-                                      `_events.${index}._rangeDate.from`,
+                                      `_events.${index}._rangeDate.from`
                                     ).error?.message
                                   }
                                 </p>
@@ -1203,6 +1243,7 @@ export default function NationalSectionForm({
                 ))}
                 <Button
                   type="button"
+                  disabled={!isNSAccount}
                   onClick={(_) =>
                     appendEvent({
                       _rangeDate: { from: "" },
@@ -1216,25 +1257,28 @@ export default function NationalSectionForm({
                   type="hidden"
                   name="_eventSize"
                   value={eventFields.length}
+                  disabled={!isNSAccount}
                 />
               </div>
             </CardContent>
           </Card>
-          <div className="sticky bottom-5 mt-4 right-0 flex justify-end px-4">
-            <Card className="flex justify-end gap-4 w-full">
-              <CardContent className="flex-row items-center p-4 flex w-full justify-end">
-                <div className="flex gap-2">
-                  <Button variant="ghost" asChild>
-                    <Link href="/dashboard/national-section">Cancel</Link>
-                  </Button>
-                  <Submit
-                    label="Save"
-                    isLoading={form.formState.isSubmitting}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {isNSAccount ? (
+            <div className="sticky bottom-5 mt-4 right-0 flex justify-end px-4">
+              <Card className="flex justify-end gap-4 w-full">
+                <CardContent className="flex-row items-center p-4 flex w-full justify-end">
+                  <div className="flex gap-2">
+                    <Button variant="ghost" asChild>
+                      <Link href="/dashboard/national-section">Cancel</Link>
+                    </Button>
+                    <Submit
+                      label="Save"
+                      isLoading={form.formState.isSubmitting}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          ) : null}
         </form>
       </Form>
     </div>

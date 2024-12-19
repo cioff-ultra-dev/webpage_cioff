@@ -1,8 +1,17 @@
 import { auth } from "@/auth";
 import { db } from "@/db";
-import { groups, languages, SelectGroup, SelectLanguages } from "@/db/schema";
-import { defaultLocale } from "@/i18n/config";
-import { eq, inArray, sql } from "drizzle-orm";
+import {
+  categories,
+  countries,
+  countriesLang,
+  groups,
+  groupToCategories,
+  languages,
+  SelectGroup,
+  SelectLanguages,
+} from "@/db/schema";
+import { defaultLocale, Locale } from "@/i18n/config";
+import { and, countDistinct, eq, inArray, sql, SQLWrapper } from "drizzle-orm";
 import { getLocale } from "next-intl/server";
 
 const preparedLanguagesByCode = db.query.languages
@@ -77,7 +86,18 @@ export async function getGroupById(id: SelectGroup["id"]) {
       },
       groupToCategories: {
         with: {
-          category: true,
+          category: {
+            with: {
+              langs: {
+                where(fields, { inArray }) {
+                  return inArray(fields.lang, sq);
+                },
+                with: {
+                  l: true,
+                },
+              },
+            },
+          },
         },
       },
       langs: {
@@ -119,6 +139,18 @@ export async function getAllGroupsByOwner(locale: string) {
         with: {
           groups: {
             with: {
+              country: {
+                with: {
+                  langs: {
+                    where(fields, { inArray }) {
+                      return inArray(fields.lang, sq);
+                    },
+                    with: {
+                      l: true,
+                    },
+                  },
+                },
+              },
               owners: {
                 with: {
                   user: true,
@@ -149,6 +181,18 @@ export async function getAllGroupsByOwner(locale: string) {
             },
             with: {
               l: true,
+            },
+          },
+          country: {
+            with: {
+              langs: {
+                where(fields, { inArray }) {
+                  return inArray(fields.lang, sq);
+                },
+                with: {
+                  l: true,
+                },
+              },
             },
           },
         },
@@ -245,4 +289,57 @@ export async function buildGroup(countryId: number) {
       },
     },
   });
+}
+
+export type CountryCastGroups = {
+  id: number;
+  country: string | null;
+  lat: string | null;
+  lng: string | null;
+  name: string | null;
+  groupsCount: number;
+}[];
+
+export async function getAllCountryCastGroups(
+  locale: Locale,
+  regionsIn: string[] = [],
+): Promise<CountryCastGroups> {
+  const sq = db
+    .select({ id: languages.id })
+    .from(languages)
+    .where(eq(languages.code, locale));
+
+  const filters: SQLWrapper[] = [];
+
+  const query = db
+    .select({
+      id: countries.id,
+      country: countries.slug,
+      lat: countries.lat,
+      lng: countries.lng,
+      name: countriesLang.name,
+      groupsCount: countDistinct(groups.id),
+    })
+    .from(countries)
+    .leftJoin(countriesLang, eq(countries.id, countriesLang.countryId))
+    .leftJoin(groups, eq(countries.id, groups.countryId))
+    .innerJoin(groupToCategories, eq(groupToCategories.groupId, groups.id))
+    .leftJoin(categories, eq(groupToCategories.categoryId, categories.id))
+    .$dynamic();
+
+  filters.push(
+    // isNotNull(festivals.countryId),
+    eq(countriesLang.lang, sq),
+  );
+
+  if (regionsIn.length) {
+    filters.push(inArray(countries.regionId, regionsIn.map(Number)));
+  }
+
+  query
+    .where(and(...filters))
+    .groupBy(countries.id, countriesLang.id)
+    .orderBy(countries.slug);
+
+  return query;
 }

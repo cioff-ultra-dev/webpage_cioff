@@ -1,15 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { SelectFestival } from "@/db/schema";
 import { Gallery, Image } from "react-grid-gallery";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 
 export interface CustomImage extends Image {}
 
-export function GalleryImageEvent({ event }: { event: SelectFestival }) {
-  const photos: CustomImage[] = [];
+export function GalleryImageEvent({ gallery }: { gallery: CustomImage[] }) {
+  const photos: CustomImage[] = gallery;
   const [index, setIndex] = useState(-1);
 
   const handleClick = (index: number, _item: CustomImage) => setIndex(index);
@@ -20,6 +19,9 @@ export function GalleryImageEvent({ event }: { event: SelectFestival }) {
         images={photos}
         onClick={handleClick}
         enableImageSelection={false}
+        tileViewportStyle={{ width: 300, borderRadius: "5px" }}
+        margin={6}
+        thumbnailStyle={{ width: 300, borderRadius: "5px" }}
       />
       <Lightbox
         slides={photos}

@@ -57,6 +57,31 @@ export async function getFestivalById(
       return eq(fields.id, id);
     },
     with: {
+      logo: true,
+      coverPhoto: true,
+      photos: {
+        with: {
+          photo: true,
+        },
+      },
+      events: true,
+      social: true,
+      festivalsToCategories: {
+        with: {
+          category: {
+            with: {
+              langs: {
+                where(fields, { inArray }) {
+                  return inArray(fields.lang, sq);
+                },
+                with: {
+                  l: true,
+                },
+              },
+            },
+          },
+        },
+      },
       langs: {
         where(fields, { inArray }) {
           return inArray(fields.lang, sq);

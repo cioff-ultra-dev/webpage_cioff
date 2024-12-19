@@ -1,14 +1,22 @@
 "use client";
 
-import { SelectFestival } from "@/db/schema";
+import constants from "@/constants";
 import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
 
-export function MapMarkerEvent({ location }: { location: string }) {
-  const lat = Number(location?.split(",").at(0)) || 0;
-  const lng = Number(location?.split(",").at(1)) || 0;
+export function MapMarkerEvent({
+  location,
+  lat: newLat,
+  lng: newLng,
+}: {
+  location: string;
+  lat: string | null;
+  lng: string | null;
+}) {
+  const lat = Number(newLat) || 0;
+  const lng = Number(newLng) || 0;
 
   return (
-    <APIProvider apiKey={"AIzaSyBRO_oBiyzOAQbH7Jcv3ZrgOgkfNp1wJeI"}>
+    <APIProvider apiKey={constants.google.apiKey!}>
       <div className="rounded-xl py-4">
         <Map
           className="w-full h-[400px]"

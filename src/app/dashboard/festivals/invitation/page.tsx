@@ -11,7 +11,7 @@ export default async function GenerateFestivalPage() {
   }
 
   const currentNationalSection = await getCurrentNationalSection(
-    session.user.countryId,
+    session.user.countryId
   );
 
   return (

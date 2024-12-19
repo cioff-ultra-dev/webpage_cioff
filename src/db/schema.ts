@@ -173,6 +173,7 @@ export const users = pgTable(
     emailVerified: timestamp("emailVerified", { mode: "date" }),
     photoId: integer("image_id").references(() => storages.id),
     isCreationNotified: boolean("is_creation_notified").default(false),
+    // stripeCustomerId: text("stripe_customer_id"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   },
@@ -1190,6 +1191,10 @@ export const userRelations = relations(users, ({ one }) => ({
     fields: [users.roleId],
     references: [roles.id],
   }),
+  country: one(countries, {
+    fields: [users.countryId],
+    references: [countries.id],
+  }),
 }));
 
 export const festivalRelations = relations(festivals, ({ many, one }) => ({
@@ -1522,6 +1527,10 @@ export const nationalSectionRelations = relations(
     festivals: many(festivals),
     groups: many(groups),
     otherEvents: many(events),
+    country: one(countries, {
+      fields: [nationalSections.countryId],
+      references: [countries.id],
+    }),
   }),
 );
 
@@ -1921,8 +1930,23 @@ export type SelectFestivalLang = typeof festivalsLang.$inferSelect;
 export type InsertGroup = typeof groups.$inferInsert;
 export type SelectGroup = typeof groups.$inferSelect;
 
+export type InsertGroupLang = typeof groupsLang.$inferInsert;
+export type SelectGroupLang = typeof groupsLang.$inferSelect;
+
+export type InsertSubGroupLang = typeof subgroupsLang.$inferInsert;
+export type SelectSubGroupLang = typeof subgroupsLang.$inferSelect;
+
+export type InsertRepertoryLang = typeof repertoriesLang.$inferInsert;
+export type SelectRepertoryLang = typeof repertoriesLang.$inferSelect;
+
 export type InsertCountries = typeof countries.$inferInsert;
 export type SelectCountries = typeof countries.$inferSelect;
+
+export type InsertCountryLang = typeof countriesLang.$inferInsert;
+export type SelectCountryLang = typeof countriesLang.$inferSelect;
+
+export type InsertStorage = typeof storages.$inferInsert;
+export type SelectStorage = typeof storages.$inferSelect;
 
 export type InsertLanguages = typeof languages.$inferInsert;
 export type SelectLanguages = typeof languages.$inferSelect;
