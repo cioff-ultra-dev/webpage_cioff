@@ -105,12 +105,12 @@ const globalGroupSchema = insertGroupSchema.extend({
       _lang: insertSubGroupLangSchema,
       _groupAge: z.array(z.string()),
       _hasAnotherContact: z.boolean().default(false).optional(),
-    }),
+    })
   ),
   _repertories: z.array(
     insertRepertorySchema.extend({
       _lang: insertRepertoryLangSchema,
-    }),
+    })
   ),
 });
 
@@ -268,6 +268,12 @@ export default function GroupForm({
 }) {
   useI18nZodErrors("group");
   const isNSAccount = session?.user.role?.name === "National Sections";
+  const isFestivalAccount = session?.user.role?.name === "Festivals";
+  const isCurrentOwner = currentGroup?.owners.some(
+    (item) => item.userId === session?.user.id
+  );
+
+  console.log({ isFestivalAccount, isCurrentOwner });
 
   const t = useTranslations("form.group");
   const router = useRouter();
@@ -327,7 +333,7 @@ export default function GroupForm({
       }),
       _repertories: currentGroup?.repertories.map((item) => {
         const currentRepertoryLang = item.langs.find(
-          (lang) => lang?.l?.code === locale,
+          (lang) => lang?.l?.code === locale
         );
         return {
           id: item.id,
@@ -346,7 +352,7 @@ export default function GroupForm({
     {
       control: form.control,
       name: "_subgroups",
-    },
+    }
   );
 
   const { fields: repertoryFields, append: appendRepertory } = useFieldArray({
@@ -374,26 +380,26 @@ export default function GroupForm({
     currentGroup?.subgroups.forEach((subgroup, index) => {
       form.setValue(
         `_subgroups.${index}._lang.name`,
-        subgroup.langs.at(0)?.name || "",
+        subgroup.langs.at(0)?.name || ""
       );
       form.setValue(
         `_subgroups.${index}._lang.id`,
-        subgroup.langs.at(0)?.id ?? 0,
+        subgroup.langs.at(0)?.id ?? 0
       );
     });
 
     currentGroup?.repertories.forEach((repertory, index) => {
       form.setValue(
         `_repertories.${index}._lang.name`,
-        repertory.langs.at(0)?.name || "",
+        repertory.langs.at(0)?.name || ""
       );
       form.setValue(
         `_repertories.${index}._lang.description`,
-        repertory.langs.at(0)?.description || "",
+        repertory.langs.at(0)?.description || ""
       );
       form.setValue(
         `_repertories.${index}._lang.id`,
-        repertory.langs.at(0)?.id ?? 0,
+        repertory.langs.at(0)?.id ?? 0
       );
     });
   }, [
@@ -407,7 +413,7 @@ export default function GroupForm({
   const formRef = useRef<HTMLFormElement>(null);
 
   const onSubmitForm: SubmitHandler<z.infer<typeof globalGroupSchema>> = async (
-    _data,
+    _data
   ) => {
     const result = await updateGroup(new FormData(formRef.current!));
     if (result.success) {
@@ -884,8 +890,8 @@ export default function GroupForm({
                               defaultValue={
                                 (field.value as string[])?.filter((item) =>
                                   options.find(
-                                    (option) => option.value === item,
-                                  ),
+                                    (option) => option.value === item
+                                  )
                                 ) ?? []
                               }
                               onValueChange={(values) => {
@@ -978,8 +984,8 @@ export default function GroupForm({
                               defaultValue={
                                 (field.value as string[])?.filter((item) =>
                                   options.find(
-                                    (option) => option.value === item,
-                                  ),
+                                    (option) => option.value === item
+                                  )
                                 ) ?? []
                               }
                               onValueChange={(values) => {
@@ -1016,7 +1022,7 @@ export default function GroupForm({
                               field.onChange(
                                 event.target.value
                                   ? Number(event.target.value)
-                                  : 0,
+                                  : 0
                               );
                             }}
                             onBlur={field.onBlur}
@@ -1060,8 +1066,8 @@ export default function GroupForm({
                               defaultValue={
                                 (field.value as string[])?.filter((item) =>
                                   options.find(
-                                    (option) => option.value === item,
-                                  ),
+                                    (option) => option.value === item
+                                  )
                                 ) ?? []
                               }
                               onValueChange={(values) => {
@@ -1164,7 +1170,7 @@ export default function GroupForm({
                                     max="40"
                                     onChange={(event) =>
                                       void field.onChange(
-                                        Number(event.target.value),
+                                        Number(event.target.value)
                                       )
                                     }
                                     onBlur={field.onBlur}
@@ -1404,8 +1410,8 @@ export default function GroupForm({
                                     from: form.getValues(`_specificDate.from`)
                                       ? new Date(
                                           form.getValues(
-                                            `_specificDate.from`,
-                                          ) ?? "",
+                                            `_specificDate.from`
+                                          ) ?? ""
                                         )
                                       : undefined,
                                     to:
@@ -1413,7 +1419,7 @@ export default function GroupForm({
                                       form.getValues(`_specificDate.from`) !==
                                         form.getValues(`_specificDate.to`)
                                         ? new Date(
-                                            form.getValues(`_specificDate.to`)!,
+                                            form.getValues(`_specificDate.to`)!
                                           )
                                         : undefined,
                                   }}
@@ -1440,7 +1446,7 @@ export default function GroupForm({
                               ?.message ? (
                               <p
                                 className={cn(
-                                  "text-sm font-medium text-destructive",
+                                  "text-sm font-medium text-destructive"
                                 )}
                               >
                                 {
@@ -1485,7 +1491,7 @@ export default function GroupForm({
                                       >
                                         {
                                           region.langs.find(
-                                            (lang) => lang.l?.code === locale,
+                                            (lang) => lang.l?.code === locale
                                           )?.name
                                         }
                                       </SelectItem>
@@ -1630,52 +1636,53 @@ export default function GroupForm({
                 </div>
               </CardContent>
             </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("repertoire")}</CardTitle>
-                <CardDescription>
-                  {t("add_your_perfo_repe_below")}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {repertoryFields.map((item, index) => (
-                  <div
-                    key={item.id}
-                    className="space-y-4 p-4 border rounded-lg relative"
-                  >
-                    <FormField
-                      control={form.control}
-                      name={`_repertories.${index}.id`}
-                      render={({ field }) => (
-                        <FormControl>
-                          <Input
-                            ref={field.ref}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
-                            value={field.value}
-                            name={field.name}
-                            type="hidden"
-                          />
-                        </FormControl>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name={`_repertories.${index}._lang.id`}
-                      render={({ field }) => (
-                        <FormControl>
-                          <Input
-                            ref={field.ref}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
-                            value={field.value}
-                            name={field.name}
-                            type="hidden"
-                          />
-                        </FormControl>
-                      )}
-                    />
-                    {/* <Button
+            {isFestivalAccount || isCurrentOwner ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("repertoire")}</CardTitle>
+                  <CardDescription>
+                    {t("add_your_perfo_repe_below")}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {repertoryFields.map((item, index) => (
+                    <div
+                      key={item.id}
+                      className="space-y-4 p-4 border rounded-lg relative"
+                    >
+                      <FormField
+                        control={form.control}
+                        name={`_repertories.${index}.id`}
+                        render={({ field }) => (
+                          <FormControl>
+                            <Input
+                              ref={field.ref}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              value={field.value}
+                              name={field.name}
+                              type="hidden"
+                            />
+                          </FormControl>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`_repertories.${index}._lang.id`}
+                        render={({ field }) => (
+                          <FormControl>
+                            <Input
+                              ref={field.ref}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              value={field.value}
+                              name={field.name}
+                              type="hidden"
+                            />
+                          </FormControl>
+                        )}
+                      />
+                      {/* <Button
                       type="button"
                       variant="ghost"
                       size="icon"
@@ -1684,111 +1691,113 @@ export default function GroupForm({
                     >
                       <X className="h-4 w-4" />
                     </Button> */}
-                    <div className="space-y-2">
-                      <FormField
-                        control={form.control}
-                        name={`_repertories.${index}._lang.name`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t("name")}</FormLabel>
-                            <FormControl>
-                              <Input
-                                ref={field.ref}
-                                onChange={field.onChange}
-                                onBlur={field.onBlur}
-                                value={field.value ?? ""}
-                                name={field.name}
-                                disabled={isNSAccount}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              {t("enter_current_repertory")}
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div className="space-y-2">
+                        <FormField
+                          control={form.control}
+                          name={`_repertories.${index}._lang.name`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{t("name")}</FormLabel>
+                              <FormControl>
+                                <Input
+                                  ref={field.ref}
+                                  onChange={field.onChange}
+                                  onBlur={field.onBlur}
+                                  value={field.value ?? ""}
+                                  name={field.name}
+                                  disabled={isNSAccount}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                {t("enter_current_repertory")}
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <FormField
+                          control={form.control}
+                          name={`_repertories.${index}._lang.description`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{t("description")}</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  className="resize-none"
+                                  name={field.name}
+                                  onChange={field.onChange}
+                                  value={field.value || ""}
+                                  onBlur={field.onBlur}
+                                  ref={field.ref}
+                                  disabled={isNSAccount}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                {t("max_500_words")}
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="space-y-2 hidden">
+                        <Label htmlFor={`section${item.id}Photos`}>
+                          {t("photos_costume")}
+                        </Label>
+                        <Input
+                          id={`section${item.id}Photos`}
+                          type="file"
+                          accept="image/*"
+                          multiple
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <FormField
+                          control={form.control}
+                          name={`_repertories.${index}.youtubeId`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{t("video_youtube_link")}</FormLabel>
+                              <FormControl>
+                                <Input
+                                  ref={field.ref}
+                                  onChange={field.onChange}
+                                  onBlur={field.onBlur}
+                                  value={field.value ?? ""}
+                                  name={field.name}
+                                  disabled={isNSAccount}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                {t("enter_video_link_youtube")}
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <FormField
-                        control={form.control}
-                        name={`_repertories.${index}._lang.description`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t("description")}</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                className="resize-none"
-                                name={field.name}
-                                onChange={field.onChange}
-                                value={field.value || ""}
-                                onBlur={field.onBlur}
-                                ref={field.ref}
-                                disabled={isNSAccount}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              {t("max_500_words")}
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="space-y-2 hidden">
-                      <Label htmlFor={`section${item.id}Photos`}>
-                        {t("photos_costume")}
-                      </Label>
-                      <Input
-                        id={`section${item.id}Photos`}
-                        type="file"
-                        accept="image/*"
-                        multiple
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <FormField
-                        control={form.control}
-                        name={`_repertories.${index}.youtubeId`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t("video_youtube_link")}</FormLabel>
-                            <FormControl>
-                              <Input
-                                ref={field.ref}
-                                onChange={field.onChange}
-                                onBlur={field.onBlur}
-                                value={field.value ?? ""}
-                                name={field.name}
-                                disabled={isNSAccount}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              {t("enter_video_link_youtube")}
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-                ))}
-                <input
-                  type="hidden"
-                  name="_repertorySize"
-                  value={repertoryFields.length}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => appendRepertory({ _lang: {} })}
-                  className="w-full"
-                  disabled={isNSAccount}
-                >
-                  <PlusCircle className="mr-2 h-4 w-4" /> {t("add_repertoire")}
-                </Button>
-              </CardContent>
-            </Card>
+                  ))}
+                  <input
+                    type="hidden"
+                    name="_repertorySize"
+                    value={repertoryFields.length}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => appendRepertory({ _lang: {} })}
+                    className="w-full"
+                    disabled={isNSAccount}
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" />{" "}
+                    {t("add_repertoire")}
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : null}
 
             <Card>
               <CardHeader>
