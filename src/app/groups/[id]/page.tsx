@@ -4,29 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getFestivalById } from "@/db/queries/events";
 import { Header } from "@/components/common/header";
-import { MapMarkerEvent } from "@/components/common/event/map-marker";
 import { GalleryImageEvent } from "@/components/common/event/gallery-images";
 import { CoverImageEvent } from "@/components/common/event/cover";
-import { getFormatter, getLocale } from "next-intl/server";
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
-import { SelectFestival } from "@/db/schema";
 import Link from "next/link";
-import { ExternalLink, Facebook, Instagram, Link2, Phone } from "lucide-react";
+import { Facebook, Instagram, Link2, Phone } from "lucide-react";
 import { Image as GalleryImage } from "react-grid-gallery";
-import {
-  Timeline,
-  TimelineItem,
-  TimelineConnector,
-  TimelineHeader,
-  TimelineTitle,
-  TimelineIcon,
-  TimelineDescription,
-  TimelineContent,
-  TimelineTime,
-} from "@/components/extension/timeline";
-import { InstagramLogoIcon } from "@radix-ui/react-icons";
 import { getGroupById } from "@/db/queries/groups";
 
 export interface CustomImage extends GalleryImage {}
@@ -39,6 +24,8 @@ export default async function EventDetail({
   const locale = await getLocale();
   const formatter = await getFormatter();
   const festival = await getGroupById(Number(params.id));
+  const t = await getTranslations("page.group");
+  const ta = await getTranslations("action");
 
   let youtubeId = "";
 
@@ -171,7 +158,65 @@ export default async function EventDetail({
                                 )?.generalDirectorProfile}
                             </p>
                             <span className="text-xs text-gray-400">
-                              President
+                              {t("general_director")}
+                            </span>
+                          </div>
+                        </li>
+                        <li className="flex items-center gap-4">
+                          <Avatar>
+                            <AvatarImage
+                              src={festival?.artisticPhoto?.url}
+                              alt={festival?.artisticDirectorName ?? ""}
+                            />
+                            <AvatarFallback>
+                              {festival?.artisticDirectorName
+                                ?.at(0)
+                                ?.toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <h3 className="font-semibold">
+                              {festival?.artisticDirectorName}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              {festival?.langs.find(
+                                (item) => item.l?.code === locale,
+                              )?.artisticDirectorProfile ||
+                                festival?.langs.find(
+                                  (item) => item.l?.code === defaultLocale,
+                                )?.artisticDirectorProfile}
+                            </p>
+                            <span className="text-xs text-gray-400">
+                              {t("artistic_director")}
+                            </span>
+                          </div>
+                        </li>
+                        <li className="flex items-center gap-4">
+                          <Avatar>
+                            <AvatarImage
+                              src={festival?.musicalPhoto?.url}
+                              alt={festival?.musicalDirectorName ?? ""}
+                            />
+                            <AvatarFallback>
+                              {festival?.musicalDirectorName
+                                ?.at(0)
+                                ?.toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <h3 className="font-semibold">
+                              {festival?.musicalDirectorName}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              {festival?.langs.find(
+                                (item) => item.l?.code === locale,
+                              )?.musicalDirectorProfile ||
+                                festival?.langs.find(
+                                  (item) => item.l?.code === defaultLocale,
+                                )?.musicalDirectorProfile}
+                            </p>
+                            <span className="text-xs text-gray-400">
+                              {t("musical_director")}
                             </span>
                           </div>
                         </li>
@@ -237,6 +282,91 @@ export default async function EventDetail({
                           </Link>
                         ) : null}
                       </p>
+                    </CardContent>
+                  </Card>
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <Card className="col-span-1">
+                    <CardHeader>
+                      <CardTitle>Travel Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex flex-wrap flex-col gap-2">
+                      <div className="mb-1">
+                        <p className="text-sm text-muted-foreground">
+                          {t("avail_trave_year")}
+                        </p>
+                        <p className="text-sm">
+                          {festival?.isAbleTravel ? ta("yes") : ta("no")}
+                        </p>
+                      </div>
+                      {festival?.specificTravelDateFrom &&
+                      festival.specificTravelDateTo ? (
+                        <div className="mb-1">
+                          <p className="text-sm text-muted-foreground">
+                            {t("specific_date")}
+                          </p>
+                          <p className="text-sm">
+                            {formatter.dateTimeRange(
+                              festival?.specificTravelDateFrom,
+                              festival?.specificTravelDateTo,
+                              {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              },
+                            )}
+                          </p>
+                        </div>
+                      ) : null}
+                      <div className="mb-1">
+                        <p className="text-sm text-muted-foreground">
+                          {t("specific_region")}
+                        </p>
+                        <p className="text-sm">
+                          {festival?.specificRegion?.langs.find(
+                            (item) => item.l?.code === locale,
+                          )?.name ||
+                            festival?.specificRegion?.langs.find(
+                              (item) => item.l?.code === defaultLocale,
+                            )?.name}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="col-span-1">
+                    <CardHeader>
+                      <CardTitle>Subgroups</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {festival?.subgroups.map((item, index) => {
+                        return (
+                          <div key={index}>
+                            <p className="text-sm">
+                              {item?.langs.find(
+                                (item) => item.l?.code === locale,
+                              )?.name ||
+                                item?.langs.find(
+                                  (item) => item.l?.code === defaultLocale,
+                                )?.name}{" "}
+                              - ({item.membersNumber} members)
+                            </p>
+                            <div className="my-1">
+                              {item?.subgroupsToCategories.map((sitem) => (
+                                <Badge
+                                  key={`subgroup-category-${sitem.categoryId}`}
+                                >
+                                  {sitem?.category?.langs.at(0)?.name}
+                                </Badge>
+                              ))}
+                            </div>
+                            <div className="my-1 text-xs text-muted-foreground flex flex-col gap-0.5">
+                              <p>{item.contactName}</p>
+                              <p>{item.contactMail}</p>
+                              <p>{item.contactPhone}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </CardContent>
                   </Card>
                 </div>
@@ -315,87 +445,5 @@ export default async function EventDetail({
         </div>
       </footer>
     </div>
-  );
-}
-
-type SVGComponentProps = React.ComponentPropsWithoutRef<"svg">;
-
-function FacebookIcon(props: SVGComponentProps) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-    </svg>
-  );
-}
-
-function InstagramIcon(props: SVGComponentProps) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-    </svg>
-  );
-}
-
-function SearchIcon(props: SVGComponentProps) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="11" cy="11" r="8" />
-      <path d="m21 21-4.3-4.3" />
-    </svg>
-  );
-}
-
-function YoutubeIcon(props: SVGComponentProps) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17" />
-      <path d="m10 15 5-3-5-3z" />
-    </svg>
   );
 }

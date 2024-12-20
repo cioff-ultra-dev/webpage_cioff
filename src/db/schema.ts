@@ -1491,6 +1491,10 @@ export const groupsRelations = relations(groups, ({ one, many }) => ({
     fields: [groups.logoId],
     references: [storages.id],
   }),
+  specificRegion: one(regions, {
+    fields: [groups.specificRegion],
+    references: [regions.id],
+  }),
 }));
 
 export const groupLangRelations = relations(groupsLang, ({ one }) => ({

@@ -817,7 +817,9 @@ export default function GroupForm({
                             disabled={isNSAccount}
                           />
                         </FormControl>
-                        <FormDescription>{t("enter_phone_number")}</FormDescription>
+                        <FormDescription>
+                          {t("enter_phone_number")}
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -909,9 +911,7 @@ export default function GroupForm({
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between">
                         <div className="space-y-0.5">
-                          <FormLabel>
-                            {t("are_you_live_music")}
-                          </FormLabel>
+                          <FormLabel>{t("are_you_live_music")}</FormLabel>
                         </div>
                         <FormControl>
                           <Switch
@@ -1352,9 +1352,7 @@ export default function GroupForm({
                     name="_isAbleToTravel"
                     render={({ field }) => (
                       <FormItem className="space-y-3">
-                        <FormLabel>
-                          {t("are_avail_trave_year")}
-                        </FormLabel>
+                        <FormLabel>{t("are_avail_trave_year")}</FormLabel>
                         <FormControl>
                           <RadioGroup
                             onValueChange={(value) => {
@@ -1368,13 +1366,17 @@ export default function GroupForm({
                               <FormControl>
                                 <RadioGroupItem value="yes" />
                               </FormControl>
-                              <FormLabel className="font-normal">{t("yes")}</FormLabel>
+                              <FormLabel className="font-normal">
+                                {t("yes")}
+                              </FormLabel>
                             </FormItem>
                             <FormItem className="flex items-center space-x-3 space-y-0">
                               <FormControl>
                                 <RadioGroupItem value="no" />
                               </FormControl>
-                              <FormLabel className="font-normal">{t("no")}</FormLabel>
+                              <FormLabel className="font-normal">
+                                {t("no")}
+                              </FormLabel>
                             </FormItem>
                           </RadioGroup>
                         </FormControl>
@@ -1391,9 +1393,7 @@ export default function GroupForm({
                         name={`_specificDate`}
                         render={({ field: { value, onChange } }) => (
                           <FormItem>
-                            <FormLabel>
-                              {t("any_specific_date")}
-                            </FormLabel>
+                            <FormLabel>{t("any_specific_date")}</FormLabel>
                             <FormControl>
                               <>
                                 <DatePickerWithRange
@@ -1471,7 +1471,9 @@ export default function GroupForm({
                               >
                                 <FormControl>
                                   <SelectTrigger className="font-medium data-[placeholder]:text-muted-foreground">
-                                    <SelectValue placeholder={t("select_a_region")} />
+                                    <SelectValue
+                                      placeholder={t("select_a_region")}
+                                    />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
@@ -1725,7 +1727,9 @@ export default function GroupForm({
                                 disabled={isNSAccount}
                               />
                             </FormControl>
-                            <FormDescription>{t("max_500_words")}</FormDescription>
+                            <FormDescription>
+                              {t("max_500_words")}
+                            </FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -1779,6 +1783,7 @@ export default function GroupForm({
                   variant="outline"
                   onClick={() => appendRepertory({ _lang: {} })}
                   className="w-full"
+                  disabled={isNSAccount}
                 >
                   <PlusCircle className="mr-2 h-4 w-4" /> {t("add_repertoire")}
                 </Button>
@@ -1808,7 +1813,9 @@ export default function GroupForm({
                             placeholder="Provide the link of your portfolio/brochure"
                           />
                         </FormControl>
-                        <FormDescription>{t("only_pdf_max_10MB")}</FormDescription>
+                        <FormDescription>
+                          {t("only_pdf_max_10MB")}
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -1841,7 +1848,9 @@ export default function GroupForm({
                 <CardContent className="flex-row items-center p-4 flex w-full justify-end">
                   <div className="flex gap-2">
                     <Button variant="ghost" asChild>
-                      <Link href="/dashboard/national-sections">{t("cancel")}</Link>
+                      <Link href="/dashboard/national-sections">
+                        {t("cancel")}
+                      </Link>
                     </Button>
                     <Submit
                       label={t("save")}

@@ -61,7 +61,22 @@ export async function getGroupById(id: SelectGroup["id"]) {
       },
       subgroups: {
         with: {
-          subgroupsToCategories: true,
+          subgroupsToCategories: {
+            with: {
+              category: {
+                with: {
+                  langs: {
+                    where(fields, { inArray }) {
+                      return inArray(fields.lang, sq);
+                    },
+                    with: {
+                      l: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
           langs: {
             where(fields, { inArray }) {
               return inArray(fields.lang, sq);
@@ -106,6 +121,18 @@ export async function getGroupById(id: SelectGroup["id"]) {
         },
         with: {
           l: true,
+        },
+      },
+      specificRegion: {
+        with: {
+          langs: {
+            where(fields, { inArray }) {
+              return inArray(fields.lang, sq);
+            },
+            with: {
+              l: true,
+            },
+          },
         },
       },
     },

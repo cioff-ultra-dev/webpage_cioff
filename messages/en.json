@@ -33,7 +33,19 @@
       "festivals": "Festivals",
       "groups": "Groups",
       "events": "Events"
+    },
+    "group": {
+      "general_director": "President/General Director",
+      "musical_director": "Musical Director",
+      "artistic_director": "Artistic Director name",
+      "avail_trave_year": "Available for travelling this year",
+      "specific_date": "Specific Date",
+      "specific_region": "Specific Region"
     }
+  },
+  "action": {
+    "yes": "Yes",
+    "no": "No"
   },
   "locale_switch": {
     "select": "Select language",
