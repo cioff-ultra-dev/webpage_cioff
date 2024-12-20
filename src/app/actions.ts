@@ -2729,11 +2729,19 @@ export async function updateGroup(formData: FormData) {
   return { success: t("success"), error: null };
 }
 
-export async function sendInvitationLegacy(formData: FormData) {
-  const email = formData.get("email") as string;
-  const festivalId = Number(formData.get("festival_id"));
-  const session = await auth();
+export async function updateFestivalStatus(formData: FormData) {
+  const id = Number(formData.get("festivalId"));
+  const statusId = Number(formData.get("_status"));
   const t = await getTranslations("notification");
 
-  return { success: t("success") };
+  await db.transaction(async (tx) => {
+    await tx
+      .update(festivals)
+      .set({
+        statusId,
+      })
+      .where(eq(festivals.id, id));
+  });
+
+  return { success: t("success"), error: null };
 }

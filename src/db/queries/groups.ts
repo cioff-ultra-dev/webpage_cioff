@@ -59,9 +59,25 @@ export async function getGroupById(id: SelectGroup["id"]) {
           photo: true,
         },
       },
+      owners: true,
       subgroups: {
         with: {
-          subgroupsToCategories: true,
+          subgroupsToCategories: {
+            with: {
+              category: {
+                with: {
+                  langs: {
+                    where(fields, { inArray }) {
+                      return inArray(fields.lang, sq);
+                    },
+                    with: {
+                      l: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
           langs: {
             where(fields, { inArray }) {
               return inArray(fields.lang, sq);
@@ -108,6 +124,18 @@ export async function getGroupById(id: SelectGroup["id"]) {
           l: true,
         },
       },
+      specificRegion: {
+        with: {
+          langs: {
+            where(fields, { inArray }) {
+              return inArray(fields.lang, sq);
+            },
+            with: {
+              l: true,
+            },
+          },
+        },
+      },
     },
   });
 }
@@ -139,6 +167,18 @@ export async function getAllGroupsByOwner(locale: string) {
         with: {
           groups: {
             with: {
+              country: {
+                with: {
+                  langs: {
+                    where(fields, { inArray }) {
+                      return inArray(fields.lang, sq);
+                    },
+                    with: {
+                      l: true,
+                    },
+                  },
+                },
+              },
               owners: {
                 with: {
                   user: true,
@@ -169,6 +209,18 @@ export async function getAllGroupsByOwner(locale: string) {
             },
             with: {
               l: true,
+            },
+          },
+          country: {
+            with: {
+              langs: {
+                where(fields, { inArray }) {
+                  return inArray(fields.lang, sq);
+                },
+                with: {
+                  l: true,
+                },
+              },
             },
           },
         },
@@ -316,8 +368,6 @@ export async function getAllCountryCastGroups(
     .where(and(...filters))
     .groupBy(countries.id, countriesLang.id)
     .orderBy(countries.slug);
-
-  console.log(query.toSQL());
 
   return query;
 }

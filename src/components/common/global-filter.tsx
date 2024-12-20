@@ -1,15 +1,13 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import useSWR, { preload } from "swr";
 import useSWRInfinite from "swr/infinite";
 import InfiniteScroll from "@/components/extension/swr-infinite-scroll";
 import fetcher, { cn } from "@/lib/utils";
-import { categories, SelectCountries, SelectFestival } from "@/db/schema";
+import { SelectFestival } from "@/db/schema";
 import { MapPin, CalendarCheck } from "lucide-react";
 import { format } from "date-fns";
 import {

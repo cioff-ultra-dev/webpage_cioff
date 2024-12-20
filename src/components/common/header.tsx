@@ -97,6 +97,9 @@ export async function Header({
             <Link href="/cioff-young" prefetch={false}>
               {translations("young")}
             </Link>
+            <Link href="/national-sections" prefetch={false}>
+              {translations("national_sections")}
+            </Link>
             <Link href="/organization-chart" prefetch={false}>
               {translations("organizationChart")}
             </Link>
@@ -118,6 +121,9 @@ export async function Header({
         <Link href="/cioff-young" prefetch={false} className={text}>
           {translations("young")}
         </Link>
+        <Link href="/national-sections" prefetch={false} className={text}>
+          {translations("national_sections")}
+        </Link>
         <Link href="/organization-chart" prefetch={false} className={text}>
           {translations("organizationChart")}
         </Link>
@@ -132,7 +138,7 @@ export async function Header({
             asChild
           >
             <Link href="/dashboard">
-              <UserIcon className={`${text}`} />
+              <UserIcon />
             </Link>
           </Button>
         ) : (
