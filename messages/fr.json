@@ -56,7 +56,8 @@
     "edit": "Editer",
     "settings": "Paramètres",
     "sub-pages": "Sous-pages",
-    "send-emails": "Envoyer un courrier"
+    "send-emails": "Envoyer un courrier",
+    "customization": "Personnalisation"
   },
   "form": {
     "name": "Nom",
@@ -399,5 +400,34 @@
   "latestNews": {
     "title": "Dernières nouvelles",
     "emptyContent": "Il n'y a pas d'actualités récentes."
+  },
+  "customization": {
+    "save": "Enregistrer",
+    "remove": "Supprimer",
+    "tabs": {
+      "banner": "Bannière",
+      "menu": "Menu",
+      "network": "Réseaux sociaux",
+      "categories": "Catégories",
+      "timeline": "Chronologie"
+    },
+    "menu": {
+      "description": "Voir et gérer le menu principal du site web. N'oubliez pas que la limite maximale est de 6 éléments.",
+      "addItem": "Ajouter un élément",
+      "maxItems": "Seuls 6 éléments sont autorisés dans le menu.",
+      "newItem": "Nouvel élément",
+      "removed": "L'élément du menu a été supprimé avec succès.",
+      "notRemoved": "L'élément du menu n'a pas pu être supprimé. Veuillez réessayer.",
+      "updated": "Élément mis à jour avec succès.",
+      "added": "Élément créé avec succès.",
+      "form": {
+        "name": "Nom",
+        "nameDescription": "Nom de l'élément",
+        "route": "URL",
+        "routeDescription": "URL de redirection",
+        "remove": "Supprimer l'élément du menu",
+        "removeConfirm": "Êtes-vous sûr de vouloir supprimer \"{name}\" du menu ?"
+      }
+    }
   }
 }

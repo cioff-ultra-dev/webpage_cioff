@@ -757,15 +757,19 @@ export const design = pgTable("design", {
 export const menu = pgTable("menu", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull(),
-  order: integer("order"),
+  order: integer("order").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 export const menuLang = pgTable("menu_lang", {
   id: serial("id").primaryKey(),
-  name: text("name"),
-  lang: integer("lang").references(() => languages.id),
-  menuId: integer("menu_id").references(() => menu.id),
+  name: text("name").notNull(),
+  lang: integer("lang")
+    .notNull()
+    .references(() => languages.id),
+  menuId: integer("menu_id")
+    .notNull()
+    .references(() => menu.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -1761,6 +1765,16 @@ export const SubPagesTextsRelations = relations(
   })
 );
 
+export const MenuRelations = relations(menu, ({ many }) => ({
+  lang: many(menuLang),
+}));
+
+export const MenuLangRelations = relations(menuLang, ({ one }) => ({
+  menu: one(menu, {
+    fields: [menuLang.menuId],
+    references: [menu.id],
+  }),
+}));
 /* Schema Zod  */
 
 export const inserUserSchema = createInsertSchema(users, {

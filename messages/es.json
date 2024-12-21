@@ -55,7 +55,8 @@
     "edit": "Editar",
     "sub-pages": "Subpáginas",
     "settings": "Ajustes",
-    "send-emails": "Enviar correos"
+    "send-emails": "Enviar correos",
+    "customization": "Personalización"
   },
   "form": {
     "name": "Nombre",
@@ -398,5 +399,60 @@
   "latestNews": {
     "title": "Noticias recientes",
     "emptyContent": "No hay noticias recientes."
+  },
+  "customization": {
+    "save": "Guardar",
+    "remove": "Eliminar",
+    "tabs": {
+      "banner": "banner",
+      "menu": "Menú",
+      "network": "Redes sociales",
+      "categories": "Categorías",
+      "timeline": "Linea de tiempo"
+    },
+    "menu": {
+      "description": "Vea y administre el menú principal de la página web. Recuerda que el límite máximo es de 6 ítems",
+      "addItem": "Agregar item",
+      "maxItems": "Solo se permiten 6 items en el menú",
+      "newItem": "Nuevo item",
+      "removed": "El item del menú se ha eliminado con éxito.",
+      "notRemoved": "No se pudo eliminar el ítem del menú. Por favor, inténtalo de nuevo.",
+      "updated": "Item actualizado con éxito.",
+      "added": "Item creado con éxito.",
+      "form": {
+        "name": "Nombre",
+        "nameDescription": "Nombre del item",
+        "route": "Url",
+        "routeDescription": "Url de redirección",
+        "remove": "Eliminar item del menú",
+        "removeConfirm": "¿Estás seguro de que deseas eliminar \"{name}\" del menú?"
+      }
+    },
+    "categories": {
+      "description": "Vea y administre todas las categorias.",
+      "addItem": "Agregar categoria",
+      "deleteTitle": "Eliminar categoria",
+      "deleteMessage": "¿Estás seguro de que deseas eliminar \"{name}\"?",
+      "pending": "Pendiente",
+      "removed": "La categoria se ha eliminado con éxito.",
+      "notRemoved": "No se pudo eliminar categoria.",
+      "updated": "Categoria actualizado con éxito.",
+      "notUpdated": "No se pudo actualizar la categoria.",
+      "added": "Categoria creada con éxito.",
+      "form": {
+        "title": "Categoria",
+        "name": "Nombre",
+        "nameDescription": "Nombre de la categoria"
+      }
+    }
+  },
+  "table": {
+    "slug": "Slug",
+    "name": "Nombre",
+    "icon": "Icono",
+    "actions": "Acciones",
+    "pending": "Pendiente",
+    "edit": "Editar",
+    "delete": "Eliminar"
   }
 }

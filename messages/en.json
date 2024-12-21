@@ -73,7 +73,8 @@
     "edit": "Edit",
     "settings": "Settings",
     "sub-pages": "Subpages",
-    "send-emails": "Send emails"
+    "send-emails": "Send emails",
+    "customization": "Customization"
   },
   "form": {
     "name": "Name",
@@ -421,5 +422,34 @@
   "latestNews": {
     "title": "Latest news",
     "emptyContent": "There are no recent news."
+  },
+  "customization": {
+    "save": "Save",
+    "remove": "Remove",
+    "tabs": {
+      "banner": "Banner",
+      "menu": "Menu",
+      "network": "Social networks",
+      "categories": "Categories",
+      "timeline": "Timeline"
+    },
+    "menu": {
+      "description": "View and manage the main menu of the website. Remember that the maximum limit is 6 items.",
+      "addItem": "Add item",
+      "maxItems": "Only 6 items are allowed in the menu.",
+      "newItem": "New item",
+      "removed": "The menu item has been successfully removed.",
+      "notRemoved": "The menu item could not be removed. Please try again.",
+      "updated": "Item successfully updated.",
+      "added": "Item successfully created.",
+      "form": {
+        "name": "Name",
+        "nameDescription": "Item name",
+        "route": "URL",
+        "routeDescription": "Redirect URL",
+        "remove": "Remove menu item",
+        "removeConfirm": "Are you sure you want to remove \"{name}\" from the menu?"
+      }
+    }
   }
 }

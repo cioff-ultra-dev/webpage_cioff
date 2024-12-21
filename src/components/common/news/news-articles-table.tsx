@@ -7,7 +7,7 @@ import {
   publishArticle,
   updateSubPage,
 } from "@/lib/articles";
-import React, { useState, useCallback, useMemo, useEffect } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
@@ -37,7 +37,7 @@ import {
 import { SelectCountries } from "@/db/schema";
 import { useLocale, useTranslations } from "next-intl";
 
-import ConfirmDialog from "./confirmDialog";
+import ConfirmDialog from "../confirmDialog";
 import { DialogTrigger } from "@/components/ui/dialog";
 import ArticleEditor from "./news-articles-form";
 import { Locale } from "@/i18n/config";

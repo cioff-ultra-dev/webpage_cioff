@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { SignOut } from "@/components/common/signout-button";
-import { Globe, NewspaperIcon } from "lucide-react";
+import { Globe, NewspaperIcon, Palette } from "lucide-react";
 import DashboardBreadcrumb from "./dashboard/breadcrumbs";
 import { getAllLanguages } from "@/db/queries/languages";
 import LocaleSwitcher from "./locale-switcher";
@@ -108,10 +108,23 @@ export default async function Dashboard({
                   prefetch={false}
                 >
                   <NewspaperIcon className="h-5 w-5" />
-                  <span className="sr-only">{t("subPage")}</span>
+                  <span className="sr-only">{t("sub-pages")}</span>
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">{t("subPage")}</TooltipContent>
+              <TooltipContent side="right">{t("sub-pages")}</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/dashboard/customization"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                  prefetch={false}
+                >
+                  <Palette className="h-5 w-5" />
+                  <span className="sr-only">{t("customization")}</span>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right">{t("customization")}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger>
