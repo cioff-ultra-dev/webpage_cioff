@@ -444,6 +444,30 @@
         "name": "Nombre",
         "nameDescription": "Nombre de la categoria"
       }
+    },
+    "social": {
+      "description": "Vea y administre todos los enlaces de redes sociales.",
+      "addItem": "Agregar enlace",
+      "deleteTitle": "Eliminar enlace",
+      "deleteMessage": "¿Estás seguro de que deseas eliminar el enlace?",
+      "pending": "Pendiente",
+      "removed": "Enlace eliminado con éxito.",
+      "notRemoved": "No se pudo eliminar el enlace.",
+      "updated": "Enlace actualizado con éxito.",
+      "notUpdated": "No se pudo actualizar el enlace.",
+      "added": "enlace creado con éxito.",
+      "form": {
+        "title": "Enlaces de redes sociales",
+        "facebook": "Facebook",
+        "instagram": "Instagram",
+        "website": "Enlace web",
+        "facebookDescription": "Enlace de post de Facebook",
+        "instagramDescription": "Enlace de post de Instagram",
+        "websiteDescription": "Enlace de post de la página web "
+      }
+    },
+    "banner": {
+      "description": "Vea y administre el banner."
     }
   },
   "table": {
@@ -453,6 +477,9 @@
     "actions": "Acciones",
     "pending": "Pendiente",
     "edit": "Editar",
-    "delete": "Eliminar"
+    "delete": "Eliminar",
+    "facebook": "Facebook",
+    "instagram": "Instagram",
+    "website": "Sitio web"
   }
 }

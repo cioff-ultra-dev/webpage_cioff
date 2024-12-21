@@ -467,6 +467,27 @@
         "name": "Name",
         "nameDescription": "Category name"
       }
+    },
+    "social": {
+      "description": "View and manage all social media links.",
+      "addItem": "Add link",
+      "deleteTitle": "Delete link",
+      "deleteMessage": "Are you sure you want to delete the link?",
+      "pending": "Pending",
+      "removed": "Link successfully removed.",
+      "notRemoved": "The link could not be removed.",
+      "updated": "Link successfully updated.",
+      "notUpdated": "The link could not be updated.",
+      "added": "Link successfully created.",
+      "form": {
+        "title": "Social media links",
+        "facebook": "Facebook",
+        "instagram": "Instagram",
+        "website": "Website link",
+        "facebookDescription": "Facebook post link",
+        "instagramDescription": "Instagram post link",
+        "websiteDescription": "Website post link"
+      }
     }
   },
   "table": {
@@ -476,6 +497,9 @@
     "actions": "Actions",
     "pending": "Pending",
     "edit": "Edit",
-    "delete": "Delete"
+    "delete": "Delete",
+    "facebook": "Facebook",
+    "instagram": "Instagram",
+    "website": "Website"
   }
 }

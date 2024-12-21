@@ -445,6 +445,30 @@
         "name": "Nom",
         "nameDescription": "Nom de la catégorie"
       }
+    },
+    "social": {
+      "description": "Voir et gérer tous les liens des réseaux sociaux.",
+      "addItem": "Ajouter un lien",
+      "deleteTitle": "Supprimer le lien",
+      "deleteMessage": "Êtes-vous sûr de vouloir supprimer le lien ?",
+      "pending": "En attente",
+      "removed": "Lien supprimé avec succès.",
+      "notRemoved": "Le lien n'a pas pu être supprimé.",
+      "updated": "Lien mis à jour avec succès.",
+      "notUpdated": "Le lien n'a pas pu être mis à jour.",
+      "added": "Lien créé avec succès.",
+      "form": {
+        "title": "Liens des réseaux sociaux",
+        "facebook": "Facebook",
+        "instagram": "Instagram",
+        "website": "Lien du site web",
+        "facebookDescription": "Lien de publication Facebook",
+        "instagramDescription": "Lien de publication Instagram",
+        "websiteDescription": "Lien de publication du site web"
+      }
+    },
+    "banner": {
+      "description": ""
     }
   },
   "table": {
@@ -454,6 +478,9 @@
     "actions": "Actions",
     "pending": "En attente",
     "edit": "Modifier",
-    "delete": "Supprimer"
+    "delete": "Supprimer",
+    "facebook": "Facebook",
+    "instagram": "Instagram",
+    "website": "Website"
   }
 }

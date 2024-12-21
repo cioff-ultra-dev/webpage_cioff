@@ -296,7 +296,8 @@ export const nationalSections = pgTable("national_section", {
   published: boolean("published").default(false),
   slug: text("slug").notNull(),
   socialMediaLinksId: integer("socia_media_links_id").references(
-    () => socialMediaLinks.id
+    () => socialMediaLinks.id,
+    { onDelete: "set null" }
   ),
   typeNationalSectionId: integer("type_national_section_id").references(
     () => typeNationalSections.id
@@ -426,7 +427,8 @@ export const festivals = pgTable("festivals", {
     () => storages.id
   ),
   socialMediaLinksId: integer("socia_media_links_id").references(
-    () => socialMediaLinks.id
+    () => socialMediaLinks.id,
+    { onDelete: "set null" }
   ),
   regionForGroupsId: integer("region_for_groups").references(() => regions.id),
   countryId: integer("country_id").references(() => countries.id),
@@ -807,7 +809,8 @@ export const SubPagesProd = pgTable("sub_pages", {
   slug: text("slug").notNull(),
   countryId: integer("country_id").references(() => countries.id),
   socialMediaLinksId: integer("socia_media_links_id").references(
-    () => socialMediaLinks.id
+    () => socialMediaLinks.id,
+    { onDelete: "set null" }
   ),
   url: text("url").notNull(),
   isNews: boolean("is_news").default(false),

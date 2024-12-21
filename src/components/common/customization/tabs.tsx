@@ -18,14 +18,22 @@ import { CategoriesType } from "@/db/queries/categories";
 
 import MenuTab from "./menu/menu-tab";
 import CategoriesTab from "./categories/categories-tab";
+import SocialMediaTab from "./socialMediaLinks/social-media-tab";
+import { SocialMedialLinks } from "@/db/queries/social-media-links";
 
 export interface TabsComponentProps {
   currentTab: TabOptions;
   menu?: SelectedMenuLang[];
   categories?: CategoriesType;
+  socialLinks?: SocialMedialLinks;
 }
 
-function TabsComponent({ currentTab, menu, categories }: TabsComponentProps) {
+function TabsComponent({
+  currentTab,
+  menu,
+  categories,
+  socialLinks,
+}: TabsComponentProps) {
   const router = useRouter();
   const locale = useLocale() as Locale;
   const translations = useTranslations("customization");
@@ -61,17 +69,7 @@ function TabsComponent({ currentTab, menu, categories }: TabsComponentProps) {
       </TabsContent>
       <MenuTab locale={locale} menu={menu ?? []} />
       <CategoriesTab locale={locale} categories={categories ?? []} />
-      <TabsContent value="social-networks">
-        <Card>
-          <CardHeader>
-            <CardTitle>{translations("draftTitle")}</CardTitle>
-            <CardDescription>
-              {translations("draftDescription")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>Malo</CardContent>
-        </Card>
-      </TabsContent>
+      <SocialMediaTab socialLinks={socialLinks} />
     </Tabs>
   );
 }
