@@ -8,6 +8,7 @@ import { getMenuByLocale } from "@/lib/menu";
 import { Locale } from "@/i18n/config";
 import { getAllCategories } from "@/db/queries/categories";
 import { getAllSocialMediaLinks } from "@/db/queries/social-media-links";
+import { getBannerFromLocale } from "@/db/queries/design";
 
 export interface CustomizationProps {
   searchParams: {
@@ -38,6 +39,10 @@ async function CustomizationPage({
       const socialLinks = await getAllSocialMediaLinks();
 
       props.socialLinks = socialLinks;
+    case "banner":
+      const banner = await getBannerFromLocale(locale);
+
+      props.banner = banner;
   }
 
   return <Tabs {...props} />;

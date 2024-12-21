@@ -404,7 +404,7 @@
     "save": "Guardar",
     "remove": "Eliminar",
     "tabs": {
-      "banner": "banner",
+      "banner": "Banner",
       "menu": "Menú",
       "network": "Redes sociales",
       "categories": "Categorías",
@@ -467,7 +467,20 @@
       }
     },
     "banner": {
-      "description": "Vea y administre el banner."
+      "description": "Vea y administre el banner.",
+      "updated": "banner actualizado con éxito.",
+      "notUpdated": "No se pudo actualizar el banner.",
+      "form": {
+        "title": "Título",
+        "titleDescription": "Título principal del banner",
+        "subtitle": "Subtítulo",
+        "subtitleDescription": "Subtítulo del banner",
+        "image": "Imagen",
+        "imageDescription": "Imagen de fondo del banner"
+      }
+    },
+    "timeline": {
+      "description": "Vea y administre la linea de tiempo."
     }
   },
   "table": {

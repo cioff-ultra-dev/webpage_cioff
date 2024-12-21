@@ -15,17 +15,20 @@ import {
 } from "@/components/ui/card";
 import { Locale } from "@/i18n/config";
 import { CategoriesType } from "@/db/queries/categories";
+import { SocialMedialLinks } from "@/db/queries/social-media-links";
 
 import MenuTab from "./menu/menu-tab";
 import CategoriesTab from "./categories/categories-tab";
 import SocialMediaTab from "./socialMediaLinks/social-media-tab";
-import { SocialMedialLinks } from "@/db/queries/social-media-links";
+import BannerTab from "./banner/banner-tab";
+import { DesignListType } from "@/db/queries/design";
 
 export interface TabsComponentProps {
   currentTab: TabOptions;
   menu?: SelectedMenuLang[];
   categories?: CategoriesType;
   socialLinks?: SocialMedialLinks;
+  banner?: DesignListType;
 }
 
 function TabsComponent({
@@ -33,6 +36,7 @@ function TabsComponent({
   menu,
   categories,
   socialLinks,
+  banner,
 }: TabsComponentProps) {
   const router = useRouter();
   const locale = useLocale() as Locale;
@@ -58,15 +62,18 @@ function TabsComponent({
           {translations("tabs.timeline")}
         </TabsTrigger>
       </TabsList>
-      <TabsContent value="banner">
+      <TabsContent value="timeline">
         <Card>
           <CardHeader>
-            <CardTitle>{translations("allTitle")}</CardTitle>
-            <CardDescription>{translations("allDescription")}</CardDescription>
+            <CardTitle>{translations("tabs.timeline")}</CardTitle>
+            <CardDescription>
+              {translations("timeline.description")}
+            </CardDescription>
           </CardHeader>
-          <CardContent>MAMA</CardContent>
+          <CardContent>carousel</CardContent>
         </Card>
       </TabsContent>
+      <BannerTab banner={banner ?? []} locale={locale} />
       <MenuTab locale={locale} menu={menu ?? []} />
       <CategoriesTab locale={locale} categories={categories ?? []} />
       <SocialMediaTab socialLinks={socialLinks} />

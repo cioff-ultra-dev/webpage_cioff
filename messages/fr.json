@@ -468,7 +468,20 @@
       }
     },
     "banner": {
-      "description": ""
+      "description": "Voir et gérer la bannière.",
+      "updated": "Bannière mise à jour avec succès.",
+      "notUpdated": "La bannière n'a pas pu être mise à jour.",
+      "form": {
+        "title": "Titre",
+        "titleDescription": "Titre principal de la bannière",
+        "subtitle": "Sous-titre",
+        "subtitleDescription": "Sous-titre de la bannière",
+        "image": "Image",
+        "imageDescription": "Image de fond de la bannière"
+      }
+    },
+    "timeline": {
+      "description": "Voir et gérer la chronologie."
     }
   },
   "table": {

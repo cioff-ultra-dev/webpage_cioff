@@ -488,6 +488,22 @@
         "instagramDescription": "Instagram post link",
         "websiteDescription": "Website post link"
       }
+    },
+    "banner": {
+      "description": "View and manage the banner.",
+      "updated": "Banner successfully updated.",
+      "notUpdated": "The banner could not be updated.",
+      "form": {
+        "title": "Title",
+        "titleDescription": "Main title of the banner",
+        "subtitle": "Subtitle",
+        "subtitleDescription": "Subtitle of the banner",
+        "image": "Image",
+        "imageDescription": "Background image of the banner"
+      }
+    },
+    "timeline": {
+      "description": "View and manage the timeline."
     }
   },
   "table": {

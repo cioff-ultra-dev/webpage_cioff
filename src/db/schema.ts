@@ -750,8 +750,10 @@ export const timelineLang = pgTable("timeline_lang", {
 });
 export const design = pgTable("design", {
   id: serial("id").primaryKey(),
-  bannerMediaId: integer("banner_media_id")
-    .references(() => storages.id)
+  key: text("key").notNull(),
+  value: text("value").notNull(),
+  lang: integer("lang")
+    .references(() => languages.id, { onDelete: "set null" })
     .notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
@@ -1776,6 +1778,13 @@ export const MenuLangRelations = relations(menuLang, ({ one }) => ({
   menu: one(menu, {
     fields: [menuLang.menuId],
     references: [menu.id],
+  }),
+}));
+
+export const designRelations = relations(design, ({ one }) => ({
+  lang: one(languages, {
+    fields: [design.lang],
+    references: [languages.id],
   }),
 }));
 /* Schema Zod  */
