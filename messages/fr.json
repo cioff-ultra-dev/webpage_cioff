@@ -428,6 +428,32 @@
         "remove": "Supprimer l'élément du menu",
         "removeConfirm": "Êtes-vous sûr de vouloir supprimer \"{name}\" du menu ?"
       }
+    },
+    "categories": {
+      "description": "Voir et gérer toutes les catégories.",
+      "addItem": "Ajouter une catégorie",
+      "deleteTitle": "Supprimer la catégorie",
+      "deleteMessage": "Êtes-vous sûr de vouloir supprimer \"{name}\" ?",
+      "pending": "En attente",
+      "removed": "La catégorie a été supprimée avec succès.",
+      "notRemoved": "La catégorie n'a pas pu être supprimée.",
+      "updated": "Catégorie mise à jour avec succès.",
+      "notUpdated": "La catégorie n'a pas pu être mise à jour.",
+      "added": "Catégorie créée avec succès.",
+      "form": {
+        "title": "Catégorie",
+        "name": "Nom",
+        "nameDescription": "Nom de la catégorie"
+      }
     }
+  },
+  "table": {
+    "slug": "Slug",
+    "name": "Nom",
+    "icon": "Icône",
+    "actions": "Actions",
+    "pending": "En attente",
+    "edit": "Modifier",
+    "delete": "Supprimer"
   }
 }

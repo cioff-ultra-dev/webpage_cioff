@@ -450,6 +450,32 @@
         "remove": "Remove menu item",
         "removeConfirm": "Are you sure you want to remove \"{name}\" from the menu?"
       }
+    },
+    "categories": {
+      "description": "View and manage all categories.",
+      "addItem": "Add category",
+      "deleteTitle": "Delete category",
+      "deleteMessage": "Are you sure you want to delete \"{name}\"?",
+      "pending": "Pending",
+      "removed": "The category has been successfully removed.",
+      "notRemoved": "The category could not be removed.",
+      "updated": "Category successfully updated.",
+      "notUpdated": "The category could not be updated.",
+      "added": "Category successfully created.",
+      "form": {
+        "title": "Category",
+        "name": "Name",
+        "nameDescription": "Category name"
+      }
     }
+  },
+  "table": {
+    "slug": "Slug",
+    "name": "Name",
+    "icon": "Icon",
+    "actions": "Actions",
+    "pending": "Pending",
+    "edit": "Edit",
+    "delete": "Delete"
   }
 }

@@ -27,3 +27,4 @@ export async function getAllCategories(locale: Locale = defaultLocale) {
 }
 
 export type CategoriesType = Awaited<ReturnType<typeof getAllCategories>>;
+export type CategoryType = Awaited<ReturnType<typeof getAllCategories>>[0];
