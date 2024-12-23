@@ -7,7 +7,9 @@ import { auth } from "@/auth";
 import { LogIn } from "lucide-react";
 import LocaleSwitcher from "./locale-switcher";
 import { getAllLanguages } from "@/db/queries/languages";
-import { getTranslations } from "next-intl/server";
+import { getLocale } from "next-intl/server";
+import { getMenuByLocale } from "@/lib/menu";
+import { Locale } from "@/i18n/config";
 
 type SVGComponentProps = React.ComponentPropsWithoutRef<"svg">;
 
@@ -59,9 +61,23 @@ export async function Header({
   text = "text-white",
   ...props
 }: HeaderProps) {
+  const locale = await getLocale();
   const session = await auth();
   const locales = await getAllLanguages();
-  const translations = await getTranslations("header");
+  const menu = await getMenuByLocale(locale as Locale);
+
+  const items = menu
+    .sort((a, b) => a.menu.order - b.menu.order)
+    .map((item) => (
+      <Link
+        key={item.id}
+        href={item.menu.slug}
+        prefetch={false}
+        className={text}
+      >
+        {item.name}
+      </Link>
+    ));
 
   return (
     <header
@@ -88,21 +104,7 @@ export async function Header({
                 alt="CIOFF Logo"
               />
             </Link>
-            <Link href="/search" prefetch={false}>
-              {translations("festivalsAndGroups")}
-            </Link>
-            <Link href="/about-us" prefetch={false}>
-              {translations("aboutUs")}
-            </Link>
-            <Link href="/cioff-young" prefetch={false}>
-              {translations("young")}
-            </Link>
-            <Link href="/national-sections" prefetch={false}>
-              {translations("national_sections")}
-            </Link>
-            <Link href="/organization-chart" prefetch={false}>
-              {translations("organizationChart")}
-            </Link>
+            {items}
           </nav>
         </SheetContent>
       </Sheet>
@@ -111,23 +113,7 @@ export async function Header({
           <Image src="/logo.png" width="100" height="100" alt="CIOFF Logo" />
         </Link>
       </nav>
-      <nav className="hidden lg:flex space-x-4 sm:space-x-6">
-        <Link href="/search" prefetch={false} className={text}>
-          {translations("festivalsAndGroups")}
-        </Link>
-        <Link href="/about-us" prefetch={false} className={text}>
-          {translations("aboutUs")}
-        </Link>
-        <Link href="/cioff-young" prefetch={false} className={text}>
-          {translations("young")}
-        </Link>
-        <Link href="/national-sections" prefetch={false} className={text}>
-          {translations("national_sections")}
-        </Link>
-        <Link href="/organization-chart" prefetch={false} className={text}>
-          {translations("organizationChart")}
-        </Link>
-      </nav>
+      <nav className="hidden lg:flex space-x-4 sm:space-x-6">{items}</nav>
       <div className="flex items-center space-x-4">
         <LocaleSwitcher locales={locales} />
         {session?.user ? (

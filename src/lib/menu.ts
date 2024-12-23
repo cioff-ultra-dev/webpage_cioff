@@ -129,15 +129,15 @@ export async function updateMenuItem(
 
 export async function updateMenuPositions(menuItems: SelectedMenu[]) {
   return db.transaction(async (tx) => {
-    menuItems.reduce(async (accum, item) => {
-      await accum;
+   await menuItems.reduce(async (accum, item) => {
+     await accum;
 
-      if (!item.id) return;
+     if (!item.id) return;
 
-      await tx
-        .update(Menu)
-        .set({ order: item.order })
-        .where(eq(Menu.id, item.id ?? 0));
-    }, Promise.resolve());
+     await tx
+       .update(Menu)
+       .set({ order: item.order })
+       .where(eq(Menu.id, item.id ?? 0));
+   }, Promise.resolve());
   });
 }
