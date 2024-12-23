@@ -4,15 +4,8 @@ import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SelectedMenuLang, TabOptions } from "@/types/customization";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
 import { Locale } from "@/i18n/config";
 import { CategoriesType } from "@/db/queries/categories";
 import { SocialMedialLinks } from "@/db/queries/social-media-links";
@@ -21,7 +14,9 @@ import MenuTab from "./menu/menu-tab";
 import CategoriesTab from "./categories/categories-tab";
 import SocialMediaTab from "./socialMediaLinks/social-media-tab";
 import BannerTab from "./banner/banner-tab";
+import TimelineTab from "./timeline/timeline-tab";
 import { DesignListType } from "@/db/queries/design";
+import { TimelineType } from "@/db/queries/timeline";
 
 export interface TabsComponentProps {
   currentTab: TabOptions;
@@ -29,6 +24,7 @@ export interface TabsComponentProps {
   categories?: CategoriesType;
   socialLinks?: SocialMedialLinks;
   banner?: DesignListType;
+  timeline?: TimelineType;
 }
 
 function TabsComponent({
@@ -37,6 +33,7 @@ function TabsComponent({
   categories,
   socialLinks,
   banner,
+  timeline,
 }: TabsComponentProps) {
   const router = useRouter();
   const locale = useLocale() as Locale;
@@ -62,17 +59,7 @@ function TabsComponent({
           {translations("tabs.timeline")}
         </TabsTrigger>
       </TabsList>
-      <TabsContent value="timeline">
-        <Card>
-          <CardHeader>
-            <CardTitle>{translations("tabs.timeline")}</CardTitle>
-            <CardDescription>
-              {translations("timeline.description")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>carousel</CardContent>
-        </Card>
-      </TabsContent>
+      <TimelineTab timeline={timeline} locale={locale} />
       <BannerTab banner={banner ?? []} locale={locale} />
       <MenuTab locale={locale} menu={menu ?? []} />
       <CategoriesTab locale={locale} categories={categories ?? []} />

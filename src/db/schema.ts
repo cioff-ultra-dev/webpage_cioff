@@ -719,7 +719,6 @@ export const repertoriesLang = pgTable("repertories_lang", {
 /*
 8. TIMELINE
 Timeline
-Timeline Lang
 
 9. WEBSITE MODULE
 Design
@@ -734,17 +733,10 @@ Announcements files
 export const timeline = pgTable("timeline", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull(),
-  videoId: text("video_id"),
-  mediaId: integer("media_id").references(() => storages.id),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
-});
-export const timelineLang = pgTable("timeline_lang", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  description: text("description").notNull(),
-  lang: integer("lang").references(() => languages.id),
-  timelineId: integer("timeline_id").references(() => timeline.id),
+  sections: json("sections"),
+  lang: integer("lang").references(() => languages.id, {
+    onDelete: "set null",
+  }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -1784,6 +1776,13 @@ export const MenuLangRelations = relations(menuLang, ({ one }) => ({
 export const designRelations = relations(design, ({ one }) => ({
   lang: one(languages, {
     fields: [design.lang],
+    references: [languages.id],
+  }),
+}));
+
+export const timelineRelations = relations(timeline, ({ one }) => ({
+  language: one(languages, {
+    fields: [timeline.lang],
     references: [languages.id],
   }),
 }));

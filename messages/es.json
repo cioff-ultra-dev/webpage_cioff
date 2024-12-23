@@ -480,7 +480,11 @@
       }
     },
     "timeline": {
-      "description": "Vea y administre la linea de tiempo."
+      "description": "Vea y administre la linea de tiempo.",
+      "title": "Título",
+      "contentDescription": "Descripción",
+      "updated": "Linea de tiempo actualizado con éxito.",
+      "notUpdated": "No se pudo actualizar la linea de tiempo."
     }
   },
   "table": {

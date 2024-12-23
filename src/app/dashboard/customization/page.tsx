@@ -9,6 +9,7 @@ import { Locale } from "@/i18n/config";
 import { getAllCategories } from "@/db/queries/categories";
 import { getAllSocialMediaLinks } from "@/db/queries/social-media-links";
 import { getBannerFromLocale } from "@/db/queries/design";
+import { getTimelineFromLocale } from "@/db/queries/timeline";
 
 export interface CustomizationProps {
   searchParams: {
@@ -43,6 +44,10 @@ async function CustomizationPage({
       const banner = await getBannerFromLocale(locale);
 
       props.banner = banner;
+    case "timeline":
+      const timeline = await getTimelineFromLocale(locale);
+
+      props.timeline = timeline;
   }
 
   return <Tabs {...props} />;

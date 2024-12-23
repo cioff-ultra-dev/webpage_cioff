@@ -503,7 +503,11 @@
       }
     },
     "timeline": {
-      "description": "View and manage the timeline."
+      "description": "View and manage the timeline.",
+      "title": "Title",
+      "contentDescription": "Description",
+      "updated": "Timeline successfully updated.",
+      "notUpdated": "The timeline could not be updated."
     }
   },
   "table": {

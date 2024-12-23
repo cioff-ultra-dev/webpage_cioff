@@ -481,7 +481,11 @@
       }
     },
     "timeline": {
-      "description": "Voir et gérer la chronologie."
+      "description": "Voir et gérer la chronologie.",
+      "title": "Titre",
+      "contentDescription": "Description",
+      "updated": "Chronologie mise à jour avec succès.",
+      "notUpdated": "La chronologie n'a pas pu être mise à jour."
     }
   },
   "table": {

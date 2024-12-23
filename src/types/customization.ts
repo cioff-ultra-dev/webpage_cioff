@@ -24,3 +24,11 @@ export interface SelectedMenuLang {
   name: string;
   menu: SelectedMenu;
 }
+
+export type TimelineSection = {
+  id: string;
+  type: "image" | "video" | "youtube";
+  url: string;
+  description: string;
+  position: number;
+};
