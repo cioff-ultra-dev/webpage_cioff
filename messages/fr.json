@@ -454,17 +454,23 @@
       "pending": "En attente",
       "removed": "Lien supprimé avec succès.",
       "notRemoved": "Le lien n'a pas pu être supprimé.",
-      "updated": "Lien mis à jour avec succès.",
-      "notUpdated": "Le lien n'a pas pu être mis à jour.",
+      "updated": "Réseaux sociaux mis à jour avec succès.",
+      "notUpdated": "Les réseaux sociaux n'ont pas pu être mis à jour.",
       "added": "Lien créé avec succès.",
       "form": {
         "title": "Liens des réseaux sociaux",
         "facebook": "Facebook",
         "instagram": "Instagram",
         "website": "Lien du site web",
-        "facebookDescription": "Lien de publication Facebook",
-        "instagramDescription": "Lien de publication Instagram",
-        "websiteDescription": "Lien de publication du site web"
+        "facebookDescription": "Lien Facebook",
+        "instagramDescription": "Lien Instagram",
+        "websiteDescription": "Lien du site web",
+        "x": "X",
+        "youtube": "Youtube",
+        "tiktok": "Tiktok",
+        "xDescription": "Lien X",
+        "youtubeDescription": "Lien Youtube",
+        "tiktokDescription": "Lien Tiktok"
       }
     },
     "banner": {

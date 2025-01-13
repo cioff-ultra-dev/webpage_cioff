@@ -39,7 +39,7 @@ async function CustomizationPage({
     case "social-networks":
       const socialLinks = await getAllSocialMediaLinks();
 
-      props.socialLinks = socialLinks;
+      props.socialLink = socialLinks;
     case "banner":
       const banner = await getBannerFromLocale(locale);
 

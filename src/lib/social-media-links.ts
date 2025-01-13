@@ -29,7 +29,12 @@ export async function updateSocialMediaLink(
   SocialMediaLinkId: number,
   socialMedia: Pick<
     SocialMedialLink,
-    "facebookLink" | "instagramLink" | "websiteLink"
+    | "facebookLink"
+    | "instagramLink"
+    | "websiteLink"
+    | "xLink"
+    | "tiktokLink"
+    | "youtubeLink"
   >
 ) {
   if (!SocialMediaLinkId) return;

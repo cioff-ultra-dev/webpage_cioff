@@ -27,13 +27,12 @@ import {
   deleteSocialMediaLink,
   updateSocialMediaLink,
 } from "@/lib/social-media-links";
-import {
-  SocialMedialLinks,
-  SocialMedialLink,
-} from "@/db/queries/social-media-links";
+import { SocialMedialLink } from "@/db/queries/social-media-links";
 
 import ConfirmDialog from "../../confirmDialog";
 import SocialMediaFormModal from "./social-media-form";
+
+type SocialMedialLinks = Array<SocialMedialLink>;
 
 interface SocialMediaLinksTableProps {
   socialLinks: SocialMedialLinks;
@@ -70,7 +69,12 @@ function SocialMediaLinksTable({ socialLinks }: SocialMediaLinksTableProps) {
       try {
         if (!socialLink) throw new Error("Category not found");
 
-        await updateSocialMediaLink(socialLink.id, obj);
+        await updateSocialMediaLink(socialLink.id, {
+          ...obj,
+          tiktokLink: "",
+          youtubeLink: "",
+          xLink: "",
+        });
 
         toast.success(translations("customization.social.updated"));
         router.refresh();

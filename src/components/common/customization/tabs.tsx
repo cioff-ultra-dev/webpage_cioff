@@ -8,7 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SelectedMenuLang, TabOptions } from "@/types/customization";
 import { Locale } from "@/i18n/config";
 import { CategoriesType } from "@/db/queries/categories";
-import { SocialMedialLinks } from "@/db/queries/social-media-links";
+import { SocialMedialLink } from "@/db/queries/social-media-links";
 
 import MenuTab from "./menu/menu-tab";
 import CategoriesTab from "./categories/categories-tab";
@@ -22,7 +22,7 @@ export interface TabsComponentProps {
   currentTab: TabOptions;
   menu?: SelectedMenuLang[];
   categories?: CategoriesType;
-  socialLinks?: SocialMedialLinks;
+  socialLink?: SocialMedialLink;
   banner?: DesignListType;
   timeline?: TimelineType;
 }
@@ -31,7 +31,7 @@ function TabsComponent({
   currentTab,
   menu,
   categories,
-  socialLinks,
+  socialLink,
   banner,
   timeline,
 }: TabsComponentProps) {
@@ -63,7 +63,7 @@ function TabsComponent({
       <BannerTab banner={banner ?? []} locale={locale} />
       <MenuTab locale={locale} menu={menu ?? []} />
       <CategoriesTab locale={locale} categories={categories ?? []} />
-      <SocialMediaTab socialLinks={socialLinks} />
+      <SocialMediaTab socialLink={socialLink} />
     </Tabs>
   );
 }

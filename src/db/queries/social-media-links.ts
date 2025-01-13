@@ -1,12 +1,10 @@
 import { db } from "@/db";
 
 export async function getAllSocialMediaLinks() {
-  return db.query.socialMediaLinks.findMany({});
+  return db.query.socialMediaLinks.findFirst();
 }
 
-export type SocialMedialLinks = Awaited<
-  ReturnType<typeof getAllSocialMediaLinks>
+export type SocialMedialLink = Exclude<
+  Awaited<ReturnType<typeof getAllSocialMediaLinks>>,
+  undefined
 >;
-export type SocialMedialLink = Awaited<
-  ReturnType<typeof getAllSocialMediaLinks>
->[0];

@@ -476,17 +476,23 @@
       "pending": "Pending",
       "removed": "Link successfully removed.",
       "notRemoved": "The link could not be removed.",
-      "updated": "Link successfully updated.",
-      "notUpdated": "The link could not be updated.",
+      "updated": "Social media successfully updated.",
+      "notUpdated": "Social media could not be updated.",
       "added": "Link successfully created.",
       "form": {
         "title": "Social media links",
         "facebook": "Facebook",
         "instagram": "Instagram",
         "website": "Website link",
-        "facebookDescription": "Facebook post link",
-        "instagramDescription": "Instagram post link",
-        "websiteDescription": "Website post link"
+        "facebookDescription": "Facebook link",
+        "instagramDescription": "Instagram link",
+        "websiteDescription": "Website link",
+        "x": "X",
+        "youtube": "Youtube",
+        "tiktok": "Tiktok",
+        "xDescription": "X link",
+        "youtubeDescription": "Youtube link",
+        "tiktokDescription": "Tiktok link"
       }
     },
     "banner": {

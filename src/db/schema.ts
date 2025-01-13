@@ -253,6 +253,9 @@ export const socialMediaLinks = pgTable("social_media_links", {
   facebookLink: text("facebook_link"),
   instagramLink: text("instagram_link"),
   websiteLink: text("website_link"),
+  youtubeLink: text("youtube_link"),
+  tiktokLink: text("tiktok_link"),
+  xLink: text("x_link"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
