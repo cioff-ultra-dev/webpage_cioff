@@ -349,6 +349,7 @@ export async function getAllNationalSectionsPage(locale: string) {
           l: true,
         },
       },
+      positions: true,
     },
   });
 }

@@ -1,5 +1,12 @@
 import { NextResponse } from "next/server";
+
 import { transport } from "@/lib/mailer";
+import { State } from "@/types/send-email";
+import { getEmailsFromOwners } from "@/db/queries/owners";
+import { db } from "@/db";
+import { announcements, announcementsFiles } from "@/db/schema";
+import { uploadFile } from "@/app/actions";
+import { auth } from "@/auth";
 
 async function streamToBuffer(
   stream: ReadableStream<Uint8Array>
@@ -18,6 +25,7 @@ async function streamToBuffer(
 }
 
 export async function POST(request: Request) {
+  const session = await auth();
   const formData = await request.formData();
 
   const toRaw = formData.get("to") as string;
@@ -32,9 +40,20 @@ export async function POST(request: Request) {
     );
   }
 
-  let to: string[];
+  let to: string[] = ["faguzman.97@gmail.com"];
   try {
-    to = JSON.parse(toRaw); // Expecting `to` to be a JSON array
+    const tabs = JSON.parse(toRaw) as State;
+
+    const emails = await getEmailsFromOwners({
+      festivalsId: tabs.festivals,
+      groupsId: tabs.groups,
+      nationalSectionsId: tabs.nationalSections,
+    });
+
+    if (emails.length > 0) to.push(...emails.filter((email) => !!email));
+
+    if (tabs.users.length > 0) to.push(...tabs.users);
+
     if (!Array.isArray(to) || to.some((email) => typeof email !== "string")) {
       throw new Error("Invalid email list format");
     }
@@ -63,6 +82,31 @@ export async function POST(request: Request) {
     };
 
     await transport.sendMail(mailOptions);
+
+    await db.transaction(async (trx) => {
+      const filesId = await Promise.all(
+        attachments.map(async (attachment) => uploadFile(attachment, trx))
+      );
+
+      const [announcementRecord] = await trx
+        .insert(announcements)
+        .values({
+          from: process.env.GMAIL_USER!,
+          to: to.join(","),
+          subject,
+          description: content,
+          createdBy: session?.user.id ?? "",
+        })
+        .returning();
+
+      await filesId.reduce(async (acc, item) => {
+        await acc;
+
+        await trx
+          .insert(announcementsFiles)
+          .values({ announcementId: announcementRecord.id, mediaId: item });
+      }, Promise.resolve());
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

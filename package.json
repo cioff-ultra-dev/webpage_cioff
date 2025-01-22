@@ -93,6 +93,7 @@
     "react-dom": "^18",
     "react-dropzone": "^14.2.3",
     "react-filepond": "^7.1.2",
+    "react-form-stepper": "^2.0.3",
     "react-grid-gallery": "^1.0.1",
     "react-hook-form": "^7.53.0",
     "react-phone-number-input": "^3.4.5",

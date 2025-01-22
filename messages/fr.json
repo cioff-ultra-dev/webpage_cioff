@@ -299,7 +299,14 @@
   "filters": {
     "search": "Rechercher",
     "categories": "Catégories",
-    "events": "Événements"
+    "events": "Événements",
+    "countries": "Pays",
+    "regions": "Régions",
+    "inputSearch": "Tapez pour rechercher...",
+    "selectCategories": "Sélectionner des catégories",
+    "selectEvents": "Sélectionner des événements",
+    "selectCountries": "Sélectionner des pays",
+    "selectRegions": "Sélectionner des régions"
   },
   "customErrors": {
     "file_required": "Le fichier est requis",
@@ -505,5 +512,26 @@
     "facebook": "Facebook",
     "instagram": "Instagram",
     "website": "Website"
+  },
+  "sendEmails": {
+    "addressee": "Destinataire",
+    "email": "E-mail",
+    "festivals": "Festivals",
+    "groups": "Groupes",
+    "nationalSections": "Sections nationales",
+    "council": "Conseil",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "send": "Envoyer",
+    "subject": "Objet",
+    "subjectDescription": "Objet de l'e-mail",
+    "content": "Contenu",
+    "contentDescription": "Rédigez le contenu de l'e-mail",
+    "attachments": "Pièces jointes",
+    "attachmentsDescription": "Vous pouvez joindre plusieurs fichiers",
+    "emailTitle": "Envoyer un e-mail",
+    "emailDescription": "Les champs avec * sont obligatoires.",
+    "emailSentMessage": "E-mail envoyé avec succès.",
+    "notEmailSentMessage": "L'e-mail n'a pas pu être envoyé."
   }
 }

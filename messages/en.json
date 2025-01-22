@@ -319,8 +319,11 @@
     "events": "Events",
     "regions": "Regions",
     "countries": "Countries",
-    "select_regions": "Select regions",
-    "select_countries": "Select countries"
+    "inputSearch": "Type to search...",
+    "selectCategories": "Select categories",
+    "selectEvents": "Select events",
+    "selectCountries": "Select countries",
+    "selectRegions": "Select regions"
   },
   "customErrors": {
     "file_required": "File is required",
@@ -527,5 +530,26 @@
     "facebook": "Facebook",
     "instagram": "Instagram",
     "website": "Website"
+  },
+  "sendEmails": {
+    "addressee": "Addressee",
+    "email": "Email",
+    "festivals": "Festivals",
+    "groups": "Groups",
+    "nationalSections": "National sections",
+    "council": "Council",
+    "next": "Next",
+    "previous": "Previous",
+    "send": "Send",
+    "subject": "Subject",
+    "subjectDescription": "Email subject",
+    "content": "Content",
+    "contentDescription": "Write the email content",
+    "attachments": "Attachments",
+    "attachmentsDescription": "You can attach multiple files",
+    "emailTitle": "Send email",
+    "emailDescription": "Fields with * are mandatory.",
+    "emailSentMessage": "Email sent successfully.",
+    "notEmailSentMessage": "The email could not be sent."
   }
 }

@@ -1,3 +1,5 @@
+"use server";
+
 import { db } from "@/db";
 import { languages } from "@/db/schema";
 import { defaultLocale, Locale } from "@/i18n/config";

@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
+
 import {
   Form,
   FormControl,
@@ -15,8 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button, ButtonProps } from "@/components/ui/button";
-import { useRef, useState } from "react";
-import { toast } from "sonner";
+import { Card, CardContent } from "@/components/ui/card";
 
 function Submit({
   label = "Send Email",
@@ -49,10 +51,15 @@ const emailFormSchema = z.object({
 type EmailFormType = z.infer<typeof emailFormSchema>;
 
 type SendEmailsFormProps = {
-  emails: string[];
+  handleNextStep: (step: number) => void;
+  handleSubmit: (data: EmailFormType) => Promise<void>;
 };
 
-export function SendEmailsForm({ emails }: SendEmailsFormProps) {
+export function SendEmailsForm({
+  handleNextStep,
+  handleSubmit,
+}: SendEmailsFormProps) {
+  const translations = useTranslations("sendEmails");
   const form = useForm<EmailFormType>({
     resolver: zodResolver(emailFormSchema),
     defaultValues: {
@@ -61,98 +68,88 @@ export function SendEmailsForm({ emails }: SendEmailsFormProps) {
     },
   });
 
-  const formRef = useRef<HTMLFormElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onSubmit = async (data: EmailFormType) => {
     setIsSubmitting(true);
 
-    const formData = new FormData();
-    formData.append("to", JSON.stringify(emails));
-    formData.append("subject", data.subject);
-    formData.append("content", data.content);
-
-    if (data.attachments) {
-      for (const file of data.attachments) {
-        formData.append("attachments", file);
-      }
-    }
-
-    const response = await fetch("/api/send-email", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (response.ok) {
-      toast.success("Emails sent successfully");
-    } else {
-      toast.error("Failed to send emails");
-    }
+    await handleSubmit(data);
 
     setIsSubmitting(false);
   };
 
   return (
     <Form {...form}>
-      <form
-        ref={formRef}
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4"
-      >
-        <FormField
-          control={form.control}
-          name="subject"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                Subject
-              </FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormDescription>Enter the email subject.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="content"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                Content
-              </FormLabel>
-              <FormControl>
-                <Textarea {...field} />
-              </FormControl>
-              <FormDescription>Write the email content.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="attachments"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Attachments</FormLabel>
-              <FormControl>
-                <Input
-                  type="file"
-                  multiple
-                  onChange={(e) => field.onChange(e.target.files)}
-                />
-              </FormControl>
-              <FormDescription>
-                You can upload multiple files as attachments.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="flex justify-end">
-          <Submit label="Send Email" isLoading={isSubmitting} />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <Card>
+          <CardContent className="pt-4">
+            <h1 className="text-2xl font-bold">{translations("emailTitle")}</h1>
+            <p className="text-sm text-muted-foreground pb-10">
+              {translations("emailDescription")}
+            </p>
+            <FormField
+              control={form.control}
+              name="subject"
+              render={({ field }) => (
+                <FormItem className="my-4">
+                  <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                    {translations("subject")}
+                  </FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    {translations("subjectDescription")}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="content"
+              render={({ field }) => (
+                <FormItem className="my-4">
+                  <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                    {translations("content")}
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    {translations("contentDescription")}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="attachments"
+              render={({ field }) => (
+                <FormItem className="my-4">
+                  <FormLabel>{translations("attachments")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      multiple
+                      onChange={(e) => field.onChange(e.target.files)}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {translations("attachmentsDescription")}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
+        <div className="flex justify-between">
+          <Button type="button" onClick={() => handleNextStep(0)}>
+            {translations("previous")}
+          </Button>
+          <Submit label={translations("send")} isLoading={isSubmitting} />
         </div>
       </form>
     </Form>

@@ -1,3 +1,5 @@
+"use server";
+
 import {
   events,
   InsertEvent,
@@ -36,7 +38,7 @@ export async function newFestival(festival: InsertFestival) {
 
 export async function getFestivalById(
   id: SelectFestival["id"],
-  locale: string,
+  locale: string
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
@@ -96,7 +98,7 @@ export async function getFestivalById(
 
 export async function getFestivalBySlug(
   slug: SelectFestival["slug"],
-  locale: string = defaultLocale as SelectLanguages["code"],
+  locale: string = defaultLocale as SelectLanguages["code"]
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
@@ -227,6 +229,10 @@ export async function getAllNestedFestivals() {
 
   return await baseQuery;
 }
+
+export type NestedFestivalsType = Awaited<
+  ReturnType<typeof getAllNestedFestivals>
+>;
 
 export async function getAllFestivalsByOwner(locale: string) {
   const session = await auth();

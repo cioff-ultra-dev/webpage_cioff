@@ -19,6 +19,7 @@ export default function I18NProvider({
       messages={messages}
       getMessageFallback={getMessageFallback}
       onError={onError}
+      timeZone="America/Bogota"
     >
       {children}
       <SToaster richColors />

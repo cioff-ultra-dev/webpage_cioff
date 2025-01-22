@@ -778,7 +778,7 @@ export const announcements = pgTable("announcements", {
   from: text("from").notNull(),
   subject: text("subject").notNull(),
   description: text("description").notNull(),
-  categoryNames: text("category_names").notNull(),
+  categoryNames: text("category_names"),
   createdBy: text("created_by").references(() => users.id),
   updatedBy: text("updated_by").references(() => users.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -2064,3 +2064,5 @@ export type SelectGroupPhotos = typeof groupPhotos.$inferSelect;
 
 export type InsertFestivalStagePhotos = typeof festivalStagePhotos.$inferInsert;
 export type SelectFestivalStagePhotos = typeof festivalStagePhotos.$inferSelect;
+
+export type SelectOwner = typeof owners.$inferSelect;
