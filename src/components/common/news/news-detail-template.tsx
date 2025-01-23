@@ -18,8 +18,8 @@ function NewsDetailTemplate(props: NewsDetailTemplateProps) {
   return (
     <div>
       <Header text="text-black" className="border-b" />
-      <main className="flex flex-col items-center pb-5 min-h-[90vh] bg-gray-100">
-        <div className="container h-full bg-white py-16 justify-center">
+      <main className="flex flex-col items-center pb-5 min-h-[90vh]">
+        <div className="w-full h-full flex flex-col bg-white py-16 justify-center items-center">
           <div className="flex flex-col items-center w-full mb-12">
             {subPage.isNews ? (
               <h3 className="text-gray-500">
@@ -51,7 +51,9 @@ function NewsDetailTemplate(props: NewsDetailTemplateProps) {
               )}
             </div>
           </div>
-          <RenderSections sections={sections ?? []} />
+          <div className="container h-full bg-white">
+            <RenderSections sections={sections ?? []} />
+          </div>
         </div>
       </main>
       <Footer />
