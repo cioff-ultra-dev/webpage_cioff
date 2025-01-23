@@ -14,7 +14,7 @@ import {
 import { db } from "@/db";
 import { defaultLocale, Locale } from "@/i18n/config";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 100;
 
 export type BuildUserFilterType = Awaited<ReturnType<typeof buildFilter>>;
 
