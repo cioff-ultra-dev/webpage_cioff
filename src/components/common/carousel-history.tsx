@@ -121,7 +121,7 @@ export default function CarouselHistory({
           loop: true,
         }}
       >
-        <CarouselContent className="min-h-[1200px]">{items}</CarouselContent>
+        <CarouselContent>{items}</CarouselContent>
         <CarouselPrevious />
         <CarouselNext />
       </Carousel>
