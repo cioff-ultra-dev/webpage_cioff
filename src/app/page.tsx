@@ -4,7 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Header } from "@/components/common/header";
-import { Linkedin, Instagram, Facebook } from "lucide-react";
+import {
+  Youtube,
+  Instagram,
+  Facebook,
+  Link as LinkComponent,
+} from "lucide-react";
 import GlobalFilterPreview from "@/components/common/global-filter-preview";
 import { getAllNestedFestivals } from "@/db/queries/events";
 import CarouselHistory from "@/components/common/carousel-history";
@@ -13,11 +18,15 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Locale } from "@/i18n/config";
 import { getAllCategories } from "@/db/queries/categories";
 import { getBannerFromLocale } from "@/db/queries/design";
+import { getFirstSocialMediaLink } from "@/db/queries/social-media-links";
+import X from "@/components/common/icons/x";
+import Tiktok from "@/components/common/icons/tiktok";
 
 export default async function Home() {
   const locale = await getLocale();
   const t = await getTranslations("home");
 
+  const socialLink = await getFirstSocialMediaLink();
   const festivals = await getAllNestedFestivals();
   const countryCast = await getAllCountryCastFestivals(locale as Locale);
   const categories = await getAllCategories(locale as Locale);
@@ -27,7 +36,7 @@ export default async function Home() {
   const title = banner.find((banner) => banner.key === "title");
   const subtitle = banner.find((banner) => banner.key === "subtitle");
   const image = banner.find((banner) => banner.key === "image");
-
+  console.log(socialLink);
   return (
     <div>
       <Header text="text-white" className="absolute left-0 right-0 top-0" />
@@ -43,16 +52,37 @@ export default async function Home() {
             <h1 className="text-6xl font-bold">{title?.value}</h1>
             <h2 className="text-8xl font-bold mt-4">{subtitle?.value}</h2>
           </div>
-          <div className="absolute bottom-0 left-0 right-0 flex justify-center space-x-2 mb-4 gap-[0.1rem]">
-            <Link href="#">
-              <Facebook className="w-5 h-5 text-white" />
-            </Link>
-            <Link href="#">
-              <Instagram className="w-5 h-5 text-white" />
-            </Link>
-            <Link href="#">
-              <Linkedin className="w-5 h-5 text-white" />
-            </Link>
+          <div className="absolute bottom-0 left-0 right-0 flex justify-center items-center space-x-2 mb-4 gap-[0.1rem]">
+            {socialLink?.facebookLink && (
+              <Link href={socialLink?.facebookLink} target="_blank">
+                <Facebook className="w-5 h-5 text-white" />
+              </Link>
+            )}
+            {socialLink?.instagramLink && (
+              <Link href={socialLink?.instagramLink} target="_blank">
+                <Instagram className="w-5 h-5 text-white" />
+              </Link>
+            )}
+            {socialLink?.youtubeLink && (
+              <Link href={socialLink?.youtubeLink} target="_blank">
+                <Youtube className="text-white" size={24} />
+              </Link>
+            )}
+            {socialLink?.xLink && (
+              <Link href={socialLink?.xLink} target="_blank">
+                <X className="w-4 h-4 fill-white" />
+              </Link>
+            )}
+            {socialLink?.tiktokLink && (
+              <Link href={socialLink?.tiktokLink} target="_blank">
+                <Tiktok className="w-5 h-5 fill-white" />
+              </Link>
+            )}
+            {socialLink?.websiteLink && (
+              <Link href={socialLink?.websiteLink} target="_blank">
+                <LinkComponent className="w-4 h-4 text-white" />
+              </Link>
+            )}
           </div>
         </section>
         <GlobalFilterPreview
