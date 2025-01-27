@@ -36,7 +36,7 @@ export default async function Home() {
   const title = banner.find((banner) => banner.key === "title");
   const subtitle = banner.find((banner) => banner.key === "subtitle");
   const image = banner.find((banner) => banner.key === "image");
-  console.log(socialLink);
+
   return (
     <div>
       <Header text="text-white" className="absolute left-0 right-0 top-0" />
