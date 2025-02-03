@@ -97,56 +97,60 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
       isLoadingItemList ? (
         <SkeletonList />
       ) : (
-        itemList?.map(({ festival, lang, countryLang, event, logo }) => (
-          <ListItem
-            key={festival.id}
-            image={logo?.url}
-            handleClick={() =>
-              dispatch({
-                type: "add",
-                payload: { id: festival.id, key: "festivals" },
-              })
-            }
-            rightContent={
-              selectedFestivals.includes(festival.id) && (
-                <CheckCircle
-                  className="text-green-500 mr-4"
-                  strokeWidth={2.5}
-                />
-              )
-            }
-          >
-            <h3 className="text-black text-sm sm:text-base truncate sm:max-w-[170px] md:max-w-[200px] lg:max-w-[300px]">
-              {lang.name}
-            </h3>
-            {event?.startDate ? (
+        itemList?.map(
+          ({ festival, lang, countryLang, event, logo, country }) => (
+            <ListItem
+              key={festival.id}
+              image={logo?.url}
+              handleClick={() =>
+                dispatch({
+                  type: "add",
+                  payload: { id: festival.id, key: "festivals" },
+                })
+              }
+              rightContent={
+                selectedFestivals.includes(festival.id) && (
+                  <CheckCircle
+                    className="text-green-500 mr-4"
+                    strokeWidth={2.5}
+                  />
+                )
+              }
+            >
+              <h3 className="text-black text-sm sm:text-base truncate sm:max-w-[170px] md:max-w-[200px] lg:max-w-[300px]">
+                {lang.name}
+              </h3>
+              {event?.startDate ? (
+                <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
+                  <CalendarCheck size={16} />
+                  <span>
+                    {event?.startDate
+                      ? formatter.dateTime(new Date(event.startDate), {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })
+                      : null}
+                    {" - "}
+                    {event?.endDate && event?.startDate !== event?.endDate
+                      ? formatter.dateTime(new Date(event.endDate), {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })
+                      : null}
+                  </span>
+                </p>
+              ) : null}
               <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
-                <CalendarCheck size={16} />
+                <MapPin size={16} />
                 <span>
-                  {event?.startDate
-                    ? formatter.dateTime(new Date(event.startDate), {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })
-                    : null}
-                  {" - "}
-                  {event?.endDate && event?.startDate !== event?.endDate
-                    ? formatter.dateTime(new Date(event.endDate), {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })
-                    : null}
+                  {festival?.location || countryLang?.name || country?.id}
                 </span>
               </p>
-            ) : null}
-            <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
-              <MapPin size={16} />
-              <span>{countryLang.name}</span>
-            </p>
-          </ListItem>
-        ))
+            </ListItem>
+          )
+        )
       ),
     [formatter, isLoadingItemList, itemList, selectedFestivals, dispatch]
   );

@@ -301,11 +301,14 @@
     "events": "Eventos",
     "countries": "Paises",
     "regions": "Regiones",
-    "inputSearch": "Escribe para buscar...",
+    "inputSearch": "Escribe y presiona enter para buscar...",
     "selectCategories": "Seleccionar categorias",
     "selectEvents": "Seleccionar eventos",
     "selectCountries": "Seleccionar paises",
-    "selectRegions": "Seleccionar regiones"
+    "selectRegions": "Seleccionar regiones",
+    "results": "Resultados: {total}",
+    "festivals": "Festivales",
+    "groups": "Grupos"
   },
   "customErrors": {
     "file_required": "Archivo es requerido",

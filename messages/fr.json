@@ -302,11 +302,14 @@
     "events": "Événements",
     "countries": "Pays",
     "regions": "Régions",
-    "inputSearch": "Tapez pour rechercher...",
+    "inputSearch": "Tapez et appuyez sur Entrée pour rechercher...",
     "selectCategories": "Sélectionner des catégories",
     "selectEvents": "Sélectionner des événements",
     "selectCountries": "Sélectionner des pays",
-    "selectRegions": "Sélectionner des régions"
+    "selectRegions": "Sélectionner des régions",
+    "results": "Résultats: {total}",
+    "festivals": "Festivals",
+    "groups": "Groupes"
   },
   "customErrors": {
     "file_required": "Le fichier est requis",

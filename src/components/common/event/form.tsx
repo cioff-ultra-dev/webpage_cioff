@@ -256,32 +256,26 @@ export default function EventForm({
     defaultValues: {
       id: id ? Number(id) : 0,
       _nextDates:
-        currentFestival?.events
-          ?.filter((event) =>
-            isSameYear(event.startDate!, addYears(new Date(), 1)),
-          )
-          .map((event) => {
-            return {
-              _rangeDate: {
-                id: event.id ? String(event.id) : "0",
-                from: event.startDate?.toUTCString() ?? "",
-                to: event.endDate?.toUTCString() ?? "",
-              },
-            };
-          }) || [],
+        currentFestival?.events?.map((event) => {
+          return {
+            _rangeDate: {
+              id: event.id ? String(event.id) : "0",
+              from: event.startDate?.toUTCString() ?? "",
+              to: event.endDate?.toUTCString() ?? "",
+            },
+          };
+        }) || [],
       directorName: currentFestival?.directorName ?? "",
       _currentDates:
-        currentFestival?.events
-          ?.filter((event) => isThisYear(event.startDate!))
-          .map((event) => {
-            return {
-              _rangeDate: {
-                id: event.id ? String(event.id) : "0",
-                from: event.startDate?.toUTCString() ?? "",
-                to: event.endDate?.toUTCString() ?? "",
-              },
-            };
-          }) || [],
+        currentFestival?.events.map((event) => {
+          return {
+            _rangeDate: {
+              id: event.id ? String(event.id) : "0",
+              from: event.startDate?.toUTCString() ?? "",
+              to: event.endDate?.toUTCString() ?? "",
+            },
+          };
+        }) || [],
       contact: "__ad",
       peoples: currentFestival?.peoples ?? 0,
       phone: currentFestival?.phone ?? "",
@@ -311,7 +305,7 @@ export default function EventForm({
         currentFestival?.festivalsToComponents
           ?.filter((item) => {
             return componentsRecognized?.some(
-              (comp) => comp.id === item.componentId,
+              (comp) => comp.id === item.componentId
             );
           })
           ?.map((item) => String(item.componentId)) ?? [],
@@ -319,7 +313,7 @@ export default function EventForm({
         currentFestival?.festivalsToComponents
           ?.filter((item) => {
             return componentsPartner?.some(
-              (comp) => comp.id === item.componentId,
+              (comp) => comp.id === item.componentId
             );
           })
           ?.map((item) => String(item.componentId)) ?? [],
@@ -337,7 +331,7 @@ export default function EventForm({
         otherTranslatorLanguage: currentLang?.otherTranslatorLanguage,
       },
       _isFestivalsConnected: Boolean(
-        currentFestival?.connections.length || undefined,
+        currentFestival?.connections.length || undefined
       ),
       _festivalListSelected: currentFestival?.connections.map((item) => {
         return {
@@ -345,12 +339,12 @@ export default function EventForm({
           name: item.target?.langs.find((lang) => lang?.l?.code === locale)
             ?.name,
           countryName: item.target?.country?.langs.find(
-            (lang) => lang?.l?.code === locale,
+            (lang) => lang?.l?.code === locale
           )?.name,
         };
       }),
       _isGroupsConfirmed: Boolean(
-        currentFestival?.festivalsToGroups.length || undefined,
+        currentFestival?.festivalsToGroups.length || undefined
       ),
       _groupListSelected: currentFestival?.festivalsToGroups.map((item) => {
         return {
@@ -358,12 +352,12 @@ export default function EventForm({
           name: item.group?.langs.find((lang) => lang?.l?.code === locale)
             ?.name,
           countryName: item.group?.country?.langs.find(
-            (lang) => lang?.l?.code === locale,
+            (lang) => lang?.l?.code === locale
           )?.name,
         };
       }),
       _isLookingForGroups: Boolean(
-        currentFestival?.festivalsGroupToRegions.length,
+        currentFestival?.festivalsGroupToRegions.length
       ),
       _groupRegionSelected: currentFestival?.regionForGroupsId
         ? String(currentFestival?.regionForGroupsId)

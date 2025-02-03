@@ -33,6 +33,7 @@ import { defaultLocale, Locale } from "@/i18n/config";
 const PAGE_SIZE = 10;
 
 const logoStorage = aliasedTable(storages, "logo");
+const coverStorage = aliasedTable(storages, "cover");
 
 export type BuildFilterType = Awaited<ReturnType<typeof buildFilter>>;
 
@@ -75,6 +76,7 @@ async function buildFilter(request: NextRequest) {
       countryLang: countriesLang,
       event: events,
       logo: logoStorage,
+      cover: coverStorage,
     })
     .from(festivalToCategories)
     .innerJoin(festivals, eq(festivalToCategories.festivalId, festivals.id))
@@ -84,6 +86,7 @@ async function buildFilter(request: NextRequest) {
     .leftJoin(countriesLang, eq(countriesLang.countryId, countries.id))
     .leftJoin(categories, eq(festivalToCategories.categoryId, categories.id))
     .leftJoin(logoStorage, eq(festivals.logoId, logoStorage.id))
+    .leftJoin(coverStorage, eq(festivals.coverId, coverStorage.id))
     .$dynamic();
 
   // filters.push(eq(festivals.publish, true));
@@ -128,7 +131,8 @@ async function buildFilter(request: NextRequest) {
       events.id,
       festivalsLang.id,
       countriesLang.id,
-      logoStorage.id
+      logoStorage.id,
+      coverStorage.id
     )
     .limit(PAGE_SIZE)
     .offset((page - 1) * PAGE_SIZE);
@@ -144,6 +148,7 @@ async function buildFilter(request: NextRequest) {
         event: SelectEvent | null;
         logo: SelectStorage;
         events: SelectEvent[];
+        cover: SelectStorage;
       }
     >
   >((acc, row) => {
@@ -153,6 +158,7 @@ async function buildFilter(request: NextRequest) {
     const countryLang = row.countryLang;
     const event = row.event;
     const logo = row.logo;
+    const cover = row.cover;
 
     if (!acc[festival.id]) {
       acc[festival.id] = {
@@ -163,6 +169,7 @@ async function buildFilter(request: NextRequest) {
         event: event || null,
         logo: logo!,
         events: [],
+        cover: cover!,
       };
     }
 

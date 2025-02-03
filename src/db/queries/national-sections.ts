@@ -7,9 +7,11 @@ import {
   languages,
   nationalSections,
   nationalSectionsLang,
+  countries,
+  countriesLang,
 } from "@/db/schema";
-import { defaultLocale } from "@/i18n/config";
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { defaultLocale, Locale } from "@/i18n/config";
+import { and, countDistinct, eq, inArray, sql, SQLWrapper } from "drizzle-orm";
 
 export type LangWithNationalSection = SelectNationalSection & {
   langs: SelectNationalSectionLang[];
@@ -31,7 +33,7 @@ export async function getAllNationalSections(): Promise<
 
 export async function getNationalSectionBySlug(
   slug: SelectNationalSection["slug"],
-  currentLocale: string = defaultLocale as SelectLanguages["code"],
+  currentLocale: string = defaultLocale as SelectLanguages["code"]
 ) {
   const sq = db
     .select({ id: languages.id })
@@ -85,7 +87,7 @@ export type NationalSectionDetailsType = Awaited<
 >;
 
 export async function getCurrentNationalSection(
-  countryId: SelectNationalSection["countryId"],
+  countryId: SelectNationalSection["countryId"]
 ) {
   return db.query.nationalSections.findFirst({
     where(fields, { eq }) {
@@ -199,7 +201,7 @@ export type PositionTypeForNSType = Awaited<
 
 export async function getNationaSectionById(
   id: SelectNationalSection["id"],
-  locale: string,
+  locale: string
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
@@ -357,3 +359,55 @@ export async function getAllNationalSectionsPage(locale: string) {
 export type NationalSectionsPageType = Awaited<
   ReturnType<typeof getAllNationalSectionsPage>
 >;
+
+export type CountryCastNationalSections = {
+  id: number;
+  country: string | null;
+  lat: string | null;
+  lng: string | null;
+  name: string | null;
+  nationalSectionsCount: number;
+}[];
+
+export async function getAllCountryCastNationalSections(
+  locale: Locale,
+  regionsIn: string[] = []
+): Promise<CountryCastNationalSections> {
+  const sq = db
+    .select({ id: languages.id })
+    .from(languages)
+    .where(eq(languages.code, locale));
+
+  const filters: SQLWrapper[] = [];
+
+  const query = db
+    .select({
+      id: countries.id,
+      country: countries.slug,
+      lat: countries.lat,
+      lng: countries.lng,
+      name: countriesLang.name,
+      nationalSectionsCount: countDistinct(nationalSections.id),
+    })
+    .from(countries)
+    .leftJoin(countriesLang, eq(countries.id, countriesLang.countryId))
+    .leftJoin(nationalSections, eq(countries.id, nationalSections.countryId))
+    .$dynamic();
+
+  filters.push(
+    // isNotNull(festivals.countryId),
+    eq(countriesLang.lang, sq)
+  );
+
+  if (regionsIn.length) {
+    filters.push(inArray(countries.regionId, regionsIn.map(Number)));
+  }
+
+  query
+    .where(and(...filters))
+    .groupBy(countries.id, countriesLang.id)
+    .orderBy(countries.slug);
+
+  return query;
+}
+

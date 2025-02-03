@@ -12,11 +12,12 @@ import {
   nationalSectionsPositions,
   SelectNationalSectionLang,
   SelectNationalSectionPositions,
+  storages,
 } from "@/db/schema";
 import { db } from "@/db";
 import { defaultLocale, Locale } from "@/i18n/config";
 
-const PAGE_SIZE = 100;
+const PAGE_SIZE = 55;
 
 export type BuildNationalSectionFilterType = Awaited<
   ReturnType<typeof buildFilter>

@@ -30,12 +30,12 @@ import { Input } from "@/components/ui/input";
 import { SocialMedialLink } from "@/db/queries/social-media-links";
 
 export const formMediaLinkSchema = z.object({
-  facebookLink: z.string().url(),
-  instagramLink: z.string().url(),
-  websiteLink: z.string().url(),
-  xLink: z.string().url(),
-  youtubeLink: z.string().url(),
-  tiktokLink: z.string().url(),
+  facebookLink: z.string().url().or(z.literal("")),
+  instagramLink: z.string().url().or(z.literal("")),
+  websiteLink: z.string().url().or(z.literal("")),
+  xLink: z.string().url().or(z.literal("")),
+  youtubeLink: z.string().url().or(z.literal("")),
+  tiktokLink: z.string().url().or(z.literal("")),
 });
 
 function SocialMediaTab({ socialLink }: { socialLink?: SocialMedialLink }) {

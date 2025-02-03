@@ -319,11 +319,14 @@
     "events": "Events",
     "regions": "Regions",
     "countries": "Countries",
-    "inputSearch": "Type to search...",
+    "inputSearch": "Type and press enter to search...",
     "selectCategories": "Select categories",
     "selectEvents": "Select events",
     "selectCountries": "Select countries",
-    "selectRegions": "Select regions"
+    "selectRegions": "Select regions",
+    "results": "Results: {total}",
+    "festivals": "Festivals",
+    "groups": "Groups"
   },
   "customErrors": {
     "file_required": "File is required",
