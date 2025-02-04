@@ -2088,7 +2088,13 @@ export async function updateFestival(formData: FormData) {
     if (currentDates.length) {
       await tx
         .insert(events)
-        .values(currentDates)
+        .values(
+          currentDates.filter(
+            (date, index) =>
+              currentDates.findIndex((current, i) => current.id === date.id) ===
+              index
+          )
+        )
         .onConflictDoUpdate({
           target: events.id,
           set: buildConflictUpdateColumns(events, ["startDate", "endDate"]),
