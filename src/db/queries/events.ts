@@ -59,6 +59,11 @@ export async function getFestivalById(
       return eq(fields.id, id);
     },
     with: {
+      owners: {
+        with: {
+          user: true,
+        },
+      },
       logo: true,
       coverPhoto: true,
       photos: {

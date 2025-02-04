@@ -554,5 +554,18 @@
     "emailDescription": "Fields with * are mandatory.",
     "emailSentMessage": "Email sent successfully.",
     "notEmailSentMessage": "The email could not be sent."
+  },
+  "detailFestivals": {
+    "contact": "Contact",
+    "director": "Director",
+    "categories": "Categories",
+    "events": "Events",
+    "gallery": "Gallery",
+    "description": "Description",
+    "location": "Location",
+    "direction": "Get directions",
+    "website": "Website",
+    "call": "Call",
+    "email": "Email"
   }
 }

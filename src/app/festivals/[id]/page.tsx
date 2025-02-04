@@ -29,6 +29,7 @@ import {
   TimelineTitle,
   TimelineIcon,
 } from "@/components/extension/timeline";
+import { getTranslations } from "next-intl/server";
 
 export interface CustomImage extends GalleryImage {}
 
@@ -40,6 +41,7 @@ export default async function EventDetail({
   const locale = await getLocale();
   const formatter = await getFormatter();
   const festival = await getFestivalById(Number(params.id), locale);
+  const translations = await getTranslations("detailFestivals");
 
   let youtubeId = "";
 
@@ -109,7 +111,9 @@ export default async function EventDetail({
                 <div className="flex gap-3">
                   {/* <Button variant="outline">Get directions</Button> */}
                   <Button variant="outline" asChild>
-                    <Link href={`tel:${festival?.phone}`}>Call now</Link>
+                    <Link href={`tel:${festival?.phone}`}>
+                      {translations("call")}
+                    </Link>
                   </Button>
                   <Button
                     variant="outline"
@@ -120,7 +124,7 @@ export default async function EventDetail({
                       href={festival?.social?.websiteLink ?? ""}
                       target="_blank"
                     >
-                      Website
+                      {translations("website")}
                     </Link>
                   </Button>
                   {/* <Button variant="outline">Bookmark</Button> */}
@@ -132,7 +136,7 @@ export default async function EventDetail({
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Card className="col-span-1">
                     <CardHeader>
-                      <CardTitle>Description</CardTitle>
+                      <CardTitle>{translations("description")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p>
@@ -146,7 +150,7 @@ export default async function EventDetail({
                   </Card>
                   <Card className="col-span-1">
                     <CardHeader>
-                      <CardTitle>Location</CardTitle>
+                      <CardTitle>{translations("location")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <MapMarkerEvent
@@ -169,7 +173,7 @@ export default async function EventDetail({
                           target="_blank"
                         >
                           <ExternalLink size={14} />
-                          <span>Get Direction</span>
+                          <span>{translations("direction")}</span>
                         </Link>
                       </Button>
                     </CardContent>
@@ -178,7 +182,7 @@ export default async function EventDetail({
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Card className="col-span-1">
                     <CardHeader>
-                      <CardTitle>Categories</CardTitle>
+                      <CardTitle>{translations("categories")}</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-wrap gap-2">
                       {festival?.festivalsToCategories.map((item) => (
@@ -190,9 +194,19 @@ export default async function EventDetail({
                   </Card>
                   <Card className="col-span-1">
                     <CardHeader>
-                      <CardTitle>Contact</CardTitle>
+                      <CardTitle>{translations("contact")}</CardTitle>
                     </CardHeader>
                     <CardContent>
+                      <p className="text-gray-500">
+                        {translations("director")}:&nbsp;
+                        {festival?.directorName ?? "Pending"}
+                      </p>
+                      <p className="text-gray-500">
+                        {translations("email")}:&nbsp;
+                        {festival?.email ??
+                          festival?.owners[0]?.user?.email ??
+                          "Pending"}
+                      </p>
                       <p>
                         {festival?.langs.find((item) => item.l?.code === locale)
                           ?.address ||
@@ -252,7 +266,7 @@ export default async function EventDetail({
                 </div>
                 <Card className="col-span-1">
                   <CardHeader>
-                    <CardTitle>Events</CardTitle>
+                    <CardTitle>{translations("events")}</CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-wrap gap-2">
                     <Timeline>
@@ -280,7 +294,7 @@ export default async function EventDetail({
                 </Card>
                 <Card className="col-span-1">
                   <CardHeader>
-                    <CardTitle>Gallery</CardTitle>
+                    <CardTitle>{translations("gallery")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <GalleryImageEvent gallery={gallery} />

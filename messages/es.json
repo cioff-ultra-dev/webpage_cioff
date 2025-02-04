@@ -535,5 +535,18 @@
     "emailDescription": "Los campos con * son obligatorios.",
     "emailSentMessage": "Correo enviado con éxito.",
     "notEmailSentMessage": "No se pudo enviar el correo."
+  },
+  "detailFestivals": {
+    "contact": "Contacto",
+    "director": "Director",
+    "categories": "Categorias",
+    "events": "Eventos",
+    "gallery": "Galeria",
+    "description": "Descripción",
+    "location": "Ubicación",
+    "direction": "Obtener dirección",
+    "website": "Sitio web",
+    "call": "Llamar",
+    "email": "Correo electrónico"
   }
 }
