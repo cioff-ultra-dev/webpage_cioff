@@ -65,7 +65,7 @@ export default async function EventDetail({
                   {festival?.langs.find((item) => item.l?.code === locale)
                     ?.name ||
                     festival?.langs.find(
-                      (item) => item.l?.code === defaultLocale,
+                      (item) => item.l?.code === defaultLocale
                     )?.name}
                 </AvatarFallback>
               </Avatar>
@@ -74,7 +74,7 @@ export default async function EventDetail({
                   {festival?.langs.find((item) => item.l?.code === locale)
                     ?.name ||
                     festival?.langs.find(
-                      (item) => item.l?.code === defaultLocale,
+                      (item) => item.l?.code === defaultLocale
                     )?.name}
                 </h1>
               </div>
@@ -94,9 +94,6 @@ export default async function EventDetail({
               <div className="flex flex-col gap-4">
                 <div className="flex gap-3">
                   {/* <Button variant="outline">Get directions</Button> */}
-                  <Button variant="outline" asChild>
-                    <Link href={`tel:${festival?.phone}`}>Call now</Link>
-                  </Button>
                   <Button
                     variant="outline"
                     asChild
@@ -122,7 +119,7 @@ export default async function EventDetail({
                         {festival?.langs.find((item) => item.l?.code === locale)
                           ?.description ||
                           festival?.langs.find(
-                            (item) => item.l?.code === defaultLocale,
+                            (item) => item.l?.code === defaultLocale
                           )?.description}
                       </p>
                     </CardContent>
@@ -151,10 +148,10 @@ export default async function EventDetail({
                             </h3>
                             <p className="text-sm text-muted-foreground">
                               {festival?.langs.find(
-                                (item) => item.l?.code === locale,
+                                (item) => item.l?.code === locale
                               )?.generalDirectorProfile ||
                                 festival?.langs.find(
-                                  (item) => item.l?.code === defaultLocale,
+                                  (item) => item.l?.code === defaultLocale
                                 )?.generalDirectorProfile}
                             </p>
                             <span className="text-xs text-gray-400">
@@ -180,10 +177,10 @@ export default async function EventDetail({
                             </h3>
                             <p className="text-sm text-muted-foreground">
                               {festival?.langs.find(
-                                (item) => item.l?.code === locale,
+                                (item) => item.l?.code === locale
                               )?.artisticDirectorProfile ||
                                 festival?.langs.find(
-                                  (item) => item.l?.code === defaultLocale,
+                                  (item) => item.l?.code === defaultLocale
                                 )?.artisticDirectorProfile}
                             </p>
                             <span className="text-xs text-gray-400">
@@ -209,10 +206,10 @@ export default async function EventDetail({
                             </h3>
                             <p className="text-sm text-muted-foreground">
                               {festival?.langs.find(
-                                (item) => item.l?.code === locale,
+                                (item) => item.l?.code === locale
                               )?.musicalDirectorProfile ||
                                 festival?.langs.find(
-                                  (item) => item.l?.code === defaultLocale,
+                                  (item) => item.l?.code === defaultLocale
                                 )?.musicalDirectorProfile}
                             </p>
                             <span className="text-xs text-gray-400">
@@ -246,7 +243,7 @@ export default async function EventDetail({
                         {festival?.langs.find((item) => item.l?.code === locale)
                           ?.address ||
                           festival?.langs.find(
-                            (item) => item.l?.code === defaultLocale,
+                            (item) => item.l?.code === defaultLocale
                           )?.address}
                       </p>
                       <p className="flex gap-1 items-center">
@@ -313,7 +310,7 @@ export default async function EventDetail({
                                 year: "numeric",
                                 month: "long",
                                 day: "numeric",
-                              },
+                              }
                             )}
                           </p>
                         </div>
@@ -324,10 +321,10 @@ export default async function EventDetail({
                         </p>
                         <p className="text-sm">
                           {festival?.specificRegion?.langs.find(
-                            (item) => item.l?.code === locale,
+                            (item) => item.l?.code === locale
                           )?.name ||
                             festival?.specificRegion?.langs.find(
-                              (item) => item.l?.code === defaultLocale,
+                              (item) => item.l?.code === defaultLocale
                             )?.name}
                         </p>
                       </div>
@@ -343,10 +340,10 @@ export default async function EventDetail({
                           <div key={index}>
                             <p className="text-sm">
                               {item?.langs.find(
-                                (item) => item.l?.code === locale,
+                                (item) => item.l?.code === locale
                               )?.name ||
                                 item?.langs.find(
-                                  (item) => item.l?.code === defaultLocale,
+                                  (item) => item.l?.code === defaultLocale
                                 )?.name}{" "}
                               - ({item.membersNumber} members)
                             </p>

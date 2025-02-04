@@ -110,11 +110,6 @@ export default async function EventDetail({
               <div className="flex flex-col gap-4">
                 <div className="flex gap-3">
                   {/* <Button variant="outline">Get directions</Button> */}
-                  <Button variant="outline" asChild>
-                    <Link href={`tel:${festival?.phone}`}>
-                      {translations("call")}
-                    </Link>
-                  </Button>
                   <Button
                     variant="outline"
                     asChild
