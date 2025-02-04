@@ -202,7 +202,12 @@ export default async function EventDetail({
                       </p>
                       <p className="flex gap-1 items-center">
                         <Phone size={14} className="text-gray-500" />
-                        <span className="text-gray-500">{festival?.phone}</span>
+                        <Link
+                          className="text-gray-500"
+                          href={`tel:${festival?.phone}`}
+                        >
+                          {festival?.phone}
+                        </Link>
                       </p>
                       <p className="flex gap-2 pt-6">
                         {festival?.social?.websiteLink ? (
