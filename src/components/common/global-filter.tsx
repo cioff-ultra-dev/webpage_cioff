@@ -502,7 +502,14 @@ export function WrapperFilter({
                 >
                   {(response) =>
                     response.map(
-                      ({ festival, country, lang, cover, countryLang }) => (
+                      ({
+                        festival,
+                        country,
+                        lang,
+                        cover,
+                        countryLang,
+                        event,
+                      }) => (
                         <Link
                           href={`/festivals/${festival.id}`}
                           className="bg-gray-50 hover:bg-gray-100 hover:cursor-pointer p-4 space-y-3 rounded-lg w-full justify-self-center"
@@ -522,10 +529,37 @@ export function WrapperFilter({
                             {lang.name}
                           </h3>
                           <p className="text-gray-700 text-xs sm:text-sm flex gap-1">
-                            <span className="flex gap-1 items-center">
-                              <CalendarCheck size={16} />
-                              <span>{format(festival.createdAt, "PP")}</span>
-                            </span>
+                            {event?.startDate ? (
+                              <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
+                                <CalendarCheck size={16} />
+                                <span>
+                                  {event?.startDate
+                                    ? formatter.dateTime(
+                                        new Date(event.startDate),
+                                        {
+                                          year: "numeric",
+                                          month: "long",
+                                          day: "numeric",
+                                        }
+                                      )
+                                    : null}
+                                  {" - "}
+                                  {event?.endDate &&
+                                  event?.startDate !== event?.endDate
+                                    ? formatter.dateTime(
+                                        new Date(event.endDate),
+                                        {
+                                          year: "numeric",
+                                          month: "long",
+                                          day: "numeric",
+                                        }
+                                      )
+                                    : null}
+                                </span>
+                              </p>
+                            ) : (
+                              "No event date"
+                            )}
                             •
                             <span className="flex gap-1 items-center">
                               <MapPin size={16} />
