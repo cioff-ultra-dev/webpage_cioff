@@ -59,7 +59,11 @@ export async function getGroupById(id: SelectGroup["id"]) {
           photo: true,
         },
       },
-      owners: true,
+      owners: {
+        with: {
+          user: true,
+        },
+      },
       subgroups: {
         with: {
           subgroupsToCategories: {

@@ -10,7 +10,7 @@ import { CoverImageEvent } from "@/components/common/event/cover";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
 import Link from "next/link";
-import { Facebook, Instagram, Link2, Phone } from "lucide-react";
+import { Facebook, Instagram, Link2, Phone, Youtube } from "lucide-react";
 import { Image as GalleryImage } from "react-grid-gallery";
 import { getGroupById } from "@/db/queries/groups";
 
@@ -26,6 +26,7 @@ export default async function EventDetail({
   const festival = await getGroupById(Number(params.id));
   const t = await getTranslations("page.group");
   const ta = await getTranslations("action");
+  const translations = await getTranslations("detailFestivals");
 
   let youtubeId = "";
 
@@ -239,6 +240,12 @@ export default async function EventDetail({
                       <CardTitle>Contact</CardTitle>
                     </CardHeader>
                     <CardContent>
+                      <p className="text-gray-500">
+                        {translations("email")}:&nbsp;
+                        {festival?.subgroups[0]?.contactMail ??
+                          festival?.owners[0]?.user?.email ??
+                          "Pending"}
+                      </p>
                       <p>
                         {festival?.langs.find((item) => item.l?.code === locale)
                           ?.address ||
@@ -248,7 +255,12 @@ export default async function EventDetail({
                       </p>
                       <p className="flex gap-1 items-center">
                         <Phone size={14} className="text-gray-500" />
-                        <span className="text-gray-500">{festival?.phone}</span>
+                        <Link
+                          className="text-gray-500"
+                          href={`tel:${festival?.phone}`}
+                        >
+                          {festival?.phone}
+                        </Link>
                       </p>
                       <p className="flex gap-2 pt-6">
                         {festival?.websiteLink ? (
@@ -276,6 +288,15 @@ export default async function EventDetail({
                             title="Instagram Link"
                           >
                             <Instagram size={20} className="text-gray-500" />
+                          </Link>
+                        ) : null}
+                        {festival?.youtubeId ? (
+                          <Link
+                            href={festival?.youtubeId}
+                            target="_blank"
+                            title="youtube Link"
+                          >
+                            <Youtube size={20} className="text-gray-500" />
                           </Link>
                         ) : null}
                       </p>
