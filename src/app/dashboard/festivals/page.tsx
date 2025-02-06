@@ -185,7 +185,7 @@ export default async function DashboardPage() {
                                     {t("previewProfile")}
                                   </Link>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem disabled={!!item?.url}>
+                                <DropdownMenuItem disabled={!item?.url}>
                                   <Link
                                     href={item?.url ?? ""}
                                     target="_blank"

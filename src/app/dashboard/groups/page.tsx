@@ -173,6 +173,16 @@ export default async function DashboardPage() {
                                     {t("previewProfile")}
                                   </Link>
                                 </DropdownMenuItem>
+                                <DropdownMenuItem disabled={!item?.websiteLink}>
+                                  <Link
+                                    aria-disabled={!!item?.websiteLink}
+                                    href={item?.websiteLink ?? ""}
+                                    target="_blank"
+                                    className="cursor-pointer"
+                                  >
+                                    {t("website")}
+                                  </Link>
+                                </DropdownMenuItem>
                                 <DropdownMenuItem
                                   asChild
                                   className="cursor-pointer"
