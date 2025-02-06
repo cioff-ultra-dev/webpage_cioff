@@ -27,7 +27,9 @@
     "not_found_festivals": "Festivales no encontrados...",
     "gener_fest_invit": "Generar invitación a festival",
     "Gener_group_invitat": "Generate Group Invitation",
-    "send_invitation": "Enviar invitación"
+    "send_invitation": "Enviar invitación",
+    "website": "Ir al sitio web",
+    "previewProfile": "Vista previa del perfil"
   },
   "locale_switch": {
     "select": "Seleccionar idioma",

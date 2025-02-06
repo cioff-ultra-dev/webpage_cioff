@@ -134,7 +134,7 @@ export default async function DashboardPage() {
                           {item?.langs.find((item) => item.l?.code === locale)
                             ?.name ||
                             item?.langs.find(
-                              (item) => item.l?.code === defaultLocale,
+                              (item) => item.l?.code === defaultLocale
                             )?.name}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
@@ -142,10 +142,10 @@ export default async function DashboardPage() {
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
                           {item?.country?.langs.find(
-                            (lang) => lang.l?.code === locale,
+                            (lang) => lang.l?.code === locale
                           )?.name ||
                             item?.country?.langs.find(
-                              (lang) => lang.l?.code === defaultLocale,
+                              (lang) => lang.l?.code === defaultLocale
                             )?.name}
                         </TableCell>
                         <TableCell>
@@ -165,17 +165,14 @@ export default async function DashboardPage() {
                                 <DropdownMenuLabel>
                                   {t("actions")}
                                 </DropdownMenuLabel>
-                                {/* <DropdownMenuItem
-                                asChild
-                                className="cursor-pointer"
-                              >
-                                <Link
-                                  href={`/event/${item.id}`}
-                                  target="_blank"
-                                >
-                                  Preview
-                                </Link>
-                              </DropdownMenuItem> */}
+                                <DropdownMenuItem className="cursor-pointer">
+                                  <Link
+                                    href={`/groups/${item?.id!}`}
+                                    target="_blank"
+                                  >
+                                    {t("previewProfile")}
+                                  </Link>
+                                </DropdownMenuItem>
                                 <DropdownMenuItem
                                   asChild
                                   className="cursor-pointer"

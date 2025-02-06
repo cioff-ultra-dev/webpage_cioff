@@ -46,7 +46,6 @@ export default async function DashboardPage() {
 
     festivals = currentData.ns?.festivals ?? [];
   }
-
   return (
     <Tabs defaultValue="all">
       <div className="flex items-center">
@@ -177,13 +176,22 @@ export default async function DashboardPage() {
                                 <DropdownMenuLabel>
                                   {t("actions")}
                                 </DropdownMenuLabel>
-                                <DropdownMenuItem disabled>
+                                <DropdownMenuItem>
                                   <Link
-                                    href={`/event/${item?.id}`}
+                                    href={`/festivals/${item?.id}`}
                                     target="_blank"
                                     className="cursor-pointer"
                                   >
-                                    {t("preview")}
+                                    {t("previewProfile")}
+                                  </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem disabled={!!item?.url}>
+                                  <Link
+                                    href={item?.url ?? ""}
+                                    target="_blank"
+                                    className="cursor-pointer"
+                                  >
+                                    {t("website")}
                                   </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem asChild>
