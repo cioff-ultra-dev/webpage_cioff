@@ -10,7 +10,14 @@ import { CoverImageEvent } from "@/components/common/event/cover";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
 import Link from "next/link";
-import { Facebook, Instagram, Link2, Phone, Youtube } from "lucide-react";
+import {
+  Facebook,
+  Instagram,
+  Link2,
+  Phone,
+  Youtube,
+  Download,
+} from "lucide-react";
 import { Image as GalleryImage } from "react-grid-gallery";
 import { getGroupById } from "@/db/queries/groups";
 
@@ -253,15 +260,30 @@ export default async function EventDetail({
                             (item) => item.l?.code === defaultLocale
                           )?.address}
                       </p>
-                      <p className="flex gap-1 items-center">
-                        <Phone size={14} className="text-gray-500" />
-                        <Link
-                          className="text-gray-500"
-                          href={`tel:${festival?.phone}`}
-                        >
-                          {festival?.phone}
-                        </Link>
-                      </p>
+                      {festival?.phone && (
+                        <p className="flex gap-1 items-center">
+                          <Phone size={14} className="text-gray-500" />
+                          <Link
+                            className="text-gray-500"
+                            href={`tel:${festival?.phone}`}
+                          >
+                            {festival?.phone}
+                          </Link>
+                        </p>
+                      )}
+                      {festival?.linkPortfolio && (
+                        <p className="flex gap-1 items-center text-gray-500">
+                          {translations("portfolioLink")}:&nbsp;
+                          <Link
+                            href={festival?.linkPortfolio!}
+                            target="_blank"
+                            title="portfolio Link"
+                            className="line-clamp-1 hover:underline"
+                          >
+                            {festival?.linkPortfolio}
+                          </Link>
+                        </p>
+                      )}
                       <p className="flex gap-2 pt-6">
                         {festival?.websiteLink ? (
                           <Link

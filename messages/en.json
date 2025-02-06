@@ -568,6 +568,7 @@
     "direction": "Get directions",
     "website": "Website",
     "call": "Call",
-    "email": "Email"
+    "email": "Email",
+    "portfolioLink": "portfolio/brochure"
   }
 }
