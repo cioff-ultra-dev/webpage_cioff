@@ -1,12 +1,8 @@
-import { auth, update } from "@/auth";
-import CheckoutCanceled from "@/components/common/payments/checkout-cancel";
-import CheckoutSuccess from "@/components/common/payments/checkout-success";
-import { getUserAuth } from "@/db/queries";
 import { getFormatter } from "next-intl/server";
 import { redirect } from "next/navigation";
-import Stripe from "stripe";
-
-const stripe = new Stripe(process.env.STRIPE_API_KEY!);
+import CheckoutCanceled from "@/components/common/payments/checkout-cancel";
+import CheckoutSuccess from "@/components/common/payments/checkout-success";
+import { stripe, type Stripe } from "@/lib/stripe";
 
 export default async function CheckoutPage({
   searchParams,
@@ -15,7 +11,6 @@ export default async function CheckoutPage({
   searchParams: { [key: string]: string };
 }) {
   const format = await getFormatter();
-  const session = await auth();
 
   if (searchParams.canceled) {
     return (

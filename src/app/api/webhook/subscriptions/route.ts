@@ -1,11 +1,9 @@
-import Stripe from "stripe";
 import { NextRequest } from "next/server";
 import { db } from "@/db";
 import { subscriptions, users } from "@/db/schema";
 import { and, eq, getTableColumns, SQL, sql } from "drizzle-orm";
 import { PgTable } from "drizzle-orm/pg-core";
-
-const stripe = new Stripe(process.env.STRIPE_API_KEY!);
+import { stripe, Stripe } from "@/lib/stripe";
 
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECREY! as string;
 

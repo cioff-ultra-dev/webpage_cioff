@@ -4,9 +4,7 @@ import { db } from "@/db";
 import { roles, SelectUser, users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
-import Stripe from "stripe";
-
-const stripe = new Stripe(process.env.STRIPE_API_KEY!);
+import { stripe } from "@/lib/stripe";
 
 const YOUR_DOMAIN = process.env.HOSTNAME_URL;
 
