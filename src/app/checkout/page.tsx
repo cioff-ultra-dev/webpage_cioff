@@ -36,8 +36,6 @@ export default async function CheckoutPage({
     }
   );
 
-  const user = await getUserAuth(session?.user.email!);
-
   const subscription = checkoutSession.subscription as Stripe.Subscription & {
     plan: Stripe.Plan;
   };
@@ -48,8 +46,6 @@ export default async function CheckoutPage({
     <CheckoutSuccess
       sessionId={searchParams.session_id}
       redirectTo={searchParams.redirect_path}
-      user={user!}
-      isSubscribed={!!session?.user.subscription}
     >
       <div className="bg-gray-50 p-4 rounded-lg space-y-3">
         <div className="flex items-center justify-between text-sm">

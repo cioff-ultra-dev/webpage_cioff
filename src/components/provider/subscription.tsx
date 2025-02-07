@@ -10,6 +10,7 @@ import React, {
 
 export interface Subscription {
   id: string;
+  customerId: string;
   status: string;
 }
 

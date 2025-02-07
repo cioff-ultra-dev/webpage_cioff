@@ -27,7 +27,6 @@ const SubscribeButton: React.FC<SubscribeButtonProps> = async ({
       label={label}
       variant={variant}
       isLoading={isLoading}
-      customerId={session?.user?.stripeCustomerId!}
     />
   );
 };
