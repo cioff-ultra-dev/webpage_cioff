@@ -20,6 +20,7 @@ const SubscriptionWrapper: React.FC<{ children: React.ReactNode }> = async ({
   const valueSubscription: Subscription | null = currentSubscription
     ? ({
         id: currentSubscription.stripeSubscriptionId,
+        customerId: currentSubscription.stripeCustomerId,
         status: currentSubscription.status,
       } as Subscription)
     : null;

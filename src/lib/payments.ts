@@ -35,9 +35,8 @@ export async function createCheckoutSession(formData: FormData) {
 
   if (currentUser && !currentUser.stripeCustomerId) {
     const customer = await stripe.customers.create({
-      name: `${currentUser.firstname}${
-        currentUser.lastname ? ` ${currentUser.lastname}` : ""
-      }`,
+      name: `${currentUser.firstname}${currentUser.lastname ? ` ${currentUser.lastname}` : ""
+        }`,
       email: currentUser.email,
       metadata: {
         userId: currentUser.id,
@@ -55,9 +54,8 @@ export async function createCheckoutSession(formData: FormData) {
 
   if (currentUser && currentUser.stripeCustomerId) {
     await stripe.customers.update(currentUser.stripeCustomerId, {
-      name: `${currentUser.firstname}${
-        currentUser.lastname ? ` ${currentUser.lastname}` : ""
-      }`,
+      name: `${currentUser.firstname}${currentUser.lastname ? ` ${currentUser.lastname}` : ""
+        }`,
       email: currentUser.email,
       metadata: {
         userId: currentUser.id,

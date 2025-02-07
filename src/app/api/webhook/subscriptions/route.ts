@@ -1,8 +1,8 @@
 import Stripe from "stripe";
 import { NextRequest } from "next/server";
 import { db } from "@/db";
-import { subscriptions } from "@/db/schema";
-import { eq, getTableColumns, SQL, sql } from "drizzle-orm";
+import { subscriptions, users } from "@/db/schema";
+import { and, eq, getTableColumns, SQL, sql } from "drizzle-orm";
 import { PgTable } from "drizzle-orm/pg-core";
 
 const stripe = new Stripe(process.env.STRIPE_API_KEY!);
@@ -38,14 +38,56 @@ export async function POST(request: NextRequest) {
       );
     } catch (err) {
       const error = err as Error;
-      console.log(`⚠️  Webhook signature verification failed.`, error.message);
+      console.log(`Webhook signature verification failed.`, error.message);
       return new Response(null, { status: 400 });
     }
   }
   switch (event.type) {
+    case "customer.deleted":
+      const customerDeleted = event.data.object as Stripe.Customer;
+      const userId = customerDeleted.metadata.userId as string;
+
+      if (userId && customerDeleted.id) {
+        await db
+          .update(users)
+          .set({ stripeCustomerId: null })
+          .where(
+            and(
+              eq(users.id, userId),
+              eq(users.stripeCustomerId, customerDeleted.id)
+            )
+          );
+      }
+
+      console.log(
+        `Customer account deleted: ${customerDeleted.metadata.userId}`
+      );
+      break;
     case "customer.subscription.trial_will_end":
       const subscriptionTrialWillEnd = event.data.object as Stripe.Subscription;
-      // Handle subscription trial will end
+
+      console.log({ subscriptionTrialWillEnd });
+
+      const currentSubscription = await db.query.subscriptions.findFirst({
+        where(fields, { eq }) {
+          return eq(fields.stripeSubscriptionId, subscriptionTrialWillEnd.id);
+        },
+      });
+
+      if (currentSubscription) {
+        await db
+          .update(subscriptions)
+          .set({
+            status: subscriptionTrialWillEnd.status,
+          })
+          .where(
+            eq(
+              subscriptions.stripeSubscriptionId,
+              currentSubscription.stripeSubscriptionId
+            )
+          );
+      }
+
       console.log(
         `Subscription trial will end: ${subscriptionTrialWillEnd.id}`
       );
@@ -92,15 +134,11 @@ export async function POST(request: NextRequest) {
     case "customer.subscription.deleted":
       const subscriptionDeleted = event.data.object as Stripe.Subscription;
 
-      const [deletedSubscrition] = await db
-        .delete(subscriptions)
-        .where(eq(subscriptions.stripeSubscriptionId, subscriptionDeleted.id))
-        .returning({
-          customerId: subscriptions.stripeCustomerId,
-          userId: subscriptions.userId,
-        });
+      console.log({ subscriptionDeleted });
 
-      console.log(deletedSubscrition);
+      await db
+        .delete(subscriptions)
+        .where(eq(subscriptions.stripeSubscriptionId, subscriptionDeleted.id));
 
       console.log(`Subscription deleted: ${subscriptionDeleted.id}`);
       break;

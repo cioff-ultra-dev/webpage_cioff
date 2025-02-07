@@ -17,7 +17,6 @@ interface ButtonActionProps extends VariantProps<typeof Button> {
   redirectPath?: string;
   email?: string;
   userId?: string;
-  customerId?: string;
   isNationalSections: boolean;
 }
 
@@ -29,12 +28,12 @@ export default function ButtonAction({
   redirectPath,
   userId,
   email,
-  customerId,
 }: ButtonActionProps) {
   const t = useTranslations("link");
   const { subscription } = useSubscription();
 
   const isSubscribed = subscription && subscription.status === "active";
+  const customerId = subscription?.customerId;
 
   return (
     <>
