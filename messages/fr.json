@@ -62,7 +62,9 @@
     "sub-pages": "Sous-pages",
     "send-emails": "Envoyer un courrier",
     "customization": "Personnalisation",
-    "website": "Aller sur le site web"
+    "website": "Aller sur le site web",
+    "subscribe": "S'abonner",
+    "billingPortal": "Portail de facturation"
   },
   "form": {
     "notResults": "Aucun résultat trouvé",

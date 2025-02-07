@@ -61,7 +61,9 @@
     "settings": "Ajustes",
     "send-emails": "Enviar correos",
     "customization": "Personalización",
-    "website": "Ir al sitio web"
+    "website": "Ir al sitio web",
+    "subscribe": "Suscribirse",
+    "billingPortal": "Portal de Facturación"
   },
   "form": {
     "notResults": "No se han encontrado resultados",
@@ -583,7 +585,7 @@
     "title": "Eventos",
     "emptyContent": "No hay eventos recientes."
   },
-  "impact":{
+  "impact": {
     "impactTitle": "Impacto",
     "volunteers": "XXX Voluntarios activos en CIOFF@ internacional",
     "countries": "XX Países<br/>6 Sectores geográficos",
@@ -594,6 +596,8 @@
     "experience": "XX Años de experiencia",
     "unesco": "Con la UNESCO desde 1984",
     "children": "XX Festivales infantiles y XX Grupos infantiles",
-    "more": "Más datos y cifras..."
+    "more": "Más datos y cifras...",
+    "emptyContent": "No hay eventos recientes.",
+    "signIn": "Ingresar"
   }
 }

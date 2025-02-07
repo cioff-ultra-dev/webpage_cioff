@@ -1,4 +1,4 @@
-import { InferModel, relations, SQL, sql } from "drizzle-orm";
+import { relations, SQL, sql } from "drizzle-orm";
 import {
   AnyPgColumn,
   boolean,
@@ -174,7 +174,7 @@ export const users = pgTable(
     emailVerified: timestamp("emailVerified", { mode: "date" }),
     photoId: integer("image_id").references(() => storages.id),
     isCreationNotified: boolean("is_creation_notified").default(false),
-    // stripeCustomerId: text("stripe_customer_id"),
+    stripeCustomerId: text("stripe_customer_id"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   },
@@ -1233,6 +1233,26 @@ export const videoTutorialLinks = pgTable("video_tutorial_links", {
   tag: text("tag"),
 });
 
+/* Subscriptions */
+export const subscriptions = pgTable("subscriptions", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id")
+    .references(() => users.id)
+    .notNull(),
+  stripeSubscriptionId: text("stripe_subscription_id").notNull().unique(),
+  stripeCustomerId: text("stripe_customer_id").notNull(),
+  status: text("status"), // active, canceled, past_due, etc.
+  currentPeriodStart: timestamp("current_period_start", {
+    withTimezone: true,
+  }).notNull(),
+  currentPeriodEnd: timestamp("current_period_end", {
+    withTimezone: true,
+  }).notNull(),
+  cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
 /* Relations */
 
 export const userRelations = relations(users, ({ one }) => ({
@@ -1243,6 +1263,17 @@ export const userRelations = relations(users, ({ one }) => ({
   country: one(countries, {
     fields: [users.countryId],
     references: [countries.id],
+  }),
+  subscription: one(subscriptions, {
+    fields: [users.id],
+    references: [subscriptions.userId],
+  }),
+}));
+
+export const subscriptionRelations = relations(subscriptions, ({ one }) => ({
+  user: one(users, {
+    fields: [subscriptions.userId],
+    references: [users.id],
   }),
 }));
 

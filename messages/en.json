@@ -79,7 +79,9 @@
     "sub-pages": "Subpages",
     "send-emails": "Send emails",
     "customization": "Customization",
-    "website": "Go to website"
+    "website": "Go to website",
+    "subscribe": "Subscribe",
+    "billingPortal": "Billing Portal"
   },
   "form": {
     "notResults": "No results found",
