@@ -17,7 +17,6 @@ export default async function SendEmailsPage() {
   const festivals = await getAllNestedFestivals();
   const countryCast = await getAllCountryCastFestivals(locale as Locale);
   const categories = await getAllCategories(locale as Locale);
-  const emails = ["example1@example.com", "example2@example.com"];
 
   return (
     <div className="w-full p-4 md:p-6">

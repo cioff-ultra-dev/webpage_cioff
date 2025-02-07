@@ -78,6 +78,7 @@
     "filepond-plugin-image-crop": "^2.0.6",
     "filepond-plugin-image-exif-orientation": "^1.0.11",
     "filepond-plugin-image-preview": "^4.6.12",
+    "framer-motion": "^12.3.1",
     "generate-password-ts": "^1.6.5",
     "http-status": "^1.7.4",
     "jsdom": "^25.0.1",

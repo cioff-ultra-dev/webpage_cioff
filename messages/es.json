@@ -59,7 +59,9 @@
     "settings": "Ajustes",
     "send-emails": "Enviar correos",
     "customization": "Personalización",
-    "website": "Ir al sitio web"
+    "website": "Ir al sitio web",
+    "subscribe": "Suscribirse",
+    "billingPortal": "Portal de Facturación"
   },
   "form": {
     "notResults": "No se han encontrado resultados",
@@ -564,8 +566,8 @@
     "email": "Correo electrónico",
     "portfolioLink": "portafolio/folleto"
   },
-  "common":{
-    "forbiddenDescription":"Debe iniciar sesión para ver la información de contacto.",
-    "signIn":"Ingresar"
+  "common": {
+    "forbiddenDescription": "Debe iniciar sesión para ver la información de contacto.",
+    "signIn": "Ingresar"
   }
 }

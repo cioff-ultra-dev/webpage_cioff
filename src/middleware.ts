@@ -18,7 +18,6 @@ const auth = NextAuth(authConfig).auth;
 
 export default auth(async (req) => {
   const isLoggedIn = !!req?.auth;
-  const isOnDashboard = req.nextUrl.pathname.startsWith("/dashboard");
   const isLoginPage = req.nextUrl.pathname === "/login";
   const currentLocale = await getUserLocale();
   const locale = getLocale(req);
