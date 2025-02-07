@@ -7,7 +7,7 @@ export default async function DashboardPage() {
   const session = await auth();
   const headerList = headers();
 
-  const pathname = headerList.get("x-current-path");
+  const pathname = headerList.get("x-current-path") ?? "/dashboard";
   const isRootDashboard = pathname === "/dashboard";
 
   if (!session) {

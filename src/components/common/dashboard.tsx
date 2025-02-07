@@ -24,6 +24,7 @@ import DashboardBreadcrumb from "./dashboard/breadcrumbs";
 import { getAllLanguages } from "@/db/queries/languages";
 import LocaleSwitcher from "./locale-switcher";
 import { getLocale, getTranslations } from "next-intl/server";
+import { auth } from "@/auth";
 
 export default async function Dashboard({
   children,
@@ -33,6 +34,9 @@ export default async function Dashboard({
   const defaultLocale = await getLocale();
   const locales = await getAllLanguages();
   const t = await getTranslations("link");
+  const data = await auth();
+  const roleName = data?.user?.role?.name ?? "";
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
@@ -44,88 +48,91 @@ export default async function Dashboard({
               prefetch={false}
             >
               <CalendarIcon className="h-4 w-4 transition-all group-hover:scale-110" />
-              <span className="sr-only">Acme Inc</span>
+              <span className="sr-only">CIOFF</span>
             </Link>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href="#"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-                  prefetch={false}
-                >
-                  <HomeIcon className="h-5 w-5" />
-                  <span className="sr-only">{t("dashboard")}</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">{t("dashboard")}</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href="/dashboard/festivals"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-                  prefetch={false}
-                >
-                  <CalendarIcon className="h-5 w-5" />
-                  <span className="sr-only">{t("festivals")}</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">{t("festivals")}</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href="/dashboard/national-sections"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-                  prefetch={false}
-                >
-                  <Globe className="h-5 w-5" />
-                  <span className="sr-only">{t("national-sections")}</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                {t("national-sections")}
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href="/dashboard/groups"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-                  prefetch={false}
-                >
-                  <UsersIcon className="h-5 w-5" />
-                  <span className="sr-only">{t("groups")}</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">{t("groups")}</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href="/dashboard/sub-pages"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-                  prefetch={false}
-                >
-                  <NewspaperIcon className="h-5 w-5" />
-                  <span className="sr-only">{t("sub-pages")}</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">{t("sub-pages")}</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href="/dashboard/customization"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-                  prefetch={false}
-                >
-                  <Palette className="h-5 w-5" />
-                  <span className="sr-only">{t("customization")}</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">{t("customization")}</TooltipContent>
-            </Tooltip>
+            {["Festivals", "Admin", "National Sections", "Council"].includes(
+              roleName
+            ) && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    href="/dashboard/festivals"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                    prefetch={false}
+                  >
+                    <CalendarIcon className="h-5 w-5" />
+                    <span className="sr-only">{t("festivals")}</span>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right">{t("festivals")}</TooltipContent>
+              </Tooltip>
+            )}
+            {["Admin", "National Sections", "Council"].includes(roleName) && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    href="/dashboard/national-sections"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                    prefetch={false}
+                  >
+                    <Globe className="h-5 w-5" />
+                    <span className="sr-only">{t("national-sections")}</span>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  {t("national-sections")}
+                </TooltipContent>
+              </Tooltip>
+            )}
+            {["Admin", "Groups", "Council", "National Sections"].includes(
+              roleName
+            ) && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    href="/dashboard/groups"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                    prefetch={false}
+                  >
+                    <UsersIcon className="h-5 w-5" />
+                    <span className="sr-only">{t("groups")}</span>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right">{t("groups")}</TooltipContent>
+              </Tooltip>
+            )}
+            {["Admin"].includes(roleName) && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    href="/dashboard/sub-pages"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                    prefetch={false}
+                  >
+                    <NewspaperIcon className="h-5 w-5" />
+                    <span className="sr-only">{t("sub-pages")}</span>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right">{t("sub-pages")}</TooltipContent>
+              </Tooltip>
+            )}
+            {["Admin"].includes(roleName) && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    href="/dashboard/customization"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                    prefetch={false}
+                  >
+                    <Palette className="h-5 w-5" />
+                    <span className="sr-only">{t("customization")}</span>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  {t("customization")}
+                </TooltipContent>
+              </Tooltip>
+            )}
             <Tooltip>
               <TooltipTrigger>
                 <Link
@@ -189,15 +196,7 @@ export default async function Dashboard({
                   prefetch={false}
                 >
                   <CalendarIcon className="h-5 w-5 transition-all group-hover:scale-110" />
-                  <span className="sr-only">Acme Inc</span>
-                </Link>
-                <Link
-                  href="#"
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                  prefetch={false}
-                >
-                  <HomeIcon className="h-5 w-5" />
-                  Dashboard
+                  <span className="sr-only">COIFF</span>
                 </Link>
                 <Link
                   href="#"
