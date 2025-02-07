@@ -1234,6 +1234,7 @@ export const videoTutorialLinks = pgTable("video_tutorial_links", {
 });
 
 /* Subscriptions */
+
 export const subscriptions = pgTable("subscriptions", {
   id: serial("id").primaryKey(),
   userId: text("user_id")

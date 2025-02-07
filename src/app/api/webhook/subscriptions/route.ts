@@ -28,8 +28,6 @@ export async function POST(request: NextRequest) {
   let payload = await (await request.blob()).text();
   let event: Stripe.Event = {} as Stripe.Event;
 
-  console.log({ endpointSecret });
-
   if (endpointSecret) {
     const signature = request.headers.get("stripe-signature") as string;
     try {

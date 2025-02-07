@@ -14,15 +14,17 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { createPortalSession } from "@/lib/payments";
 
+interface CheckoutSuccessProps {
+  children: React.ReactNode;
+  sessionId: string;
+  redirectTo: string;
+}
+
 export default function CheckoutSuccess({
   children,
   sessionId,
   redirectTo,
-}: {
-  children: React.ReactNode;
-  sessionId: string;
-  redirectTo: string;
-}) {
+}: CheckoutSuccessProps) {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <Card className="max-w-lg w-full">
