@@ -629,6 +629,9 @@ export const groups = pgTable("groups", {
   updatedBy: text("updated_by").references(() => users.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  location: text("location"),
+  lat: text("lat"),
+  lng: text("lng"),
 });
 export const groupsLang = pgTable("groups_lang", {
   id: serial("id").primaryKey(),

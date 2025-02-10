@@ -2222,6 +2222,10 @@ export async function updateGroup(formData: FormData) {
 
   const photos = formData.getAll("photos") as string[];
 
+  const location = formData.get("location") as string;
+  const lat = formData.get("lat") as string;
+  const lng = formData.get("lng") as string;
+
   const groupCategories = [...typeGroups, ...groupAge, ...styleGroup];
 
   const currentPhotos: InsertGroupPhotos[] = [];
@@ -2288,6 +2292,9 @@ export async function updateGroup(formData: FormData) {
         linkPortfolio,
         coverPhotoId: coverNextId ? coverNextId : undefined,
         logoId: logoNextId ? logoNextId : undefined,
+        location,
+        lng,
+        lat,
       })
       .where(eq(groups.id, id))
       .returning();
@@ -2300,7 +2307,7 @@ export async function updateGroup(formData: FormData) {
         nativeLang: true,
       },
     });
-    console.log("country code:", currentCountry?.nativeLang?.code);
+
     if (currentCountry?.nativeLang?.code === locale) {
       const currentGroupLangs = await tx.query.groupsLang.findMany({
         where(fields, { eq }) {

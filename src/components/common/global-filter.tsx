@@ -719,36 +719,42 @@ export function WrapperFilter({
                   offset={-600}
                 >
                   {(response) =>
-                    response.map(({ group, lang, countryLang, cover }) => (
-                      <Link
-                        href={`/groups/${group.id}`}
-                        className="bg-gray-50 hover:bg-gray-100 hover:cursor-pointer p-4 space-y-3 rounded-lg w-full justify-self-center"
-                        target="_blank"
-                        key={group.id}
-                      >
-                        <div className="relative w-full h-[250px]">
-                          <Image
-                            fill
-                            src={cover?.url ?? "/placeholder.svg"}
-                            alt="Profile Festival Picture"
-                            className="rounded-lg aspect-video"
-                            blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOsbmysBwAE+gH+lB3PkwAAAABJRU5ErkJggg=="
-                          />
-                        </div>
-                        <h3 className="text-black mt-2 text-sm sm:text-base">
-                          {lang.name}
-                        </h3>
-                        <p className="text-gray-700 text-xs sm:text-sm flex gap-1">
-                          <span className="flex gap-1 items-center">
-                            <MapPin size={16} />
-                            <span>{countryLang?.name}</span>
-                          </span>
-                        </p>
-                        <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">
-                          {lang.description}
-                        </p>
-                      </Link>
-                    ))
+                    response.map(
+                      ({ group, lang, countryLang, cover, country }) => (
+                        <Link
+                          href={`/groups/${group.id}`}
+                          className="bg-gray-50 hover:bg-gray-100 hover:cursor-pointer p-4 space-y-3 rounded-lg w-full justify-self-center"
+                          target="_blank"
+                          key={group.id}
+                        >
+                          <div className="relative w-full h-[250px]">
+                            <Image
+                              fill
+                              src={cover?.url ?? "/placeholder.svg"}
+                              alt="Profile Festival Picture"
+                              className="rounded-lg aspect-video"
+                              blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOsbmysBwAE+gH+lB3PkwAAAABJRU5ErkJggg=="
+                            />
+                          </div>
+                          <h3 className="text-black mt-2 text-sm sm:text-base">
+                            {lang.name}
+                          </h3>
+                          <p className="text-gray-700 text-xs sm:text-sm flex gap-1">
+                            <span className="flex gap-1 items-center">
+                              <MapPin size={16} />
+                              <span>
+                                {group?.location ||
+                                  countryLang?.name ||
+                                  country?.id}
+                              </span>
+                            </span>
+                          </p>
+                          <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">
+                            {lang.description}
+                          </p>
+                        </Link>
+                      )
+                    )
                   }
                 </InfiniteScroll>
               </div>

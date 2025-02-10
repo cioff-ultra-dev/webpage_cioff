@@ -791,7 +791,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                         <SkeletonList />
                       ) : (
                         itemGroupList?.map(
-                          ({ group, cover, lang, countryLang }) => (
+                          ({ group, cover, lang, countryLang, country }) => (
                             <div
                               key={group.id}
                               className={cn(
@@ -828,7 +828,11 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                                 </Link>
                                 <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
                                   <MapPin size={16} />
-                                  <span>{countryLang.name}</span>
+                                  <span>
+                                    {group?.location ||
+                                      countryLang?.name ||
+                                      country?.id}
+                                  </span>
                                 </p>
                                 <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">
                                   {lang.description}

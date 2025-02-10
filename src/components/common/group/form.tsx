@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -70,6 +70,10 @@ import { customRevalidatePath } from "../revalidateTag";
 import { useRouter } from "next/navigation";
 import { RegionsType } from "@/db/queries/regions";
 import { FilepondImageUploader } from "@/components/extension/filepond-image-uploader";
+import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
+import { AutocompletePlaces } from "@/components/ui/autocomplete-places";
+import MapHandler from "@/components/common/map-handler";
+import constants from "@/constants";
 
 const globalGroupSchema = insertGroupSchema.extend({
   _lang: insertGroupLangSchema,
@@ -272,8 +276,8 @@ export default function GroupForm({
   const isCurrentOwner = currentGroup?.owners.some(
     (item) => item.userId === session?.user.id
   );
-
-  console.log({ isFestivalAccount, isCurrentOwner });
+  const [selectedPlace, setSelectedPlace] =
+    useState<google.maps.places.PlaceResult | null>(null);
 
   const t = useTranslations("form.group");
   const router = useRouter();
@@ -345,6 +349,9 @@ export default function GroupForm({
           },
         };
       }),
+      lat: currentGroup?.lat ?? "",
+      lng: currentGroup?.lng ?? "",
+      location: currentGroup?.location ?? "",
     },
   });
 
@@ -431,711 +438,1377 @@ export default function GroupForm({
   };
 
   return (
-    <div className="w-full p-4 md:p-6 ">
-      <h1 className="text-2xl font-bold">{t("add_a_group")}</h1>
-      <p className="text-sm text-muted-foreground pb-10 after:content-['*'] after:ml-0.5 after:text-red-500">
-        {t("the_fields_mandatory")}
-      </p>
-      <Form {...form}>
-        <form
-          ref={formRef}
-          className="space-y-6"
-          onSubmit={form.handleSubmit(onSubmitForm)}
-        >
-          <FormField
-            control={form.control}
-            name="id"
-            render={({ field }) => (
-              <FormItem className="space-y-0">
-                <FormControl>
-                  <Input
-                    ref={field.ref}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
-                    value={field.value}
-                    name={field.name}
-                    type="hidden"
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="_lang.id"
-            render={({ field }) => (
-              <FormItem className="space-y-0">
-                <FormControl>
-                  <Input
-                    ref={field.ref}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
-                    value={field.value}
-                    name={field.name}
-                    type="hidden"
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle> {t("group_nformation")} </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name={"_lang.name"}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          {t("name_of_the_group")}
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            ref={field.ref}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
-                            value={field.value || ""}
-                            name={field.name}
-                            disabled={isNSAccount}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          {t("filled_auto_from_list_NS")}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name={"generalDirectorName"}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          {t("presid_general_dir_name")}
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            ref={field.ref}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
-                            value={field.value || ""}
-                            name={field.name}
-                            disabled={isNSAccount}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name={"_lang.generalDirectorProfile"}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          {t("presi_gene_dire_profile")}
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            className="resize-none"
-                            placeholder={t("write_short_descrip")}
-                            name={field.name}
-                            onChange={field.onChange}
-                            value={field.value || ""}
-                            onBlur={field.onBlur}
-                            ref={field.ref}
-                            disabled={isNSAccount}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          {t("you_can_max_500_input")}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name={"_generalDirectorPhoto"}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          {t("presid_general_direc_photo")}
-                        </FormLabel>
-                        <FormControl>
-                          <FilepondImageUploader
-                            id={field.name}
-                            name={field.name}
-                            allowImageCrop
-                            disabled={isNSAccount}
-                            acceptedFileTypes={["image/*"]}
-                            imageCropAspectRatio="1:1"
-                            defaultFiles={
-                              currentGroup?.directorPhoto?.url
-                                ? [
-                                    {
-                                      source: currentGroup.directorPhoto?.url!,
-                                      options: {
-                                        type: "local",
-                                      },
-                                    },
-                                  ]
-                                : []
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                        <input
-                          name="_generalDirectorPhotoId"
-                          type="hidden"
-                          value={
-                            currentGroup?.generalDirectorPhotoId ?? undefined
-                          }
-                        />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Artist Director */}
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name={"artisticDirectorName"}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          {t("arti_director_name")}
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            ref={field.ref}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
-                            value={field.value || ""}
-                            name={field.name}
-                            disabled={isNSAccount}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name={"_lang.artisticDirectorProfile"}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          {t("arti_direc_profile")}
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            className="resize-none"
-                            placeholder={t("write_descrip_studies")}
-                            name={field.name}
-                            onChange={field.onChange}
-                            value={field.value || ""}
-                            onBlur={field.onBlur}
-                            ref={field.ref}
-                            disabled={isNSAccount}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          {t("you_can_max_500_input")}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name={"_artisticDirectorPhoto"}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          {t("arti_director_photo")}
-                        </FormLabel>
-                        <FormControl>
-                          <FilepondImageUploader
-                            id={field.name}
-                            name={field.name}
-                            allowImageCrop
-                            disabled={isNSAccount}
-                            acceptedFileTypes={["image/*"]}
-                            imageCropAspectRatio="1:1"
-                            defaultFiles={
-                              currentGroup?.artisticPhoto?.url
-                                ? [
-                                    {
-                                      source: currentGroup.artisticPhoto?.url!,
-                                      options: {
-                                        type: "local",
-                                      },
-                                    },
-                                  ]
-                                : []
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                        <input
-                          name="_artisticDirectorPhotoId"
-                          type="hidden"
-                          value={
-                            currentGroup?.artisticDirectorPhotoId ?? undefined
-                          }
-                        />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Musical Director */}
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name={"musicalDirectorName"}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          {t("musical_director_name")}
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            ref={field.ref}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
-                            value={field.value || ""}
-                            name={field.name}
-                            disabled={isNSAccount}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name={"_lang.musicalDirectorProfile"}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          {t("musi_director_profile")}
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            className="resize-none"
-                            placeholder={t("write_short_descrip")}
-                            name={field.name}
-                            onChange={field.onChange}
-                            value={field.value || ""}
-                            onBlur={field.onBlur}
-                            ref={field.ref}
-                            disabled={isNSAccount}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          {t("you_can_max_500_input")}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name={"_musicalDirectorPhoto"}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          {t("musi_director_photo")}
-                        </FormLabel>
-                        <FormControl>
-                          <FilepondImageUploader
-                            id={field.name}
-                            name={field.name}
-                            allowImageCrop
-                            disabled={isNSAccount}
-                            acceptedFileTypes={["image/*"]}
-                            imageCropAspectRatio="1:1"
-                            defaultFiles={
-                              currentGroup?.musicalPhoto?.url
-                                ? [
-                                    {
-                                      source: currentGroup.musicalPhoto?.url!,
-                                      options: {
-                                        type: "local",
-                                      },
-                                    },
-                                  ]
-                                : []
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                        <input
-                          name="_musicalDirectorPhotoId"
-                          type="hidden"
-                          value={
-                            currentGroup?.musicalDirectorPhotoId ?? undefined
-                          }
-                        />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field: { value, ...fieldRest } }) => (
-                      <FormItem>
-                        <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          {t("phone_country_code")}
-                        </FormLabel>
-                        <FormControl>
-                          <PhoneInput
-                            value={value as RPNInput.Value}
-                            id="phone"
-                            placeholder={t("enter_phone_number")}
-                            international
-                            {...fieldRest}
-                            disabled={isNSAccount}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          {t("enter_phone_number")}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="_lang.address"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          {t("mail_ddress")}
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            ref={field.ref}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
-                            value={field.value || ""}
-                            name={field.name}
-                            disabled={isNSAccount}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("group_details")}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="_typeOfGroup"
-                    render={({ field }) => {
-                      const options: MultiSelectProps["options"] =
-                        typeOfGroups.map((type) => {
-                          const label = type.langs?.[0]?.name;
-                          return {
-                            label: label,
-                            value: String(type.id),
-                            caption: "",
-                          };
-                        });
-
-                      return (
+    <APIProvider apiKey={constants.google.apiKey!}>
+      <div className="w-full p-4 md:p-6 ">
+        <h1 className="text-2xl font-bold">{t("add_a_group")}</h1>
+        <p className="text-sm text-muted-foreground pb-10 after:content-['*'] after:ml-0.5 after:text-red-500">
+          {t("the_fields_mandatory")}
+        </p>
+        <Form {...form}>
+          <form
+            ref={formRef}
+            className="space-y-6"
+            onSubmit={form.handleSubmit(onSubmitForm)}
+          >
+            <FormField
+              control={form.control}
+              name="id"
+              render={({ field }) => (
+                <FormItem className="space-y-0">
+                  <FormControl>
+                    <Input
+                      ref={field.ref}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      value={field.value}
+                      name={field.name}
+                      type="hidden"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="_lang.id"
+              render={({ field }) => (
+                <FormItem className="space-y-0">
+                  <FormControl>
+                    <Input
+                      ref={field.ref}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      value={field.value}
+                      name={field.name}
+                      type="hidden"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle> {t("group_nformation")} </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name={"_lang.name"}
+                      render={({ field }) => (
                         <FormItem>
-                          <FormLabel>{t("type_of_group")}</FormLabel>
+                          <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                            {t("name_of_the_group")}
+                          </FormLabel>
                           <FormControl>
-                            <MultiSelect
+                            <Input
                               ref={field.ref}
-                              options={options}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              value={field.value || ""}
+                              name={field.name}
                               disabled={isNSAccount}
-                              value={field.value as string[]}
-                              defaultValue={
-                                (field.value as string[])?.filter((item) =>
-                                  options.find(
-                                    (option) => option.value === item
-                                  )
-                                ) ?? []
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            {t("filled_auto_from_list_NS")}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name={"generalDirectorName"}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                            {t("presid_general_dir_name")}
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              ref={field.ref}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              value={field.value || ""}
+                              name={field.name}
+                              disabled={isNSAccount}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name={"_lang.generalDirectorProfile"}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                            {t("presi_gene_dire_profile")}
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              className="resize-none"
+                              placeholder={t("write_short_descrip")}
+                              name={field.name}
+                              onChange={field.onChange}
+                              value={field.value || ""}
+                              onBlur={field.onBlur}
+                              ref={field.ref}
+                              disabled={isNSAccount}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            {t("you_can_max_500_input")}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name={"_generalDirectorPhoto"}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                            {t("presid_general_direc_photo")}
+                          </FormLabel>
+                          <FormControl>
+                            <FilepondImageUploader
+                              id={field.name}
+                              name={field.name}
+                              allowImageCrop
+                              disabled={isNSAccount}
+                              acceptedFileTypes={["image/*"]}
+                              imageCropAspectRatio="1:1"
+                              defaultFiles={
+                                currentGroup?.directorPhoto?.url
+                                  ? [
+                                      {
+                                        source:
+                                          currentGroup.directorPhoto?.url!,
+                                        options: {
+                                          type: "local",
+                                        },
+                                      },
+                                    ]
+                                  : []
                               }
-                              onValueChange={(values) => {
-                                field.onChange(values);
-                              }}
                             />
                           </FormControl>
                           <FormMessage />
                           <input
+                            name="_generalDirectorPhotoId"
                             type="hidden"
-                            name="_typeOfGroup"
-                            value={JSON.stringify(field.value) || "[]"}
+                            value={
+                              currentGroup?.generalDirectorPhotoId ?? undefined
+                            }
                           />
                         </FormItem>
-                      );
-                    }}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="_isAbleToTravelToLiveMusic"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between">
-                        <div className="space-y-0.5">
-                          <FormLabel>{t("are_you_live_music")}</FormLabel>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            name={field.name}
-                            checked={field.value!}
-                            onCheckedChange={field.onChange}
-                            disabled={isNSAccount}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name={"_lang.description"}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          {t("short_description")}
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            className="resize-none"
-                            name={field.name}
-                            onChange={field.onChange}
-                            value={field.value || ""}
-                            onBlur={field.onBlur}
-                            ref={field.ref}
-                            disabled={isNSAccount}
-                          />
-                        </FormControl>
-                        <FormDescription>{t("max_500_words")}</FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="_groupAge"
-                    render={({ field }) => {
-                      const options: MultiSelectProps["options"] =
-                        ageGroups.map((type) => {
-                          const label = type.langs?.[0]?.name;
-                          return {
-                            label: label,
-                            value: String(type.id),
-                            caption: "",
-                          };
-                        });
-
-                      return (
+                      )}
+                    />
+                  </div>
+                  {/* Artist Director */}
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name={"artisticDirectorName"}
+                      render={({ field }) => (
                         <FormItem>
-                          <FormLabel>{t("group_age")}</FormLabel>
+                          <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                            {t("arti_director_name")}
+                          </FormLabel>
                           <FormControl>
-                            <MultiSelect
+                            <Input
                               ref={field.ref}
-                              options={options}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              value={field.value || ""}
+                              name={field.name}
                               disabled={isNSAccount}
-                              value={field.value as string[]}
-                              defaultValue={
-                                (field.value as string[])?.filter((item) =>
-                                  options.find(
-                                    (option) => option.value === item
-                                  )
-                                ) ?? []
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name={"_lang.artisticDirectorProfile"}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                            {t("arti_direc_profile")}
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              className="resize-none"
+                              placeholder={t("write_descrip_studies")}
+                              name={field.name}
+                              onChange={field.onChange}
+                              value={field.value || ""}
+                              onBlur={field.onBlur}
+                              ref={field.ref}
+                              disabled={isNSAccount}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            {t("you_can_max_500_input")}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name={"_artisticDirectorPhoto"}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                            {t("arti_director_photo")}
+                          </FormLabel>
+                          <FormControl>
+                            <FilepondImageUploader
+                              id={field.name}
+                              name={field.name}
+                              allowImageCrop
+                              disabled={isNSAccount}
+                              acceptedFileTypes={["image/*"]}
+                              imageCropAspectRatio="1:1"
+                              defaultFiles={
+                                currentGroup?.artisticPhoto?.url
+                                  ? [
+                                      {
+                                        source:
+                                          currentGroup.artisticPhoto?.url!,
+                                        options: {
+                                          type: "local",
+                                        },
+                                      },
+                                    ]
+                                  : []
                               }
-                              onValueChange={(values) => {
-                                field.onChange(values);
-                              }}
                             />
                           </FormControl>
                           <FormMessage />
                           <input
+                            name="_artisticDirectorPhotoId"
                             type="hidden"
-                            name="_groupAge"
-                            value={JSON.stringify(field.value) || "[]"}
+                            value={
+                              currentGroup?.artisticDirectorPhotoId ?? undefined
+                            }
                           />
                         </FormItem>
-                      );
-                    }}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name={"membersNumber"}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                          {t("number_of_members")}
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            ref={field.ref}
-                            type="number"
-                            max="40"
-                            onChange={(event) => {
-                              field.onChange(
-                                event.target.value
-                                  ? Number(event.target.value)
-                                  : 0
-                              );
+                      )}
+                    />
+                  </div>
+                  {/* Musical Director */}
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name={"musicalDirectorName"}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                            {t("musical_director_name")}
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              ref={field.ref}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              value={field.value || ""}
+                              name={field.name}
+                              disabled={isNSAccount}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name={"_lang.musicalDirectorProfile"}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                            {t("musi_director_profile")}
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              className="resize-none"
+                              placeholder={t("write_short_descrip")}
+                              name={field.name}
+                              onChange={field.onChange}
+                              value={field.value || ""}
+                              onBlur={field.onBlur}
+                              ref={field.ref}
+                              disabled={isNSAccount}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            {t("you_can_max_500_input")}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name={"_musicalDirectorPhoto"}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                            {t("musi_director_photo")}
+                          </FormLabel>
+                          <FormControl>
+                            <FilepondImageUploader
+                              id={field.name}
+                              name={field.name}
+                              allowImageCrop
+                              disabled={isNSAccount}
+                              acceptedFileTypes={["image/*"]}
+                              imageCropAspectRatio="1:1"
+                              defaultFiles={
+                                currentGroup?.musicalPhoto?.url
+                                  ? [
+                                      {
+                                        source: currentGroup.musicalPhoto?.url!,
+                                        options: {
+                                          type: "local",
+                                        },
+                                      },
+                                    ]
+                                  : []
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                          <input
+                            name="_musicalDirectorPhotoId"
+                            type="hidden"
+                            value={
+                              currentGroup?.musicalDirectorPhotoId ?? undefined
+                            }
+                          />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field: { value, ...fieldRest } }) => (
+                        <FormItem>
+                          <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                            {t("phone_country_code")}
+                          </FormLabel>
+                          <FormControl>
+                            <PhoneInput
+                              value={value as RPNInput.Value}
+                              id="phone"
+                              placeholder={t("enter_phone_number")}
+                              international
+                              {...fieldRest}
+                              disabled={isNSAccount}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            {t("enter_phone_number")}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name="_lang.address"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                            {t("mail_ddress")}
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              ref={field.ref}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              value={field.value || ""}
+                              name={field.name}
+                              disabled={isNSAccount}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <FormField
+                      control={form.control}
+                      name="location"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                            {t("location")}
+                          </FormLabel>
+                          <FormControl>
+                            <AutocompletePlaces
+                              id="location_festival"
+                              {...field}
+                              defaultPlace={field.value!}
+                              disabled={isNSAccount}
+                              onPlaceSelect={(currentPlace) => {
+                                field.onChange(currentPlace?.formatted_address);
+                                setSelectedPlace(currentPlace);
+                                form.setValue(
+                                  "lat",
+                                  `${currentPlace?.geometry?.location?.lat()}`
+                                );
+                                form.setValue(
+                                  "lng",
+                                  `${currentPlace?.geometry?.location?.lng()}`
+                                );
+                              }}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            {t("enter_correct_location")}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <input
+                      type="hidden"
+                      name="lat"
+                      value={form.getValues().lat || ""}
+                    />
+                    <input
+                      type="hidden"
+                      name="lng"
+                      value={form.getValues().lng || ""}
+                    />
+                    <input
+                      type="hidden"
+                      name="location"
+                      value={form.getValues().location || ""}
+                    />
+                    <div className="rounded-xl py-4">
+                      <Map
+                        id="location_festival"
+                        className="w-full h-[400px]"
+                        defaultZoom={currentGroup?.lat ? 8 : 3}
+                        defaultCenter={
+                          currentGroup?.lat
+                            ? {
+                                lat: Number(currentGroup.lat),
+                                lng: Number(currentGroup.lng),
+                              }
+                            : { lat: 0, lng: 0 }
+                        }
+                        gestureHandling={"greedy"}
+                        disableDefaultUI={true}
+                      >
+                        {selectedPlace ||
+                        (form.getValues().lat && form.getValues().lng) ? (
+                          <Marker
+                            position={{
+                              lat:
+                                selectedPlace?.geometry?.location?.lat()! ??
+                                form.getValues().lat
+                                  ? Number(form.getValues().lat)
+                                  : 0,
+                              lng:
+                                selectedPlace?.geometry?.location?.lng()! ??
+                                form.getValues().lng
+                                  ? Number(form.getValues().lng)
+                                  : 0,
                             }}
-                            onBlur={field.onBlur}
-                            value={field.value || ""}
-                            name={field.name}
-                            disabled={isNSAccount}
                           />
-                        </FormControl>
-                        <FormDescription>
-                          {t("write_number_members")}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="_styleOfGroup"
-                    render={({ field }) => {
-                      const options: MultiSelectProps["options"] =
-                        groupStyles.map((type) => {
-                          const label = type.langs?.[0]?.name;
-                          return {
-                            label: label,
-                            value: String(type.id),
-                            caption: "",
-                          };
-                        });
+                        ) : null}
+                      </Map>
+                      <MapHandler
+                        id="location_festival"
+                        place={selectedPlace}
+                        defaultZoom={currentGroup?.lat ? 8 : 3}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                      return (
-                        <FormItem>
-                          <FormLabel>{t("style_of_group")}</FormLabel>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("group_details")}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name="_typeOfGroup"
+                      render={({ field }) => {
+                        const options: MultiSelectProps["options"] =
+                          typeOfGroups.map((type) => {
+                            const label = type.langs?.[0]?.name;
+                            return {
+                              label: label,
+                              value: String(type.id),
+                              caption: "",
+                            };
+                          });
+
+                        return (
+                          <FormItem>
+                            <FormLabel>{t("type_of_group")}</FormLabel>
+                            <FormControl>
+                              <MultiSelect
+                                ref={field.ref}
+                                options={options}
+                                disabled={isNSAccount}
+                                value={field.value as string[]}
+                                defaultValue={
+                                  (field.value as string[])?.filter((item) =>
+                                    options.find(
+                                      (option) => option.value === item
+                                    )
+                                  ) ?? []
+                                }
+                                onValueChange={(values) => {
+                                  field.onChange(values);
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                            <input
+                              type="hidden"
+                              name="_typeOfGroup"
+                              value={JSON.stringify(field.value) || "[]"}
+                            />
+                          </FormItem>
+                        );
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name="_isAbleToTravelToLiveMusic"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between">
+                          <div className="space-y-0.5">
+                            <FormLabel>{t("are_you_live_music")}</FormLabel>
+                          </div>
                           <FormControl>
-                            <MultiSelect
-                              ref={field.ref}
-                              options={options}
+                            <Switch
+                              name={field.name}
+                              checked={field.value!}
+                              onCheckedChange={field.onChange}
                               disabled={isNSAccount}
-                              value={field.value as string[]}
-                              defaultValue={
-                                (field.value as string[])?.filter((item) =>
-                                  options.find(
-                                    (option) => option.value === item
-                                  )
-                                ) ?? []
-                              }
-                              onValueChange={(values) => {
-                                field.onChange(values);
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name={"_lang.description"}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                            {t("short_description")}
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              className="resize-none"
+                              name={field.name}
+                              onChange={field.onChange}
+                              value={field.value || ""}
+                              onBlur={field.onBlur}
+                              ref={field.ref}
+                              disabled={isNSAccount}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            {t("max_500_words")}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name="_groupAge"
+                      render={({ field }) => {
+                        const options: MultiSelectProps["options"] =
+                          ageGroups.map((type) => {
+                            const label = type.langs?.[0]?.name;
+                            return {
+                              label: label,
+                              value: String(type.id),
+                              caption: "",
+                            };
+                          });
+
+                        return (
+                          <FormItem>
+                            <FormLabel>{t("group_age")}</FormLabel>
+                            <FormControl>
+                              <MultiSelect
+                                ref={field.ref}
+                                options={options}
+                                disabled={isNSAccount}
+                                value={field.value as string[]}
+                                defaultValue={
+                                  (field.value as string[])?.filter((item) =>
+                                    options.find(
+                                      (option) => option.value === item
+                                    )
+                                  ) ?? []
+                                }
+                                onValueChange={(values) => {
+                                  field.onChange(values);
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                            <input
+                              type="hidden"
+                              name="_groupAge"
+                              value={JSON.stringify(field.value) || "[]"}
+                            />
+                          </FormItem>
+                        );
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name={"membersNumber"}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                            {t("number_of_members")}
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              ref={field.ref}
+                              type="number"
+                              max="40"
+                              onChange={(event) => {
+                                field.onChange(
+                                  event.target.value
+                                    ? Number(event.target.value)
+                                    : 0
+                                );
+                              }}
+                              onBlur={field.onBlur}
+                              value={field.value || ""}
+                              name={field.name}
+                              disabled={isNSAccount}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            {t("write_number_members")}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name="_styleOfGroup"
+                      render={({ field }) => {
+                        const options: MultiSelectProps["options"] =
+                          groupStyles.map((type) => {
+                            const label = type.langs?.[0]?.name;
+                            return {
+                              label: label,
+                              value: String(type.id),
+                              caption: "",
+                            };
+                          });
+
+                        return (
+                          <FormItem>
+                            <FormLabel>{t("style_of_group")}</FormLabel>
+                            <FormControl>
+                              <MultiSelect
+                                ref={field.ref}
+                                options={options}
+                                disabled={isNSAccount}
+                                value={field.value as string[]}
+                                defaultValue={
+                                  (field.value as string[])?.filter((item) =>
+                                    options.find(
+                                      (option) => option.value === item
+                                    )
+                                  ) ?? []
+                                }
+                                onValueChange={(values) => {
+                                  field.onChange(values);
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                            <input
+                              type="hidden"
+                              name="_styleOfGroup"
+                              value={JSON.stringify(field.value) || "[]"}
+                            />
+                          </FormItem>
+                        );
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-4 border-t pt-4">
+                    <h2 className="text-lg font-semibold">{t("sub_groups")}</h2>
+                    {subGroupFields.map((field, index) => (
+                      <Card
+                        key={field.id}
+                        className="grid w-full items-center pt-6 gap-1.5"
+                      >
+                        <FormField
+                          control={form.control}
+                          name={`_subgroups.${index}.id`}
+                          disabled={isNSAccount}
+                          render={({ field }) => (
+                            <FormControl>
+                              <Input
+                                ref={field.ref}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                value={field.value}
+                                name={field.name}
+                                type="hidden"
+                              />
+                            </FormControl>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`_subgroups.${index}._lang.id`}
+                          render={({ field }) => (
+                            <FormControl>
+                              <Input
+                                ref={field.ref}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                value={field.value}
+                                name={field.name}
+                                type="hidden"
+                              />
+                            </FormControl>
+                          )}
+                        />
+                        <CardContent className=" flex items-center flex-col gap-5">
+                          <div className="grid w-full items-center gap-1.5">
+                            <FormField
+                              control={form.control}
+                              name={`_subgroups.${index}._lang.name`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                                    {t("name_the_sub_group")}
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      ref={field.ref}
+                                      onChange={field.onChange}
+                                      onBlur={field.onBlur}
+                                      value={field.value ?? ""}
+                                      name={field.name}
+                                      disabled={isNSAccount}
+                                    />
+                                  </FormControl>
+                                  <FormDescription>
+                                    {t("enter_cur_group_name")}
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <div className="grid w-full items-center gap-1.5">
+                            <FormField
+                              control={form.control}
+                              name={`_subgroups.${index}.membersNumber`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                                    {t("number_members")}
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      ref={field.ref}
+                                      type="number"
+                                      max="40"
+                                      onChange={(event) =>
+                                        void field.onChange(
+                                          Number(event.target.value)
+                                        )
+                                      }
+                                      onBlur={field.onBlur}
+                                      value={field.value ?? undefined}
+                                      name={field.name}
+                                      disabled={isNSAccount}
+                                    />
+                                  </FormControl>
+                                  <FormDescription>
+                                    {t("write_number_members")}
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <div className="grid w-full items-center gap-1.5">
+                            <FormField
+                              control={form.control}
+                              name={`_subgroups.${index}._groupAge`}
+                              render={({ field }) => {
+                                const options: MultiSelectProps["options"] =
+                                  ageGroups.map((type) => {
+                                    const label = type.langs?.[0]?.name;
+                                    return {
+                                      label: label,
+                                      value: String(type.id),
+                                      caption: "",
+                                    };
+                                  });
+
+                                return (
+                                  <FormItem>
+                                    <FormLabel>{t("group_age")}</FormLabel>
+                                    <FormControl>
+                                      <MultiSelect
+                                        ref={field.ref}
+                                        options={options}
+                                        disabled={isNSAccount}
+                                        defaultValue={field.value}
+                                        onValueChange={(values) => {
+                                          field.onChange(values);
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                    <input
+                                      type="hidden"
+                                      name={`_subgroups.${index}._groupAge`}
+                                      value={
+                                        JSON.stringify(field.value) || "[]"
+                                      }
+                                    />
+                                  </FormItem>
+                                );
                               }}
                             />
+                          </div>
+                          <div className="grid w-full items-center gap-1.5">
+                            <FormField
+                              control={form.control}
+                              name={`_subgroups.${index}._hasAnotherContact`}
+                              render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                  <div className="space-y-0.5">
+                                    <FormLabel className="text-base">
+                                      {t("another_contact")}
+                                    </FormLabel>
+                                    <FormDescription>
+                                      {t("Do_anot_cont_person_group")}
+                                    </FormDescription>
+                                  </div>
+                                  <FormControl>
+                                    <Switch
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                      name={field.name}
+                                    />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          {currentSubgroups[index]?._hasAnotherContact ? (
+                            <div className="pl-5 border-l space-y-4 w-full">
+                              <div className="grid w-full items-center gap-1.5">
+                                <FormField
+                                  control={form.control}
+                                  name={`_subgroups.${index}.contactName`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>{t("contact_name")}</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          {...field}
+                                          value={field.value ?? ""}
+                                        />
+                                      </FormControl>
+                                      <FormDescription>
+                                        {t("prov_curr_contact_name")}
+                                      </FormDescription>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                              <div className="grid w-full items-center gap-1.5">
+                                <FormField
+                                  control={form.control}
+                                  name={`_subgroups.${index}.contactMail`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>
+                                        {t("contact_email")}
+                                      </FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          {...field}
+                                          value={field.value ?? ""}
+                                        />
+                                      </FormControl>
+                                      <FormDescription>
+                                        {t("prov_curr_contact_email")}
+                                      </FormDescription>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                              <div className="grid w-full items-center gap-1.5">
+                                <FormField
+                                  control={form.control}
+                                  name={`_subgroups.${index}.contactPhone`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>
+                                        {t("contact_phone")}
+                                      </FormLabel>
+                                      <FormControl>
+                                        <PhoneInput
+                                          placeholder="Enter a phone number"
+                                          international
+                                          {...field}
+                                          value={field.value as RPNInput.Value}
+                                          disabled={isNSAccount}
+                                        />
+                                      </FormControl>
+                                      <FormDescription>
+                                        {t("prov_curr_contact_phone")}
+                                      </FormDescription>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                            </div>
+                          ) : null}
+                        </CardContent>
+                      </Card>
+                    ))}
+                    <input
+                      type="hidden"
+                      name="_subgroupSize"
+                      value={subGroupFields.length}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={isNSAccount}
+                      onClick={(_) =>
+                        appendSubGroupEvent({
+                          _lang: {},
+                          _groupAge: [],
+                        })
+                      }
+                    >
+                      <PlusCircle className="mr-2 h-4 w-4" /> {t("add_event")}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("travel_information")}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name="_isAbleToTravel"
+                      render={({ field }) => (
+                        <FormItem className="space-y-3">
+                          <FormLabel>{t("are_avail_trave_year")}</FormLabel>
+                          <FormControl>
+                            <RadioGroup
+                              onValueChange={(value) => {
+                                field.onChange(value === "yes");
+                              }}
+                              defaultValue={field.value ? "yes" : "no"}
+                              className="flex flex-col space-y-1"
+                              name={field.name}
+                            >
+                              <FormItem className="flex items-center space-x-3 space-y-0">
+                                <FormControl>
+                                  <RadioGroupItem value="yes" />
+                                </FormControl>
+                                <FormLabel className="font-normal">
+                                  {t("yes")}
+                                </FormLabel>
+                              </FormItem>
+                              <FormItem className="flex items-center space-x-3 space-y-0">
+                                <FormControl>
+                                  <RadioGroupItem value="no" />
+                                </FormControl>
+                                <FormLabel className="font-normal">
+                                  {t("no")}
+                                </FormLabel>
+                              </FormItem>
+                            </RadioGroup>
                           </FormControl>
                           <FormMessage />
-                          <input
-                            type="hidden"
-                            name="_styleOfGroup"
-                            value={JSON.stringify(field.value) || "[]"}
-                          />
                         </FormItem>
-                      );
-                    }}
-                  />
-                </div>
-                <div className="space-y-4 border-t pt-4">
-                  <h2 className="text-lg font-semibold">{t("sub_groups")}</h2>
-                  {subGroupFields.map((field, index) => (
-                    <Card
-                      key={field.id}
-                      className="grid w-full items-center pt-6 gap-1.5"
+                      )}
+                    />
+                  </div>
+                  {isAbleToTravelWatch && (
+                    <>
+                      <div className="space-y-2">
+                        <FormField
+                          control={form.control}
+                          name={`_specificDate`}
+                          render={({ field: { value, onChange } }) => (
+                            <FormItem>
+                              <FormLabel>{t("any_specific_date")}</FormLabel>
+                              <FormControl>
+                                <>
+                                  <DatePickerWithRange
+                                    className="w-full"
+                                    buttonClassName="w-full"
+                                    disabled={isNSAccount}
+                                    defaultDates={{
+                                      from: form.getValues(`_specificDate.from`)
+                                        ? new Date(
+                                            form.getValues(
+                                              `_specificDate.from`
+                                            ) ?? ""
+                                          )
+                                        : undefined,
+                                      to:
+                                        form.getValues(`_specificDate.to`) &&
+                                        form.getValues(`_specificDate.from`) !==
+                                          form.getValues(`_specificDate.to`)
+                                          ? new Date(
+                                              form.getValues(
+                                                `_specificDate.to`
+                                              )!
+                                            )
+                                          : undefined,
+                                    }}
+                                    onValueChange={(rangeValue) => {
+                                      onChange({
+                                        from: rangeValue?.from?.toUTCString(),
+                                        to: rangeValue?.to?.toUTCString() ?? "",
+                                      });
+                                    }}
+                                  />
+                                  <input
+                                    type="hidden"
+                                    name={`_specificDate.from`}
+                                    value={value?.from}
+                                  />
+                                  <input
+                                    type="hidden"
+                                    name={`_specificDate.to`}
+                                    value={value?.to}
+                                  />
+                                </>
+                              </FormControl>
+                              {form?.getFieldState(`_specificDate.from`).error
+                                ?.message ? (
+                                <p
+                                  className={cn(
+                                    "text-sm font-medium text-destructive"
+                                  )}
+                                >
+                                  {
+                                    form?.getFieldState(`_specificDate.from`)
+                                      .error?.message
+                                  }
+                                </p>
+                              ) : null}
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <FormField
+                          control={form.control}
+                          name="_specificRegion"
+                          render={({ field }) => {
+                            return (
+                              <FormItem>
+                                <FormLabel>
+                                  {t("any_specific_region")}
+                                </FormLabel>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  disabled={isNSAccount}
+                                  defaultValue={
+                                    field.value ? `${field.value}` : undefined
+                                  }
+                                  name={field.name}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger className="font-medium data-[placeholder]:text-muted-foreground">
+                                      <SelectValue
+                                        placeholder={t("select_a_region")}
+                                      />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {regions?.map((region) => {
+                                      return (
+                                        <SelectItem
+                                          key={`region-${region.id}`}
+                                          value={String(region.id)}
+                                        >
+                                          {
+                                            region.langs.find(
+                                              (lang) => lang.l?.code === locale
+                                            )?.name
+                                          }
+                                        </SelectItem>
+                                      );
+                                    })}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            );
+                          }}
+                        />
+                      </div>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("media")}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="photos">{t("photos")}</Label>
+                    <FilepondImageUploader
+                      id="photos"
+                      name="photos"
+                      allowMultiple
+                      acceptedFileTypes={["image/*"]}
+                      maxFiles={5}
+                      defaultFiles={
+                        currentGroup?.photos.length
+                          ? currentGroup.photos.map((item) => {
+                              return {
+                                source: item.photo?.url!,
+                                options: {
+                                  type: "local",
+                                },
+                              };
+                            })
+                          : []
+                      }
+                    />
+                    <p className="text-sm text-gray-500">
+                      {t("max_5_photos_x_each")}
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="coverPhoto">{t("cover_photo")}</Label>
+                    <FilepondImageUploader
+                      id="coverPhoto"
+                      name="coverPhoto"
+                      acceptedFileTypes={["image/*"]}
+                      defaultFiles={
+                        currentGroup?.coverPhoto?.url
+                          ? [
+                              {
+                                source: currentGroup.coverPhoto?.url!,
+                                options: {
+                                  type: "local",
+                                },
+                              },
+                            ]
+                          : []
+                      }
+                    />
+                    <p className="text-sm text-gray-500">{t("size_tbc")}</p>
+                    <input
+                      name="coverPhotoId"
+                      type="hidden"
+                      value={currentGroup?.coverPhotoId ?? undefined}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="logo">{t("logo")}</Label>
+                    <FilepondImageUploader
+                      id="logo"
+                      name="logo"
+                      allowImageCrop
+                      acceptedFileTypes={["image/*"]}
+                      imageCropAspectRatio="1:1"
+                      defaultFiles={
+                        currentGroup?.logo?.url
+                          ? [
+                              {
+                                source: currentGroup.logo?.url!,
+                                options: {
+                                  type: "local",
+                                },
+                              },
+                            ]
+                          : []
+                      }
+                    />
+                    <p className="text-sm text-gray-500">{t("size_tbc")}</p>
+                    <input
+                      name="logoId"
+                      type="hidden"
+                      value={currentGroup?.logoId ?? undefined}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="video">{t("video")}</Label>
+                    <Input
+                      id="video"
+                      name="youtube"
+                      placeholder="YouTube Link"
+                      defaultValue={currentGroup?.youtubeId ?? undefined}
+                      disabled={isNSAccount}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="facebook">{t("facebook_link")}</Label>
+                    <Input
+                      id="facebook"
+                      name="facebook"
+                      type="url"
+                      defaultValue={currentGroup?.facebookLink ?? undefined}
+                      disabled={isNSAccount}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="instagram">{t("instagram_link")}</Label>
+                    <Input
+                      id="instagram"
+                      type="url"
+                      name="instagram"
+                      defaultValue={currentGroup?.instagramLink ?? undefined}
+                      disabled={isNSAccount}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="website">{t("website_link")}</Label>
+                    <Input
+                      id="website"
+                      type="url"
+                      name="website"
+                      defaultValue={currentGroup?.websiteLink ?? undefined}
+                      disabled={isNSAccount}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+              {isFestivalAccount || isCurrentOwner ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{t("repertoire")}</CardTitle>
+                    <CardDescription>
+                      {t("add_your_perfo_repe_below")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {repertoryFields.map((item, index) => (
+                      <div
+                        key={item.id}
+                        className="space-y-4 p-4 border rounded-lg relative"
+                      >
+                        <FormField
+                          control={form.control}
+                          name={`_repertories.${index}.id`}
+                          render={({ field }) => (
+                            <FormControl>
+                              <Input
+                                ref={field.ref}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                value={field.value}
+                                name={field.name}
+                                type="hidden"
+                              />
+                            </FormControl>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`_repertories.${index}._lang.id`}
+                          render={({ field }) => (
+                            <FormControl>
+                              <Input
+                                ref={field.ref}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                value={field.value}
+                                name={field.name}
+                                type="hidden"
+                              />
+                            </FormControl>
+                          )}
+                        />
+                        {/* <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute top-2 right-2"
+                      onClick={() => removeRepertoireItem(item.id)}
                     >
-                      <FormField
-                        control={form.control}
-                        name={`_subgroups.${index}.id`}
-                        disabled={isNSAccount}
-                        render={({ field }) => (
-                          <FormControl>
-                            <Input
-                              ref={field.ref}
-                              onChange={field.onChange}
-                              onBlur={field.onBlur}
-                              value={field.value}
-                              name={field.name}
-                              type="hidden"
-                            />
-                          </FormControl>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`_subgroups.${index}._lang.id`}
-                        render={({ field }) => (
-                          <FormControl>
-                            <Input
-                              ref={field.ref}
-                              onChange={field.onChange}
-                              onBlur={field.onBlur}
-                              value={field.value}
-                              name={field.name}
-                              type="hidden"
-                            />
-                          </FormControl>
-                        )}
-                      />
-                      <CardContent className=" flex items-center flex-col gap-5">
-                        <div className="grid w-full items-center gap-1.5">
+                      <X className="h-4 w-4" />
+                    </Button> */}
+                        <div className="space-y-2">
                           <FormField
                             control={form.control}
-                            name={`_subgroups.${index}._lang.name`}
+                            name={`_repertories.${index}._lang.name`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                                  {t("name_the_sub_group")}
-                                </FormLabel>
+                                <FormLabel>{t("name")}</FormLabel>
                                 <FormControl>
                                   <Input
                                     ref={field.ref}
@@ -1147,731 +1820,172 @@ export default function GroupForm({
                                   />
                                 </FormControl>
                                 <FormDescription>
-                                  {t("enter_cur_group_name")}
+                                  {t("enter_current_repertory")}
                                 </FormDescription>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
                         </div>
-                        <div className="grid w-full items-center gap-1.5">
+                        <div className="space-y-2">
                           <FormField
                             control={form.control}
-                            name={`_subgroups.${index}.membersNumber`}
+                            name={`_repertories.${index}._lang.description`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                                  {t("number_members")}
-                                </FormLabel>
+                                <FormLabel>{t("description")}</FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    className="resize-none"
+                                    name={field.name}
+                                    onChange={field.onChange}
+                                    value={field.value || ""}
+                                    onBlur={field.onBlur}
+                                    ref={field.ref}
+                                    disabled={isNSAccount}
+                                  />
+                                </FormControl>
+                                <FormDescription>
+                                  {t("max_500_words")}
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <div className="space-y-2 hidden">
+                          <Label htmlFor={`section${item.id}Photos`}>
+                            {t("photos_costume")}
+                          </Label>
+                          <Input
+                            id={`section${item.id}Photos`}
+                            type="file"
+                            accept="image/*"
+                            multiple
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <FormField
+                            control={form.control}
+                            name={`_repertories.${index}.youtubeId`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>{t("video_youtube_link")}</FormLabel>
                                 <FormControl>
                                   <Input
                                     ref={field.ref}
-                                    type="number"
-                                    max="40"
-                                    onChange={(event) =>
-                                      void field.onChange(
-                                        Number(event.target.value)
-                                      )
-                                    }
+                                    onChange={field.onChange}
                                     onBlur={field.onBlur}
-                                    value={field.value ?? undefined}
+                                    value={field.value ?? ""}
                                     name={field.name}
                                     disabled={isNSAccount}
                                   />
                                 </FormControl>
                                 <FormDescription>
-                                  {t("write_number_members")}
+                                  {t("enter_video_link_youtube")}
                                 </FormDescription>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
                         </div>
-                        <div className="grid w-full items-center gap-1.5">
-                          <FormField
-                            control={form.control}
-                            name={`_subgroups.${index}._groupAge`}
-                            render={({ field }) => {
-                              const options: MultiSelectProps["options"] =
-                                ageGroups.map((type) => {
-                                  const label = type.langs?.[0]?.name;
-                                  return {
-                                    label: label,
-                                    value: String(type.id),
-                                    caption: "",
-                                  };
-                                });
+                      </div>
+                    ))}
+                    <input
+                      type="hidden"
+                      name="_repertorySize"
+                      value={repertoryFields.length}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => appendRepertory({ _lang: {} })}
+                      className="w-full"
+                      disabled={isNSAccount}
+                    >
+                      <PlusCircle className="mr-2 h-4 w-4" />{" "}
+                      {t("add_repertoire")}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : null}
 
-                              return (
-                                <FormItem>
-                                  <FormLabel>{t("group_age")}</FormLabel>
-                                  <FormControl>
-                                    <MultiSelect
-                                      ref={field.ref}
-                                      options={options}
-                                      disabled={isNSAccount}
-                                      defaultValue={field.value}
-                                      onValueChange={(values) => {
-                                        field.onChange(values);
-                                      }}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                  <input
-                                    type="hidden"
-                                    name={`_subgroups.${index}._groupAge`}
-                                    value={JSON.stringify(field.value) || "[]"}
-                                  />
-                                </FormItem>
-                              );
-                            }}
-                          />
-                        </div>
-                        <div className="grid w-full items-center gap-1.5">
-                          <FormField
-                            control={form.control}
-                            name={`_subgroups.${index}._hasAnotherContact`}
-                            render={({ field }) => (
-                              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                <div className="space-y-0.5">
-                                  <FormLabel className="text-base">
-                                    {t("another_contact")}
-                                  </FormLabel>
-                                  <FormDescription>
-                                    {t("Do_anot_cont_person_group")}
-                                  </FormDescription>
-                                </div>
-                                <FormControl>
-                                  <Switch
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                    name={field.name}
-                                  />
-                                </FormControl>
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        {currentSubgroups[index]?._hasAnotherContact ? (
-                          <div className="pl-5 border-l space-y-4 w-full">
-                            <div className="grid w-full items-center gap-1.5">
-                              <FormField
-                                control={form.control}
-                                name={`_subgroups.${index}.contactName`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>{t("contact_name")}</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        {...field}
-                                        value={field.value ?? ""}
-                                      />
-                                    </FormControl>
-                                    <FormDescription>
-                                      {t("prov_curr_contact_name")}
-                                    </FormDescription>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            <div className="grid w-full items-center gap-1.5">
-                              <FormField
-                                control={form.control}
-                                name={`_subgroups.${index}.contactMail`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>{t("contact_email")}</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        {...field}
-                                        value={field.value ?? ""}
-                                      />
-                                    </FormControl>
-                                    <FormDescription>
-                                      {t("prov_curr_contact_email")}
-                                    </FormDescription>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            <div className="grid w-full items-center gap-1.5">
-                              <FormField
-                                control={form.control}
-                                name={`_subgroups.${index}.contactPhone`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>{t("contact_phone")}</FormLabel>
-                                    <FormControl>
-                                      <PhoneInput
-                                        placeholder="Enter a phone number"
-                                        international
-                                        {...field}
-                                        value={field.value as RPNInput.Value}
-                                        disabled={isNSAccount}
-                                      />
-                                    </FormControl>
-                                    <FormDescription>
-                                      {t("prov_curr_contact_phone")}
-                                    </FormDescription>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                          </div>
-                        ) : null}
-                      </CardContent>
-                    </Card>
-                  ))}
-                  <input
-                    type="hidden"
-                    name="_subgroupSize"
-                    value={subGroupFields.length}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    disabled={isNSAccount}
-                    onClick={(_) =>
-                      appendSubGroupEvent({
-                        _lang: {},
-                        _groupAge: [],
-                      })
-                    }
-                  >
-                    <PlusCircle className="mr-2 h-4 w-4" /> {t("add_event")}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("travel_information")}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="_isAbleToTravel"
-                    render={({ field }) => (
-                      <FormItem className="space-y-3">
-                        <FormLabel>{t("are_avail_trave_year")}</FormLabel>
-                        <FormControl>
-                          <RadioGroup
-                            onValueChange={(value) => {
-                              field.onChange(value === "yes");
-                            }}
-                            defaultValue={field.value ? "yes" : "no"}
-                            className="flex flex-col space-y-1"
-                            name={field.name}
-                          >
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="yes" />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                {t("yes")}
-                              </FormLabel>
-                            </FormItem>
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="no" />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                {t("no")}
-                              </FormLabel>
-                            </FormItem>
-                          </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {isAbleToTravelWatch && (
-                  <>
-                    <div className="space-y-2">
-                      <FormField
-                        control={form.control}
-                        name={`_specificDate`}
-                        render={({ field: { value, onChange } }) => (
-                          <FormItem>
-                            <FormLabel>{t("any_specific_date")}</FormLabel>
-                            <FormControl>
-                              <>
-                                <DatePickerWithRange
-                                  className="w-full"
-                                  buttonClassName="w-full"
-                                  disabled={isNSAccount}
-                                  defaultDates={{
-                                    from: form.getValues(`_specificDate.from`)
-                                      ? new Date(
-                                          form.getValues(
-                                            `_specificDate.from`
-                                          ) ?? ""
-                                        )
-                                      : undefined,
-                                    to:
-                                      form.getValues(`_specificDate.to`) &&
-                                      form.getValues(`_specificDate.from`) !==
-                                        form.getValues(`_specificDate.to`)
-                                        ? new Date(
-                                            form.getValues(`_specificDate.to`)!
-                                          )
-                                        : undefined,
-                                  }}
-                                  onValueChange={(rangeValue) => {
-                                    onChange({
-                                      from: rangeValue?.from?.toUTCString(),
-                                      to: rangeValue?.to?.toUTCString() ?? "",
-                                    });
-                                  }}
-                                />
-                                <input
-                                  type="hidden"
-                                  name={`_specificDate.from`}
-                                  value={value?.from}
-                                />
-                                <input
-                                  type="hidden"
-                                  name={`_specificDate.to`}
-                                  value={value?.to}
-                                />
-                              </>
-                            </FormControl>
-                            {form?.getFieldState(`_specificDate.from`).error
-                              ?.message ? (
-                              <p
-                                className={cn(
-                                  "text-sm font-medium text-destructive"
-                                )}
-                              >
-                                {
-                                  form?.getFieldState(`_specificDate.from`)
-                                    .error?.message
-                                }
-                              </p>
-                            ) : null}
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <FormField
-                        control={form.control}
-                        name="_specificRegion"
-                        render={({ field }) => {
-                          return (
-                            <FormItem>
-                              <FormLabel>{t("any_specific_region")}</FormLabel>
-                              <Select
-                                onValueChange={field.onChange}
-                                disabled={isNSAccount}
-                                defaultValue={
-                                  field.value ? `${field.value}` : undefined
-                                }
-                                name={field.name}
-                              >
-                                <FormControl>
-                                  <SelectTrigger className="font-medium data-[placeholder]:text-muted-foreground">
-                                    <SelectValue
-                                      placeholder={t("select_a_region")}
-                                    />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {regions?.map((region) => {
-                                    return (
-                                      <SelectItem
-                                        key={`region-${region.id}`}
-                                        value={String(region.id)}
-                                      >
-                                        {
-                                          region.langs.find(
-                                            (lang) => lang.l?.code === locale
-                                          )?.name
-                                        }
-                                      </SelectItem>
-                                    );
-                                  })}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("media")}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="photos">{t("photos")}</Label>
-                  <FilepondImageUploader
-                    id="photos"
-                    name="photos"
-                    allowMultiple
-                    acceptedFileTypes={["image/*"]}
-                    maxFiles={5}
-                    defaultFiles={
-                      currentGroup?.photos.length
-                        ? currentGroup.photos.map((item) => {
-                            return {
-                              source: item.photo?.url!,
-                              options: {
-                                type: "local",
-                              },
-                            };
-                          })
-                        : []
-                    }
-                  />
-                  <p className="text-sm text-gray-500">
-                    {t("max_5_photos_x_each")}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="coverPhoto">{t("cover_photo")}</Label>
-                  <FilepondImageUploader
-                    id="coverPhoto"
-                    name="coverPhoto"
-                    acceptedFileTypes={["image/*"]}
-                    defaultFiles={
-                      currentGroup?.coverPhoto?.url
-                        ? [
-                            {
-                              source: currentGroup.coverPhoto?.url!,
-                              options: {
-                                type: "local",
-                              },
-                            },
-                          ]
-                        : []
-                    }
-                  />
-                  <p className="text-sm text-gray-500">{t("size_tbc")}</p>
-                  <input
-                    name="coverPhotoId"
-                    type="hidden"
-                    value={currentGroup?.coverPhotoId ?? undefined}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="logo">{t("logo")}</Label>
-                  <FilepondImageUploader
-                    id="logo"
-                    name="logo"
-                    allowImageCrop
-                    acceptedFileTypes={["image/*"]}
-                    imageCropAspectRatio="1:1"
-                    defaultFiles={
-                      currentGroup?.logo?.url
-                        ? [
-                            {
-                              source: currentGroup.logo?.url!,
-                              options: {
-                                type: "local",
-                              },
-                            },
-                          ]
-                        : []
-                    }
-                  />
-                  <p className="text-sm text-gray-500">{t("size_tbc")}</p>
-                  <input
-                    name="logoId"
-                    type="hidden"
-                    value={currentGroup?.logoId ?? undefined}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="video">{t("video")}</Label>
-                  <Input
-                    id="video"
-                    name="youtube"
-                    placeholder="YouTube Link"
-                    defaultValue={currentGroup?.youtubeId ?? undefined}
-                    disabled={isNSAccount}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="facebook">{t("facebook_link")}</Label>
-                  <Input
-                    id="facebook"
-                    name="facebook"
-                    type="url"
-                    defaultValue={currentGroup?.facebookLink ?? undefined}
-                    disabled={isNSAccount}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="instagram">{t("instagram_link")}</Label>
-                  <Input
-                    id="instagram"
-                    type="url"
-                    name="instagram"
-                    defaultValue={currentGroup?.instagramLink ?? undefined}
-                    disabled={isNSAccount}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="website">{t("website_link")}</Label>
-                  <Input
-                    id="website"
-                    type="url"
-                    name="website"
-                    defaultValue={currentGroup?.websiteLink ?? undefined}
-                    disabled={isNSAccount}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-            {isFestivalAccount || isCurrentOwner ? (
               <Card>
                 <CardHeader>
-                  <CardTitle>{t("repertoire")}</CardTitle>
-                  <CardDescription>
-                    {t("add_your_perfo_repe_below")}
-                  </CardDescription>
+                  <CardTitle>{t("additional_information")}</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  {repertoryFields.map((item, index) => (
-                    <div
-                      key={item.id}
-                      className="space-y-4 p-4 border rounded-lg relative"
-                    >
-                      <FormField
-                        control={form.control}
-                        name={`_repertories.${index}.id`}
-                        render={({ field }) => (
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name="linkPortfolio"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            {t("upload_group_port_brochure")}
+                          </FormLabel>
                           <FormControl>
                             <Input
                               ref={field.ref}
                               onChange={field.onChange}
                               onBlur={field.onBlur}
-                              value={field.value}
+                              value={field.value ?? ""}
                               name={field.name}
-                              type="hidden"
+                              disabled={isNSAccount}
+                              placeholder="Provide the link of your portfolio/brochure"
                             />
                           </FormControl>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`_repertories.${index}._lang.id`}
-                        render={({ field }) => (
-                          <FormControl>
-                            <Input
-                              ref={field.ref}
-                              onChange={field.onChange}
-                              onBlur={field.onBlur}
-                              value={field.value}
-                              name={field.name}
-                              type="hidden"
-                            />
-                          </FormControl>
-                        )}
-                      />
-                      {/* <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute top-2 right-2"
-                      onClick={() => removeRepertoireItem(item.id)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button> */}
-                      <div className="space-y-2">
-                        <FormField
-                          control={form.control}
-                          name={`_repertories.${index}._lang.name`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>{t("name")}</FormLabel>
-                              <FormControl>
-                                <Input
-                                  ref={field.ref}
-                                  onChange={field.onChange}
-                                  onBlur={field.onBlur}
-                                  value={field.value ?? ""}
-                                  name={field.name}
-                                  disabled={isNSAccount}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                {t("enter_current_repertory")}
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <FormField
-                          control={form.control}
-                          name={`_repertories.${index}._lang.description`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>{t("description")}</FormLabel>
-                              <FormControl>
-                                <Textarea
-                                  className="resize-none"
-                                  name={field.name}
-                                  onChange={field.onChange}
-                                  value={field.value || ""}
-                                  onBlur={field.onBlur}
-                                  ref={field.ref}
-                                  disabled={isNSAccount}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                {t("max_500_words")}
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="space-y-2 hidden">
-                        <Label htmlFor={`section${item.id}Photos`}>
-                          {t("photos_costume")}
-                        </Label>
-                        <Input
-                          id={`section${item.id}Photos`}
-                          type="file"
-                          accept="image/*"
-                          multiple
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <FormField
-                          control={form.control}
-                          name={`_repertories.${index}.youtubeId`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>{t("video_youtube_link")}</FormLabel>
-                              <FormControl>
-                                <Input
-                                  ref={field.ref}
-                                  onChange={field.onChange}
-                                  onBlur={field.onBlur}
-                                  value={field.value ?? ""}
-                                  name={field.name}
-                                  disabled={isNSAccount}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                {t("enter_video_link_youtube")}
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                  <input
-                    type="hidden"
-                    name="_repertorySize"
-                    value={repertoryFields.length}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => appendRepertory({ _lang: {} })}
-                    className="w-full"
-                    disabled={isNSAccount}
-                  >
-                    <PlusCircle className="mr-2 h-4 w-4" />{" "}
-                    {t("add_repertoire")}
-                  </Button>
+                          <FormDescription>
+                            {t("only_pdf_max_10MB")}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </CardContent>
               </Card>
-            ) : null}
-
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("additional_information")}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="linkPortfolio"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("upload_group_port_brochure")}</FormLabel>
-                        <FormControl>
-                          <Input
-                            ref={field.ref}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
-                            value={field.value ?? ""}
-                            name={field.name}
-                            disabled={isNSAccount}
-                            placeholder="Provide the link of your portfolio/brochure"
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          {t("only_pdf_max_10MB")}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="hidden">
-              <CardHeader>
-                <CardTitle>{t("recognition_certification")}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="recognitionCertificate">
-                    {t("upload_recogn_cert")}
-                  </Label>
-                  <Input
-                    id="recognitionCertificate"
-                    name="recognitionCertificate"
-                    type="file"
-                    disabled={isNSAccount}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          {!isNSAccount ? (
-            <div className="sticky bottom-5 mt-4 right-0 flex justify-end px-4">
-              <Card className="flex justify-end gap-4 w-full">
-                <CardContent className="flex-row items-center p-4 flex w-full justify-end">
-                  <div className="flex gap-2">
-                    <Button variant="ghost" asChild>
-                      <Link href="/dashboard/national-sections">
-                        {t("cancel")}
-                      </Link>
-                    </Button>
-                    <Submit
-                      label={t("save")}
-                      isLoading={form.formState.isSubmitting}
+              <Card className="hidden">
+                <CardHeader>
+                  <CardTitle>{t("recognition_certification")}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="recognitionCertificate">
+                      {t("upload_recogn_cert")}
+                    </Label>
+                    <Input
+                      id="recognitionCertificate"
+                      name="recognitionCertificate"
+                      type="file"
+                      disabled={isNSAccount}
                     />
                   </div>
                 </CardContent>
               </Card>
             </div>
-          ) : null}
-        </form>
-      </Form>
-    </div>
+            {!isNSAccount ? (
+              <div className="sticky bottom-5 mt-4 right-0 flex justify-end px-4">
+                <Card className="flex justify-end gap-4 w-full">
+                  <CardContent className="flex-row items-center p-4 flex w-full justify-end">
+                    <div className="flex gap-2">
+                      <Button variant="ghost" asChild>
+                        <Link href="/dashboard/national-sections">
+                          {t("cancel")}
+                        </Link>
+                      </Button>
+                      <Submit
+                        label={t("save")}
+                        isLoading={form.formState.isSubmitting}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : null}
+          </form>
+        </Form>
+      </div>
+    </APIProvider>
   );
 }
