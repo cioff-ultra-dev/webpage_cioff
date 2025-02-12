@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -99,6 +99,8 @@ import { buildGroup } from "@/db/queries/groups";
 import { FilepondImageUploader } from "@/components/extension/filepond-image-uploader";
 import constants from "@/constants";
 import FormStateNS from "./form-state-ns";
+import { TreeSelect } from "../tree-select/select";
+import { TreeNode } from "@/types/tree-select";
 
 const dateRangeSchema = z.object({
   id: z.string().optional(),
@@ -115,6 +117,7 @@ const globalEventSchema = insertFestivalSchema.merge(
     _styleOfFestival: z.array(z.string()).nonempty(),
     _typeOfAccomodation: z.string().optional(),
     _typeOfFestival: z.array(z.string()).nonempty(),
+    _categories: z.array(z.string()).nonempty(),
     _status: z.string().optional(),
     _recognizedSince: z.string(),
     _recognizedRange: z.string(),
@@ -131,7 +134,7 @@ const globalEventSchema = insertFestivalSchema.merge(
         lat: z.string().optional(),
         lng: z.string().optional(),
         location: z.string().optional(),
-      }),
+      })
     ),
     _isFestivalsConnected: z.boolean().default(false).optional(),
     _isLookingForGroups: z.boolean().default(false).optional(),
@@ -146,7 +149,7 @@ const globalEventSchema = insertFestivalSchema.merge(
         id: z.string().optional(),
         countryName: z.string().optional(),
         festivalId: z.string().optional(),
-      }),
+      })
     ),
     _groupListSelected: z.array(
       z.object({
@@ -154,10 +157,10 @@ const globalEventSchema = insertFestivalSchema.merge(
         id: z.string().optional(),
         countryName: z.string().optional(),
         groupId: z.string().optional(),
-      }),
+      })
     ),
     stagePhotos: z.array(z.any().optional()).optional(),
-  }),
+  })
 );
 // .refine(
 //   (data) => {
@@ -292,6 +295,7 @@ export default function EventForm({
             ?.categories.some((category) => item === String(category.id));
         }) ?? "",
       _typeOfFestival: currentCategoriesSelected,
+      _categories: currentCategoriesSelected,
       _status: currentFestival?.status?.id
         ? String(currentFestival?.status.id)
         : undefined,
@@ -375,7 +379,7 @@ export default function EventForm({
   const formRef = useRef<HTMLFormElement>(null);
 
   const onSubmitForm: SubmitHandler<z.infer<typeof globalEventSchema>> = async (
-    _data,
+    _data
   ) => {
     const result = await updateFestival(new FormData(formRef.current!));
     if (result.success) {
@@ -478,12 +482,47 @@ export default function EventForm({
 
   const stateFestivalFetch = useSWR<{ results: CurrentFestivals }>(
     `/api/festival?countryId=${currentCountrySelected ?? ""}`,
-    fetcher,
+    fetcher
   );
 
   const stateGroupFetch = useSWR<{ results: CurrentGroups }>(
     `/api/group?countryId=${currentCountryGroupSelected ?? ""}`,
-    fetcher,
+    fetcher
+  );
+
+  const categoryOptions = useMemo(
+    () =>
+      categoryGroups.map((category) => ({
+        label: category.title,
+        value: category.slug,
+        children: category.categories.length
+          ? category.categories.map((cat) => ({
+              label: cat.langs.find((lang) => lang.l?.code === locale)?.name,
+              value: cat.id.toString(),
+            }))
+          : undefined,
+      })) as TreeNode[],
+    [categoryGroups, locale]
+  );
+
+  const selectedCategories = useMemo(
+    () =>
+      currentCategoriesSelected?.map((value) => {
+        const currentSelectedOption = categoryOptions.find(
+          (o) =>
+            o.value === value ||
+            o.children?.find((option) => option.value === value)
+        );
+        const option =
+          currentSelectedOption?.value === value
+            ? currentSelectedOption
+            : currentSelectedOption?.children?.find(
+                (option) => option.value === value
+              );
+
+        return option?.value ?? "";
+      }),
+    [categoryOptions, currentCategoriesSelected]
   );
 
   return (
@@ -491,7 +530,7 @@ export default function EventForm({
       <div className="w-full p-4 md:p-6 ">
         <h1 className="text-2xl font-bold">{t("add_an_festival")}</h1>
         <p className="text-sm text-muted-foreground pb-6 after:content-['*'] after:ml-0.5 after:text-red-500">
-          {t("the_fields_mandatory")} 
+          {t("the_fields_mandatory")}
         </p>
         {isNSAccount ? (
           <FormStateNS
@@ -626,7 +665,7 @@ export default function EventForm({
                             />
                           </FormControl>
                           <FormDescription>
-                          {t("enter_phone_number")}
+                            {t("enter_phone_number")}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -662,10 +701,10 @@ export default function EventForm({
                           <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
                             {t("location")}
                           </FormLabel>
-                          <FormControl>                            
+                          <FormControl>
                             <AutocompletePlaces
                               id="location_festival"
-                              {...field}                              
+                              {...field}
                               defaultPlace={field.value!}
                               disabled={isNSAccount}
                               onPlaceSelect={(currentPlace) => {
@@ -673,11 +712,11 @@ export default function EventForm({
                                 setSelectedPlace(currentPlace);
                                 form.setValue(
                                   "lat",
-                                  `${currentPlace?.geometry?.location?.lat()}`,
+                                  `${currentPlace?.geometry?.location?.lat()}`
                                 );
                                 form.setValue(
                                   "lng",
-                                  `${currentPlace?.geometry?.location?.lng()}`,
+                                  `${currentPlace?.geometry?.location?.lng()}`
                                 );
                               }}
                             />
@@ -772,7 +811,9 @@ export default function EventForm({
                     />
                   </div>
                   <div className="border-b pb-4">
-                    <h2 className="text-lg font-semibold">{t("current_dates")}</h2>
+                    <h2 className="text-lg font-semibold">
+                      {t("current_dates")}
+                    </h2>
                     {currentDateFields.map((field, index) => {
                       const positionIndex = index + 1;
                       return (
@@ -798,7 +839,9 @@ export default function EventForm({
                               name={`_currentDates.${index}._rangeDate`}
                               render={({ field: { value, onChange } }) => (
                                 <FormItem>
-                                  <FormLabel>{t("agenda")} {positionIndex}</FormLabel>
+                                  <FormLabel>
+                                    {t("agenda")} {positionIndex}
+                                  </FormLabel>
                                   <FormControl>
                                     <>
                                       <DatePickerWithRange
@@ -807,28 +850,28 @@ export default function EventForm({
                                         disabled={isNSAccount}
                                         defaultDates={{
                                           from: form.getValues(
-                                            `_currentDates.${index}._rangeDate.from`,
+                                            `_currentDates.${index}._rangeDate.from`
                                           )
                                             ? new Date(
                                                 form.getValues(
-                                                  `_currentDates.${index}._rangeDate.from`,
-                                                ),
+                                                  `_currentDates.${index}._rangeDate.from`
+                                                )
                                               )
                                             : undefined,
                                           to:
                                             form.getValues(
-                                              `_currentDates.${index}._rangeDate.to`,
+                                              `_currentDates.${index}._rangeDate.to`
                                             ) &&
                                             form.getValues(
-                                              `_currentDates.${index}._rangeDate.from`,
+                                              `_currentDates.${index}._rangeDate.from`
                                             ) !==
                                               form.getValues(
-                                                `_currentDates.${index}._rangeDate.to`,
+                                                `_currentDates.${index}._rangeDate.to`
                                               )
                                               ? new Date(
                                                   form.getValues(
-                                                    `_currentDates.${index}._rangeDate.to`,
-                                                  )!,
+                                                    `_currentDates.${index}._rangeDate.to`
+                                                  )!
                                                 )
                                               : undefined,
                                         }}
@@ -854,16 +897,16 @@ export default function EventForm({
                                     </>
                                   </FormControl>
                                   {form?.getFieldState(
-                                    `_currentDates.${index}._rangeDate.from`,
+                                    `_currentDates.${index}._rangeDate.from`
                                   ).error?.message ? (
                                     <p
                                       className={cn(
-                                        "text-sm font-medium text-destructive",
+                                        "text-sm font-medium text-destructive"
                                       )}
                                     >
                                       {
                                         form?.getFieldState(
-                                          `_currentDates.${index}._rangeDate.from`,
+                                          `_currentDates.${index}._rangeDate.from`
                                         ).error?.message
                                       }
                                     </p>
@@ -884,7 +927,8 @@ export default function EventForm({
                       className="mt-2"
                       disabled={isNSAccount}
                     >
-                      <PlusCircle className="mr-2 h-4 w-4" /> {t("add_current_Date")}
+                      <PlusCircle className="mr-2 h-4 w-4" />{" "}
+                      {t("add_current_Date")}
                     </Button>
                     <input
                       type="hidden"
@@ -929,28 +973,28 @@ export default function EventForm({
                                         buttonClassName="w-full"
                                         defaultDates={{
                                           from: form.getValues(
-                                            `_nextDates.${index}._rangeDate.from`,
+                                            `_nextDates.${index}._rangeDate.from`
                                           )
                                             ? new Date(
                                                 form.getValues(
-                                                  `_nextDates.${index}._rangeDate.from`,
-                                                ),
+                                                  `_nextDates.${index}._rangeDate.from`
+                                                )
                                               )
                                             : undefined,
                                           to:
                                             form.getValues(
-                                              `_nextDates.${index}._rangeDate.to`,
+                                              `_nextDates.${index}._rangeDate.to`
                                             ) &&
                                             form.getValues(
-                                              `_nextDates.${index}._rangeDate.from`,
+                                              `_nextDates.${index}._rangeDate.from`
                                             ) !==
                                               form.getValues(
-                                                `_nextDates.${index}._rangeDate.to`,
+                                                `_nextDates.${index}._rangeDate.to`
                                               )
                                               ? new Date(
                                                   form.getValues(
-                                                    `_nextDates.${index}._rangeDate.to`,
-                                                  )!,
+                                                    `_nextDates.${index}._rangeDate.to`
+                                                  )!
                                                 )
                                               : undefined,
                                         }}
@@ -963,7 +1007,7 @@ export default function EventForm({
                                           });
                                         }}
                                         fromDate={startOfYear(
-                                          addYears(new Date(), 1),
+                                          addYears(new Date(), 1)
                                         )}
                                         disabled={(date) => {
                                           return (
@@ -985,16 +1029,16 @@ export default function EventForm({
                                     </>
                                   </FormControl>
                                   {form?.getFieldState(
-                                    `_nextDates.${index}._rangeDate.from`,
+                                    `_nextDates.${index}._rangeDate.from`
                                   ).error?.message ? (
                                     <p
                                       className={cn(
-                                        "text-sm font-medium text-destructive",
+                                        "text-sm font-medium text-destructive"
                                       )}
                                     >
                                       {
                                         form?.getFieldState(
-                                          `_nextDates.${index}._rangeDate.from`,
+                                          `_nextDates.${index}._rangeDate.from`
                                         ).error?.message
                                       }
                                     </p>
@@ -1015,7 +1059,8 @@ export default function EventForm({
                       className="mt-2"
                       disabled={isNSAccount}
                     >
-                      <PlusCircle className="mr-2 h-4 w-4" /> {t("add_next_date")}
+                      <PlusCircle className="mr-2 h-4 w-4" />{" "}
+                      {t("add_next_date")}
                     </Button>
                     <input
                       type="hidden"
@@ -1030,131 +1075,35 @@ export default function EventForm({
                   <CardTitle>{t("filters")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {categoryGroups.map((item) => {
-                    const options: MultiSelectProps["options"] =
-                      item.categories.map((category) => ({
-                        label:
-                          category.langs.find(
-                            (item) => item?.l?.code === locale,
-                          )?.name ||
-                          category.langs.at(0)?.name ||
-                          "",
-                        value: String(category.id),
-                        caption: "",
-                      }));
-                    return (
-                      <div key={`${item.categories.length}-${item.slug}`}>
-                        <FormField
-                          control={form.control}
-                          name={
-                            `_${camelCase(
-                              item.slug!,
-                            )}` as KeyTypesFestivalSchema
-                          }
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel
-                                className={cn(
-                                  !singleMapCategory[item.slug!] &&
-                                    "after:content-['*'] after:ml-0.5 after:text-red-500",
-                                )}
-                              >
-                                {item.title}
-                              </FormLabel>
-                              <FormControl>
-                                {!singleMapCategory[item.slug!] ? (
-                                  <MultiSelect
-                                    options={options}
-                                    ref={field.ref}
-                                    disabled={isNSAccount}
-                                    value={field.value as string[]}
-                                    defaultValue={(
-                                      field.value as string[]
-                                    ).filter((item) =>
-                                      options.find(
-                                        (option) => option.value === item,
-                                      ),
-                                    )}
-                                    onValueChange={(value) => {
-                                      field.onChange(value);
-                                      setSelectedGroupCategories(
-                                        (prevState) => {
-                                          return {
-                                            ...prevState,
-                                            [camelCase(item.slug!)]: value,
-                                          };
-                                        },
-                                      );
-                                    }}
-                                    placeholder={`Select ${item.slug!.replaceAll(
-                                      "-",
-                                      " ",
-                                    )}`}
-                                  />
-                                ) : (
-                                  <Select
-                                    name={`_${camelCase(item.slug!)}`}
-                                    defaultValue={field.value}
-                                    disabled={isNSAccount}
-                                    onValueChange={(value) => {
-                                      field.onChange(value);
-                                      setSelectedGroupCategories(
-                                        (prevState) => {
-                                          return {
-                                            ...prevState,
-                                            [camelCase(item.slug!)]: [value],
-                                          };
-                                        },
-                                      );
-                                    }}
-                                  >
-                                    <SelectTrigger className="text-sm font-medium data-[placeholder]:text-muted-foreground">
-                                      <SelectValue
-                                        placeholder={`Select ${item.slug!.replaceAll(
-                                          "-",
-                                          " ",
-                                        )}`}
-                                        className="text-muted-foreground"
-                                      />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {item.categories.map((category) => (
-                                        <SelectItem
-                                          key={category.id}
-                                          value={String(category.id)}
-                                        >
-                                          {category.langs.find(
-                                            (item) => item?.l?.code === locale,
-                                          )?.name ||
-                                            category.langs.at(0)?.name ||
-                                            ""}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                )}
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    );
-                  })}
+                  <FormField
+                    control={form.control}
+                    name="_categories"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("_categories")}</FormLabel>
+                        <FormControl>
+                          <TreeSelect
+                            ref={field.ref}
+                            disabled={isNSAccount}
+                            defaultValue={selectedCategories}
+                            value={field.value}
+                            placeholder={t("placeholder_categories")}
+                            variant="default"
+                            onValueChange={(value) => field.onChange(value)}
+                            options={categoryOptions}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <input
                     type="hidden"
                     name="groupCategories"
                     value={JSON.stringify(
-                      [
-                        ...removeDuplicates([
-                          form.getValues("_typeOfAccomodation") ?? "",
-                          ...form.getValues("_typeOfFestival"),
-                          ...form.getValues("_styleOfFestival"),
-                          ...form.getValues("_ageOfParticipants"),
-                        ]),
-                      ]
+                      [...removeDuplicates(form.getValues("_categories") ?? [])]
                         .flat()
-                        .filter(Boolean) || "[]",
+                        .filter(Boolean) || "[]"
                     )}
                   />
                   {form.getValues("_typeOfAccomodation") ? (
@@ -1210,7 +1159,7 @@ export default function EventForm({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>{t("transport")}</FormLabel>
-                          <FormControl>                                
+                          <FormControl>
                             <AutocompletePlaces
                               id="transport_location_festival"
                               {...field}
@@ -1224,7 +1173,6 @@ export default function EventForm({
                                 });
                               }}
                             />
-                            
                           </FormControl>
                           <FormDescription>
                             {t("what_arrival_city")}
@@ -1332,7 +1280,7 @@ export default function EventForm({
                                   setSelectedLanguages(values);
                                   form.setValue(
                                     "translatorLanguages",
-                                    values?.join(","),
+                                    values?.join(",")
                                   );
                                 }}
                               />
@@ -1443,7 +1391,9 @@ export default function EventForm({
                             >
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder={t("Sel_verifiedcount_display")} />
+                                  <SelectValue
+                                    placeholder={t("Sel_verifiedcount_display")}
+                                  />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
@@ -1456,7 +1406,7 @@ export default function EventForm({
                                       {
                                         item.langs.find(
                                           (itemLang) =>
-                                            itemLang.l?.code === locale,
+                                            itemLang.l?.code === locale
                                         )?.name
                                       }
                                     </SelectItem>
@@ -1485,7 +1435,7 @@ export default function EventForm({
                                 value: String(item.id) || "",
                                 label:
                                   item.langs.find(
-                                    (lang) => lang.l?.code === locale,
+                                    (lang) => lang.l?.code === locale
                                   )?.name || "",
                                 caption: "",
                               })) ?? [];
@@ -1497,7 +1447,7 @@ export default function EventForm({
                                     options={options}
                                     defaultValue={
                                       field.value.map((item) =>
-                                        String(item.festivalId),
+                                        String(item.festivalId)
                                       ) || []
                                     }
                                     disabled={
@@ -1512,21 +1462,19 @@ export default function EventForm({
                                           name: data
                                             ?.find(
                                               (value) =>
-                                                value.id === Number(item),
+                                                value.id === Number(item)
                                             )
                                             ?.langs.find(
-                                              (lang) =>
-                                                lang?.l?.code === locale,
+                                              (lang) => lang?.l?.code === locale
                                             )?.name,
                                           countryName: countries
                                             ?.find(
                                               (country) =>
                                                 country.id ===
-                                                Number(currentCountrySelected),
+                                                Number(currentCountrySelected)
                                             )
                                             ?.langs.find(
-                                              (lang) =>
-                                                lang?.l?.code === locale,
+                                              (lang) => lang?.l?.code === locale
                                             )?.name,
                                         };
                                       });
@@ -1534,8 +1482,7 @@ export default function EventForm({
                                       const deprecateContents =
                                         festivalListFields.filter((item) => {
                                           return !values.some(
-                                            (value) =>
-                                              value === item.festivalId,
+                                            (value) => value === item.festivalId
                                           );
                                         });
 
@@ -1546,7 +1493,7 @@ export default function EventForm({
                                             festivalListFields.findIndex(
                                               (item) =>
                                                 item.festivalId ===
-                                                deprecate.festivalId,
+                                                deprecate.festivalId
                                             );
                                           nextDeprecate.push(index);
                                         }
@@ -1559,8 +1506,8 @@ export default function EventForm({
                                           !festivalListFields.some(
                                             (festival) =>
                                               festival.festivalId ===
-                                              value.festivalId,
-                                          ),
+                                              value.festivalId
+                                          )
                                       );
                                       appendFestivalList(nextContents);
                                     }}
@@ -1668,7 +1615,7 @@ export default function EventForm({
                   statuses.some(
                     (status) =>
                       String(status.id) === currentStatusId &&
-                      status.slug === "recognized-festival",
+                      status.slug === "recognized-festival"
                   ) ? (
                     <>
                       <Card>
@@ -1740,7 +1687,11 @@ export default function EventForm({
                                   >
                                     <FormControl>
                                       <SelectTrigger>
-                                        <SelectValue placeholder={t("select_type_compensation_display")} />
+                                        <SelectValue
+                                          placeholder={t(
+                                            "select_type_compensation_display"
+                                          )}
+                                        />
                                       </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
@@ -1865,7 +1816,7 @@ export default function EventForm({
                   statuses.some(
                     (status) =>
                       String(status.id) === currentStatusId &&
-                      status.slug === "partner-festival",
+                      status.slug === "partner-festival"
                   ) ? (
                     <>
                       <Card>
@@ -2157,7 +2108,9 @@ export default function EventForm({
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder={t("Sel_verifiedcount_display")} />
+                                <SelectValue
+                                  placeholder={t("Sel_verifiedcount_display")}
+                                />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -2170,7 +2123,7 @@ export default function EventForm({
                                     {
                                       item.langs.find(
                                         (itemLang) =>
-                                          itemLang.l?.code === locale,
+                                          itemLang.l?.code === locale
                                       )?.name
                                     }
                                   </SelectItem>
@@ -2193,7 +2146,7 @@ export default function EventForm({
                               value: String(item.id) || "",
                               label:
                                 item.langs.find(
-                                  (lang) => lang.l?.code === locale,
+                                  (lang) => lang.l?.code === locale
                                 )?.name ||
                                 item.langs.at(0)?.name ||
                                 "",
@@ -2207,7 +2160,7 @@ export default function EventForm({
                                   options={options}
                                   defaultValue={
                                     field.value.map((item) =>
-                                      String(item.groupId),
+                                      String(item.groupId)
                                     ) || []
                                   }
                                   disabled={
@@ -2220,22 +2173,21 @@ export default function EventForm({
                                         groupId: item,
                                         name: data
                                           ?.find(
-                                            (value) =>
-                                              value.id === Number(item),
+                                            (value) => value.id === Number(item)
                                           )
                                           ?.langs.find(
-                                            (lang) => lang?.l?.code === locale,
+                                            (lang) => lang?.l?.code === locale
                                           )?.name,
                                         countryName: countries
                                           ?.find(
                                             (country) =>
                                               country.id ===
                                               Number(
-                                                currentCountryGroupSelected,
-                                              ),
+                                                currentCountryGroupSelected
+                                              )
                                           )
                                           ?.langs.find(
-                                            (lang) => lang?.l?.code === locale,
+                                            (lang) => lang?.l?.code === locale
                                           )?.name,
                                       };
                                     });
@@ -2243,7 +2195,7 @@ export default function EventForm({
                                     const deprecateContents =
                                       groupListFields.filter((item) => {
                                         return !values.some(
-                                          (value) => value === item.groupId,
+                                          (value) => value === item.groupId
                                         );
                                       });
 
@@ -2252,7 +2204,7 @@ export default function EventForm({
                                       for (const deprecate of deprecateContents) {
                                         const index = groupListFields.findIndex(
                                           (item) =>
-                                            item.groupId === deprecate.groupId,
+                                            item.groupId === deprecate.groupId
                                         );
                                         nextDeprecate.push(index);
                                       }
@@ -2264,8 +2216,8 @@ export default function EventForm({
                                       (value) =>
                                         !groupListFields.some(
                                           (festival) =>
-                                            festival.groupId === value.groupId,
-                                        ),
+                                            festival.groupId === value.groupId
+                                        )
                                     );
                                     appendGroupList(nextContents);
                                   }}
@@ -2356,7 +2308,7 @@ export default function EventForm({
                             value: String(item.id) || "",
                             label:
                               item.langs.find(
-                                (lang) => lang?.l?.code === locale,
+                                (lang) => lang?.l?.code === locale
                               )?.name ?? "",
                             caption: "",
                           })) ?? [];

@@ -62,6 +62,11 @@
     "customization": "Personnalisation"
   },
   "form": {
+    "notResults": "Aucun résultat trouvé",
+    "selectAll": "Tout sélectionner",
+    "close": "Fermer",
+    "clear": "Effacer",
+    "searchPlaceholder": "Rechercher...",
     "name": "Nom",
     "phone": "Numéro de téléphone",
     "contact": "Contact",
@@ -73,6 +78,8 @@
     "_styleOfFestival": "Style de festival",
     "_typeOfFestival": "Type de festival",
     "_status": "Statut",
+    "_categories": "Categories",
+    "placeholder_categories": "Catégories du festival",
     "festival": {
       "add_an_festival": "AJOUTER UN FESTIVAL",
       "the_fields_mandatory": "Les champs sont obligatoires",

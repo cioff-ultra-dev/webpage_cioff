@@ -61,6 +61,11 @@
     "customization": "Personalización"
   },
   "form": {
+    "notResults": "No se han encontrado resultados",
+    "selectAll": "Seleccionar todo",
+    "close": "Cerrar",
+    "clear": "Limpiar",
+    "searchPlaceholder": "Buscar...",
     "name": "Nombre",
     "phone": "Número de teléfono",
     "contact": "Contacto",
@@ -155,7 +160,9 @@
       "_ageOfParticipants": "Edad de participantes",
       "_styleOfFestival": "Estilo de festival",
       "_typeOfFestival": "Tipo de festival",
-      "_status": "Estado"
+      "_status": "Estado",
+      "_categories": "Categorias",
+      "placeholder_categories": "Categorias del festival"
     },
     "ns": {
       "title": "AGREGAR UNA SECCIÓN NACIONAL",

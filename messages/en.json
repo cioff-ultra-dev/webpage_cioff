@@ -79,6 +79,11 @@
     "customization": "Customization"
   },
   "form": {
+    "notResults": "No results found",
+    "selectAll": "Select all",
+    "close": "Close",
+    "clear": "Clear",
+    "searchPlaceholder": "Search...",
     "name": "Name",
     "phone": "Phone Number",
     "contact": "Contact",
@@ -173,7 +178,9 @@
       "_ageOfParticipants": "Age of participants",
       "_styleOfFestival": "Style of festival",
       "_typeOfFestival": "Type of festival",
-      "_status": "Status"
+      "_status": "Status",
+      "_categories": "Categories",
+      "placeholder_categories": "Festival categories"
     },
     "ns": {
       "title": "ADD A NATIONAL SECTION",
