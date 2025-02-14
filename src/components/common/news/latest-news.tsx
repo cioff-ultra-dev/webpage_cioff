@@ -41,6 +41,7 @@ async function LatestNews({ limit, classes }: LatestNewsProps) {
         image={articleData.mainImage}
         title={text.title}
         subPageId={articleData.id}
+        url={articleData.url}
       />
     );
   });

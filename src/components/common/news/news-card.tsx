@@ -9,16 +9,17 @@ interface NewsCardProps {
   title: string;
   subPageId: number;
   description: string;
+  url: string;
 }
 
 function NewsCard(props: NewsCardProps) {
-  const { image, title, subPageId, description } = props;
+  const { image, title, subPageId, description, url } = props;
 
   const router = useRouter();
 
   const handleClick = useCallback(() => {
-    router.push(`/news/${subPageId}`);
-  }, [router, subPageId]);
+    router.push(url ?? `/news/${subPageId}`);
+  }, [router, url, subPageId]);
 
   return (
     <div
