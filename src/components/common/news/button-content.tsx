@@ -23,7 +23,7 @@ function ClientButton({
   }, [openNewTab, url, router]);
 
   return (
-    <Button className="my-4" onClick={handleClick} variant={variant}>
+    <Button className="my-4 mr-4" onClick={handleClick} variant={variant}>
       {buttonLabel || "Button"}
     </Button>
   );
