@@ -14,6 +14,7 @@ import { Locale } from "@/i18n/config";
 import { CountryCastNationalSections } from "@/db/queries/national-sections";
 import { SearchFormElement, Action } from "@/types/send-email";
 import { Card, CardContent } from "@/components/ui/card";
+import { CategoriesType } from "@/db/queries/categories";
 
 import SkeletonList from "./skeleton-list";
 import Filters from "./filters";
@@ -21,7 +22,7 @@ import { ListItem } from "./list-item";
 
 interface FestivalTabOptions extends PropsWithChildren {
   regions: MultiSelectProps["options"];
-  categories: MultiSelectProps["options"];
+  categories: CategoriesType;
   isRegionLoading: boolean;
   locale: Locale;
   selectedSections: number[];

@@ -1,6 +1,5 @@
-import { JSX, useState, useMemo } from "react";
+import { JSX, useState, useMemo, useEffect } from "react";
 import { MapPin, CalendarCheck, CheckCircle } from "lucide-react";
-import Image from "next/image";
 import { useFormatter, useTranslations } from "next-intl";
 import { DateRange } from "react-day-picker";
 import useSWR from "swr";
@@ -14,6 +13,7 @@ import { Locale } from "@/i18n/config";
 import { CountryCastFestivals } from "@/db/queries/countries";
 import { SearchFormElement, Action } from "@/types/send-email";
 import { Card, CardContent } from "@/components/ui/card";
+import { CategoriesType } from "@/db/queries/categories";
 
 import SkeletonList from "./skeleton-list";
 import Filters from "./filters";
@@ -21,11 +21,13 @@ import { ListItem } from "./list-item";
 
 interface FestivalTabOptions {
   regions: MultiSelectProps["options"];
-  categories: MultiSelectProps["options"];
+  categories: CategoriesType;
   isRegionLoading: boolean;
   locale: Locale;
   selectedFestivals: number[];
   dispatch: (action: Action) => void;
+  searchText?: string;
+  showInputSearch?: boolean;
 }
 
 function FestivalTab(props: FestivalTabOptions): JSX.Element {
@@ -36,6 +38,8 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
     locale,
     dispatch,
     selectedFestivals,
+    searchText = "",
+    showInputSearch = true,
   } = props;
   const [search, setSearch] = useState("");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
@@ -43,8 +47,17 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 
-  const t = useTranslations();
   const formatter = useFormatter();
+
+  useEffect(() => {
+    setSearch(
+      `search=${searchText}&rangeDateFrom=${
+        dateRange?.from ? Math.floor(dateRange!.from!.getTime() / 1000) : ""
+      }&rangeDateTo=${
+        dateRange?.to ? Math.floor(dateRange!.to!.getTime() / 1000) : ""
+      }`
+    );
+  }, [dateRange, searchText]);
 
   async function handleSubmit(event: React.FormEvent<SearchFormElement>) {
     event.preventDefault();
@@ -170,6 +183,8 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
             setDateRange={setDateRange}
             isRegionLoading={isRegionLoading}
             isCountryLoading={isCountryLoading}
+            showInputSearch={showInputSearch}
+            showIconLabels
           />
         </div>
       </section>

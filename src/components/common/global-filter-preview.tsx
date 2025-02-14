@@ -43,6 +43,7 @@ import { Skeleton } from "../ui/skeleton";
 import NationalSectionsTab from "./send-emails/addressee-step/national-sections-tab";
 import { Locale } from "@/i18n/config";
 import { CountryCastNationalSections } from "@/db/queries/national-sections";
+import Filters from "./send-emails/addressee-step/filters";
 
 interface FormElements extends HTMLFormControlsCollection {
   search: HTMLInputElement;
@@ -415,7 +416,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
             </div>
           </div>
           <NationalSectionsTab
-            categories={categoriesMap}
+            categories={categories}
             regions={regionsMap}
             isRegionLoading={isLoadingRegionCast}
             locale={locale as Locale}
@@ -477,45 +478,24 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
             </div>
           </NationalSectionsTab>
           <TabsContent value="festivals">
-            <section className="pb-6 pt-2">
-              <div className="container mx-auto">
-                <Card>
-                  <CardContent className="pt-4">
-                    <div className="flex flex-col items-end space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-                      <div className="flex-1 flex gap-2 items-center">
-                        <Grid2X2Plus className="text-muted-foreground" />
-                        <MultiSelect
-                          options={categoriesMap}
-                          onValueChange={setSelectedCategories}
-                          placeholder={tf("selectCategories")}
-                        />
-                      </div>
-                      <div className="flex-1 flex gap-2 items-center">
-                        <Earth className="text-muted-foreground" />
-                        <MultiSelect
-                          options={regionsMap}
-                          onValueChange={setSelectedRegions}
-                          disabled={isLoadingRegionCast}
-                          placeholder={tf("selectRegions")}
-                        />
-                      </div>
-                      <div className="flex-1 flex gap-2 items-center">
-                        <Globe className="text-muted-foreground" />
-                        <MultiSelect
-                          options={countriesMap}
-                          onValueChange={setSelectedCountries}
-                          disabled={isLoadingCountryCast}
-                          placeholder={tf("selectCountries")}
-                        />
-                      </div>
-                      <div>
-                        <DatePickerWithRange onValueChange={setDateRange} />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </section>
+            <div className="container mx-auto pb-6 pt-2">
+              <Filters
+                categories={categories}
+                countries={countriesMap}
+                handleSubmit={handleSubmit}
+                regions={regionsMap}
+                setCountries={setSelectedCountries}
+                setRegions={setSelectedRegions}
+                setCategories={setSelectedCategories}
+                isRegionLoading={isLoadingRegionCast}
+                isCountryLoading={isLoadingCountryCast}
+                setDateRange={
+                  tabSelected === "festivals" ? setDateRange : undefined
+                }
+                showInputSearch={false}
+                showIconLabels
+              />
+            </div>
             <section className="bg-white py-4 sm:py-8">
               <div className="container mx-auto">
                 <div className="flex flex-col space-y-4 sm:space-y-0">
@@ -689,42 +669,24 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
             </section>
           </TabsContent>
           <TabsContent value="groups">
-            <section className="pb-6 pt-2">
-              <div className="container mx-auto">
-                <Card>
-                  <CardContent className="pt-4">
-                    <div className="flex flex-col items-end space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-                      <div className="flex-1 flex gap-2 items-center">
-                        <Grid2X2Plus className="text-muted-foreground" />
-                        <MultiSelect
-                          options={categoriesMap}
-                          onValueChange={setSelectedCategories}
-                          placeholder={tf("selectCategories")}
-                        />
-                      </div>
-                      <div className="flex-1 flex gap-2 items-center">
-                        <Earth className="text-muted-foreground" />
-                        <MultiSelect
-                          options={regionsMap}
-                          onValueChange={setSelectedRegions}
-                          disabled={isLoadingRegionCast}
-                          placeholder={tf("selectRegions")}
-                        />
-                      </div>
-                      <div className="flex-1 flex gap-2 items-center">
-                        <Globe className="text-muted-foreground" />
-                        <MultiSelect
-                          options={countriesGroupMap}
-                          onValueChange={setSelectedCountries}
-                          disabled={isLoadingCountryGroupCast}
-                          placeholder={tf("selectCountries")}
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </section>
+            <div className="container mx-auto pb-6 pt-2">
+              <Filters
+                categories={categories}
+                countries={countriesMap}
+                handleSubmit={handleSubmit}
+                regions={regionsMap}
+                setCountries={setSelectedCountries}
+                setRegions={setSelectedRegions}
+                setCategories={setSelectedCategories}
+                isRegionLoading={isLoadingRegionCast}
+                isCountryLoading={isLoadingCountryCast}
+                setDateRange={
+                  tabSelected === "festivals" ? setDateRange : undefined
+                }
+                showInputSearch={false}
+                showIconLabels
+              />
+            </div>
             <section className="bg-white py-4 sm:py-8">
               <div className="container mx-auto">
                 <div className="flex flex-col space-y-4 sm:space-y-0">

@@ -52,7 +52,7 @@ function SocialMediaLinksTable({ socialLinks }: SocialMediaLinksTableProps) {
         toast.success(translations("customization.social.removed"));
         router.refresh();
       } catch (e) {
-        console.log(e);
+        console.error(e);
         toast.error(translations("customization.social.notRemoved"));
       }
     },

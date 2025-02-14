@@ -22,12 +22,14 @@ export function DatePickerWithRange({
   buttonClassName,
   fromDate,
   disabled,
+  showIcon = true,
 }: React.HTMLAttributes<HTMLDivElement> & {
   onValueChange: (value: DateRange | undefined) => void;
   defaultDates?: DateRange;
   buttonClassName?: string;
   fromDate?: Date | undefined;
   disabled?: Matcher;
+  showIcon?: boolean;
 }) {
   const [date, setDate] = useState<DateRange | undefined>({
     from: defaultDates?.from ?? undefined,
@@ -50,10 +52,10 @@ export function DatePickerWithRange({
             className={cn(
               "w-[300px] justify-start text-left font-normal text-muted-foreground",
               !date && "text-muted-foreground",
-              buttonClassName,
+              buttonClassName
             )}
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
+            {showIcon && <CalendarIcon className="mr-2 h-4 w-4" />}
             {date?.from ? (
               date.to ? (
                 <>

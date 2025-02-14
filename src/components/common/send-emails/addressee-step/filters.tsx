@@ -1,8 +1,8 @@
-import { JSX, FormEvent } from "react";
-import { useTranslations } from "next-intl";
+import { JSX, FormEvent, useMemo } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { DateRange } from "react-day-picker";
 import { MultiSelectProps } from "@/components/ui/multi-select";
-import { Grid2X2Plus, Earth, Globe } from "lucide-react";
+import { Grid2X2Plus, Earth, Globe, CalendarIcon } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,10 +19,25 @@ import {
 import { SearchIcon } from "@/components/common/icons/search";
 import { SearchFormElement } from "@/types/send-email";
 import { cn } from "@/lib/utils";
+import { TreeNode } from "@/types/tree-select";
+import { CategoriesType } from "@/db/queries/categories";
+
+import { TreeSelect } from "../../tree-select/select";
+
+const CATEGORY_MAP = {
+  music: "typeOfFestival",
+  dance: "typeOfFestival",
+  "teenagers-children": "styleOfFestival",
+  "youth-adults-seniors": "styleOfFestival",
+  "hotel-hostel-campus": "typeOfAccomodation",
+  "family-houses": "typeOfAccomodation",
+  "schools-gym-halls": "typeOfAccomodation",
+  default: "others",
+};
 
 interface FiltersProps {
   regions: MultiSelectProps["options"];
-  categories: MultiSelectProps["options"];
+  categories: CategoriesType;
   countries: MultiSelectProps["options"];
   isRegionLoading: boolean;
   handleSubmit: (event: FormEvent<SearchFormElement>) => Promise<void>;
@@ -53,6 +68,32 @@ function Filters(props: FiltersProps): JSX.Element {
     showIconLabels = false,
   } = props;
   const t = useTranslations();
+  const locale = useLocale();
+
+  const categoryOptions = useMemo(() => {
+    const groupedItems = Object.groupBy(categories, (item) => {
+      const key =
+        CATEGORY_MAP[item.slug as keyof typeof CATEGORY_MAP] ??
+        CATEGORY_MAP.default;
+
+      return key;
+    });
+
+    return Object.keys(groupedItems).map((key) => {
+      const categories = groupedItems[key];
+
+      return {
+        label: t(`form.festival.tag.${key}`),
+        value: key,
+        children: categories?.length
+          ? categories.map((cat) => ({
+              label: cat.langs.find((lang) => lang.l?.code === locale)?.name ?? cat.slug,
+              value: cat.id.toString(),
+            }))
+          : undefined,
+      };
+    }) as TreeNode[];
+  }, [categories, locale,t]);
 
   return (
     <Card>
@@ -94,11 +135,12 @@ function Filters(props: FiltersProps): JSX.Element {
                   t("filters.categories")
                 )}
               </Label>
-              <MultiSelect
-                options={categories}
-                onValueChange={setCategories}
-                disabled={isCategoriesLoading}
+              <TreeSelect
                 placeholder={t("filters.selectCategories")}
+                variant="default"
+                disabled={isCategoriesLoading}
+                onValueChange={setCategories!}
+                options={categoryOptions}
               />
             </div>
           ) : null}
@@ -148,14 +190,20 @@ function Filters(props: FiltersProps): JSX.Element {
             <div
               className={cn(
                 showIconLabels
-                  ? "flex-1 flex gap-2 items-center"
+                  ? "flex-1 flex gap-2 items-center w-full"
                   : "flex-1 max-sm:w-full"
               )}
             >
-              {!showIconLabels && <Label>{t("filters.events")}</Label>}
+              {showIconLabels ? (
+                <CalendarIcon className="text-muted-foreground" />
+              ) : (
+                <Label>{t("filters.events")}</Label>
+              )}
               <DatePickerWithRange
-                buttonClassName="max-sm:w-full"
+                buttonClassName="w-full"
+                className="w-full"
                 onValueChange={setDateRange}
+                showIcon={false}
               />
             </div>
           ) : null}

@@ -1,4 +1,4 @@
-import { JSX, useState, useMemo } from "react";
+import { JSX, useState, useMemo, useEffect } from "react";
 import { MapPin, CheckCircle, Mail } from "lucide-react";
 import { useTranslations } from "next-intl";
 import useSWR from "swr";
@@ -12,6 +12,7 @@ import { Locale } from "@/i18n/config";
 import { CountryCastFestivals } from "@/db/queries/countries";
 import { SearchFormElement, Action } from "@/types/send-email";
 import { Card, CardContent } from "@/components/ui/card";
+import { CategoriesType } from "@/db/queries/categories";
 
 import SkeletonList from "./skeleton-list";
 import Filters from "./filters";
@@ -19,11 +20,14 @@ import { ListItem } from "./list-item";
 
 interface FestivalTabOptions {
   regions: MultiSelectProps["options"];
-  categories: MultiSelectProps["options"];
+  categories: CategoriesType;
   isRegionLoading: boolean;
   locale: Locale;
   selectedUsers: string[];
   dispatch: (action: Action) => void;
+  showInputSearch?: boolean;
+  searchText?: string;
+  showIconLabels?: boolean;
 }
 
 function FestivalTab(props: FestivalTabOptions): JSX.Element {
@@ -34,12 +38,19 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
     locale,
     dispatch,
     selectedUsers,
+    showInputSearch = true,
+    searchText,
+    showIconLabels = false,
   } = props;
   const [search, setSearch] = useState("");
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 
   const t = useTranslations();
+
+  useEffect(() => {
+      setSearch(`search=${searchText}`);
+    }, [searchText]);
 
   async function handleSubmit(event: React.FormEvent<SearchFormElement>) {
     event.preventDefault();
@@ -135,6 +146,8 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
             setRegions={setSelectedRegions}
             isRegionLoading={isRegionLoading}
             isCountryLoading={isCountryLoading}
+            showInputSearch={showInputSearch}
+            showIconLabels={showIconLabels}
           />
         </div>
       </section>

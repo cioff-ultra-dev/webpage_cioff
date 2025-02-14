@@ -90,7 +90,8 @@
         "typeOfFestival": "Tipo de festival",
         "ageOfParticipants": "Edad de los participantes",
         "styleOfFestival": "Estilo del festival",
-        "typeOfAccomodation": "Tipo de alojamiento"
+        "typeOfAccomodation": "Tipo de alojamiento",
+        "others":"Otros"
       },
       "name": "Nombre del festival",
       "phone": "Número de teléfono",
@@ -311,10 +312,10 @@
     "countries": "Paises",
     "regions": "Regiones",
     "inputSearch": "Escribe y presiona enter para buscar...",
-    "selectCategories": "Seleccionar categorias",
-    "selectEvents": "Seleccionar eventos",
-    "selectCountries": "Seleccionar paises",
-    "selectRegions": "Seleccionar regiones",
+    "selectCategories": "Categorias",
+    "selectEvents": "Eventos",
+    "selectCountries": "Paises",
+    "selectRegions": "Regiones",
     "results": "Resultados: {total}",
     "festivals": "Festivales",
     "groups": "Grupos"

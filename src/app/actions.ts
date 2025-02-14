@@ -2342,9 +2342,7 @@ export async function updateGroup(formData: FormData) {
         musicalDirectorProfile,
         locale as Locale
       );
-      console.log("--------------data melany----------------");
-      console.log(JSON.stringify(nameTranslateResults));
-      console.log("------------------------------");
+
       const pickedLocales = pickLocales(locale);
 
       for await (const _currentLocale of pickedLocales) {

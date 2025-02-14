@@ -9,7 +9,6 @@ import InfiniteScroll from "@/components/extension/swr-infinite-scroll";
 import fetcher, { cn } from "@/lib/utils";
 import { SelectFestival } from "@/db/schema";
 import { MapPin, CalendarCheck } from "lucide-react";
-import { format } from "date-fns";
 import {
   APIProvider,
   useMap,
@@ -19,7 +18,6 @@ import {
   AdvancedMarker,
 } from "@vis.gl/react-google-maps";
 import MapHandler from "@/components/common/map-handler";
-import { DatePickerWithRange } from "@/components/ui/datepicker-with-range";
 import { DateRange } from "react-day-picker";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -38,13 +36,12 @@ import constants from "@/constants";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { RegionsType } from "@/db/queries/regions";
 import { CountryCastGroups } from "@/db/queries/groups";
-import { Label } from "../ui/label";
-import { Card, CardContent } from "../ui/card";
-import { MultiSelect, MultiSelectProps } from "../ui/multi-select";
+import { MultiSelectProps } from "../ui/multi-select";
 import { CategoriesType } from "@/db/queries/categories";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
 import { BuildGroupFilterType } from "@/app/api/filter/group/route";
+import Filters from "./send-emails/addressee-step/filters";
 
 interface FormElements extends HTMLFormControlsCollection {
   search: HTMLInputElement;
@@ -197,15 +194,6 @@ export function WrapperFilter({
     );
   }, [countryGroupCast]);
 
-  const categoriesMap: MultiSelectProps["options"] = useMemo(() => {
-    return categories.map((category) => {
-      return {
-        label: category.langs.at(0)?.name || category.slug,
-        value: String(category.id),
-      };
-    });
-  }, [categories]);
-
   const regionsMap: MultiSelectProps["options"] = useMemo(() => {
     return regionCast.map((region) => {
       return {
@@ -354,77 +342,58 @@ export function WrapperFilter({
         className="w-full pt-6 bg-gray-50"
         onValueChange={(value) => setTabSelected(value)}
       >
-        <div className="container mx-auto flex">
+        <div className="container mx-auto flex gap-4">
           <TabsList>
             <TabsTrigger value="festivals">Festivals</TabsTrigger>
             <TabsTrigger value="groups">Groups</TabsTrigger>
           </TabsList>
+          <div className="flex-1">
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col items-end space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
+            >
+              <Input placeholder={tf("inputSearch")} name="search" />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      type="submit"
+                      className="rounded-full"
+                    >
+                      <SearchIcon className="text-black" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent align="center" side="bottom">
+                    <p>{tf("search")}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </form>
+          </div>
         </div>
+        <section className="py-4 sm:py-8">
+          <div className="container mx-auto">
+            <Filters
+              categories={categories}
+              countries={countriesMap}
+              handleSubmit={handleSubmit}
+              regions={regionsMap}
+              setCountries={setSelectedCountries}
+              setRegions={setSelectedRegions}
+              setCategories={setSelectedCategories}
+              isRegionLoading={isLoadingRegionCast}
+              isCountryLoading={isLoadingCountryCast}
+              setDateRange={
+                tabSelected === "festivals" ? setDateRange : undefined
+              }
+              showInputSearch={false}
+              showIconLabels
+            />
+          </div>
+        </section>
         <TabsContent value="festivals">
-          <section className="bg-gray-50 py-4 sm:py-8">
-            <div className="container mx-auto">
-              <Card>
-                <CardContent className="pt-4">
-                  <form
-                    onSubmit={handleSubmit}
-                    className="flex flex-col items-end space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
-                  >
-                    <div className="flex-1">
-                      <Label className="pb-1">{tf("search")}</Label>
-                      <Input placeholder="Type to explore..." name="search" />
-                    </div>
-                    <div className="flex-1">
-                      <Label>{tf("categories")}</Label>
-                      <MultiSelect
-                        options={categoriesMap}
-                        onValueChange={setSelectedCategories}
-                        placeholder={tc("select_options")}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <Label>{tf("regions")}</Label>
-                      <MultiSelect
-                        options={regionsMap}
-                        onValueChange={setSelectedRegions}
-                        disabled={isLoadingRegionCast}
-                        placeholder={tf("select_regions")}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <Label>{tf("countries")}</Label>
-                      <MultiSelect
-                        options={countriesMap}
-                        onValueChange={setSelectedCountries}
-                        disabled={isLoadingCountryCast}
-                        placeholder={tf("select_countries")}
-                      />
-                    </div>
-                    <div>
-                      <Label>{tf("events")}</Label>
-                      <DatePickerWithRange onValueChange={setDateRange} />
-                    </div>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            type="submit"
-                            className="rounded-full"
-                          >
-                            <SearchIcon className="text-black" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent align="center" side="bottom">
-                          <p>Search</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
-          </section>
           <section className="bg-white py-4 sm:py-8">
             <div className="container mx-auto px-4">
               <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 h-[600px]">
@@ -583,66 +552,6 @@ export function WrapperFilter({
           </section>
         </TabsContent>
         <TabsContent value="groups">
-          <section className="bg-gray-50 py-4 sm:py-8">
-            <div className="container mx-auto">
-              <Card>
-                <CardContent className="pt-4">
-                  <form
-                    onSubmit={handleSubmit}
-                    className="flex flex-col items-end space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
-                  >
-                    <div className="flex-1">
-                      <Label className="pb-1">{tf("search")}</Label>
-                      <Input placeholder="Type to explore..." name="search" />
-                    </div>
-                    <div className="flex-1">
-                      <Label>{tf("categories")}</Label>
-                      <MultiSelect
-                        options={categoriesMap}
-                        onValueChange={setSelectedCategories}
-                        placeholder={tc("select_options")}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <Label>{tf("regions")}</Label>
-                      <MultiSelect
-                        options={regionsMap}
-                        onValueChange={setSelectedRegions}
-                        disabled={isLoadingRegionCast}
-                        placeholder={tf("select_regions")}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <Label>{tf("countries")}</Label>
-                      <MultiSelect
-                        options={countriesGroupMap}
-                        onValueChange={setSelectedCountries}
-                        disabled={isLoadingCountryGroupCast}
-                        placeholder={tf("select_countries")}
-                      />
-                    </div>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            type="submit"
-                            className="rounded-full"
-                          >
-                            <SearchIcon className="text-black" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent align="center" side="bottom">
-                          <p>Search</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
-          </section>
           <section className="bg-white py-4 sm:py-8">
             <div className="container mx-auto px-4">
               <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 h-[600px]">

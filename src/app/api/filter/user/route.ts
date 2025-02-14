@@ -119,6 +119,6 @@ async function buildFilter(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   const result = await buildFilter(request);
-  console.log(result.length);
+
   return Response.json(result);
 }

@@ -11,7 +11,6 @@ import {
   XCircle,
   ChevronDown,
   XIcon,
-  WandSparkles,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 

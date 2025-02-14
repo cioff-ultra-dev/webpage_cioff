@@ -1,4 +1,4 @@
-import { JSX, useState, useMemo } from "react";
+import { JSX, useState, useMemo, useEffect } from "react";
 import { MapPin, CheckCircle } from "lucide-react";
 import useSWR from "swr";
 
@@ -11,6 +11,7 @@ import { SearchFormElement, Action } from "@/types/send-email";
 import { CountryCastGroups } from "@/db/queries/groups";
 import { BuildGroupFilterType } from "@/app/api/filter/group/route";
 import { Card, CardContent } from "@/components/ui/card";
+import { CategoriesType } from "@/db/queries/categories";
 
 import SkeletonList from "./skeleton-list";
 import Filters from "./filters";
@@ -18,11 +19,14 @@ import { ListItem } from "./list-item";
 
 interface GroupTabProps {
   regions: MultiSelectProps["options"];
-  categories: MultiSelectProps["options"];
+  categories: CategoriesType;
   isRegionLoading: boolean;
   locale: Locale;
   selectedGroups: number[];
   dispatch: (action: Action) => void;
+  showInputSearch?: boolean;
+  searchText?: string;
+  showIconLabels?: boolean;
 }
 
 function GroupTab(props: GroupTabProps): JSX.Element {
@@ -33,11 +37,18 @@ function GroupTab(props: GroupTabProps): JSX.Element {
     locale,
     regions,
     selectedGroups,
+    showInputSearch = true,
+    searchText,
+    showIconLabels = false,
   } = props;
   const [search, setSearch] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+
+  useEffect(() => {
+    setSearch(`search=${searchText}`);
+  }, [searchText]);
 
   const { data: countriesData = [], isLoading: isCountryLoading } =
     useSWR<CountryCastGroups>(
@@ -130,6 +141,8 @@ function GroupTab(props: GroupTabProps): JSX.Element {
             setRegions={setSelectedRegions}
             isRegionLoading={isRegionLoading}
             isCountryLoading={isCountryLoading}
+            showInputSearch={showInputSearch}
+            showIconLabels={showIconLabels}
           />
         </div>
       </section>
