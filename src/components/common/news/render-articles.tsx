@@ -16,16 +16,18 @@ function RenderArticles({ sections }: { sections: Section[] }) {
         switch (section.type) {
           case "image":
             const content = section.content as string;
-            return (
-              <Image
-                key={section.id}
-                src={content.replace(",", "")}
-                alt={content}
-                width={800}
-                height={400}
-                className="w-full h-auto object-cover rounded-lg py-6"
-              />
-            );
+            return content
+              .split(",")
+              .map((content) => (
+                <Image
+                  key={section.id}
+                  src={content}
+                  alt={content}
+                  width={800}
+                  height={400}
+                  className="w-full h-auto object-cover rounded-lg py-6"
+                />
+              ));
           case "paragraph":
             const paragraph = section.content as string;
 
