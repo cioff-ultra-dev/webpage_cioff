@@ -3,7 +3,12 @@
 import { eq, and, not } from "drizzle-orm";
 import { JSDOM } from "jsdom";
 
-import { SelectedSubPage, Section, ArticleBody } from "@/types/article";
+import {
+  SelectedSubPage,
+  Section,
+  ArticleBody,
+  ButtonContent,
+} from "@/types/article";
 import { db } from "@/db";
 import { SubPagesProd, SubPagesTextsLangProd } from "@/db/schema";
 import { getTranslateText } from "@/lib/translate";
@@ -130,7 +135,7 @@ async function TranslateSubPage(content: SubPage, locale: Locale) {
 
   await Promise.all(
     content.sections.map(async (section) => {
-      if (section.type !== "paragraph") {
+      if (section.type !== "paragraph" && section.type !== "button") {
         filteredLocales.map((locale) =>
           translatedSections[locale].sections.push(section)
         );
@@ -141,28 +146,55 @@ async function TranslateSubPage(content: SubPage, locale: Locale) {
       const obj: Record<string, string> = Object.fromEntries(
         filteredLocales.map((item) => [item, ""])
       );
-      const textArray = extractTextFromHTML(section.content as string);
 
-      const texts = await Promise.all(
-        textArray.map(async (text) => {
-          const response = await getTranslateText(text, locale);
+      if (section.type === "button") {
+        const buttonContent = section.content as ButtonContent;
 
-          return response.map((item) => ({ ...item, initialText: text }));
-        })
-      );
+        const response = await getTranslateText(
+          buttonContent.buttonLabel,
+          locale
+        );
 
-      texts.flat().map(({ result, locale, initialText }) => {
-        obj[locale] = (obj[locale] ? obj[locale] : section.content) as string;
+        response
+          .flat()
+          .forEach(
+            ({ result, locale }) =>
+              (obj[locale] = result ?? buttonContent.buttonLabel)
+          );
 
-        obj[locale] = obj[locale].replace(initialText, result);
-      });
+        filteredLocales.map((locale) =>
+          translatedSections[locale].sections.push({
+            ...section,
+            content: {
+              ...buttonContent,
+              buttonLabel: obj[locale],
+            },
+          })
+        );
+      } else {
+        const textArray = extractTextFromHTML(section.content as string);
 
-      filteredLocales.map((locale) =>
-        translatedSections[locale].sections.push({
-          ...section,
-          content: obj[locale],
-        })
-      );
+        const texts = await Promise.all(
+          textArray.map(async (text) => {
+            const response = await getTranslateText(text, locale);
+
+            return response.map((item) => ({ ...item, initialText: text }));
+          })
+        );
+
+        texts.flat().map(({ result, locale, initialText }) => {
+          obj[locale] = (obj[locale] ? obj[locale] : section.content) as string;
+
+          obj[locale] = obj[locale].replace(initialText, result);
+        });
+
+        filteredLocales.map((locale) =>
+          translatedSections[locale].sections.push({
+            ...section,
+            content: obj[locale],
+          })
+        );
+      }
 
       return section;
     })
