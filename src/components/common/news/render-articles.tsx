@@ -20,6 +20,7 @@ function RenderArticles({ sections }: { sections: Section[] }) {
 
             const gallery: CustomImage[] =
               content.split(",").map((item) => ({
+                key: item!,
                 src: item!,
                 width: 600,
                 height: 600,
@@ -27,7 +28,7 @@ function RenderArticles({ sections }: { sections: Section[] }) {
 
             return gallery.length > 1 ? (
               <GalleryImageEvent
-                containerClass="flex w-full justify-center items-center"
+                containerClass="flex-1 w-full justify-center items-center"
                 gallery={gallery}
                 thumbnailStyle={{
                   height: 180,
