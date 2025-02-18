@@ -6,6 +6,7 @@ import CarouselHistory from "@/components/common/carousel-history";
 import { ButtonContent, Section } from "@/types/article";
 import LatestNews from "@/components/common/news/latest-news";
 import Button from "./button-content";
+import { CustomImage, GalleryImageEvent } from "../event/gallery-images";
 
 function RenderArticles({ sections }: { sections: Section[] }) {
   const translations = useTranslations("news.form");
@@ -16,18 +17,42 @@ function RenderArticles({ sections }: { sections: Section[] }) {
         switch (section.type) {
           case "image":
             const content = section.content as string;
-            return content
-              .split(",")
-              .map((content) => (
+
+            const gallery: CustomImage[] =
+              content.split(",").map((item) => ({
+                src: item!,
+                width: 600,
+                height: 600,
+              })) || [];
+
+            return gallery.length > 1 ? (
+              <GalleryImageEvent
+                containerClass="flex w-full justify-center items-center"
+                gallery={gallery}
+                thumbnailStyle={{
+                  height: 180,
+                  width: 180,
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+                tileViewportStyle={{
+                  height: 180,
+                  width: 180,
+                  borderRadius: "5px",
+                }}
+              />
+            ) : (
+              gallery.map((content) => (
                 <Image
                   key={section.id}
-                  src={content}
-                  alt={content}
+                  src={content.src}
+                  alt={content.src}
                   width={800}
                   height={400}
                   className="w-full h-auto object-cover rounded-lg py-6"
                 />
-              ));
+              ))
+            );
           case "paragraph":
             const paragraph = section.content as string;
 

@@ -4,6 +4,7 @@ import useSWR from "swr";
 import Image from "next/image";
 import { findFlagUrlByCountryName } from "country-flags-svg";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 
 import { MultiSelectProps } from "@/components/ui/multi-select";
 import { TabsContent } from "@/components/ui/tabs";
@@ -56,6 +57,7 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 
   const translations = useTranslations("filters");
+  const router = useRouter();
 
   useEffect(() => {
     setSearch(`search=${searchText}`);
@@ -107,21 +109,22 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
       isLoadingItemList ? (
         <SkeletonList />
       ) : (
-        itemList?.slice(0, 10)?.map(({ countryLang, lang, id }) => {
-          const countryUrl = findFlagUrlByCountryName(countryLang.name);
+        itemList?.slice(0, 10)?.map(({ countryLang, lang, id, cover, country }) => {
+          const countryUrl = findFlagUrlByCountryName(country.slug);
 
           return isCard ? (
             <div
               key={id}
               className={cn(
-                "w-full justify-self-center space-y-3 p-4 rounded-lg bg-gray-100 hover:bg-gray-200 cursor-default"
+                "w-full justify-self-center space-y-3 p-4 rounded-lg bg-gray-100 hover:bg-gray-200 cursor-default hover:cursor-pointer"
               )}
+              onClick={() => router.push(`/national-sections/${id}`)}
             >
               <div>
                 <div className="relative w-full h-[220px]">
                   <Image
                     fill
-                    src={countryUrl || "/placeholder.svg"}
+                    src={cover?.url || countryUrl || "/placeholder.svg"}
                     alt="Festival Picture"
                     className="rounded-lg aspect-video"
                     blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOsbmysBwAE+gH+lB3PkwAAAABJRU5ErkJggg=="
