@@ -1,4 +1,4 @@
-import { and, eq, ilike, inArray, SQLWrapper } from "drizzle-orm";
+import { and, eq, ilike, inArray, SQLWrapper, aliasedTable } from "drizzle-orm";
 import { NextRequest } from "next/server";
 
 import {
@@ -13,11 +13,14 @@ import {
   SelectNationalSectionLang,
   SelectNationalSectionPositions,
   storages,
+  SelectStorage,
 } from "@/db/schema";
 import { db } from "@/db";
 import { defaultLocale, Locale } from "@/i18n/config";
 
-const PAGE_SIZE = 55;
+const PAGE_SIZE = 85;
+
+const coverStorage = aliasedTable(storages, "cover");
 
 export type BuildNationalSectionFilterType = Awaited<
   ReturnType<typeof buildFilter>
@@ -50,6 +53,7 @@ async function buildFilter(request: NextRequest) {
       positions: nationalSectionsPositions,
       id: nationalSections.id,
       countryLang: countriesLang,
+      cover: coverStorage,
     })
     .from(nationalSections)
     .leftJoin(countries, eq(nationalSections.countryId, countries.id))
@@ -61,6 +65,10 @@ async function buildFilter(request: NextRequest) {
     .leftJoin(
       nationalSectionsPositions,
       eq(nationalSectionsPositions.nsId, nationalSections.id)
+    )
+    .leftJoin(
+      coverStorage,
+      eq(nationalSectionsPositions.photoId, coverStorage.id)
     )
     .$dynamic();
 
@@ -85,7 +93,8 @@ async function buildFilter(request: NextRequest) {
       countriesLang.id,
       nationalSectionsLang.id,
       nationalSectionsPositions.id,
-      nationalSections.id
+      nationalSections.id,
+      coverStorage.id
     )
     .limit(PAGE_SIZE)
     .offset((page - 1) * PAGE_SIZE);
@@ -99,6 +108,7 @@ async function buildFilter(request: NextRequest) {
         positions: SelectNationalSectionPositions;
         countryLang: SelectCountryLang;
         id: number;
+        cover: SelectStorage|null;
       }
     >
   >((acc, row) => {
@@ -106,6 +116,7 @@ async function buildFilter(request: NextRequest) {
     const lang = row.langs;
     const position = row.positions;
     const countryLang = row.countryLang;
+    const cover = row.cover ?? null;
 
     if (!acc[row.id]) {
       acc[row.id] = {
@@ -114,6 +125,7 @@ async function buildFilter(request: NextRequest) {
         lang: lang!,
         id: row.id,
         countryLang: countryLang!,
+        cover: cover,
       };
     }
 
