@@ -76,7 +76,8 @@
     "settings": "Settings",
     "sub-pages": "Subpages",
     "send-emails": "Send emails",
-    "customization": "Customization"
+    "customization": "Customization",
+    "website": "Go to website"
   },
   "form": {
     "notResults": "No results found",

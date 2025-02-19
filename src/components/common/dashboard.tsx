@@ -242,6 +242,15 @@ export default async function Dashboard({
               className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
             />
           </div>
+          <Button variant="outline">
+            <Link
+              href="/"
+              className="flex items-center gap-4 px-2.5 text-foreground"
+              prefetch={false}
+            >
+              {t("website")}
+            </Link>
+          </Button>
           <div>
             <LocaleSwitcher
               locales={locales}
