@@ -30,6 +30,8 @@ import {
   TimelineIcon,
 } from "@/components/extension/timeline";
 import { getTranslations } from "next-intl/server";
+import { auth } from "@/auth";
+import { ForbiddenContent } from "@/components/common/forbidden-content";
 
 export interface CustomImage extends GalleryImage {}
 
@@ -38,6 +40,7 @@ export default async function EventDetail({
 }: {
   params: { id: string };
 }) {
+  const session = await auth();
   const locale = await getLocale();
   const formatter = await getFormatter();
   const festival = await getFestivalById(Number(params.id), locale);
@@ -192,70 +195,80 @@ export default async function EventDetail({
                       <CardTitle>{translations("contact")}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-gray-500">
-                        {translations("director")}:&nbsp;
-                        {festival?.directorName ?? "Pending"}
-                      </p>
-                      <p className="text-gray-500">
-                        {translations("email")}:&nbsp;
-                        {festival?.email ??
-                          festival?.owners[0]?.user?.email ??
-                          "Pending"}
-                      </p>
-                      <p>
-                        {festival?.langs.find((item) => item.l?.code === locale)
-                          ?.address ||
-                          festival?.langs.find(
-                            (item) => item.l?.code === defaultLocale
-                          )?.address}
-                      </p>
-                      <p className="flex gap-1 items-center">
-                        <Phone size={14} className="text-gray-500" />
-                        <Link
-                          className="text-gray-500"
-                          href={`tel:${festival?.phone}`}
-                        >
-                          {festival?.phone}
-                        </Link>
-                      </p>
-                      <p className="flex gap-2 pt-6">
-                        {festival?.social?.websiteLink ? (
-                          <Link
-                            href={festival?.social?.websiteLink}
-                            target="_blank"
-                            title="Website"
-                          >
-                            <Link2 size={20} className="text-gray-500" />
-                          </Link>
-                        ) : null}
-                        {festival?.social?.facebookLink ? (
-                          <Link
-                            href={festival?.social?.facebookLink}
-                            target="_blank"
-                            title="Facebook Link"
-                          >
-                            <Facebook size={20} className="text-gray-500" />
-                          </Link>
-                        ) : null}
-                        {festival?.social?.instagramLink ? (
-                          <Link
-                            href={festival?.social?.instagramLink}
-                            target="_blank"
-                            title="Instagram Link"
-                          >
-                            <Instagram size={20} className="text-gray-500" />
-                          </Link>
-                        ) : null}
-                        {festival?.youtubeId ? (
-                          <Link
-                            href={festival?.youtubeId}
-                            target="_blank"
-                            title="youtube Link"
-                          >
-                            <Youtube size={20} className="text-gray-500" />
-                          </Link>
-                        ) : null}
-                      </p>
+                      {session !== null ? (
+                        <>
+                          <p className="text-gray-500">
+                            {translations("director")}:&nbsp;
+                            {festival?.directorName ?? "Pending"}
+                          </p>
+                          <p className="text-gray-500">
+                            {translations("email")}:&nbsp;
+                            {festival?.email ??
+                              festival?.owners[0]?.user?.email ??
+                              "Pending"}
+                          </p>
+                          <p>
+                            {festival?.langs.find(
+                              (item) => item.l?.code === locale
+                            )?.address ||
+                              festival?.langs.find(
+                                (item) => item.l?.code === defaultLocale
+                              )?.address}
+                          </p>
+                          <p className="flex gap-1 items-center">
+                            <Phone size={14} className="text-gray-500" />
+                            <Link
+                              className="text-gray-500"
+                              href={`tel:${festival?.phone}`}
+                            >
+                              {festival?.phone}
+                            </Link>
+                          </p>
+                          <p className="flex gap-2 pt-6">
+                            {festival?.social?.websiteLink ? (
+                              <Link
+                                href={festival?.social?.websiteLink}
+                                target="_blank"
+                                title="Website"
+                              >
+                                <Link2 size={20} className="text-gray-500" />
+                              </Link>
+                            ) : null}
+                            {festival?.social?.facebookLink ? (
+                              <Link
+                                href={festival?.social?.facebookLink}
+                                target="_blank"
+                                title="Facebook Link"
+                              >
+                                <Facebook size={20} className="text-gray-500" />
+                              </Link>
+                            ) : null}
+                            {festival?.social?.instagramLink ? (
+                              <Link
+                                href={festival?.social?.instagramLink}
+                                target="_blank"
+                                title="Instagram Link"
+                              >
+                                <Instagram
+                                  size={20}
+                                  className="text-gray-500"
+                                />
+                              </Link>
+                            ) : null}
+                            {festival?.youtubeId ? (
+                              <Link
+                                href={festival?.youtubeId}
+                                target="_blank"
+                                title="youtube Link"
+                              >
+                                <Youtube size={20} className="text-gray-500" />
+                              </Link>
+                            ) : null}
+                          </p>
+                        </>
+                      ) : (
+                        <ForbiddenContent />
+                      )}
                     </CardContent>
                   </Card>
                 </div>

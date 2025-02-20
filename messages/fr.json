@@ -563,5 +563,9 @@
     "call": "Appeler",
     "email": "Email",
     "portfolioLink": "portfolio/brochure"
+  },
+  "common": {
+    "forbiddenDescription": "Vous devez vous connecter pour voir les informations de contact.",
+    "signIn": "Se connecter"
   }
 }

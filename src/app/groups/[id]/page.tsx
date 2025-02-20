@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import { Image as GalleryImage } from "react-grid-gallery";
 import { getGroupById } from "@/db/queries/groups";
+import { auth } from "@/auth";
+import { ForbiddenContent } from "@/components/common/forbidden-content";
 
 export interface CustomImage extends GalleryImage {}
 
@@ -28,6 +30,7 @@ export default async function EventDetail({
 }: {
   params: { id: string };
 }) {
+  const session = await auth();
   const locale = await getLocale();
   const formatter = await getFormatter();
   const festival = await getGroupById(Number(params.id));
@@ -247,81 +250,91 @@ export default async function EventDetail({
                       <CardTitle>Contact</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-gray-500">
-                        {translations("email")}:&nbsp;
-                        {festival?.subgroups[0]?.contactMail ??
-                          festival?.owners[0]?.user?.email ??
-                          "Pending"}
-                      </p>
-                      <p>
-                        {festival?.langs.find((item) => item.l?.code === locale)
-                          ?.address ||
-                          festival?.langs.find(
-                            (item) => item.l?.code === defaultLocale
-                          )?.address}
-                      </p>
-                      {festival?.phone && (
-                        <p className="flex gap-1 items-center">
-                          <Phone size={14} className="text-gray-500" />
-                          <Link
-                            className="text-gray-500"
-                            href={`tel:${festival?.phone}`}
-                          >
-                            {festival?.phone}
-                          </Link>
-                        </p>
+                      {session !== null ? (
+                        <>
+                          <p className="text-gray-500">
+                            {translations("email")}:&nbsp;
+                            {festival?.subgroups[0]?.contactMail ??
+                              festival?.owners[0]?.user?.email ??
+                              "Pending"}
+                          </p>
+                          <p>
+                            {festival?.langs.find(
+                              (item) => item.l?.code === locale
+                            )?.address ||
+                              festival?.langs.find(
+                                (item) => item.l?.code === defaultLocale
+                              )?.address}
+                          </p>
+                          {festival?.phone && (
+                            <p className="flex gap-1 items-center">
+                              <Phone size={14} className="text-gray-500" />
+                              <Link
+                                className="text-gray-500"
+                                href={`tel:${festival?.phone}`}
+                              >
+                                {festival?.phone}
+                              </Link>
+                            </p>
+                          )}
+                          {festival?.linkPortfolio && (
+                            <p className="flex gap-1 items-center text-gray-500">
+                              {translations("portfolioLink")}:&nbsp;
+                              <Link
+                                href={festival?.linkPortfolio!}
+                                target="_blank"
+                                title="portfolio Link"
+                                className="line-clamp-1 hover:underline"
+                              >
+                                {festival?.linkPortfolio}
+                              </Link>
+                            </p>
+                          )}
+                          <p className="flex gap-2 pt-6">
+                            {festival?.websiteLink ? (
+                              <Link
+                                href={festival?.websiteLink}
+                                target="_blank"
+                                title="Website"
+                              >
+                                <Link2 size={20} className="text-gray-500" />
+                              </Link>
+                            ) : null}
+                            {festival?.facebookLink ? (
+                              <Link
+                                href={festival?.facebookLink}
+                                target="_blank"
+                                title="Facebook Link"
+                              >
+                                <Facebook size={20} className="text-gray-500" />
+                              </Link>
+                            ) : null}
+                            {festival?.instagramLink ? (
+                              <Link
+                                href={festival?.instagramLink}
+                                target="_blank"
+                                title="Instagram Link"
+                              >
+                                <Instagram
+                                  size={20}
+                                  className="text-gray-500"
+                                />
+                              </Link>
+                            ) : null}
+                            {festival?.youtubeId ? (
+                              <Link
+                                href={festival?.youtubeId}
+                                target="_blank"
+                                title="youtube Link"
+                              >
+                                <Youtube size={20} className="text-gray-500" />
+                              </Link>
+                            ) : null}
+                          </p>
+                        </>
+                      ) : (
+                        <ForbiddenContent />
                       )}
-                      {festival?.linkPortfolio && (
-                        <p className="flex gap-1 items-center text-gray-500">
-                          {translations("portfolioLink")}:&nbsp;
-                          <Link
-                            href={festival?.linkPortfolio!}
-                            target="_blank"
-                            title="portfolio Link"
-                            className="line-clamp-1 hover:underline"
-                          >
-                            {festival?.linkPortfolio}
-                          </Link>
-                        </p>
-                      )}
-                      <p className="flex gap-2 pt-6">
-                        {festival?.websiteLink ? (
-                          <Link
-                            href={festival?.websiteLink}
-                            target="_blank"
-                            title="Website"
-                          >
-                            <Link2 size={20} className="text-gray-500" />
-                          </Link>
-                        ) : null}
-                        {festival?.facebookLink ? (
-                          <Link
-                            href={festival?.facebookLink}
-                            target="_blank"
-                            title="Facebook Link"
-                          >
-                            <Facebook size={20} className="text-gray-500" />
-                          </Link>
-                        ) : null}
-                        {festival?.instagramLink ? (
-                          <Link
-                            href={festival?.instagramLink}
-                            target="_blank"
-                            title="Instagram Link"
-                          >
-                            <Instagram size={20} className="text-gray-500" />
-                          </Link>
-                        ) : null}
-                        {festival?.youtubeId ? (
-                          <Link
-                            href={festival?.youtubeId}
-                            target="_blank"
-                            title="youtube Link"
-                          >
-                            <Youtube size={20} className="text-gray-500" />
-                          </Link>
-                        ) : null}
-                      </p>
                     </CardContent>
                   </Card>
                 </div>

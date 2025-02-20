@@ -581,5 +581,9 @@
     "call": "Call",
     "email": "Email",
     "portfolioLink": "portfolio/brochure"
+  },
+  "common": {
+    "forbiddenDescription": "You must log in to view the contact information.",
+    "signIn": "Sign in"
   }
 }
