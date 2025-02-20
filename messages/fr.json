@@ -164,7 +164,8 @@
       "_ageOfParticipants": "Âge des participants",
       "_styleOfFestival": "Style de festival",
       "_typeOfFestival": "Type de festival",
-      "_status": "Statut"
+      "_status": "Statut",
+      "imageDimensions": "Les dimensions de l'image doivent être de 1200 x 400 px."
     },
     "ns": {
       "title": "AJOUTER UNE SECTION NATIONALE",
@@ -297,7 +298,8 @@
       "recognition_certification": "Attestation de reconnaissance",
       "upload_recogn_cert": "Télécharger le certificat de reconnaissance",
       "cancel": "Annuler",
-      "save": "Gurdar"
+      "save": "Gurdar",
+      "imageDimensions": "Les dimensions de l'image doivent être de 1200 x 400 px."
     }
   },
   "maps": {
@@ -382,6 +384,7 @@
       "isNews": "Est-ce une nouvelle ?",
       "isNewsDescription": "Cochez pour créer une nouvelle; sinon, ce sera une page.",
       "mainImage": "Image principale",
+      "imageDimensions": "Les dimensions de l'image doivent être de 2031 x 640 px.",
       "sections": {
         "paragraph": "Ajouter un paragraphe",
         "image": "Ajouter une image",

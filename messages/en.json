@@ -181,7 +181,8 @@
       "_typeOfFestival": "Type of festival",
       "_status": "Status",
       "_categories": "Categories",
-      "placeholder_categories": "Festival categories"
+      "placeholder_categories": "Festival categories",
+      "imageDimensions": "The image dimensions must be 1200 x 400 px."
     },
     "ns": {
       "title": "ADD A NATIONAL SECTION",
@@ -314,7 +315,8 @@
       "recognition_certification": "Recognition Certification",
       "upload_recogn_cert": "Upload recognition certificate",
       "cancel": "Cancel",
-      "save": "Save"
+      "save": "Save",
+      "imageDimensions": "The image dimensions must be 1200 x 400 px."
     }
   },
   "maps": {
@@ -399,6 +401,7 @@
       "isNews": "Is it news?",
       "isNewsDescription": "Check to create news; otherwise, it will be a page.",
       "mainImage": "Main image",
+      "imageDimensions": "The image dimensions must be 2031 x 640 px.",
       "sections": {
         "paragraph": "Add paragraph",
         "image": "Add image",

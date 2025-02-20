@@ -541,6 +541,9 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
             defaultFiles={initialValues.mainImage}
             onprocessfile={onLoadMainImage}
           />
+          <span className="-mt-7 text-muted-foreground text-sm">
+            {translations("imageDimensions")}
+          </span>
         </div>
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="article">

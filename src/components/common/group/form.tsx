@@ -1670,7 +1670,9 @@ export default function GroupForm({
                           : []
                       }
                     />
-                    <p className="text-sm text-gray-500">{t("size_tbc")}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {t("imageDimensions")}
+                    </p>
                     <input
                       name="coverPhotoId"
                       type="hidden"

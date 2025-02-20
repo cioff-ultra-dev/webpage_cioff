@@ -682,7 +682,7 @@ export default function EventForm({
                             {t("email_address")}
                           </FormLabel>
                           <FormControl>
-                            <Input {...field} readOnly />
+                            <Input {...field} />
                           </FormControl>
                           <FormDescription>
                             {t("current_user_this_festival")}
@@ -1921,7 +1921,9 @@ export default function EventForm({
                           : []
                       }
                     />
-                    <p className="text-sm text-gray-500">{t("size_tbc")}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {t("imageDimensions")}
+                    </p>
                     <input
                       name="coverPhotoId"
                       type="hidden"

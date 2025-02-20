@@ -92,7 +92,7 @@
         "ageOfParticipants": "Edad de los participantes",
         "styleOfFestival": "Estilo del festival",
         "typeOfAccomodation": "Tipo de alojamiento",
-        "others":"Otros"
+        "others": "Otros"
       },
       "name": "Nombre del festival",
       "phone": "Número de teléfono",
@@ -164,7 +164,8 @@
       "_typeOfFestival": "Tipo de festival",
       "_status": "Estado",
       "_categories": "Categorias",
-      "placeholder_categories": "Categorias del festival"
+      "placeholder_categories": "Categorias del festival",
+      "imageDimensions": "las medidas de la imagen debe ser de 1200 x 400 px."
     },
     "ns": {
       "title": "AGREGAR UNA SECCIÓN NACIONAL",
@@ -297,7 +298,8 @@
       "recognition_certification": "Certificación de reconocimiento",
       "upload_recogn_cert": "Cargar certificado de reconocimiento",
       "cancel": "Cancelar",
-      "save": "Gurdar"
+      "save": "Gurdar",
+      "imageDimensions": "las medidas de la imagen debe ser de 1200 x 400 px."
     }
   },
   "maps": {
@@ -382,6 +384,7 @@
       "isNews": "¿Es noticia?",
       "isNewsDescription": "Marque para crear una noticia; si no, será una página",
       "mainImage": "Imagen principal",
+      "imageDimensions": "las medidas de la imagen debe ser de 2031 x 640 px.",
       "sections": {
         "paragraph": "Agregar parrafo",
         "image": "Agregar imagen",
