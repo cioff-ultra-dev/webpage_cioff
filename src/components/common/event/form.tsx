@@ -113,10 +113,7 @@ const globalEventSchema = insertFestivalSchema.merge(
     _currentDates: z.array(z.object({ _rangeDate: dateRangeSchema })),
     _nextDates: z.array(z.object({ _rangeDate: dateRangeSchema })),
     _transportLocation: z.string().optional(),
-    _ageOfParticipants: z.array(z.string()).nonempty(),
-    _styleOfFestival: z.array(z.string()).nonempty(),
     _typeOfAccomodation: z.string().optional(),
-    _typeOfFestival: z.array(z.string()).nonempty(),
     _categories: z.array(z.string()).nonempty(),
     _status: z.string().optional(),
     _recognizedSince: z.string(),
@@ -195,7 +192,6 @@ function Submit({
     <Button
       type="submit"
       aria-disabled={isLoading}
-      disabled={isLoading}
       className="space-y-0"
       variant={variant}
     >
@@ -286,15 +282,12 @@ export default function EventForm({
       lat: currentFestival?.lat ?? "",
       lng: currentFestival?.lng ?? "",
       translatorLanguages: currentFestival?.translatorLanguages ?? null,
-      _ageOfParticipants: currentCategoriesSelected,
-      _styleOfFestival: currentCategoriesSelected,
       _typeOfAccomodation:
         currentCategoriesSelected?.find((item) => {
           return categoryGroups
             .find((group) => group.slug === "type-of-accomodation")
             ?.categories.some((category) => item === String(category.id));
         }) ?? "",
-      _typeOfFestival: currentCategoriesSelected,
       _categories: currentCategoriesSelected,
       _status: currentFestival?.status?.id
         ? String(currentFestival?.status.id)
@@ -545,6 +538,11 @@ export default function EventForm({
             onSubmit={form.handleSubmit(onSubmitForm)}
             className="space-y-6"
           >
+            <input
+              type="hidden"
+              name="countryId"
+              value={session?.user?.countryId ?? ""}
+            />
             <FormField
               control={form.control}
               name="id"
@@ -2448,10 +2446,7 @@ export default function EventForm({
                       <Button variant="ghost" asChild>
                         <Link href="/dashboard/festivals">{t("cancel")}</Link>
                       </Button>
-                      <Submit
-                        label={t("save")}
-                        isLoading={form.formState.isSubmitting}
-                      />
+                      <Submit label={t("save")} />
                     </div>
                   </CardContent>
                 </Card>

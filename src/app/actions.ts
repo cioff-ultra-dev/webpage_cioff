@@ -76,6 +76,7 @@ import path from "path";
 import { tmpdir } from "os";
 import { getTranslateText } from "@/lib/translate";
 import { Locale, pickLocales } from "@/i18n/config";
+import { group } from "console";
 
 const urlStringSchema = z.string().trim().url();
 
@@ -1629,6 +1630,7 @@ export async function updateFestival(formData: FormData) {
 
   const photos = formData.getAll("photos") as string[];
   const stagePhotos = formData.getAll("stagePhotos") as string[];
+  const countryId = Number(formData.get("countryId"));
 
   const currentDates: InsertEvent[] = [];
   const currentTransportLocations: InsertTransportLocations[] = [];
@@ -1678,6 +1680,8 @@ export async function updateFestival(formData: FormData) {
           ? accomodationNextId
           : undefined,
         youtubeId,
+        slug: slug(name),
+        countryId,
       })
       .onConflictDoUpdate({
         target: festivals.id,
@@ -1756,7 +1760,7 @@ export async function updateFestival(formData: FormData) {
           festivalId: currentFestival.id,
           description: newDescription?.result,
           otherTranslatorLanguage: newOtherTranslator?.result,
-          name: newName?.result,
+          name,
           lang:
             currentFestivalLangs.find((item) => item.l?.code === _currentLocale)
               ?.lang ||
@@ -2225,6 +2229,7 @@ export async function updateGroup(formData: FormData) {
   const location = formData.get("location") as string;
   const lat = formData.get("lat") as string;
   const lng = formData.get("lng") as string;
+  const countryId = Number(formData.get("countryId"));
 
   const groupCategories = [...typeGroups, ...groupAge, ...styleGroup];
 
@@ -2262,8 +2267,9 @@ export async function updateGroup(formData: FormData) {
     const logoNextId = await uploadFileStreams(logo, tx, "groups", logoId);
 
     const [currentGroup] = await tx
-      .update(groups)
-      .set({
+      .insert(groups)
+      .values({
+        id: id === 0 ? undefined : id,
         generalDirectorName,
         generalDirectorPhotoId: generaltDirectorPhotoNextId
           ? generaltDirectorPhotoNextId
@@ -2295,8 +2301,30 @@ export async function updateGroup(formData: FormData) {
         location,
         lng,
         lat,
+        countryId,
       })
-      .where(eq(groups.id, id))
+      .onConflictDoUpdate({
+        target: groups.id,
+        set: buildConflictUpdateColumns(groups, [
+          "generalDirectorName",
+          "artisticDirectorName",
+          "musicalDirectorName",
+          "phone",
+          "isAbleTravel",
+          "isAbleTravelLiveMusic",
+          "membersNumber",
+          "specificTravelDateFrom",
+          "specificTravelDateTo",
+          "specificRegion",
+          "facebookLink",
+          "instagramLink",
+          "websiteLink",
+          "linkPortfolio",
+          "location",
+          "lng",
+          "lat",
+        ]),
+      })
       .returning();
 
     const currentCountry = await tx.query.countries.findFirst({
@@ -2318,10 +2346,6 @@ export async function updateGroup(formData: FormData) {
         },
       });
 
-      const nameTranslateResults = await getTranslateText(
-        name,
-        locale as Locale
-      );
       const descriptionTranslateResults = await getTranslateText(
         description,
         locale as Locale
@@ -2350,10 +2374,6 @@ export async function updateGroup(formData: FormData) {
           locale: _currentLocale,
         });
 
-        const newName = nameTranslateResults.find(
-          (item) => item.locale === _currentLocale
-        );
-
         const newDescription = descriptionTranslateResults.find(
           (item) => item.locale === _currentLocale
         );
@@ -2381,7 +2401,7 @@ export async function updateGroup(formData: FormData) {
           id:
             currentGroupLangs.find((item) => item.l?.code === _currentLocale)
               ?.id || undefined,
-          name: newName?.result!,
+          name,
           description: newDescription?.result,
           address: newAddress?.result,
           generalDirectorProfile: newGeneralDirectorProfile?.result,

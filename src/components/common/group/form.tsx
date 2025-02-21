@@ -450,6 +450,11 @@ export default function GroupForm({
             className="space-y-6"
             onSubmit={form.handleSubmit(onSubmitForm)}
           >
+            <input
+              type="hidden"
+              name="countryId"
+              value={session?.user?.countryId ?? ""}
+            />
             <FormField
               control={form.control}
               name="id"
