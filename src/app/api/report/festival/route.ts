@@ -10,7 +10,7 @@ import {
 import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 
-export function calculateRatingResult(ratings: number[]) {
+function calculateRatingResult(ratings: number[]) {
   const totalRatings = ratings.length;
   if (totalRatings === 0) return 0;
 
