@@ -4,12 +4,17 @@ import { getNationalSectionById } from "@/db/queries/national-sections";
 import {
   getFestivalsAndGroupsCounts,
   getOwnerByUserId,
+  getReportNationalSection,
   getReportTypeCategoriesBySlugs,
 } from "@/db/queries/reports";
 import { getLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
 
-export default async function ReportNationalSection() {
+export default async function ReportNationalSection({
+  params,
+}: {
+  params: { id: string };
+}) {
   const session = await auth();
   const locale = await getLocale();
 
@@ -44,6 +49,10 @@ export default async function ReportNationalSection() {
   );
 
   const counts = await getFestivalsAndGroupsCounts(session.user.countryId!);
+  const currentReport = await getReportNationalSection(
+    Number(params.id),
+    locale
+  );
 
   return (
     <ReportNationalSectionForm
@@ -53,6 +62,7 @@ export default async function ReportNationalSection() {
       reportTypeCategoryActivity={reportTypeCategoryActivity}
       reportModalityCategoryActivity={reportModalityCategoryActivity}
       reportLengthCategoryActivity={reportLengthCategoryActivity}
+      currentReport={currentReport}
     />
   );
 }

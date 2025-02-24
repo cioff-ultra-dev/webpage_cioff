@@ -316,6 +316,62 @@
       "when": 1738784575967,
       "tag": "0041_light_spectrum",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1739893008526,
+      "tag": "0042_puzzling_echo",
+      "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1740014786016,
+      "tag": "0043_quiet_dracula",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1740151868956,
+      "tag": "0044_conscious_power_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1740152911964,
+      "tag": "0045_silly_sabra",
+      "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1740234441373,
+      "tag": "0046_shocking_daimon_hellstrom",
+      "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1740244178388,
+      "tag": "0047_wise_albert_cleary",
+      "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1740353123177,
+      "tag": "0048_tired_multiple_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1740353943431,
+      "tag": "0049_illegal_roulette",
+      "breakpoints": true
     }
   ]
 }

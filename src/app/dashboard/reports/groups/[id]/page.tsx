@@ -5,11 +5,16 @@ import { getGroupById } from "@/db/queries/groups";
 import {
   getAllRatingQuestionByType,
   getOwnerByUserId,
+  getReportGroup,
   getReportTypeCategoriesBySlugs,
 } from "@/db/queries/reports";
 import { getLocale } from "next-intl/server";
 
-export default async function ReportNationalSection() {
+export default async function ReportGroupDetailsPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const session = await auth();
   const locale = await getLocale();
 
@@ -30,7 +35,7 @@ export default async function ReportNationalSection() {
   const countries = await getAllCountries();
 
   if (owner && !owner.groupId) {
-    return <p>Festival's Owner not found</p>;
+    return <p>Group's Owner not found</p>;
   }
 
   const currentGroup = await getGroupById(owner?.groupId!);
@@ -38,6 +43,7 @@ export default async function ReportNationalSection() {
     "festival",
     locale
   );
+  const currentReport = await getReportGroup(Number(params.id), locale);
 
   return (
     <ReportGroupForm
@@ -47,6 +53,7 @@ export default async function ReportNationalSection() {
       countries={countries}
       reportTypeCategoriesLocales={reportTypeCategoriesLocales}
       reportTypeCategoriesSleeps={reportTypeCategoriesSleeps}
+      currentReport={currentReport}
     />
   );
 }

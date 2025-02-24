@@ -140,6 +140,50 @@ export async function getGroupById(id: SelectGroup["id"]) {
           },
         },
       },
+      festivalsToGroups: {
+        with: {
+          festival: {
+            with: {
+              langs: {
+                with: {
+                  l: true,
+                },
+              },
+              country: {
+                with: {
+                  langs: {
+                    with: {
+                      l: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      reportsFromFestivals: {
+        with: {
+          answers: true,
+          report: {
+            with: {
+              fesival: {
+                with: {
+                  logo: true,
+                  langs: {
+                    where(fields, { inArray }) {
+                      return inArray(fields.lang, sq);
+                    },
+                    with: {
+                      l: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 }

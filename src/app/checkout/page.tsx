@@ -1,8 +1,9 @@
-import { getFormatter } from "next-intl/server";
+import { getFormatter, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import CheckoutCanceled from "@/components/common/payments/checkout-cancel";
 import CheckoutSuccess from "@/components/common/payments/checkout-success";
 import { stripe, type Stripe } from "@/lib/stripe";
+import { getTranslateText } from "@/lib/translate";
 
 export default async function CheckoutPage({
   searchParams,

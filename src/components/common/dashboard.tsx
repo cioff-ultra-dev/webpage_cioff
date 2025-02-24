@@ -8,7 +8,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -147,7 +146,7 @@ export default async function Dashboard({
               </TooltipTrigger>
               <TooltipContent side="right">{t("send-emails")}</TooltipContent>
             </Tooltip>
-            {/* <Tooltip>
+            <Tooltip>
               <TooltipTrigger asChild>
                 <Link
                   href="/dashboard/reports"
@@ -155,11 +154,11 @@ export default async function Dashboard({
                   prefetch={false}
                 >
                   <LineChartIcon className="h-5 w-5" />
-                  <span className="sr-only">Reports</span>
+                  <span className="sr-only">{t("reports")}</span>
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">Reports</TooltipContent>
-            </Tooltip> */}
+              <TooltipContent side="right">{t("reports")}</TooltipContent>
+            </Tooltip>
           </TooltipProvider>
         </nav>
         <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
@@ -172,10 +171,10 @@ export default async function Dashboard({
                   prefetch={false}
                 >
                   <SettingsIcon className="h-5 w-5" />
-                  <span className="sr-only">Settings</span>
+                  <span className="sr-only">{t("settings")}</span>
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">Settings</TooltipContent>
+              <TooltipContent side="right">{t("settings")}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </nav>

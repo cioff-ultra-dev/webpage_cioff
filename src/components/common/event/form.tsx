@@ -248,7 +248,6 @@ export default function EventForm({
     Record<string, number[] | string[]>
   >({});
   const [selectedLanguanges, setSelectedLanguages] = useState<string[]>([]);
-  const [progress, setProgress] = React.useState(13);
   const form = useForm<z.infer<typeof globalEventSchema>>({
     resolver: zodResolver(globalEventSchema),
     shouldUnregister: isNSAccount,

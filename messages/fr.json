@@ -62,7 +62,8 @@
     "customization": "Personnalisation",
     "website": "Aller sur le site web",
     "subscribe": "S'abonner",
-    "billingPortal": "Portail de facturation"
+    "billingPortal": "Portail de facturation",
+    "reports": "Rapports"
   },
   "form": {
     "notResults": "Aucun résultat trouvé",
@@ -326,9 +327,10 @@
     "groups": "Groupes"
   },
   "customErrors": {
-    "file_required": "Le fichier est requis",
-    "invalid_phone_number": "Numéro de téléphone invalide",
-    "password_match": "Le mot de passe ne correspond pas"
+    "file_required": "Veuillez télécharger un fichier",
+    "invalid_phone_number": "Veuillez entrer un numéro de téléphone valide",
+    "password_match": "Les mots de passe ne correspondent pas",
+    "mandatory_rating_comment": "Les commentaires sont obligatoires pour les notes de 0 à 3"
   },
   "formNews": {
     "countrySelect": "Sélectionner un pays"
@@ -569,5 +571,31 @@
   "common": {
     "forbiddenDescription": "Vous devez vous connecter pour voir les informations de contact.",
     "signIn": "Se connecter"
+  },
+  "reports": {
+    "title": "Rapport",
+    "sideActivities": "Activités parallèles",
+    "form": {
+      "festival": {
+        "details": "Détails du festival",
+        "addReportFromFestival": "AJOUTER UN RAPPORT DU FESTIVAL",
+        "reportFestivalDescription": "Veuillez remplir les informations suivantes sur votre festival.",
+        "nonCioffGroups": "Avez-vous eu des groupes non CIOFF?",
+        "howMany": "Combien?",
+        "email": "Adresse électronique",
+        "provideEmail": "Fournissez l'adresse électronique du groupe non CIOFF",
+        "reportQuestions": "Questions du rapport",
+        "bringLiveMusic": "Le groupe a-t-il apporté de la musique en direct?",
+        "rating": "Évaluation"
+      },
+      "rates": {
+        "zero": "0 - Non applicable",
+        "one": "1 - Mauvais",
+        "two": "2 - Faible",
+        "three": "3 - Bon",
+        "four": "4 - Très bon",
+        "five": "5 - Excellent"
+      }
+    }
   }
 }
