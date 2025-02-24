@@ -60,7 +60,7 @@ import fetcher from "@/lib/utils";
 import useSWR from "swr";
 import { buildGroup } from "@/db/queries/groups";
 
-export function calculateRatingResult(ratings: number[]) {
+function calculateRatingResult(ratings: number[]) {
   const totalRatings = ratings.length;
   if (totalRatings === 0) return 0;
 
