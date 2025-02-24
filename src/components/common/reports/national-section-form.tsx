@@ -1,10 +1,14 @@
 "use client";
 
 import { UserDataAuthType } from "@/db/queries";
-import { CountByCountriesResult } from "@/db/queries/reports";
 import {
-  insertActivitySchema,
+  CountByCountriesResult,
+  ReportNationalSectionType,
+  ReportTypeCategoriesType,
+} from "@/db/queries/reports";
+import {
   insertReportNationalSectionLangSchema,
+  insertReportNationalSectionsActivitiesSchema,
   insertReportNationalSectionsSchema,
 } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,11 +47,13 @@ import { PlusCircle } from "lucide-react";
 import useSWRMutation from "swr/mutation";
 import { useRouter } from "next/navigation";
 import { customRevalidateTag } from "../revalidateTag";
-import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
+import { toast } from "sonner";
+import { NationalSectionByIdType } from "@/db/queries/national-sections";
 
 async function insertReport(
   url: string,
-  { arg }: { arg: z.infer<typeof formReportNationalSectionSchema> },
+  { arg }: { arg: z.infer<typeof formReportNationalSectionSchema> }
 ) {
   return await fetch(url, {
     method: "POST",
@@ -59,11 +65,11 @@ async function insertReport(
 }
 
 export const formReportNationalSectionSchema =
-  insertReportNationalSectionsSchema.merge(
+  insertReportNationalSectionsSchema.omit({ slug: true }).merge(
     z.object({
-      _activities: z.array(insertActivitySchema),
-      _lang: insertReportNationalSectionLangSchema,
-    }),
+      _activities: z.array(insertReportNationalSectionsActivitiesSchema),
+      // _lang: insertReportNationalSectionLangSchema.omit({ lang: true }),
+    })
   );
 
 function Submit({
@@ -91,23 +97,58 @@ function Submit({
 export default function ReportNationalSectionForm({
   user,
   counts,
+  currentNationalSection,
+  reportTypeCategoryActivity,
+  reportModalityCategoryActivity,
+  reportLengthCategoryActivity,
+  currentReport,
 }: {
   user: UserDataAuthType;
   counts: CountByCountriesResult;
+  currentNationalSection: NationalSectionByIdType;
+  reportTypeCategoryActivity: ReportTypeCategoriesType;
+  reportModalityCategoryActivity: ReportTypeCategoriesType;
+  reportLengthCategoryActivity: ReportTypeCategoriesType;
+  currentReport?: ReportNationalSectionType;
 }) {
   const router = useRouter();
+  const locale = useLocale();
+  const currentActivitiesSelected = currentReport?.activities ?? [];
 
-  // React Hook Form + Zod + Shadcn
+  const isCurrentReport = Boolean(currentReport?.id);
+
   const form = useForm<z.infer<typeof formReportNationalSectionSchema>>({
     resolver: zodResolver(formReportNationalSectionSchema),
     defaultValues: {
-      festivalSize: counts.festivalCount,
-      groupSize: counts.groupCount,
-      _activities: [{}],
+      nsId: currentNationalSection?.id!,
+      festivalSize: currentReport?.festivalSize || counts.festivalCount,
+      groupSize: currentReport?.groupSize || counts.groupCount,
+      workDescription: currentReport?.workDescription || "",
+      activeNationalCommission:
+        currentReport?.activeNationalCommission || false,
+      associationSize: currentReport?.associationSize || 0,
+      individualMemberSize: currentReport?.individualMemberSize || 0,
+      _activities: !currentActivitiesSelected?.length
+        ? [
+            {
+              name: "",
+              reportLengthCategoryId: 0,
+              reportModalityCategoryId: 0,
+              reportTypeCategoryId: 0,
+              reportNsId: 0,
+            },
+          ]
+        : currentActivitiesSelected.map((item) => ({
+            name: item.name,
+            reportLengthCategoryId: item.reportLengthCategoryId,
+            reportModalityCategoryId: item.reportModalityCategoryId,
+            reportTypeCategoryId: item.reportTypeCategoryId,
+            reportNsId: item.reportNsId,
+            lengthSize: item.lengthSize,
+            performerSize: item.performerSize,
+          })),
     },
   });
-
-  const t = useTranslations("form.festival");
 
   const { fields, append } = useFieldArray({
     control: form.control,
@@ -118,34 +159,39 @@ export default function ReportNationalSectionForm({
     "/api/report/national-section",
     insertReport,
     {
-      onSuccess(data, key, config) {
+      onSuccess(data, _key, _config) {
         if (data) {
-          customRevalidateTag("/dashboard/festivals");
-          router.push("/dashboard/festivals");
-          console.log({ data });
+          if (data.success && data.reportId) {
+            toast.success(data.success);
+            customRevalidateTag("/dashboard/reports");
+            router.push("/dashboard/reports");
+          } else if (data.error) {
+            toast.error(data.error);
+          }
         }
       },
-    },
+    }
   );
 
   async function onSubmit(
-    values: z.infer<typeof formReportNationalSectionSchema>,
+    values: z.infer<typeof formReportNationalSectionSchema>
   ) {
     trigger(values);
   }
 
   return (
     <div className="w-full p-4 md:p-6">
-      <h1 className="text-2xl font-bold">ADD A REPORT FROM NATIONAL SECTION</h1>
-      <p className="text-sm text-muted-foreground pb-10">
+      <h1 className="text-2xl font-bold pb-10">
+        ADD A REPORT FROM NATIONAL SECTION
+      </h1>
+      {/* <p className="text-sm text-muted-foreground pb-10">
         The fields with * are mandatory.
-        {t("directorName")}
-      </p>
+      </p> */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <Card className="w-full mx-auto">
             <CardHeader>
-              <CardTitle>Module: Reports</CardTitle>
+              <CardTitle>Reports</CardTitle>
               <CardDescription>
                 Please fill out the following information about your
                 organization and activities.
@@ -207,30 +253,18 @@ export default function ReportNationalSectionForm({
                         <FormLabel>
                           Number of associations or other organizations
                         </FormLabel>
-                        <Select
-                          onValueChange={(value) =>
-                            field.onChange(Number(value))
-                          }
-                          defaultValue={
-                            field.value ? String(field.value) : undefined
-                          }
-                        >
-                          <FormControl>
-                            <SelectTrigger
-                              ref={field.ref}
-                              onBlur={field.onBlur}
-                            >
-                              <SelectValue placeholder="Select a number of associations" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {[...Array(10)].map((_, i) => (
-                              <SelectItem key={i} value={`${i + 1}`}>
-                                {i + 1}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <FormControl>
+                          <Input
+                            ref={field.ref}
+                            type="number"
+                            disabled={isCurrentReport}
+                            onChange={(value) =>
+                              field.onChange(Number(value.target.value))
+                            }
+                            onBlur={field.onBlur}
+                            value={String(field.value ?? 0)}
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -246,6 +280,7 @@ export default function ReportNationalSectionForm({
                         <FormControl>
                           <Input
                             ref={field.ref}
+                            disabled={isCurrentReport}
                             type="number"
                             onChange={(value) =>
                               field.onChange(Number(value.target.value))
@@ -275,10 +310,11 @@ export default function ReportNationalSectionForm({
                       <FormItem className="space-y-3">
                         <FormLabel>
                           Are you actively engaged with your National
-                          Commission?..
+                          Commission?
                         </FormLabel>
                         <FormControl>
                           <RadioGroup
+                            disabled={isCurrentReport}
                             onValueChange={(value) =>
                               field.onChange(value === "yes")
                             }
@@ -307,12 +343,13 @@ export default function ReportNationalSectionForm({
                 <div>
                   <FormField
                     control={form.control}
-                    name="_lang.workDescription"
+                    name="workDescription"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Description</FormLabel>
                         <FormControl>
                           <Textarea
+                            disabled={isCurrentReport}
                             placeholder="How did you work with them this year"
                             className="resize-none"
                             onChange={(value) =>
@@ -348,12 +385,15 @@ export default function ReportNationalSectionForm({
                         <div>
                           <FormField
                             control={form.control}
-                            name={`_activities.${index}.type`}
+                            name={`_activities.${index}.reportTypeCategoryId`}
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Choose type of activity</FormLabel>
                                 <Select
-                                  onValueChange={field.onChange}
+                                  disabled={isCurrentReport}
+                                  onValueChange={(value) => {
+                                    field.onChange(Number(value));
+                                  }}
                                   defaultValue={
                                     field.value
                                       ? String(field.value)
@@ -369,25 +409,19 @@ export default function ReportNationalSectionForm({
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    <SelectItem value="Conference">
-                                      Conference
-                                    </SelectItem>
-                                    <SelectItem value="Workshop">
-                                      Workshop
-                                    </SelectItem>
-                                    <SelectItem value="Seminar">
-                                      Seminar
-                                    </SelectItem>
-                                    <SelectItem value="Congress">
-                                      Congress
-                                    </SelectItem>
-                                    <SelectItem
-                                      value="National Festival"
-                                      title="Only if it was
-                                      organized by the NS"
-                                    >
-                                      National festival
-                                    </SelectItem>
+                                    {reportTypeCategoryActivity.map((item) => (
+                                      <SelectItem
+                                        key={item.id}
+                                        value={String(item.id)}
+                                      >
+                                        {
+                                          item.langs.find(
+                                            (itemLang) =>
+                                              itemLang.l?.code === locale
+                                          )?.name
+                                        }
+                                      </SelectItem>
+                                    ))}
                                   </SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -405,6 +439,7 @@ export default function ReportNationalSectionForm({
                                 <FormControl>
                                   <Input
                                     ref={field.ref}
+                                    disabled={isCurrentReport}
                                     onChange={(value) =>
                                       field.onChange(value.target.value)
                                     }
@@ -421,14 +456,17 @@ export default function ReportNationalSectionForm({
                         <div>
                           <FormField
                             control={form.control}
-                            name={`_activities.${index}.modality`}
+                            name={`_activities.${index}.reportModalityCategoryId`}
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>
                                   Choose modality of activity
                                 </FormLabel>
                                 <Select
-                                  onValueChange={field.onChange}
+                                  disabled={isCurrentReport}
+                                  onValueChange={(value) => {
+                                    field.onChange(Number(value));
+                                  }}
                                   defaultValue={
                                     field.value
                                       ? String(field.value)
@@ -444,12 +482,21 @@ export default function ReportNationalSectionForm({
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    <SelectItem value="In Person">
-                                      In person
-                                    </SelectItem>
-                                    <SelectItem value="Online">
-                                      Online
-                                    </SelectItem>
+                                    {reportModalityCategoryActivity.map(
+                                      (item) => (
+                                        <SelectItem
+                                          key={item.id}
+                                          value={String(item.id)}
+                                        >
+                                          {
+                                            item.langs.find(
+                                              (itemLang) =>
+                                                itemLang.l?.code === locale
+                                            )?.name
+                                          }
+                                        </SelectItem>
+                                      )
+                                    )}
                                   </SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -464,11 +511,14 @@ export default function ReportNationalSectionForm({
                           <div className="grid grid-cols-2 gap-4">
                             <FormField
                               control={form.control}
-                              name={`_activities.${index}.length`}
+                              name={`_activities.${index}.reportLengthCategoryId`}
                               render={({ field }) => (
                                 <FormItem>
                                   <Select
-                                    onValueChange={field.onChange}
+                                    disabled={isCurrentReport}
+                                    onValueChange={(value) => {
+                                      field.onChange(Number(value));
+                                    }}
                                     defaultValue={
                                       field.value
                                         ? String(field.value)
@@ -484,10 +534,21 @@ export default function ReportNationalSectionForm({
                                       </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                      <SelectItem value="Hours">
-                                        Hours
-                                      </SelectItem>
-                                      <SelectItem value="Days">Days</SelectItem>
+                                      {reportLengthCategoryActivity.map(
+                                        (item) => (
+                                          <SelectItem
+                                            key={item.id}
+                                            value={String(item.id)}
+                                          >
+                                            {
+                                              item.langs.find(
+                                                (itemLang) =>
+                                                  itemLang.l?.code === locale
+                                              )?.name
+                                            }
+                                          </SelectItem>
+                                        )
+                                      )}
                                     </SelectContent>
                                   </Select>
                                   <FormMessage />
@@ -499,32 +560,16 @@ export default function ReportNationalSectionForm({
                               name={`_activities.${index}.lengthSize`}
                               render={({ field }) => (
                                 <FormItem>
-                                  <Select
-                                    onValueChange={(value) =>
-                                      field.onChange(Number(value))
+                                  <Input
+                                    ref={field.ref}
+                                    disabled={isCurrentReport}
+                                    type="number"
+                                    onChange={(value) =>
+                                      field.onChange(Number(value.target.value))
                                     }
-                                    defaultValue={
-                                      field.value
-                                        ? String(field.value)
-                                        : undefined
-                                    }
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger
-                                        ref={field.ref}
-                                        onBlur={field.onBlur}
-                                      >
-                                        <SelectValue placeholder="Select number" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      {[...Array(10)].map((_, i) => (
-                                        <SelectItem key={i} value={`${i + 1}`}>
-                                          {i + 1}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
+                                    onBlur={field.onBlur}
+                                    value={String(field.value ?? 0)}
+                                  />
                                   <FormMessage />
                                 </FormItem>
                               )}
@@ -540,32 +585,16 @@ export default function ReportNationalSectionForm({
                                 <FormLabel>
                                   Number of speakers/performers
                                 </FormLabel>
-                                <Select
-                                  onValueChange={(value) =>
-                                    field.onChange(Number(value))
+                                <Input
+                                  ref={field.ref}
+                                  disabled={isCurrentReport}
+                                  type="number"
+                                  onChange={(value) =>
+                                    field.onChange(Number(value.target.value))
                                   }
-                                  defaultValue={
-                                    field.value
-                                      ? String(field.value)
-                                      : undefined
-                                  }
-                                >
-                                  <FormControl>
-                                    <SelectTrigger
-                                      ref={field.ref}
-                                      onBlur={field.onBlur}
-                                    >
-                                      <SelectValue placeholder="Select number" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {[...Array(10)].map((_, i) => (
-                                      <SelectItem key={i} value={`${i + 1}`}>
-                                        {i + 1}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
+                                  onBlur={field.onBlur}
+                                  value={String(field.value ?? 0)}
+                                />
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -575,24 +604,42 @@ export default function ReportNationalSectionForm({
                     </Card>
                   );
                 })}
-                <Button type="button" onClick={() => append({ name: "" })}>
-                  <PlusCircle className="mr-2 h-4 w-4" /> Add Activity
-                </Button>
+                {!isCurrentReport ? (
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() =>
+                        append({
+                          name: "",
+                          reportLengthCategoryId: NaN,
+                          reportModalityCategoryId: NaN,
+                          reportTypeCategoryId: NaN,
+                          reportNsId: NaN,
+                        })
+                      }
+                    >
+                      <PlusCircle className="mr-2 h-4 w-4" /> Add Activity
+                    </Button>
+                  </div>
+                ) : null}
               </div>
             </CardContent>
           </Card>
-          <div className="sticky bottom-5 mt-4 right-0 flex justify-end px-4">
-            <Card className="flex justify-end gap-4 w-full">
-              <CardContent className="flex-row items-center p-4 flex w-full justify-end">
-                <div className="flex gap-2">
-                  <Button variant="ghost" asChild>
-                    <Link href="/dashboard/national-section">Cancel</Link>
-                  </Button>
-                  <Submit label="Save" isPending={isMutating} />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {!isCurrentReport ? (
+            <div className="sticky bottom-5 mt-4 right-0 flex justify-end px-4">
+              <Card className="flex justify-end gap-4 w-full">
+                <CardContent className="flex-row items-center p-4 flex w-full justify-end">
+                  <div className="flex gap-2">
+                    <Button variant="ghost" asChild>
+                      <Link href="/dashboard/national-section">Cancel</Link>
+                    </Button>
+                    <Submit label="Save" isPending={isMutating} />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          ) : null}
         </form>
       </Form>
     </div>

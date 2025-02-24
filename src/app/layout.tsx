@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import "./globals.css";
 import I18NProvider from "@/components/provider/i18n";
 
+import "@smastrom/react-rating/style.css";
+
 const fontHeading = Inter({
   subsets: ["latin"],
   display: "swap",

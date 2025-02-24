@@ -44,7 +44,11 @@
       "artistic_director": "Artistic Director name",
       "avail_trave_year": "Available for travelling this year",
       "specific_date": "Specific Date",
-      "specific_region": "Specific Region"
+      "specific_region": "Specific Region",
+      "comments": "Comments"
+    },
+    "festival": {
+      "comments": "Comments"
     }
   },
   "action": {
@@ -81,7 +85,8 @@
     "customization": "Customization",
     "website": "Go to website",
     "subscribe": "Subscribe",
-    "billingPortal": "Billing Portal"
+    "billingPortal": "Billing Portal",
+    "reports": "Reports"
   },
   "form": {
     "notResults": "No results found",
@@ -322,7 +327,20 @@
       "upload_recogn_cert": "Upload recognition certificate",
       "cancel": "Cancel",
       "save": "Save",
-      "imageDimensions": "Maximum of 3 images. The image dimensions must be 1200 x 400 px."
+      "imageDimensions": "The image dimensions must be 1200 x 400 px."
+    },
+    "reports": {
+      "form": {
+        "festival": {
+          "_reportGroups": [
+            {
+              "generalComment": "General Comment",
+              "rating": "Rating",
+              "comment": "Comment"
+            }
+          ]
+        }
+      }
     }
   },
   "maps": {
@@ -347,9 +365,12 @@
     "groups": "Groups"
   },
   "customErrors": {
-    "file_required": "File is required",
-    "invalid_phone_number": "Invalid phone number",
-    "password_match": "Password does not match"
+    "file_required": "Please upload a file",
+    "invalid_phone_number": "Please enter a valid phone number",
+    "password_match": "Passwords do not match",
+    "mandatory_rating_comment": "Comments are required for ratings from 0 to 3",
+    "mandatory_rating_comment_1": "Comments are required for ratings from 1 to 3",
+    "description_limit": "Description must be less than 300 words"
   },
   "formNews": {
     "countrySelect": "Select country"
@@ -614,6 +635,74 @@
     "experience": "XX Years of experience",
     "unesco": "With UNESCO since 1984",
     "children": "XX Children festivals and XX Children groups",
-    "more":"More facts and figures..."
+    "more": "More facts and figures...",
+    "emptyContent": "No recent events.",
+    "signIn": "Sign in"
+  },
+  "reports": {
+    "title": "Report",
+    "sideActivities": "Side Activities",
+    "evaluateOtherGroup": "Would you like to evaluate another group?",
+    "evaluateOtherFestival": "If you want to evaluate a different festival:",
+    "form": {
+      "festival": {
+        "details": "Festival Details",
+        "addReportFromFestival": "ADD A REPORT FROM FESTIVAL",
+        "reportFestivalDescription": "Please fill out the following information about your festival.",
+        "nonCioffGroups": "Did you have non-CIOFF group?",
+        "howMany": "How many?",
+        "email": "Email",
+        "provideEmail": "Provide the email of the non-CIOFF group",
+        "reportQuestions": "Report Questions",
+        "bringLiveMusic": "Did the group bring live music?",
+        "rating": "Rating",
+        "comment": "Comment",
+        "commentPlaceholder": "Tell us about your experience",
+        "commentDescription": "Please keep your comment under 300 words",
+        "selectCountry": "Select Country",
+        "selectVerifiedCountry": "Select a verified country to display",
+        "selectGroups": "Select Groups",
+        "generalComment": "General Comment",
+        "sourceData": "What is the source of this figure?"
+      },
+      "group": {
+        "details": "Group Details",
+        "addReportFromGroup": "ADD A REPORT FROM GROUP",
+        "generalReport": "Group General Report",
+        "reportGroupDescription": "Please fill out the following information about your group.",
+        "reportQuestions": "Report Questions",
+        "bringLiveMusic": "Did the group bring live music?",
+        "rating": "Rating",
+        "comment": "Comment",
+        "commentPlaceholder": "Tell us about your experience",
+        "commentDescription": "Please keep your comment under 300 words",
+        "selectCountry": "Select Country",
+        "selectVerifiedCountry": "Select a verified country to display",
+        "selectFestivals": "Select Festivals",
+        "generalComment": "General Comment",
+        "inscribedICH": "Did you represent an inscribed ICH element from your country?",
+        "name": "Name",
+        "provideNameICH": "Provide the name of the inscribed ICH element",
+        "introductionPerformance": "Does the festival have CIOFF introduction before performances?",
+        "leastFiveForeignGroups": "Did the festival had at least 5 foregin groups?",
+        "travelCost": "Did the festival cover the travel costs within the country?",
+        "refreshmentsPerformance": "Did you have refreshments during the performances?",
+        "type_compensation": "Did the festival provide any type of compensation?",
+        "select_type_compensation_display": "Select your type of compensation to display",
+        "financial_compensation": "Financial Compensation",
+        "in_kind_compensation": "In kind Compensation",
+        "you_can_manage_type_compensation": "You can manage your type of compensation here.",
+        "localePerform": "Where did you perform?",
+        "sleepPerform": "Where did you sleep?"
+      },
+      "rates": {
+        "zero": "0 - Non applicable",
+        "one": "1 - Bad",
+        "two": "2 - Weak",
+        "three": "3 - Good",
+        "four": "4 - Very good",
+        "five": "5 - Excellent"
+      }
+    }
   }
 }

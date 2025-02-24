@@ -63,7 +63,8 @@
     "customization": "Personalización",
     "website": "Ir al sitio web",
     "subscribe": "Suscribirse",
-    "billingPortal": "Portal de Facturación"
+    "billingPortal": "Portal de Facturación",
+    "reports": "Informes"
   },
   "form": {
     "notResults": "No se han encontrado resultados",
@@ -330,9 +331,10 @@
     "groups": "Grupos"
   },
   "customErrors": {
-    "file_required": "Archivo es requerido",
-    "invalid_phone_number": "Número de teléfono inválido",
-    "password_match": "Password does not match"
+    "file_required": "Por favor, suba un archivo",
+    "invalid_phone_number": "Por favor, introduzca un número de teléfono válido",
+    "password_match": "Las contraseñas no coinciden",
+    "mandatory_rating_comment": "Los comentarios son obligatorios para calificaciones de 0 a 3"
   },
   "formNews": {
     "countrySelect": "Seleccionar país"
@@ -599,5 +601,31 @@
     "more": "Más datos y cifras...",
     "emptyContent": "No hay eventos recientes.",
     "signIn": "Ingresar"
+  },
+  "reports": {
+    "title": "Informe",
+    "sideActivities": "Actividades Paralelas",
+    "form": {
+      "festival": {
+        "details": "Detalles del Festival",
+        "addReportFromFestival": "AÑADIR UN INFORME DEL FESTIVAL",
+        "reportFestivalDescription": "Por favor complete la siguiente información sobre su festival.",
+        "nonCioffGroups": "¿Tuvo algún grupo que no sea del CIOFF?",
+        "howMany": "¿Cuántos?",
+        "email": "Correo Electrónico",
+        "provideEmail": "Proporcione el correo electrónico del grupo que no es del CIOFF",
+        "reportQuestions": "Preguntas del Informe",
+        "bringLiveMusic": "¿El grupo trajo música en vivo?",
+        "rating": "Calificación"
+      },
+      "rates": {
+        "zero": "0 - No aplicable",
+        "one": "1 - Malo",
+        "two": "2 - Débil",
+        "three": "3 - Bueno",
+        "four": "4 - Muy bueno",
+        "five": "5 - Excelente"
+      }
+    }
   }
 }

@@ -4,13 +4,17 @@ import { getAllCountries } from "@/db/queries/countries";
 import { getFestivalById } from "@/db/queries/events";
 import {
   getAllRatingQuestionByType,
-  getAllReportTypeCategories,
   getOwnerByUserId,
+  getReportFestival,
   getReportTypeCategoriesBySlugs,
 } from "@/db/queries/reports";
 import { getLocale } from "next-intl/server";
 
-export default async function ReportNationalSection() {
+export default async function ReportFestivalDetailsPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const session = await auth();
   const locale = await getLocale();
 
@@ -34,6 +38,7 @@ export default async function ReportNationalSection() {
     "group",
     locale
   );
+  const currentReport = await getReportFestival(Number(params.id), locale);
 
   return (
     <ReportFestivalForm
@@ -42,6 +47,7 @@ export default async function ReportNationalSection() {
       reportTypeCategories={reportTypeCategories}
       ratingQuestions={currentRatingQuestions}
       countries={countries}
+      currentReport={currentReport}
     />
   );
 }

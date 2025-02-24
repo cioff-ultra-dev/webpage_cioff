@@ -1,0 +1,1 @@
+ALTER TABLE "rating_festival_to_groups" ADD COLUMN "general_comment" text NOT NULL;

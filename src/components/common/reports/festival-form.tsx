@@ -1,14 +1,20 @@
 "use client";
 
-import { UserDataAuthType } from "@/db/queries";
-import { CountByCountriesResult } from "@/db/queries/reports";
 import {
-  insertActivitySchema,
-  insertReportNationalSectionsSchema,
+  RatingQuestionsType,
+  ReportFestivalType,
+  ReportTypeCategoriesType,
+} from "@/db/queries/reports";
+import {
+  groups,
+  insertRatingFestivalToGroupsAnswersSchema,
+  insertRatingFestivalToGroupsSchema,
+  insertReportFestivalNonGroupsSchema,
+  insertReportFestivalSchema,
 } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import {
   Card,
   CardContent,
@@ -16,6 +22,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import { toast } from "sonner";
 import {
   Form,
   FormControl,
@@ -29,6 +36,19 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button, ButtonProps } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import Link from "next/link";
+import { PlusCircle } from "lucide-react";
+import useSWRMutation from "swr/mutation";
+import { useRouter } from "next/navigation";
+import { customRevalidateTag } from "../revalidateTag";
+import { useLocale, useTranslations } from "next-intl";
+import { MultiSelect, MultiSelectProps } from "@/components/ui/multi-select";
+import { FestivalByIdType } from "@/db/queries/events";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { useI18nZodErrors } from "@/hooks/use-i18n-zod-errors";
+import { CountryByLocaleType } from "@/db/queries/countries";
 import {
   Select,
   SelectContent,
@@ -36,17 +56,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import Link from "next/link";
-import { PlusCircle } from "lucide-react";
-import useSWRMutation from "swr/mutation";
-import { useRouter } from "next/navigation";
-import { customRevalidateTag } from "../revalidateTag";
-import { Checkbox } from "@/components/ui/checkbox";
+import fetcher from "@/lib/utils";
+import useSWR from "swr";
+import { buildGroup } from "@/db/queries/groups";
+
+export function calculateRatingResult(ratings: number[]) {
+  const totalRatings = ratings.length;
+  if (totalRatings === 0) return 0;
+
+  const sumRatings = ratings.reduce((sum, rating) => sum + rating, 0);
+  return sumRatings / totalRatings;
+}
 
 async function insertReport(
   url: string,
-  { arg }: { arg: z.infer<typeof formReportNationalSectionSchema> }
+  { arg }: { arg: z.infer<typeof formReportFestivalSchema> }
 ) {
   return await fetch(url, {
     method: "POST",
@@ -57,12 +81,50 @@ async function insertReport(
   }).then((response) => response.json());
 }
 
-export const formReportNationalSectionSchema =
-  insertReportNationalSectionsSchema.merge(
-    z.object({
-      _activities: z.array(insertActivitySchema),
-    })
-  );
+export const formReportFestivalSchema = insertReportFestivalSchema.merge(
+  z.object({
+    _typeActivitiesSelected: z.array(z.string()),
+    _isNonCioffGroups: z.boolean().optional(),
+    _countrySelected: z.string().optional(),
+    _currentNonCioffGroups: insertReportFestivalNonGroupsSchema
+      .pick({
+        howMany: true,
+        emailProvided: true,
+      })
+      .optional(),
+    _reportGroups: z.array(
+      insertRatingFestivalToGroupsSchema.omit({ reportFestivalId: true }).merge(
+        z.object({
+          name: z.string(),
+          country: z.string(),
+          confirmed: z.boolean(),
+          _invitationThrough: z.string().optional(),
+          _questions: z.array(
+            insertRatingFestivalToGroupsAnswersSchema
+              .pick({ rating: true, comment: true })
+              .merge(
+                z.object({
+                  name: z.string(),
+                  questionId: z.number(),
+                })
+              )
+              .refine(
+                (data) =>
+                  data.rating > 3 ||
+                  (data.rating <= 3 &&
+                    data.comment &&
+                    data.comment.trim() !== ""),
+                {
+                  path: ["comment"],
+                  params: { i18n: "mandatory_rating_comment" },
+                }
+              )
+          ),
+        })
+      )
+    ),
+  })
+);
 
 function Submit({
   label = "Save",
@@ -87,273 +149,937 @@ function Submit({
 }
 
 export default function ReportFestivalForm({
-  user,
-  counts,
+  festivalId,
+  reportTypeCategories,
+  currentFestival,
+  ratingQuestions,
+  countries,
+  currentReport,
 }: {
-  user: UserDataAuthType;
-  counts: CountByCountriesResult;
+  festivalId: number;
+  reportTypeCategories: ReportTypeCategoriesType;
+  currentFestival: FestivalByIdType;
+  ratingQuestions: RatingQuestionsType;
+  countries?: CountryByLocaleType;
+  currentReport?: ReportFestivalType;
 }) {
-  const router = useRouter();
+  useI18nZodErrors("reports.form.festival");
 
-  const form = useForm<z.infer<typeof formReportNationalSectionSchema>>({
-    resolver: zodResolver(formReportNationalSectionSchema),
+  console.log(currentReport);
+
+  const router = useRouter();
+  const t = useTranslations("reports");
+  const tForm = useTranslations("reports.form.festival");
+  const tRates = useTranslations("reports.form.rates");
+  const locale = useLocale();
+  const groupsConfirmed = currentFestival?.festivalsToGroups ?? [];
+  const currentReportsSelectedGroups =
+    currentReport?.ratingFestivalToGroups ?? [];
+
+  const isCurrentReport = Boolean(currentReport?.id);
+
+  const ratesValues = [
+    tRates("zero"),
+    tRates("one"),
+    tRates("two"),
+    tRates("three"),
+    tRates("four"),
+    tRates("five"),
+  ];
+
+  const form = useForm<z.infer<typeof formReportFestivalSchema>>({
+    resolver: zodResolver(formReportFestivalSchema),
     defaultValues: {
-      festivalSize: counts.festivalCount,
-      groupSize: counts.groupCount,
-      _activities: [{}],
+      slug: "",
+      festivalId,
+      amountPeople: currentReport?.amountPeople ?? 0,
+      disabledAdults: currentReport?.disabledAdults ?? 0,
+      disabledYouth: currentReport?.disabledYouth ?? 0,
+      disabledChildren: currentReport?.disabledChildren ?? 0,
+      amountPerformances: currentReport?.amountPerformances ?? 0,
+      averageCostTicket: currentReport?.averageCostTicket ?? 0,
+      sourceData: currentReport?.sourceData ?? "",
+      _typeActivitiesSelected: currentReport?.activities?.map((item) =>
+        String(item.reportTypeCategoryId)
+      )!,
+      _isNonCioffGroups: !!currentReport?.nonGroups.length,
+      _currentNonCioffGroups: currentReport?.nonGroups.at(0) ?? {
+        howMany: 0,
+        emailProvided: "",
+      },
+      _reportGroups: !currentReportsSelectedGroups.length
+        ? groupsConfirmed.map((item) => ({
+            id: item.groupId!,
+            groupId: item.groupId,
+            confirmed: true,
+            ratingResult: "",
+            name: item.group?.langs.find((lang) => lang?.l?.code === locale)
+              ?.name,
+            country: item.group?.country?.langs.find(
+              (lang) => lang?.l?.code === locale
+            )?.name,
+            amountPersonsGroup: 0,
+            _questions: ratingQuestions.map((question) => ({
+              questionId: question.id,
+              name: question.langs.find((lang) => lang.l.code === locale)
+                ?.name!,
+              rating: 0,
+              comment: "",
+            })),
+          }))
+        : currentReportsSelectedGroups.map((item) => ({
+            id: item.groupId!,
+            groupId: item.groupId,
+            confirmed: groupsConfirmed.some(
+              (group) => group.groupId === item.groupId
+            ),
+            ratingResult: item.ratingResult,
+            generalComment: item.generalComment,
+            name: item.group?.langs.find((lang) => lang?.l?.code === locale)
+              ?.name,
+            country: item.group?.country?.langs.find(
+              (lang) => lang?.l?.code === locale
+            )?.name,
+            amountPersonsGroup: item.amountPersonsGroup ?? 0,
+            isGroupLiveMusic: item.isGroupLiveMusic,
+            isInvitationPerNs: item.isInvitationPerNs,
+            isInvitationPerWebsite: item.isInvitationPerWebsite,
+            _invitationThrough: item.isInvitationPerWebsite
+              ? "isInvitationPerWebsite"
+              : item.isInvitationPerNs
+              ? "isInvitationPerNs"
+              : "",
+            _questions: item.answers.map((answer) => ({
+              questionId: answer.ratingQuestionId,
+              name: ratingQuestions
+                .find((question) => question.id === answer.ratingQuestionId)
+                ?.langs.find((lang) => lang.l.code === locale)?.name!,
+              rating: answer.rating,
+              comment: answer.comment,
+            })),
+          })),
     },
   });
 
-  const { fields, append } = useFieldArray({
+  const {
+    fields: currentReportGroups,
+    append: appendCurrentReportGroups,
+    remove: removeCurrentReportGroups,
+  } = useFieldArray({
     control: form.control,
-    name: "_activities",
+    name: "_reportGroups",
   });
 
+  const currentIsNonCioffGroup = useWatch({
+    control: form.control,
+    name: "_isNonCioffGroups",
+  });
+
+  const currentCountrySelected = useWatch({
+    control: form.control,
+    name: "_countrySelected",
+  });
+
+  type CurrentGroups = Awaited<ReturnType<typeof buildGroup>>;
+
+  const stateGroupFetch = useSWR<{ results: CurrentGroups }>(
+    `/api/group?countryId=${currentCountrySelected ?? ""}`,
+    fetcher
+  );
+
   const { trigger, isMutating } = useSWRMutation(
-    "/api/report/national-section",
+    "/api/report/festival",
     insertReport,
     {
-      onSuccess(data, key, config) {
+      onSuccess(data, _key, _config) {
         if (data) {
-          customRevalidateTag("/dashboard/festivals");
-          router.push("/dashboard/festivals");
-          console.log({ data });
+          if (data.success && data.reportId) {
+            toast.success(data.success);
+            customRevalidateTag("/dashboard/reports");
+            router.push("/dashboard/reports");
+          } else if (data.error) {
+            toast.error(data.error);
+          }
         }
       },
     }
   );
 
-  async function onSubmit(
-    values: z.infer<typeof formReportNationalSectionSchema>
-  ) {
+  async function onSubmit(values: z.infer<typeof formReportFestivalSchema>) {
     trigger(values);
   }
 
   return (
     <div className="w-full p-4 md:p-6">
-      <h1 className="text-2xl font-bold">ADD A REPORT FROM FESTIVAL</h1>
-      <p className="text-sm text-muted-foreground pb-10">
-        The fields with * are mandatory.
-      </p>
+      <h1 className="text-2xl font-bold pb-10">
+        {isCurrentReport
+          ? `#REPORT-F-${currentReport?.id}`
+          : tForm("addReportFromFestival")}
+      </h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <Card className="w-full mx-auto">
             <CardHeader>
-              <CardTitle>Module 1: Festival general report</CardTitle>
+              <CardTitle>{t("title")}</CardTitle>
+              <CardDescription>
+                {tForm("reportFestivalDescription")}
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="attendees">
-                  How many people did attend to your festival this year?
-                </Label>
-                <Input id="attendees" type="number" />
-              </div>
-
-              <div>
-                <Label>Did you have people with disabilities</Label>
-                <RadioGroup>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="yes" id="disabilities-yes" />
-                    <Label htmlFor="disabilities-yes">Yes</Label>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">{tForm("details")}</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <FormField
+                      control={form.control}
+                      name="amountPeople"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Number of people</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              disabled={isCurrentReport}
+                              value={field.value ? String(field.value) : "0"}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Total number of people attended the festival
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="no" id="disabilities-no" />
-                    <Label htmlFor="disabilities-no">No</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              <div>
-                <Label>Can you tell about their age?</Label>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="adults" />
-                    <Label htmlFor="adults">Adults</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="youth" />
-                    <Label htmlFor="youth">Youth/Teenagers</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="children" />
-                    <Label htmlFor="children">Children</Label>
+                  <div>
+                    <FormField
+                      control={form.control}
+                      name="disabledAdults"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Number of disabled adults</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              disabled={isCurrentReport}
+                              value={field.value ? String(field.value) : "0"}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Total number of disabled adults attended the
+                            festival
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <Label htmlFor="source">
-                  What is the source of this figure?
-                </Label>
-                <Input id="source" />
-              </div>
-
-              <div>
-                <Label>Did you have any paid shows?</Label>
-                <RadioGroup>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="yes" id="paid-shows-yes" />
-                    <Label htmlFor="paid-shows-yes">Yes</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <FormField
+                      control={form.control}
+                      name="disabledYouth"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Number of disabled youth</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              disabled={isCurrentReport}
+                              value={field.value ? String(field.value) : "0"}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Total number of disabled youth attended the festival
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="no" id="paid-shows-no" />
-                    <Label htmlFor="paid-shows-no">No</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              <div>
-                <Label>Side activities</Label>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="conferences" />
-                    <Label htmlFor="conferences">Conferences</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="workshops" />
-                    <Label htmlFor="workshops">Workshops</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="crafts-fair" />
-                    <Label htmlFor="crafts-fair">Crafts fair</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="gastronomy" />
-                    <Label htmlFor="gastronomy">Gastronomy fair/display</Label>
+                  <div>
+                    <FormField
+                      control={form.control}
+                      name="disabledChildren"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Number of disabled children</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              disabled={isCurrentReport}
+                              value={field.value ? String(field.value) : "0"}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Total number of disabled children attended the
+                            festival
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Module 2: Festival report on the groups</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Warning: Please enter your answers in French, English or
-                Spanish, reports entered in another language will not be
-                considered!
-              </p>
-
-              <div>
-                <Label>Did you have non-CIOFF groups?</Label>
-                <RadioGroup>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="yes" id="non-cioff-yes" />
-                    <Label htmlFor="non-cioff-yes">Yes</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <FormField
+                      control={form.control}
+                      name="amountPerformances"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Number of performances</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              disabled={isCurrentReport}
+                              value={field.value ? String(field.value) : "0"}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Total number of performances held during the
+                            festival
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="no" id="non-cioff-no" />
-                    <Label htmlFor="non-cioff-no">No</Label>
+                  <div>
+                    <FormField
+                      control={form.control}
+                      name="averageCostTicket"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Average cost of ticket</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              disabled={isCurrentReport}
+                              value={field.value ? String(field.value) : "0"}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Average cost of a ticket for the festival
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
-                </RadioGroup>
-              </div>
-
-              <div>
-                <Label htmlFor="how-many">How many</Label>
-                <Input id="how-many" type="number" />
-              </div>
-
-              <div>
-                <Label htmlFor="email">Provide email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Send email with Google Forms"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="country">Choose a country</Label>
-                <Select>
-                  <SelectTrigger id="country">
-                    <SelectValue placeholder="Select a country" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="country1">Country 1</SelectItem>
-                    <SelectItem value="country2">Country 2</SelectItem>
-                    {/* Add more countries as needed */}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="group">Choose a group</Label>
-                <Select>
-                  <SelectTrigger id="group">
-                    <SelectValue placeholder="Select a group" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="group1">Group 1</SelectItem>
-                    <SelectItem value="group2">Group 2</SelectItem>
-                    {/* Add more groups as needed */}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Rating section */}
-              {[
-                "Music",
-                "Singing",
-                "Performances",
-                "Costumes",
-                "General artistic level",
-                "Group behavior",
-                "Cooperation of the people in charge",
-              ].map((category) => (
-                <div key={category} className="space-y-2">
-                  <Label>{category}</Label>
-                  <RadioGroup>
-                    <div className="flex justify-between">
-                      {[
-                        "0 - Non applicable",
-                        "1 - Bad",
-                        "2 - Weak",
-                        "3 - Good",
-                        "4 - Very good",
-                        "5 - Excellent",
-                      ].map((rating) => (
-                        <div key={rating} className="flex items-center">
-                          <RadioGroupItem
-                            value={rating}
-                            id={`${category}-${rating}`}
+                </div>
+                <div>
+                  <FormField
+                    control={form.control}
+                    name="sourceData"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{tForm("sourceData")}</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Provide the source of the data"
+                            disabled={isCurrentReport}
+                            className="resize-none"
+                            onChange={(e) => field.onChange(e.target.value)}
+                            value={field.value ? String(field.value) : ""}
                           />
-                          <Label
-                            htmlFor={`${category}-${rating}`}
-                            className="ml-2 text-sm"
-                          >
-                            {rating.split(" - ")[0]}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                  </RadioGroup>
-                  <Textarea placeholder="Comments (Max 300 words)" />
+                        </FormControl>
+                        <FormDescription>
+                          Provide the source of the data used in this report
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-              ))}
-
-              <div>
-                <Label htmlFor="general-comment">
-                  General comment on the group
-                </Label>
-                <Textarea id="general-comment" placeholder="Max 300 words" />
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold">
+                    {t("sideActivities")}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Mention if you had activities additional to the main
+                    performances
+                  </p>
+                </div>
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="_typeActivitiesSelected"
+                    render={({ field }) => {
+                      const options: MultiSelectProps["options"] =
+                        reportTypeCategories.map((item) => ({
+                          value: String(item.id),
+                          label: item.langs.find(
+                            (lang) => lang.l.code === locale
+                          )?.name!,
+                          caption: "",
+                        }));
+                      return (
+                        <FormItem>
+                          <FormControl>
+                            <MultiSelect
+                              options={options}
+                              defaultValue={field.value}
+                              disabled={isCurrentReport}
+                              onValueChange={(values) => {
+                                form.setValue(
+                                  "_typeActivitiesSelected",
+                                  values
+                                );
+                              }}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Select the activities that were present during the
+                            festival
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
-          <div className="sticky bottom-5 mt-4 right-0 flex justify-end px-4">
-            <Card className="flex justify-end gap-4 w-full">
-              <CardContent className="flex-row items-center p-4 flex w-full justify-end">
-                <div className="flex gap-2">
-                  <Button variant="ghost" asChild>
-                    <Link href="/dashboard/national-section">Cancel</Link>
-                  </Button>
-                  <Submit label="Save" isPending={isMutating} />
+          <Card className="w-full mx-auto mt-4">
+            <CardHeader>
+              <CardTitle>Report on the groups</CardTitle>
+              <CardDescription>
+                {tForm("reportFestivalDescription")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <FormField
+                    control={form.control}
+                    name="_isNonCioffGroups"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                        <div className="space-y-0.5">
+                          <FormLabel>{tForm("nonCioffGroups")}</FormLabel>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            disabled={isCurrentReport}
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+                {currentIsNonCioffGroup ? (
+                  <div className="pl-5 border-l grid grid-cols-2 gap-4">
+                    <div>
+                      <FormField
+                        control={form.control}
+                        name="_currentNonCioffGroups.howMany"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{tForm("howMany")}</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                disabled={isCurrentReport}
+                                onChange={(event) => {
+                                  field.onChange(Number(event.target.value));
+                                }}
+                                onBlur={field.onBlur}
+                                value={field.value ? Number(field.value) : 0}
+                                name={field.name}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div>
+                      <FormField
+                        control={form.control}
+                        name="_currentNonCioffGroups.emailProvided"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{tForm("email")}</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="email"
+                                disabled={isCurrentReport}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                value={field.value ? String(field.value) : ""}
+                                name={field.name}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              {tForm("provideEmail")}
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+              {!isCurrentReport ? (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">
+                    {t("evaluateOtherGroup")}
+                  </h3>
+                  <div>
+                    <FormField
+                      control={form.control}
+                      name="_countrySelected"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{tForm("selectCountry")}</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue
+                                  placeholder={tForm("selectVerifiedCountry")}
+                                />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {countries?.map((item) => {
+                                return (
+                                  <SelectItem
+                                    key={item.id}
+                                    value={String(item.id)}
+                                  >
+                                    {
+                                      item.langs.find(
+                                        (itemLang) =>
+                                          itemLang.l?.code === locale
+                                      )?.name
+                                    }
+                                  </SelectItem>
+                                );
+                              })}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <FormField
+                      control={form.control}
+                      name="_reportGroups"
+                      render={({ field }) => {
+                        const data = stateGroupFetch?.data?.results || [];
+                        const options: MultiSelectProps["options"] =
+                          data?.map((item) => ({
+                            value: String(item.id) || "",
+                            label:
+                              item.langs.find((lang) => lang.l?.code === locale)
+                                ?.name || "",
+                            caption: "",
+                          })) ?? [];
+                        return (
+                          <FormItem>
+                            <Label>{tForm("selectGroups")}</Label>
+                            <FormControl>
+                              <MultiSelect
+                                options={options}
+                                defaultValue={
+                                  field.value.map((item) =>
+                                    String(item.groupId)
+                                  ) || []
+                                }
+                                disabled={
+                                  !currentCountrySelected ||
+                                  stateGroupFetch.isLoading
+                                }
+                                hideSelectedValues
+                                onValueChange={(values) => {
+                                  const contents = values.map((item) => {
+                                    return {
+                                      name: data
+                                        ?.find(
+                                          (value) => value.id === Number(item)
+                                        )
+                                        ?.langs.find(
+                                          (lang) => lang?.l?.code === locale
+                                        )?.name!,
+                                      country: countries
+                                        ?.find(
+                                          (country) =>
+                                            country.id ===
+                                            Number(currentCountrySelected)
+                                        )
+                                        ?.langs.find(
+                                          (lang) => lang?.l?.code === locale
+                                        )?.name!,
+                                      id: Number(item),
+                                      groupId: Number(item),
+                                      confirmed: false,
+                                      ratingResult: "",
+                                      generalComment: "",
+                                      amountPersonsGroup: 0,
+                                      _questions: ratingQuestions.map(
+                                        (question) => ({
+                                          name: question.langs.find(
+                                            (lang) => lang.l.code === locale
+                                          )?.name!,
+                                          questionId: question.id,
+                                          rating: 0,
+                                          comment: "",
+                                        })
+                                      ),
+                                    };
+                                  });
+
+                                  const deprecateContents =
+                                    currentReportGroups.filter((item) => {
+                                      return !values.some(
+                                        (value) =>
+                                          value === String(item.groupId)
+                                      );
+                                    });
+
+                                  if (deprecateContents.length) {
+                                    const nextDeprecate: number[] = [];
+                                    for (const deprecate of deprecateContents) {
+                                      const index =
+                                        currentReportGroups.findIndex(
+                                          (item) =>
+                                            item.groupId === deprecate.groupId
+                                        );
+                                      nextDeprecate.push(index);
+                                    }
+
+                                    removeCurrentReportGroups(nextDeprecate);
+                                  }
+
+                                  const nextContents = contents.filter(
+                                    (value) =>
+                                      !currentReportGroups.some(
+                                        (festival) =>
+                                          festival.groupId ===
+                                          Number(value.groupId)
+                                      )
+                                  );
+                                  appendCurrentReportGroups(nextContents);
+                                }}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        );
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : null}
+              <div className="space-y-4">
+                {currentReportGroups.map((item, index) => {
+                  return (
+                    <Card key={item.id} className="w-full">
+                      <CardHeader>
+                        <CardTitle>{item.name}</CardTitle>
+                        <div className="flex justify-between">
+                          <CardDescription>{item.country}</CardDescription>
+                          {item.confirmed ? (
+                            <Badge variant="secondary">Confirmed</Badge>
+                          ) : null}
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <h3 className="text-lg font-semibold mb-4">
+                          {tForm("reportQuestions")}
+                        </h3>
+                        <div className="grid space-y-4">
+                          <div>
+                            <FormField
+                              control={form.control}
+                              name={`_reportGroups.${index}._invitationThrough`}
+                              render={({ field }) => (
+                                <FormItem className="space-y-3">
+                                  <FormLabel>
+                                    How did you invite this group?
+                                  </FormLabel>
+                                  <FormControl>
+                                    <RadioGroup
+                                      onValueChange={(value) => {
+                                        if (
+                                          value === "isInvitationPerWebsite"
+                                        ) {
+                                          form.setValue(
+                                            `_reportGroups.${index}.isInvitationPerWebsite`,
+                                            true
+                                          );
+                                          form.setValue(
+                                            `_reportGroups.${index}.isInvitationPerNs`,
+                                            false
+                                          );
+                                        }
+                                        if (value === "isInvitationPerNs") {
+                                          form.setValue(
+                                            `_reportGroups.${index}.isInvitationPerWebsite`,
+                                            false
+                                          );
+                                          form.setValue(
+                                            `_reportGroups.${index}.isInvitationPerNs`,
+                                            true
+                                          );
+                                        }
+                                        field.onChange(value);
+                                      }}
+                                      defaultValue={field.value}
+                                      disabled={isCurrentReport}
+                                      className="flex flex-col space-y-1"
+                                    >
+                                      <FormItem className="flex items-center space-x-3 space-y-0">
+                                        <FormControl>
+                                          <RadioGroupItem value="isInvitationPerWebsite" />
+                                        </FormControl>
+                                        <FormLabel className="font-normal">
+                                          Through the website
+                                        </FormLabel>
+                                      </FormItem>
+                                      <FormItem className="flex items-center space-x-3 space-y-0">
+                                        <FormControl>
+                                          <RadioGroupItem value="isInvitationPerNs" />
+                                        </FormControl>
+                                        <FormLabel className="font-normal">
+                                          Through the NS
+                                        </FormLabel>
+                                      </FormItem>
+                                    </RadioGroup>
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <div>
+                            <FormField
+                              control={form.control}
+                              name={`_reportGroups.${index}.amountPersonsGroup`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>
+                                    How many persons did the group bring?
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      disabled={isCurrentReport}
+                                      value={
+                                        field.value ? String(field.value) : "0"
+                                      }
+                                      onChange={(e) =>
+                                        field.onChange(Number(e.target.value))
+                                      }
+                                    />
+                                  </FormControl>
+                                  <FormDescription>
+                                    Please provide the number of persons the
+                                    group
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+                        <div className="grid space-y-4">
+                          <div>
+                            <FormField
+                              control={form.control}
+                              name={`_reportGroups.${index}.isGroupLiveMusic`}
+                              render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                                  <div className="space-y-0.5">
+                                    <FormLabel>
+                                      {tForm("bringLiveMusic")}
+                                    </FormLabel>
+                                  </div>
+                                  <FormControl>
+                                    <Switch
+                                      disabled={isCurrentReport}
+                                      checked={!!field.value}
+                                      onCheckedChange={field.onChange}
+                                    />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <h3 className="text-base font-semibold mb-4">
+                            {tForm("rating")}
+                          </h3>
+                          <div className="space-y-4">
+                            {item._questions.map(
+                              (itemQuestion, indexQuestion) => (
+                                <div
+                                  key={`${item.id}-${itemQuestion.name}`}
+                                  className="space-y-2"
+                                >
+                                  <h5 className="text-sm font-bold">
+                                    {itemQuestion.name}
+                                  </h5>
+                                  <FormField
+                                    control={form.control}
+                                    name={`_reportGroups.${index}._questions.${indexQuestion}.rating`}
+                                    render={({ field }) => {
+                                      return (
+                                        <FormItem>
+                                          <FormControl>
+                                            <RadioGroup
+                                              onValueChange={(value) => {
+                                                field.onChange(Number(value));
+                                              }}
+                                              disabled={isCurrentReport}
+                                              defaultValue={`${field.value}`}
+                                            >
+                                              <div className="flex justify-between">
+                                                {ratesValues.map((rating) => (
+                                                  <FormItem
+                                                    key={rating}
+                                                    className="flex items-center space-y-0"
+                                                  >
+                                                    <FormControl>
+                                                      <RadioGroupItem
+                                                        value={
+                                                          rating.split(" - ")[0]
+                                                        }
+                                                        id={`${itemQuestion.name}-${rating}`}
+                                                      />
+                                                    </FormControl>
+                                                    <FormLabel
+                                                      htmlFor={`${itemQuestion.name}-${rating}`}
+                                                      className="ml-2 text-sm"
+                                                    >
+                                                      {rating}
+                                                    </FormLabel>
+                                                  </FormItem>
+                                                ))}
+                                              </div>
+                                            </RadioGroup>
+                                          </FormControl>
+                                          <FormMessage />
+                                        </FormItem>
+                                      );
+                                    }}
+                                  />
+                                  <FormField
+                                    control={form.control}
+                                    name={`_reportGroups.${index}._questions.${indexQuestion}.comment`}
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>
+                                          {tForm("comment")}
+                                        </FormLabel>
+                                        <FormControl>
+                                          <Textarea
+                                            placeholder={tForm(
+                                              "commentPlaceholder"
+                                            )}
+                                            disabled={isCurrentReport}
+                                            className="resize-none"
+                                            defaultValue={field.value ?? ""}
+                                            onChange={(e) =>
+                                              field.onChange(e.target.value)
+                                            }
+                                          />
+                                        </FormControl>
+                                        <FormDescription>
+                                          {tForm("commentDescription")}
+                                        </FormDescription>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+                              )
+                            )}
+                          </div>
+                        </div>
+                        <div className="grid-space-y-4">
+                          <div>
+                            <FormField
+                              control={form.control}
+                              name={`_reportGroups.${index}.generalComment`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-lg font-semibold">
+                                    {tForm("generalComment")}
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Textarea
+                                      className="resize-none"
+                                      disabled={isCurrentReport}
+                                      onChange={(e) =>
+                                        field.onChange(e.target.value)
+                                      }
+                                      value={
+                                        field.value ? String(field.value) : ""
+                                      }
+                                    />
+                                  </FormControl>
+                                  <FormDescription>
+                                    {tForm("commentDescription")}
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+          {!isCurrentReport ? (
+            <div className="sticky bottom-5 mt-4 right-0 flex justify-end px-4">
+              <Card className="flex justify-end gap-4 w-full">
+                <CardContent className="flex-row items-center p-4 flex w-full justify-end">
+                  <div className="flex gap-2">
+                    <Button variant="ghost" asChild>
+                      <Link href="/dashboard/festivals">Cancel</Link>
+                    </Button>
+                    <Submit label="Save" isPending={isMutating} />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          ) : null}
         </form>
       </Form>
     </div>
