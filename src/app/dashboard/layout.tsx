@@ -1,5 +1,6 @@
 import { SessionProvider } from "next-auth/react";
 import Dashboard from "@/components/common/dashboard";
+import SubscriptionWrapper from "@/components/extension/subscription-wrapper";
 
 export default async function DashboardLayout({
   children,
@@ -8,7 +9,9 @@ export default async function DashboardLayout({
 }) {
   return (
     <SessionProvider>
-      <Dashboard>{children}</Dashboard>
+      <SubscriptionWrapper>
+        <Dashboard>{children}</Dashboard>
+      </SubscriptionWrapper>
     </SessionProvider>
   );
 }

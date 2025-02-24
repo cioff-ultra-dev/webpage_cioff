@@ -1,0 +1,1 @@
+ALTER TABLE "rating_festival_to_groups" ALTER COLUMN "rating_result" SET DATA TYPE text;

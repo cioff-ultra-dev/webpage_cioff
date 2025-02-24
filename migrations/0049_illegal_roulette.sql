@@ -1,0 +1,1 @@
+ALTER TABLE "report_ns" ALTER COLUMN "slug" SET DEFAULT '';

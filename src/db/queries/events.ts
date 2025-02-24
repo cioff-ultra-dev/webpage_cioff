@@ -89,6 +89,50 @@ export async function getFestivalById(
           },
         },
       },
+      festivalsToGroups: {
+        with: {
+          group: {
+            with: {
+              langs: {
+                with: {
+                  l: true,
+                },
+              },
+              country: {
+                with: {
+                  langs: {
+                    with: {
+                      l: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      reportsFromGroups: {
+        with: {
+          answers: true,
+          report: {
+            with: {
+              group: {
+                with: {
+                  logo: true,
+                  langs: {
+                    where(fields, { inArray }) {
+                      return inArray(fields.lang, sq);
+                    },
+                    with: {
+                      l: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
       langs: {
         where(fields, { inArray }) {
           return inArray(fields.lang, sq);
@@ -100,6 +144,8 @@ export async function getFestivalById(
     },
   });
 }
+
+export type FestivalByIdType = Awaited<ReturnType<typeof getFestivalById>>;
 
 export async function getFestivalBySlug(
   slug: SelectFestival["slug"],
@@ -307,7 +353,6 @@ export type FestivalByOwnerType = Awaited<
 >;
 
 export async function getCategoryForGroups(locale: string, fields: string[]) {
-  const session = await auth();
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
 
