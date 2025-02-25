@@ -133,7 +133,7 @@ export default async function Dashboard({
                 </TooltipContent>
               </Tooltip>
             )}
-            <Tooltip>
+            {/*<Tooltip>
               <TooltipTrigger>
                 <Link
                   href="/dashboard/send-emails"
@@ -145,7 +145,7 @@ export default async function Dashboard({
                 </Link>
               </TooltipTrigger>
               <TooltipContent side="right">{t("send-emails")}</TooltipContent>
-            </Tooltip>
+            </Tooltip>*/}
             {/* <Tooltip>
               <TooltipTrigger asChild>
                 <Link
