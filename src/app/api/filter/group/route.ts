@@ -35,8 +35,6 @@ import {
 import { NextRequest } from "next/server";
 import { defaultLocale, Locale } from "@/i18n/config";
 
-const PAGE_SIZE = 10;
-
 const logoStorage = aliasedTable(storages, "logo");
 const coverStorage = aliasedTable(storages, "cover");
 
@@ -62,7 +60,9 @@ async function buildFilter(request: NextRequest) {
   const groupId: number = Number(
     request.nextUrl.searchParams.get("groupId") || "0"
   );
-
+const pageSize: number = Number(
+  request.nextUrl.searchParams.get("pageSize") || "10"
+);
   const locale: Locale =
     (request.nextUrl.searchParams.get("locale") as Locale) || defaultLocale;
 
@@ -139,8 +139,8 @@ async function buildFilter(request: NextRequest) {
       logoStorage.id,
       coverStorage.id
     )
-    .limit(PAGE_SIZE)
-    .offset((page - 1) * PAGE_SIZE);
+    .limit(pageSize)
+    .offset((page - 1) * pageSize);
 
   const result = (await baseQuery).reduce<
     Record<
