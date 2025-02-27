@@ -18,8 +18,6 @@ import {
 import { db } from "@/db";
 import { defaultLocale, Locale } from "@/i18n/config";
 
-const PAGE_SIZE = 85;
-
 const coverStorage = aliasedTable(storages, "cover");
 
 export type BuildNationalSectionFilterType = Awaited<
@@ -35,7 +33,9 @@ async function buildFilter(request: NextRequest) {
   const countryId: number = Number(
     request.nextUrl.searchParams.get("countryId") || "0"
   );
-
+const pageSize: number = Number(
+  request.nextUrl.searchParams.get("pageSize") || "10"
+);
   const locale: Locale =
     (request.nextUrl.searchParams.get("locale") as Locale) || defaultLocale;
 
@@ -47,7 +47,7 @@ async function buildFilter(request: NextRequest) {
   const filters: SQLWrapper[] = [];
 
   const baseQuery = db
-    .select({
+    .selectDistinctOn([nationalSections.id], {
       country: countries,
       langs: nationalSectionsLang,
       positions: nationalSectionsPositions,
@@ -96,8 +96,8 @@ async function buildFilter(request: NextRequest) {
       nationalSections.id,
       coverStorage.id
     )
-    .limit(PAGE_SIZE)
-    .offset((page - 1) * PAGE_SIZE);
+    .limit(pageSize)
+    .offset((page - 1) * pageSize);
 
   const result = (await baseQuery).reduce<
     Record<
