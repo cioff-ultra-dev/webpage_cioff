@@ -178,7 +178,7 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
           );
         })
       ),
-    [isLoadingItemList, itemList, selectedSections, dispatch, isCard]
+    [isLoadingItemList, itemList, isCard, selectedSections, router, dispatch]
   );
 
   return (

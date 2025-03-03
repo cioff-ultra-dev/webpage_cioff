@@ -141,6 +141,7 @@ function Filters(props: FiltersProps): JSX.Element {
                 disabled={isCategoriesLoading}
                 onValueChange={setCategories!}
                 options={categoryOptions}
+                allowSelectAll={false}
               />
             </div>
           ) : null}

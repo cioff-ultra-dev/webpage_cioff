@@ -6,12 +6,7 @@ import {
   useCallback,
 } from "react";
 import { cva } from "class-variance-authority";
-import {
-  CheckIcon,
-  XCircle,
-  ChevronDown,
-  XIcon,
-} from "lucide-react";
+import { CheckIcon, XCircle, ChevronDown, XIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
@@ -73,6 +68,7 @@ export const TreeSelect = forwardRef<HTMLButtonElement, TreeSelectProps>(
       asChild = false,
       className,
       hideSelectedValues = false,
+      allowSelectAll = true,
       ...props
     },
     ref
@@ -289,23 +285,25 @@ export const TreeSelect = forwardRef<HTMLButtonElement, TreeSelectProps>(
             <CommandList>
               <CommandEmpty>{translations("notResults")}</CommandEmpty>
               <CommandGroup>
-                <CommandItem
-                  key="all"
-                  onSelect={toggleAll}
-                  className="cursor-pointer"
-                >
-                  <div
-                    className={cn(
-                      "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                      selectedValues.length === allValues.length
-                        ? "bg-primary text-primary-foreground"
-                        : "opacity-50 [&_svg]:invisible"
-                    )}
+                {allowSelectAll && (
+                  <CommandItem
+                    key="all"
+                    onSelect={toggleAll}
+                    className="cursor-pointer"
                   >
-                    <CheckIcon className="h-4 w-4" />
-                  </div>
-                  <span>{translations("selectAll")}</span>
-                </CommandItem>
+                    <div
+                      className={cn(
+                        "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                        selectedValues.length === allValues.length
+                          ? "bg-primary text-primary-foreground"
+                          : "opacity-50 [&_svg]:invisible"
+                      )}
+                    >
+                      <CheckIcon className="h-4 w-4" />
+                    </div>
+                    <span>{translations("selectAll")}</span>
+                  </CommandItem>
+                )}
                 {renderTree(options)}
               </CommandGroup>
               <CommandSeparator />

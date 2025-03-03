@@ -70,6 +70,11 @@ export interface TreeSelectProps
    * Optional, can be used to add custom styles.
    */
   className?: string;
+
+  /**
+   * allow select all options
+   */
+  allowSelectAll?: boolean;
 }
 
 
