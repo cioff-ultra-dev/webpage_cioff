@@ -653,9 +653,11 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                             <Link
                               href={`/search?categories=${JSON.stringify(
                                 selectedCategories
-                              )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&page=1${
-                                search ? `&${search}` : ""
-                              }`}
+                              )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&page=1&regions=${JSON.stringify(
+                                selectedRegions
+                              )}&countries=${JSON.stringify(
+                                selectedCountries
+                              )}${search ? `&${search}` : ""}`}
                             >
                               See more festivals 🎉
                             </Link>
@@ -672,7 +674,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
             <div className="container mx-auto pb-6 pt-2">
               <Filters
                 categories={categories}
-                countries={countriesMap}
+                countries={countriesGroupMap}
                 handleSubmit={handleSubmit}
                 regions={regionsMap}
                 setCountries={setSelectedCountries}
@@ -810,9 +812,11 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                             <Link
                               href={`/search?categories=${JSON.stringify(
                                 selectedCategories
-                              )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&page=1${
-                                search ? `&${search}` : ""
-                              }`}
+                              )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&page=1&regions=${JSON.stringify(
+                                selectedRegions
+                              )}&countries=${JSON.stringify(
+                                selectedCountries
+                              )}${search ? `&${search}` : ""}`}
                             >
                               See more groups 🎉
                             </Link>

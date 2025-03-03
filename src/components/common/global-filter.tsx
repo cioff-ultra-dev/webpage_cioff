@@ -90,15 +90,21 @@ export function WrapperFilter({
   const [tabSelected, setTabSelected] = useState<string>(
     (searchParams.type as string) || "festivals"
   );
-  const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
-  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [selectedRegions, setSelectedRegions] = useState<string[]>(() =>
+    searchParams?.regions ? JSON.parse(searchParams?.regions as string) : []
+  );
+  const [selectedCountries, setSelectedCountries] = useState<string[]>(() =>
+    searchParams?.countries ? JSON.parse(searchParams?.countries as string) : []
+  );
   const [search, setSearch] = useState(
     `search=${searchParams?.search ?? ""}&rangeDateFrom=${
       searchParams?.rangeDateFrom ?? ""
     }&rangeDateTo=${searchParams?.rangeDateTo ?? ""}`
   );
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    Array.from(JSON.parse((searchParams?.categories as string) || "[]"))
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(() =>
+    searchParams?.categories
+      ? JSON.parse(searchParams?.categories as string)
+      : []
   );
   const [selectedFestival, setSelectedFestival] =
     useState<SelectFestival | null>(null);
@@ -377,7 +383,9 @@ export function WrapperFilter({
           <div className="container mx-auto">
             <Filters
               categories={categories}
-              countries={countriesMap}
+              countries={
+                tabSelected === "festivals" ? countriesMap : countriesGroupMap
+              }
               handleSubmit={handleSubmit}
               regions={regionsMap}
               setCountries={setSelectedCountries}
@@ -390,6 +398,9 @@ export function WrapperFilter({
               }
               showInputSearch={false}
               showIconLabels
+              defaultCategories={selectedCategories}
+              defaultRegions={selectedRegions}
+              defaultCountries={selectedCountries}
             />
           </div>
         </section>

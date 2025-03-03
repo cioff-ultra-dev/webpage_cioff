@@ -49,6 +49,9 @@ interface FiltersProps {
   setDateRange?: (value: DateRange | undefined) => void;
   showInputSearch?: boolean;
   showIconLabels?: boolean;
+  defaultCategories?: string[];
+  defaultRegions?: string[];
+  defaultCountries?: string[];
 }
 
 function Filters(props: FiltersProps): JSX.Element {
@@ -66,6 +69,9 @@ function Filters(props: FiltersProps): JSX.Element {
     isCategoriesLoading,
     showInputSearch = true,
     showIconLabels = false,
+    defaultCategories,
+    defaultRegions,
+    defaultCountries,
   } = props;
   const t = useTranslations();
   const locale = useLocale();
@@ -142,6 +148,7 @@ function Filters(props: FiltersProps): JSX.Element {
                 onValueChange={setCategories!}
                 options={categoryOptions}
                 allowSelectAll={false}
+                defaultValue={defaultCategories}
               />
             </div>
           ) : null}
@@ -164,6 +171,7 @@ function Filters(props: FiltersProps): JSX.Element {
               onValueChange={setRegions}
               disabled={isRegionLoading}
               placeholder={t("filters.selectRegions")}
+              defaultValue={defaultRegions}
             />
           </div>
           <div
@@ -185,6 +193,7 @@ function Filters(props: FiltersProps): JSX.Element {
               onValueChange={setCountries}
               disabled={isCountryLoading}
               placeholder={t("filters.selectCountries")}
+              defaultValue={defaultCountries}
             />
           </div>
           {setDateRange ? (
