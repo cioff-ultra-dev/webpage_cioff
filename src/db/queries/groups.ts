@@ -140,6 +140,11 @@ export async function getGroupById(id: SelectGroup["id"]) {
           },
         },
       },
+      coverPhotos:{
+        with:{
+          photo:true,
+        }
+      }
     },
   });
 }

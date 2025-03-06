@@ -4,6 +4,7 @@ import {
   emailTemplates,
   events,
   eventsLang,
+  festivalCoverPhotos,
   festivalPhotos,
   festivals,
   festivalsGroupToRegions,
@@ -14,6 +15,7 @@ import {
   festivalsToGroups,
   festivalsToStatuses,
   festivalToCategories,
+  groupCoverPhotos,
   groupPhotos,
   groupPhotosRelations,
   groups,
@@ -1620,7 +1622,9 @@ export async function updateFestival(formData: FormData) {
   ) as string[];
 
   const cover = formData.get("coverPhoto") as string;
-  const coverId = Number(formData.get("coverPhotoId"));
+  const coverPhotos = JSON.parse(
+    (formData.get("coverPhotosId") as string) || "[]"
+  ) as { name: string; url: string }[];
 
   const logo = formData.get("logo") as string;
   const logoId = Number(formData.get("logoId"));
@@ -1645,13 +1649,6 @@ export async function updateFestival(formData: FormData) {
   const t = await getTranslations("notification");
 
   await db.transaction(async (tx) => {
-    const coverNextId = await uploadFileStreams(
-      cover,
-      tx,
-      "festivals",
-      coverId
-    );
-
     const logoNextId = await uploadFileStreams(logo, tx, "festivals", logoId);
 
     const accomodationNextId = await uploadFileStreams(
@@ -1674,7 +1671,6 @@ export async function updateFestival(formData: FormData) {
         lat,
         lng,
         linkConditions,
-        coverId: coverNextId ? coverNextId : undefined,
         logoId: logoNextId ? logoNextId : undefined,
         accomodationPhotoId: accomodationNextId
           ? accomodationNextId
@@ -1702,6 +1698,36 @@ export async function updateFestival(formData: FormData) {
         ]),
       })
       .returning();
+
+    if (coverPhotos.length) {
+      const coverPhotosRemoved = await tx
+        .delete(festivalCoverPhotos)
+        .where(eq(festivalCoverPhotos.festivalId, currentFestival.id))
+        .returning();
+
+      await tx.delete(storages).where(
+        inArray(
+          storages.id,
+          coverPhotosRemoved.map((item) => item.photoId!)
+        )
+      );
+
+      const coverPhotosInserted = await tx
+        .insert(storages)
+        .values(
+          coverPhotos.map((photo) => ({ url: photo.url, name: photo.name }))
+        )
+        .returning();
+
+      await tx
+        .insert(festivalCoverPhotos)
+        .values(
+          coverPhotosInserted.map((item) => ({
+            photoId: item.id,
+            festivalId: currentFestival.id,
+          }))
+        )
+    }
 
     const currentCountry = await tx.query.countries.findFirst({
       where(fields, { eq }) {
@@ -2219,7 +2245,9 @@ export async function updateGroup(formData: FormData) {
   );
 
   const cover = formData.get("coverPhoto") as string;
-  const coverId = Number(formData.get("coverPhotoId"));
+  const coverPhotos = JSON.parse(
+    (formData.get("coverPhotosId") as string) || "[]"
+  ) as { name: string; url: string }[];
 
   const logo = formData.get("logo") as string;
   const logoId = Number(formData.get("logoId"));
@@ -2262,8 +2290,6 @@ export async function updateGroup(formData: FormData) {
       musicalDirectorPhotoId
     );
 
-    const coverNextId = await uploadFileStreams(cover, tx, "groups", coverId);
-
     const logoNextId = await uploadFileStreams(logo, tx, "groups", logoId);
 
     const [currentGroup] = await tx
@@ -2296,7 +2322,6 @@ export async function updateGroup(formData: FormData) {
         websiteLink,
         youtubeId,
         linkPortfolio,
-        coverPhotoId: coverNextId ? coverNextId : undefined,
         logoId: logoNextId ? logoNextId : undefined,
         location,
         lng,
@@ -2326,6 +2351,34 @@ export async function updateGroup(formData: FormData) {
         ]),
       })
       .returning();
+
+      if (coverPhotos.length) {
+        const coverPhotosRemoved = await tx
+          .delete(groupCoverPhotos)
+          .where(eq(groupCoverPhotos.groupId, currentGroup.id))
+          .returning();
+
+        await tx.delete(storages).where(
+          inArray(
+            storages.id,
+            coverPhotosRemoved.map((item) => item.photoId!)
+          )
+        );
+
+        const coverPhotosInserted = await tx
+          .insert(storages)
+          .values(
+            coverPhotos.map((photo) => ({ url: photo.url, name: photo.name }))
+          )
+          .returning();
+
+        await tx.insert(groupCoverPhotos).values(
+          coverPhotosInserted.map((item) => ({
+            photoId: item.id,
+            groupId: currentGroup.id,
+          }))
+        );
+      }
 
     const currentCountry = await tx.query.countries.findFirst({
       where(fields, { eq }) {

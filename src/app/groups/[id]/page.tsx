@@ -5,8 +5,14 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/common/header";
-import { GalleryImageEvent } from "@/components/common/event/gallery-images";
-import { CoverImageEvent } from "@/components/common/event/cover";
+import {
+  GalleryImageEvent,
+  CustomImage as GalleryImages,
+} from "@/components/common/event/gallery-images";
+import {
+  CarouselImage,
+  ICarouselImage,
+} from "@/components/common/carousel-image";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
 import Link from "next/link";
@@ -53,18 +59,18 @@ export default async function EventDetail({
       height: 600,
     })) || [];
 
+  const coverImages: ICarouselImage[] =
+    festival?.coverPhotos.map(({ photo = {} }) => ({
+      name: photo?.name!,
+      url: photo?.url!,
+    })) || [];
+
   return (
     <div className="flex flex-col w-full min-h-screen">
       <Header className="border-b" text="text-black" />
       <main className="flex flex-col flex-1 gap-4 md:gap-8 bg-gray-50">
         <div className="relative w-full h-[400px]">
-          <CoverImageEvent
-            cover={
-              festival?.coverPhoto
-                ? festival.coverPhoto.url
-                : "/placeholder.svg"
-            }
-          />
+          <CarouselImage images={coverImages} />
           <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent">
             <div className="flex items-center gap-2">
               <Avatar>

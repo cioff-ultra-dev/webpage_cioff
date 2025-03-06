@@ -470,6 +470,13 @@ export const festivalPhotos = pgTable("festival_photos", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
+export const festivalCoverPhotos = pgTable("festival_cover_photos", {
+  id: serial("id").primaryKey(),
+  festivalId: integer("festival_id").references(() => festivals.id),
+  photoId: integer("photo_id").references(() => storages.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
 export const festivalStagePhotos = pgTable("festival_stage_photos", {
   id: serial("id").primaryKey(),
   festivalId: integer("festival_id").references(() => festivals.id),
@@ -632,6 +639,13 @@ export const groups = pgTable("groups", {
   location: text("location"),
   lat: text("lat"),
   lng: text("lng"),
+});
+export const groupCoverPhotos = pgTable("group_cover_photos", {
+  id: serial("id").primaryKey(),
+  groupId: integer("group_id").references(() => groups.id),
+  photoId: integer("photo_id").references(() => storages.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 export const groupsLang = pgTable("groups_lang", {
   id: serial("id").primaryKey(),
@@ -1254,6 +1268,7 @@ export const festivalRelations = relations(festivals, ({ many, one }) => ({
     fields: [festivals.logoId],
     references: [storages.id],
   }),
+  coverPhotos: many(festivalCoverPhotos),
 }));
 
 export const transportLocationRelations = relations(
@@ -1345,6 +1360,31 @@ export const festivalPhotosRelations = relations(festivalPhotos, ({ one }) => ({
   }),
   photo: one(storages, {
     fields: [festivalPhotos.photoId],
+    references: [storages.id],
+  }),
+}));
+
+export const festivalCoverPhotosRelations = relations(
+  festivalCoverPhotos,
+  ({ one }) => ({
+    festival: one(festivals, {
+      fields: [festivalCoverPhotos.festivalId],
+      references: [festivals.id],
+    }),
+    photo: one(storages, {
+      fields: [festivalCoverPhotos.photoId],
+      references: [storages.id],
+    }),
+  })
+);
+
+export const groupCoverPhotosRelations = relations(groupCoverPhotos, ({ one }) => ({
+  group: one(groups, {
+    fields: [groupCoverPhotos.groupId],
+    references: [groups.id],
+  }),
+  photo: one(storages, {
+    fields: [groupCoverPhotos.photoId],
     references: [storages.id],
   }),
 }));
@@ -1502,6 +1542,7 @@ export const groupsRelations = relations(groups, ({ one, many }) => ({
     fields: [groups.specificRegion],
     references: [regions.id],
   }),
+  coverPhotos:many(groupCoverPhotos),
 }));
 
 export const groupLangRelations = relations(groupsLang, ({ one }) => ({

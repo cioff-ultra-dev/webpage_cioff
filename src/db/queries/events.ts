@@ -97,6 +97,11 @@ export async function getFestivalById(
           l: true,
         },
       },
+      coverPhotos:{
+        with:{
+          photo:true
+        }
+      }
     },
   });
 }
@@ -213,6 +218,11 @@ export async function getFestivalBySlug(
               role: true,
             },
           },
+        },
+      },
+      coverPhotos: {
+        with: {
+          photo: true,
         },
       },
     },

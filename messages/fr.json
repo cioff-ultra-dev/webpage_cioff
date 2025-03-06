@@ -165,7 +165,7 @@
       "_styleOfFestival": "Style de festival",
       "_typeOfFestival": "Type de festival",
       "_status": "Statut",
-      "imageDimensions": "Les dimensions de l'image doivent être de 1200 x 400 px."
+      "imageDimensions": "Maximum de 3 images. Les dimensions de l'image doivent être de 1200 x 400 px."
     },
     "ns": {
       "title": "AJOUTER UNE SECTION NATIONALE",
@@ -299,7 +299,7 @@
       "upload_recogn_cert": "Télécharger le certificat de reconnaissance",
       "cancel": "Annuler",
       "save": "Gurdar",
-      "imageDimensions": "Les dimensions de l'image doivent être de 1200 x 400 px."
+      "imageDimensions": "Maximum de 3 images. Les dimensions de l'image doivent être de 1200 x 400 px."
     }
   },
   "maps": {

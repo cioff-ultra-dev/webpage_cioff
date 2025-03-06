@@ -101,6 +101,7 @@ import constants from "@/constants";
 import FormStateNS from "./form-state-ns";
 import { TreeSelect } from "../tree-select/select";
 import { TreeNode } from "@/types/tree-select";
+import { FilePondErrorDescription, FilePondFile } from "filepond";
 
 const dateRangeSchema = z.object({
   id: z.string().optional(),
@@ -249,6 +250,15 @@ export default function EventForm({
   >({});
   const [selectedLanguanges, setSelectedLanguages] = useState<string[]>([]);
   const [progress, setProgress] = React.useState(13);
+  const [coverFilesIds, setCoverFilesIds] = React.useState<
+    { url: string; name: string }[]
+  >(
+    () =>
+      currentFestival?.coverPhotos?.map((cover) => ({
+        url: cover.photo?.url ?? "",
+        name: cover.photo?.name ?? "",
+      })) ?? []
+  );
   const form = useForm<z.infer<typeof globalEventSchema>>({
     resolver: zodResolver(globalEventSchema),
     shouldUnregister: isNSAccount,
@@ -370,6 +380,37 @@ export default function EventForm({
   });
 
   const formRef = useRef<HTMLFormElement>(null);
+
+  const onProcessCoverImages = (
+    error: FilePondErrorDescription | null,
+    file: FilePondFile
+  ) => {
+    if (error) {
+      console.error(error);
+
+      return;
+    }
+
+    setCoverFilesIds([
+      ...coverFilesIds,
+      { url: file.serverId, name: file.filename },
+    ]);
+  };
+
+  const onRemoveCoverImages = (
+    error: FilePondErrorDescription | null,
+    file: FilePondFile
+  ) => {
+    if (error) {
+      console.error(error);
+
+      return;
+    }
+
+    setCoverFilesIds(
+      coverFilesIds.filter((cover) => cover.url !== file.serverId)
+    );
+  };
 
   const onSubmitForm: SubmitHandler<z.infer<typeof globalEventSchema>> = async (
     _data
@@ -1900,32 +1941,30 @@ export default function EventForm({
                     </p>
                   </div>
                   <div>
-                    <Label htmlFor="coverPhoto">{t("cover_photo")}</Label>
+                    <Label htmlFor="coverPhotos">{t("cover_photo")}</Label>
                     <FilepondImageUploader
-                      id="coverPhoto"
-                      name="coverPhoto"
+                      id="coverPhotos"
+                      name="coverPhotos"
+                      allowMultiple
+                      maxFiles={3}
                       disabled={isNSAccount}
                       acceptedFileTypes={["image/*"]}
-                      defaultFiles={
-                        currentFestival?.coverPhoto?.url
-                          ? [
-                              {
-                                source: currentFestival.coverPhoto?.url!,
-                                options: {
-                                  type: "local",
-                                },
-                              },
-                            ]
-                          : []
-                      }
+                      onprocessfile={onProcessCoverImages}
+                      onremovefile={onRemoveCoverImages}
+                      defaultFiles={coverFilesIds.map((photo) => ({
+                        source: photo?.url!,
+                        options: {
+                          type: "local",
+                        },
+                      }))}
                     />
                     <p className="text-sm text-muted-foreground">
                       {t("imageDimensions")}
                     </p>
                     <input
-                      name="coverPhotoId"
+                      name="coverPhotosId"
                       type="hidden"
-                      value={currentFestival?.coverId ?? undefined}
+                      value={JSON.stringify(coverFilesIds) ?? ""}
                     />
                   </div>
                   <div>

@@ -165,7 +165,7 @@
       "_status": "Estado",
       "_categories": "Categorias",
       "placeholder_categories": "Categorias del festival",
-      "imageDimensions": "las medidas de la imagen debe ser de 1200 x 400 px."
+      "imageDimensions": "Máximo 3 imagenes. Las medidas de la imagen debe ser de 1200 x 400 px."
     },
     "ns": {
       "title": "AGREGAR UNA SECCIÓN NACIONAL",
@@ -299,7 +299,7 @@
       "upload_recogn_cert": "Cargar certificado de reconocimiento",
       "cancel": "Cancelar",
       "save": "Gurdar",
-      "imageDimensions": "las medidas de la imagen debe ser de 1200 x 400 px."
+      "imageDimensions": "Máximo 3 imagenes. Las medidas de la imagen debe ser de 1200 x 400 px."
     }
   },
   "maps": {

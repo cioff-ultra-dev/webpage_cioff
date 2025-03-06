@@ -74,6 +74,7 @@ import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
 import { AutocompletePlaces } from "@/components/ui/autocomplete-places";
 import MapHandler from "@/components/common/map-handler";
 import constants from "@/constants";
+import { FilePondErrorDescription, FilePondFile } from "filepond";
 
 const globalGroupSchema = insertGroupSchema.extend({
   _lang: insertGroupLangSchema,
@@ -278,6 +279,15 @@ export default function GroupForm({
   );
   const [selectedPlace, setSelectedPlace] =
     useState<google.maps.places.PlaceResult | null>(null);
+  const [coverFilesIds, setCoverFilesIds] = React.useState<
+    { url: string; name: string }[]
+  >(
+    () =>
+      currentGroup?.coverPhotos?.map((cover) => ({
+        url: cover.photo?.url ?? "",
+        name: cover.photo?.name ?? "",
+      })) ?? []
+  );
 
   const t = useTranslations("form.group");
   const router = useRouter();
@@ -418,6 +428,37 @@ export default function GroupForm({
   ]);
 
   const formRef = useRef<HTMLFormElement>(null);
+
+  const onProcessCoverImages = (
+    error: FilePondErrorDescription | null,
+    file: FilePondFile
+  ) => {
+    if (error) {
+      console.error(error);
+
+      return;
+    }
+
+    setCoverFilesIds([
+      ...coverFilesIds,
+      { url: file.serverId, name: file.filename },
+    ]);
+  };
+
+  const onRemoveCoverImages = (
+    error: FilePondErrorDescription | null,
+    file: FilePondFile
+  ) => {
+    if (error) {
+      console.error(error);
+
+      return;
+    }
+
+    setCoverFilesIds(
+      coverFilesIds.filter((cover) => cover.url !== file.serverId)
+    );
+  };
 
   const onSubmitForm: SubmitHandler<z.infer<typeof globalGroupSchema>> = async (
     _data
@@ -1661,27 +1702,25 @@ export default function GroupForm({
                     <FilepondImageUploader
                       id="coverPhoto"
                       name="coverPhoto"
+                      allowMultiple
+                      maxFiles={3}
                       acceptedFileTypes={["image/*"]}
-                      defaultFiles={
-                        currentGroup?.coverPhoto?.url
-                          ? [
-                              {
-                                source: currentGroup.coverPhoto?.url!,
-                                options: {
-                                  type: "local",
-                                },
-                              },
-                            ]
-                          : []
-                      }
+                      onprocessfile={onProcessCoverImages}
+                      onremovefile={onRemoveCoverImages}
+                      defaultFiles={coverFilesIds.map((photo) => ({
+                        source: photo?.url!,
+                        options: {
+                          type: "local",
+                        },
+                      }))}
                     />
                     <p className="text-sm text-muted-foreground">
                       {t("imageDimensions")}
                     </p>
                     <input
-                      name="coverPhotoId"
+                      name="coverPhotosId"
                       type="hidden"
-                      value={currentGroup?.coverPhotoId ?? undefined}
+                      value={JSON.stringify(coverFilesIds) ?? ""}
                     />
                   </div>
                   <div className="space-y-2">

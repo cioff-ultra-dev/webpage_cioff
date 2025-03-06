@@ -182,7 +182,7 @@
       "_status": "Status",
       "_categories": "Categories",
       "placeholder_categories": "Festival categories",
-      "imageDimensions": "The image dimensions must be 1200 x 400 px."
+      "imageDimensions": "Maximum of 3 images. The image dimensions must be 1200 x 400 px."
     },
     "ns": {
       "title": "ADD A NATIONAL SECTION",
@@ -316,7 +316,7 @@
       "upload_recogn_cert": "Upload recognition certificate",
       "cancel": "Cancel",
       "save": "Save",
-      "imageDimensions": "The image dimensions must be 1200 x 400 px."
+      "imageDimensions": "Maximum of 3 images. The image dimensions must be 1200 x 400 px."
     }
   },
   "maps": {
