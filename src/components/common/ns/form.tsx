@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -11,6 +11,15 @@ import {
   useWatch,
 } from "react-hook-form";
 import * as RPNInput from "react-phone-number-input";
+import { FilePondErrorDescription, FilePondFile } from "filepond";
+import { CalendarIcon, PlusCircle } from "lucide-react";
+import { format } from "date-fns";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
+import { Session } from "next-auth";
+
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button, ButtonProps } from "@/components/ui/button";
@@ -40,14 +49,12 @@ import {
   insertNationalSectionSchema,
   insertSocialMediaLinkSchema,
 } from "@/db/schema";
-import { CalendarIcon, PlusCircle } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { PhoneInput } from "@/components/ui/phone-input";
@@ -55,13 +62,9 @@ import {
   NationalSectionDetailsType,
   PositionTypeForNSType,
 } from "@/db/queries/national-sections";
-import { useTranslations } from "next-intl";
 import { useI18nZodErrors } from "@/hooks/use-i18n-zod-errors";
-import { toast } from "sonner";
 import { customRevalidatePath, customRevalidateTag } from "../revalidateTag";
-import { useRouter } from "next/navigation";
 import { DatePickerWithRange } from "@/components/ui/datepicker-with-range";
-import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import {
   Command,
   CommandEmpty,
@@ -70,7 +73,6 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Session } from "next-auth";
 import { FilepondImageUploader } from "@/components/extension/filepond-image-uploader";
 
 const positionsSchema = insertNationalSectionPositionsSchema.merge(
@@ -153,7 +155,48 @@ export default function NationalSectionForm({
 }) {
   useI18nZodErrors("ns");
 
+  const [coverFilesIds, setCoverFilesIds] = useState<
+    { url: string; name: string }[]
+  >(
+    () =>
+      currentNationalSection?.coverPhotos?.map((cover) => ({
+        url: cover.photo?.url ?? "",
+        name: cover.photo?.name ?? "",
+      })) ?? []
+  );
+
   const isNSAccount = session?.user.role?.name === "National Sections";
+
+  const onProcessCoverImages = (
+    error: FilePondErrorDescription | null,
+    file: FilePondFile
+  ) => {
+    if (error) {
+      console.error(error);
+
+      return;
+    }
+
+    setCoverFilesIds([
+      ...coverFilesIds,
+      { url: file.serverId, name: file.filename },
+    ]);
+  };
+
+  const onRemoveCoverImages = (
+    error: FilePondErrorDescription | null,
+    file: FilePondFile
+  ) => {
+    if (error) {
+      console.error(error);
+
+      return;
+    }
+
+    setCoverFilesIds(
+      coverFilesIds.filter((cover) => cover.url !== file.serverId)
+    );
+  };
 
   const form = useForm<z.infer<typeof formNationalSectionSchema>>({
     resolver: zodResolver(formNationalSectionSchema),
@@ -705,6 +748,35 @@ export default function NationalSectionForm({
                             />
                           </FormItem>
                         )}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <FormLabel htmlFor="coverPhoto">
+                        {t("cover_photo")}
+                      </FormLabel>
+                      <FilepondImageUploader
+                        id="coverPhoto"
+                        name="coverPhoto"
+                        disabled={!isNSAccount}
+                        allowMultiple
+                        maxFiles={3}
+                        acceptedFileTypes={["image/*"]}
+                        onprocessfile={onProcessCoverImages}
+                        onremovefile={onRemoveCoverImages}
+                        defaultFiles={coverFilesIds.map((photo) => ({
+                          source: photo?.url!,
+                          options: {
+                            type: "local",
+                          },
+                        }))}
+                      />
+                      <p className="text-sm text-muted-foreground">
+                        {t("imageDimensions")}
+                      </p>
+                      <input
+                        name="coverPhotosId"
+                        type="hidden"
+                        value={JSON.stringify(coverFilesIds) ?? ""}
                       />
                     </div>
                     <div className="grid w-full items-center gap-1.5">

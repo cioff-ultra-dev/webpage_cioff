@@ -210,7 +210,9 @@
             "shortBio": "Brève biographie"
           }
         }
-      ]
+      ],
+      "imageDimensions": "Maximum de 3 images. Les dimensions de l'image doivent être de 1200 x 400 px.",
+      "cover_photo": "Photo de couverture"
     },
     "profile": {
       "password_match": "Le mot de passe ne correspond pas",

@@ -227,7 +227,9 @@
             "shortBio": "Short Bio"
           }
         }
-      ]
+      ],
+      "imageDimensions": "Maximum of 3 images. The image dimensions must be 1200 x 400 px.",
+      "cover_photo": "Cover photo"
     },
     "profile": {
       "password_match": "Password does not match",

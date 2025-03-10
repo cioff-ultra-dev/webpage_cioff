@@ -311,6 +311,30 @@ export const nationalSections = pgTable("national_section", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
+
+export const nationalCoverPhotos = pgTable("national_cover_photos", {
+  id: serial("id").primaryKey(),
+  nationalSectionId: integer("national_section_id").references(
+    () => nationalSections.id
+  ),
+  photoId: integer("photo_id").references(() => storages.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const nationalCoverPhotosRelations = relations(
+  nationalCoverPhotos,
+  ({ one }) => ({
+    nationalSection: one(nationalSections, {
+      fields: [nationalCoverPhotos.nationalSectionId],
+      references: [nationalSections.id],
+    }),
+    photo: one(storages, {
+      fields: [nationalCoverPhotos.photoId],
+      references: [storages.id],
+    }),
+  })
+);
 export const nationalSectionsLang = pgTable("national_section_lang", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -1378,16 +1402,19 @@ export const festivalCoverPhotosRelations = relations(
   })
 );
 
-export const groupCoverPhotosRelations = relations(groupCoverPhotos, ({ one }) => ({
-  group: one(groups, {
-    fields: [groupCoverPhotos.groupId],
-    references: [groups.id],
-  }),
-  photo: one(storages, {
-    fields: [groupCoverPhotos.photoId],
-    references: [storages.id],
-  }),
-}));
+export const groupCoverPhotosRelations = relations(
+  groupCoverPhotos,
+  ({ one }) => ({
+    group: one(groups, {
+      fields: [groupCoverPhotos.groupId],
+      references: [groups.id],
+    }),
+    photo: one(storages, {
+      fields: [groupCoverPhotos.photoId],
+      references: [storages.id],
+    }),
+  })
+);
 
 export const groupPhotosRelations = relations(groupPhotos, ({ one }) => ({
   group: one(groups, {
@@ -1542,7 +1569,7 @@ export const groupsRelations = relations(groups, ({ one, many }) => ({
     fields: [groups.specificRegion],
     references: [regions.id],
   }),
-  coverPhotos:many(groupCoverPhotos),
+  coverPhotos: many(groupCoverPhotos),
 }));
 
 export const groupLangRelations = relations(groupsLang, ({ one }) => ({
@@ -1587,6 +1614,7 @@ export const nationalSectionRelations = relations(
       fields: [nationalSections.countryId],
       references: [countries.id],
     }),
+    coverPhotos: many(nationalCoverPhotos),
   })
 );
 

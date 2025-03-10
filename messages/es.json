@@ -210,7 +210,9 @@
             "shortBio": "Breve biografía"
           }
         }
-      ]
+      ],
+      "imageDimensions": "Máximo 3 imagenes. Las medidas de la imagen debe ser de 1200 x 400 px.",
+      "cover_photo": "Foto de portada"
     },
     "profile": {
       "password_match": "La contraseña no coincide",
@@ -564,8 +566,8 @@
     "email": "Correo electrónico",
     "portfolioLink": "portafolio/folleto"
   },
-  "common":{
-    "forbiddenDescription":"Debe iniciar sesión para ver la información de contacto.",
-    "signIn":"Ingresar"
+  "common": {
+    "forbiddenDescription": "Debe iniciar sesión para ver la información de contacto.",
+    "signIn": "Ingresar"
   }
 }

@@ -78,6 +78,11 @@ export async function getNationalSectionBySlug(
           l: true,
         },
       },
+      coverPhotos: {
+        with: {
+          photo: true,
+        },
+      },
     },
   });
 }
@@ -410,4 +415,3 @@ export async function getAllCountryCastNationalSections(
 
   return query;
 }
-

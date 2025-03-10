@@ -56,6 +56,7 @@ import {
   transportLocations,
   users,
   videoTutorialLinks,
+  nationalCoverPhotos,
 } from "@/db/schema";
 import { transport } from "@/lib/mailer";
 import { put, del } from "@vercel/blob";
@@ -313,6 +314,10 @@ export async function updateNationalSection(formData: FormData) {
   const eventSize = Number(formData.get("_eventSize"));
   const groupSize = Number(formData.get("_groupSize"));
 
+  const coverPhotos = JSON.parse(
+    (formData.get("coverPhotosId") as string) || "[]"
+  ) as { name: string; url: string }[];
+
   const positions: InsertNationalSectionPositions[] = [];
   const positionLangs: InsertNationalSectionPositionsLang[] = [];
 
@@ -342,6 +347,36 @@ export async function updateNationalSection(formData: FormData) {
         nativeLang: true,
       },
     });
+
+    if (coverPhotos.length && currentNationalSection?.id) {
+      const coverPhotosRemoved = await tx
+        .delete(nationalCoverPhotos)
+        .where(
+          eq(nationalCoverPhotos.nationalSectionId, currentNationalSection?.id)
+        )
+        .returning();
+
+      await tx.delete(storages).where(
+        inArray(
+          storages.id,
+          coverPhotosRemoved.map((item) => item.photoId!)
+        )
+      );
+
+      const coverPhotosInserted = await tx
+        .insert(storages)
+        .values(
+          coverPhotos.map((photo) => ({ url: photo.url, name: photo.name }))
+        )
+        .returning();
+
+      await tx.insert(nationalCoverPhotos).values(
+        coverPhotosInserted.map((item) => ({
+          photoId: item.id,
+          nationalSectionId: currentNationalSection?.id,
+        }))
+      );
+    }
 
     if (currentCountry?.nativeLang?.code === locale) {
       const currentNationaSectionLangs =
@@ -1719,14 +1754,12 @@ export async function updateFestival(formData: FormData) {
         )
         .returning();
 
-      await tx
-        .insert(festivalCoverPhotos)
-        .values(
-          coverPhotosInserted.map((item) => ({
-            photoId: item.id,
-            festivalId: currentFestival.id,
-          }))
-        )
+      await tx.insert(festivalCoverPhotos).values(
+        coverPhotosInserted.map((item) => ({
+          photoId: item.id,
+          festivalId: currentFestival.id,
+        }))
+      );
     }
 
     const currentCountry = await tx.query.countries.findFirst({
@@ -2352,33 +2385,33 @@ export async function updateGroup(formData: FormData) {
       })
       .returning();
 
-      if (coverPhotos.length) {
-        const coverPhotosRemoved = await tx
-          .delete(groupCoverPhotos)
-          .where(eq(groupCoverPhotos.groupId, currentGroup.id))
-          .returning();
+    if (coverPhotos.length) {
+      const coverPhotosRemoved = await tx
+        .delete(groupCoverPhotos)
+        .where(eq(groupCoverPhotos.groupId, currentGroup.id))
+        .returning();
 
-        await tx.delete(storages).where(
-          inArray(
-            storages.id,
-            coverPhotosRemoved.map((item) => item.photoId!)
-          )
-        );
+      await tx.delete(storages).where(
+        inArray(
+          storages.id,
+          coverPhotosRemoved.map((item) => item.photoId!)
+        )
+      );
 
-        const coverPhotosInserted = await tx
-          .insert(storages)
-          .values(
-            coverPhotos.map((photo) => ({ url: photo.url, name: photo.name }))
-          )
-          .returning();
+      const coverPhotosInserted = await tx
+        .insert(storages)
+        .values(
+          coverPhotos.map((photo) => ({ url: photo.url, name: photo.name }))
+        )
+        .returning();
 
-        await tx.insert(groupCoverPhotos).values(
-          coverPhotosInserted.map((item) => ({
-            photoId: item.id,
-            groupId: currentGroup.id,
-          }))
-        );
-      }
+      await tx.insert(groupCoverPhotos).values(
+        coverPhotosInserted.map((item) => ({
+          photoId: item.id,
+          groupId: currentGroup.id,
+        }))
+      );
+    }
 
     const currentCountry = await tx.query.countries.findFirst({
       where(fields, { eq }) {
