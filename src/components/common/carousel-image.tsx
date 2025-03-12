@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useRef, useMemo } from "react";
 import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
+import { ChevronRight, ChevronLeft } from "lucide-react";
 
 import {
   Carousel,
-  CarouselApi,
   CarouselContent,
   CarouselItem,
   CarouselNext,
@@ -15,50 +15,53 @@ import {
 import { cn } from "@/lib/utils";
 
 export interface ICarouselImage {
-    name: string;
-    url: string;
-  }
+  name: string;
+  url: string;
+}
 
 interface CarouselProps {
   containerClass?: string;
-  images:ICarouselImage[]
+  images: ICarouselImage[];
 }
 
 export function CarouselImage(props: CarouselProps) {
-  const { images,containerClass = "" } = props;
+  const { images, containerClass = "" } = props;
 
   const plugin = useRef(Autoplay({ delay: 2000, stopOnInteraction: false }));
-  const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
-
-  useEffect(() => {
-    if (!api) {
-      return;
-    }
-
-    setCurrent(api.selectedScrollSnap() + 1);
-
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap() + 1);
-    });
-  }, [api]);
 
   const items = useMemo(
     () =>
       images.map((image, index) => (
-        <CarouselItem key={index} className="w-screen">
-                <Image
-                  key={index}
-                  src={image.url}
-                  alt={image.name}
-                  width={1200}
-                  height={400}
-                  className="w-screen h-full object-cover"
-                />
+        <CarouselItem key={index} className="w-full">
+          <Image
+            key={index}
+            src={image.url}
+            alt={image.name}
+            width={200}
+            height={400}
+            className="w-full h-full object-cover"
+          />
         </CarouselItem>
       )),
     [images]
   );
+
+  const arrows = useMemo(() => {
+    if (items.length <= 1) return null;
+
+    return [
+      <CarouselPrevious
+        key="arrow-prev"
+        className="absolute left-2 bg-transparent hover:bg-transparent border-none"
+        icon={<ChevronLeft className="text-white" strokeWidth={4} size={48} />}
+      />,
+      <CarouselNext
+        key="arrow-next"
+        className="absolute right-2 bg-transparent hover:bg-transparent border-none"
+        icon={<ChevronRight className="text-white" strokeWidth={4} size={48} />}
+      />,
+    ];
+  }, [items]);
 
   return (
     <div className={cn("w-full h-full", containerClass)}>
@@ -67,14 +70,12 @@ export function CarouselImage(props: CarouselProps) {
         plugins={[plugin.current]}
         onMouseEnter={plugin.current.stop}
         onMouseLeave={plugin.current.reset}
-        setApi={setApi}
         opts={{
           loop: true,
         }}
       >
         <CarouselContent className="h-full">{items}</CarouselContent>
-        <CarouselPrevious className="absolute left-2 bg-white bg-opacity-30" />
-        <CarouselNext className="absolute right-2 bg-white bg-opacity-30" />
+        {arrows}
       </Carousel>
     </div>
   );

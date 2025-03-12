@@ -1,26 +1,28 @@
 import Link from "next/link";
 import Image from "next/image";
+import {
+  Instagram,
+  Link as LinkComponent,
+} from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Header } from "@/components/common/header";
-import {
-  Youtube,
-  Instagram,
-  Facebook,
-  Link as LinkComponent,
-} from "lucide-react";
 import GlobalFilterPreview from "@/components/common/global-filter-preview";
 import { getAllNestedFestivals } from "@/db/queries/events";
 import CarouselHistory from "@/components/common/carousel-history";
 import { getAllCountryCastFestivals } from "@/db/queries/countries";
-import { getLocale, getTranslations } from "next-intl/server";
 import { Locale } from "@/i18n/config";
 import { getAllCategories } from "@/db/queries/categories";
 import { getBannerFromLocale } from "@/db/queries/design";
 import { getFirstSocialMediaLink } from "@/db/queries/social-media-links";
 import X from "@/components/common/icons/x";
 import Tiktok from "@/components/common/icons/tiktok";
+import Youtube from "@/components/common/icons/youtube";
+import Facebook from "@/components/common/icons/facebook";
+import News from "@/components/common/news/latest-news";
 
 export default async function Home() {
   const locale = await getLocale();
@@ -49,103 +51,75 @@ export default async function Home() {
             fill
           />
           <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-center text-white">
-            <h1 className="text-6xl font-bold">{title?.value}</h1>
-            <h2 className="text-8xl font-bold mt-4">{subtitle?.value}</h2>
+            <h1 className="text-8xl font-extrabold text-secular">
+              {title?.value}
+            </h1>
+            <h2 className="text-7xl font-bold mt-4 text-cursive italic">
+              {subtitle?.value?.replace("¡", "")}
+            </h2>
           </div>
-          <div className="absolute bottom-0 left-0 right-0 flex justify-center items-center space-x-2 mb-4 gap-[0.1rem]">
+          <div className="absolute bottom-0 left-0 right-0 flex justify-center items-center space-x-2 mb-4 gap-6">
             {socialLink?.facebookLink && (
               <Link href={socialLink?.facebookLink} target="_blank">
-                <Facebook className="w-5 h-5 text-white" />
+                <Facebook className="w-6 h-6 fill-white" />
               </Link>
             )}
             {socialLink?.instagramLink && (
               <Link href={socialLink?.instagramLink} target="_blank">
-                <Instagram className="w-5 h-5 text-white" />
+                <Instagram className="w-6 h-6 text-white" />
               </Link>
             )}
             {socialLink?.youtubeLink && (
               <Link href={socialLink?.youtubeLink} target="_blank">
-                <Youtube className="text-white" size={24} />
+                <Youtube className="w-8 h-8 fill-white" />
               </Link>
             )}
             {socialLink?.xLink && (
               <Link href={socialLink?.xLink} target="_blank">
-                <X className="w-4 h-4 fill-white" />
+                <X className="w-6 h-6 fill-white" />
               </Link>
             )}
             {socialLink?.tiktokLink && (
               <Link href={socialLink?.tiktokLink} target="_blank">
-                <Tiktok className="w-5 h-5 fill-white" />
+                <Tiktok className="w-6 h-6 fill-white" />
               </Link>
             )}
             {socialLink?.websiteLink && (
               <Link href={socialLink?.websiteLink} target="_blank">
-                <LinkComponent className="w-4 h-4 text-white" />
+                <LinkComponent className="w-6 h-6 text-white" />
               </Link>
             )}
           </div>
         </section>
+        <p className="text-secular text-2xl text-center mt-[70px] mb-5">{t("firstTitle")}</p>
         <GlobalFilterPreview
           fallbackFestivals={festivals}
           fallbackCountryCast={countryCast}
           categories={categories}
         />
-        <section className="bg-white py-4 sm:py-8">
-          <div className="container mx-auto px-4">
-            <h2 className="text-xl font-bold text-black sm:text-2xl">
-              Latest news
-            </h2>
-            <div className="flex flex-col space-y-4 mt-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-              {articles?.slice(0, 2).map((articleData: any) => {
-                // ArticleData
-                const text = articleData?.texts?.[0];
-                if (!text) return null;
-
-                type ArticleSection = {
-                  id: string;
-                  type: "image" | "title" | "subtitle" | "paragraph" | "list";
-                  content: string;
-                };
-
-                const sections = JSON.parse(
-                  text.sections ?? "[]"
-                ) as ArticleSection[];
-                const coverImage = sections.find(
-                  (section) => section.type === "image"
-                )?.content;
-
-                return (
-                  <Link
-                    key={articleData.id}
-                    href={`/news/${articleData.id}`}
-                    className="flex-1 bg-gray-100 p-4 rounded-lg hover:bg-gray-200 transition-colors group"
-                  >
-                    {coverImage ? (
-                      <Image
-                        src={coverImage}
-                        alt={text.title ?? "Article image"}
-                        width={800}
-                        height={400}
-                        className="w-full h-48 object-cover rounded-lg"
-                      />
-                    ) : (
-                      <div className="h-48 bg-gray-700 rounded-lg" />
-                    )}
-                    <h3 className="text-black mt-4 text-lg font-semibold group-hover:text-blue-600 transition-colors">
-                      {text.title}
-                    </h3>
-                  </Link>
-                );
-              })}
-            </div>
+        <div className="relative w-full h-96 flex items-center">
+          <Image
+            src={image?.value || "/hero-image.webp"}
+            alt="Hero background"
+            objectPosition="50% 20%"
+            className="absolute inset-0 w-full h-full object-cover"
+            fill
+          />
+          <div className="absolute text-white text-roboto font-bold text-end text-3xl right-4 capitalize">
+            <p>CIOFF@ Promotes intangible cultural</p>
+            <p>Heritage through folklore</p>
+            <Button className="bg-white text-black hover:bg-black hover:text-white">Learn about our NGO</Button>
           </div>
+        </div>
+        <section className="bg-white py-4 sm:py-8">
+          <News />
         </section>
         <section className="bg-white py-4 sm:py-8">
           <div className="container mx-auto px-4">
             <h2 className="text-xl font-bold text-black sm:text-2xl">
               Our History
             </h2>
-            <div className="flex space-y-4 mt-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+            <div className="flex space-y-4 mt-4 sm:flex-row sm:space-x-4 sm:space-y-0 w-full">
               <CarouselHistory />
             </div>
           </div>

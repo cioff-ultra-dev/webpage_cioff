@@ -1,6 +1,6 @@
 {
   "home": {
-    "title": "Pour Des Traditions Vivantes"
+    "firstTitle": "Connecter le monde à travers le folklore"
   },
   "page": {
     "all": "Tous",
@@ -423,7 +423,7 @@
     "young": "CIOFF Jeunesse"
   },
   "latestNews": {
-    "title": "Dernières nouvelles",
+    "title": "Actualités",
     "emptyContent": "Il n'y a pas d'actualités récentes."
   },
   "customization": {
@@ -568,6 +568,13 @@
   },
   "common": {
     "forbiddenDescription": "Vous devez vous connecter pour voir les informations de contact.",
-    "signIn": "Se connecter"
+    "signIn": "Se connecter",
+    "dateRange": "De {start} à {end}",
+    "dateRangeFrom": "De {start}",
+    "dateRangeTo": "À {end}",
+    "pendingDate": "Date en attente",
+    "viewMore": "Voir plus...",
+    "results": "Résultats : {total}",
+    "noDescription": "Aucune description."
   }
 }

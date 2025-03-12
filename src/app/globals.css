@@ -80,3 +80,16 @@
   border-radius: 10px;
   background-color: rgba(0, 0, 0, 0.3);
 }
+
+.text-cursive {
+  font-family: var(--font-cursive);
+  text-transform: capitalize;
+}
+
+.text-secular {
+  font-family: var(--font-secular);
+}
+
+.text-roboto {
+  font-family: var(--font-roboto);
+}

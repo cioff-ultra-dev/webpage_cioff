@@ -1,6 +1,6 @@
 {
   "home": {
-    "title": "For Living Traditions"
+    "firstTitle": "Connecting The World Through Folklore"
   },
   "page": {
     "all": "All",
@@ -441,7 +441,7 @@
     "national_sections": "National Sections"
   },
   "latestNews": {
-    "title": "Latest news",
+    "title": "News",
     "emptyContent": "There are no recent news."
   },
   "customization": {
@@ -586,6 +586,13 @@
   },
   "common": {
     "forbiddenDescription": "You must log in to view the contact information.",
-    "signIn": "Sign in"
+    "signIn": "Sign in",
+    "dateRange": "From {start} to {end}",
+    "dateRangeFrom": "From {start}",
+    "dateRangeTo": "To {end}",
+    "pendingDate": "Pending date",
+    "viewMore": "View more...",
+    "results": "Results: {total}",
+    "noDescription": "No description."
   }
 }

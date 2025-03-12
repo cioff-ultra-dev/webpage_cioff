@@ -34,6 +34,8 @@ interface FestivalTabOptions extends PropsWithChildren {
   showInputSearch?: boolean;
   searchText?: string;
   showIconLabels?: boolean;
+  contentClassName?: string;
+  wrapperClassName?: string;
 }
 
 function FestivalTab(props: FestivalTabOptions): JSX.Element {
@@ -51,6 +53,8 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
     showInputSearch = true,
     searchText,
     showIconLabels = false,
+    contentClassName,
+    wrapperClassName,
   } = props;
   const [search, setSearch] = useState("");
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
@@ -109,74 +113,76 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
       isLoadingItemList ? (
         <SkeletonList />
       ) : (
-        itemList?.slice(0, 10)?.map(({ countryLang, lang, id, cover, country }) => {
-          const countryUrl = findFlagUrlByCountryName(country.slug);
+        itemList
+          ?.slice(0, 10)
+          ?.map(({ countryLang, lang, id, cover, country }) => {
+            const countryUrl = findFlagUrlByCountryName(country.slug);
 
-          return isCard ? (
-            <div
-              key={id}
-              className={cn(
-                "w-full justify-self-center space-y-3 p-4 rounded-lg bg-gray-100 hover:bg-gray-200 cursor-default hover:cursor-pointer"
-              )}
-              onClick={() => router.push(`/national-sections/${id}`)}
-            >
-              <div>
-                <div className="relative w-full h-[220px]">
-                  <Image
-                    fill
-                    src={cover?.url || countryUrl || "/placeholder.svg"}
-                    alt="Festival Picture"
-                    className="rounded-lg aspect-video"
-                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOsbmysBwAE+gH+lB3PkwAAAABJRU5ErkJggg=="
-                  />
+            return isCard ? (
+              <div
+                key={id}
+                className={cn(
+                  "w-full justify-self-center space-y-3 p-4 rounded-lg bg-gray-100 hover:bg-gray-200 cursor-default hover:cursor-pointer"
+                )}
+                onClick={() => router.push(`/national-sections/${id}`)}
+              >
+                <div>
+                  <div className="relative w-full h-[220px]">
+                    <Image
+                      fill
+                      src={cover?.url || countryUrl || "/placeholder.svg"}
+                      alt="Festival Picture"
+                      className="rounded-lg aspect-video"
+                      blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOsbmysBwAE+gH+lB3PkwAAAABJRU5ErkJggg=="
+                    />
+                  </div>
+                </div>
+                <div className="w-full flex flex-col gap-1">
+                  <h3 className="text-black text-sm sm:text-base truncate sm:max-w-[170px] md:max-w-[200px] lg:max-w-[300px]">
+                    {lang.name}
+                  </h3>
+                  <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
+                    <MapPin size={16} />
+                    <span>{countryLang.name}</span>
+                  </p>
+                  <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">
+                    {lang?.about}
+                  </p>
                 </div>
               </div>
-              <div className="w-full flex flex-col gap-1">
+            ) : (
+              <ListItem
+                key={id}
+                handleClick={() =>
+                  dispatch({
+                    type: "add",
+                    payload: { id: id, key: "nationalSections" },
+                  })
+                }
+                rightContent={
+                  selectedSections.includes(id) && (
+                    <CheckCircle
+                      className="text-green-500 mr-4"
+                      strokeWidth={2.5}
+                    />
+                  )
+                }
+              >
                 <h3 className="text-black text-sm sm:text-base truncate sm:max-w-[170px] md:max-w-[200px] lg:max-w-[300px]">
                   {lang.name}
                 </h3>
+                {lang?.about ? (
+                  <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center !line-clamp-1">
+                    {lang?.about}
+                  </p>
+                ) : null}
                 <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
                   <MapPin size={16} />
                   <span>{countryLang.name}</span>
                 </p>
-                <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">
-                  {lang?.about}
-                </p>
-              </div>
-            </div>
-          ) : (
-            <ListItem
-              key={id}
-              handleClick={() =>
-                dispatch({
-                  type: "add",
-                  payload: { id: id, key: "nationalSections" },
-                })
-              }
-              rightContent={
-                selectedSections.includes(id) && (
-                  <CheckCircle
-                    className="text-green-500 mr-4"
-                    strokeWidth={2.5}
-                  />
-                )
-              }
-            >
-              <h3 className="text-black text-sm sm:text-base truncate sm:max-w-[170px] md:max-w-[200px] lg:max-w-[300px]">
-                {lang.name}
-              </h3>
-              {lang?.about ? (
-                <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center !line-clamp-1">
-                  {lang?.about}
-                </p>
-              ) : null}
-              <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
-                <MapPin size={16} />
-                <span>{countryLang.name}</span>
-              </p>
-            </ListItem>
-          );
-        })
+              </ListItem>
+            );
+          })
       ),
     [isLoadingItemList, itemList, isCard, selectedSections, router, dispatch]
   );
@@ -200,8 +206,13 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
         </div>
       </section>
       <Card className={cn(children && "border-none sm:pt-2")}>
-        <CardContent className="pt-4">
-          <div className="container mx-auto bg-gray-50">
+        <CardContent className={cn("pt-4", contentClassName)}>
+          <div
+            className={cn(
+              !wrapperClassName && "container mx-auto bg-gray-50",
+              wrapperClassName
+            )}
+          >
             {children}
             {showTotal && (
               <label className="font-medium px-4">

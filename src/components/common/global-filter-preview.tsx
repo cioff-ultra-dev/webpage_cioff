@@ -1,12 +1,9 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { useLocale, useTranslations } from "next-intl";
 import useSWR from "swr";
-import fetcher, { cn } from "@/lib/utils";
-import { SelectFestival } from "@/db/schema";
-import { MapPin, CalendarCheck, Grid2X2Plus, Earth, Globe } from "lucide-react";
+import { MapPin, CalendarCheck, Users } from "lucide-react";
 import {
   APIProvider,
   useMap,
@@ -15,35 +12,39 @@ import {
   Marker,
   AdvancedMarker,
 } from "@vis.gl/react-google-maps";
-import MapHandler from "@/components/common/map-handler";
-import { DatePickerWithRange } from "@/components/ui/datepicker-with-range";
-import { DateRange } from "react-day-picker";
 import Link from "next/link";
+import { DateRange } from "react-day-picker";
+import Image from "next/image";
+
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import fetcher, { cn } from "@/lib/utils";
+import { SelectFestival } from "@/db/schema";
+import MapHandler from "@/components/common/map-handler";
 import { CountryCastFestivals } from "@/db/queries/countries";
 import { SWRProvider } from "@/components/provider/swr";
+import { BuildFilterType } from "@/app/api/filter/route";
+import constants from "@/constants";
+import { CategoriesType } from "@/db/queries/categories";
+import { BuildGroupFilterType } from "@/app/api/filter/group/route";
+import { RegionsType } from "@/db/queries/regions";
+import { CountryCastGroups } from "@/db/queries/groups";
+import { Locale } from "@/i18n/config";
+import { CountryCastNationalSections } from "@/db/queries/national-sections";
+
 import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
   TooltipProvider,
 } from "../ui/tooltip";
-import Image from "next/image";
-import { BuildFilterType } from "@/app/api/filter/route";
-import constants from "@/constants";
-import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { MultiSelect, MultiSelectProps } from "../ui/multi-select";
-import { CategoriesType } from "@/db/queries/categories";
-import { Label } from "../ui/label";
-import { BuildGroupFilterType } from "@/app/api/filter/group/route";
-import { RegionsType } from "@/db/queries/regions";
-import { CountryCastGroups } from "@/db/queries/groups";
-import { Card, CardContent } from "../ui/card";
+import { MultiSelectProps } from "../ui/multi-select";
 import { Skeleton } from "../ui/skeleton";
 import NationalSectionsTab from "./send-emails/addressee-step/national-sections-tab";
-import { Locale } from "@/i18n/config";
-import { CountryCastNationalSections } from "@/db/queries/national-sections";
 import Filters from "./send-emails/addressee-step/filters";
+import { FilterCard } from "./filters/filter-card";
+import { ResultList } from "./filters/result-list";
 
 interface FormElements extends HTMLFormControlsCollection {
   search: HTMLInputElement;
@@ -78,7 +79,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
   const t = useTranslations("maps");
   const tc = useTranslations("categories");
   const tf = useTranslations("filters");
-  const formatter = useFormatter();
+  const translations = useTranslations("common");
 
   const [tabSelected, setTabSelected] = useState<string>("festivals");
   const [search, setSearch] = useState("");
@@ -381,18 +382,18 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
           className="w-full"
           onValueChange={(value) => setTabSelected(value)}
         >
-          <div className="container mx-auto flex gap-4">
-            <TabsList className="">
+          <div className="container mx-auto flex gap-4 max-sm:flex-col max-sm:items-center">
+            <TabsList className="max-sm:flex max-sm:w-fit">
               <TabsTrigger value="festivals">{tf("festivals")}</TabsTrigger>
               <TabsTrigger value="groups">{tf("groups")}</TabsTrigger>
               <TabsTrigger value="national_section">
                 {tf("countries")}
               </TabsTrigger>
             </TabsList>
-            <div className="flex-1">
+            <div className="flex-1 max-sm:w-full">
               <form
                 onSubmit={handleSubmit}
-                className="flex flex-col items-end space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
+                className="flex items-end space-y-4 space-x-4 sm:space-y-0 px-4"
               >
                 <Input placeholder={tf("inputSearch")} name="search" />
                 <TooltipProvider>
@@ -428,16 +429,18 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
             showInputSearch={false}
             searchText={new URLSearchParams(search).get("search") ?? ""}
             showIconLabels
+            contentClassName="p-0 bg-white py-4 sm:py-6 w-full"
+            wrapperClassName="w-full"
           >
             <MapHandler
               place={selectedPlace}
-              defaultZoom={2}
-              defaultSelectedZoom={9}
+              defaultZoom={3}
+              defaultSelectedZoom={5}
             />
-            <div className="flex-1 bg-gray-50 p-4 rounded-t-lg h-full">
+            <div className="flex-1 h-full">
               <Map
                 mapId={"bf51a910020fa25a"}
-                style={{ width: "100%", height: "50vh" }}
+                style={{ width: "100%", height: "80vh" }}
                 defaultCenter={{
                   lat: map?.getCenter()?.lat() || 0,
                   lng: map?.getCenter()?.lng() || 0,
@@ -445,6 +448,9 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                 defaultZoom={2}
                 gestureHandling="greedy"
                 disableDefaultUI={true}
+                minZoom={3}
+                zoomControl
+                scrollwheel={false}
               >
                 {selectedPlace ? (
                   <Marker position={selectedPlace.geometry?.location} />
@@ -496,18 +502,18 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                 showIconLabels
               />
             </div>
-            <section className="bg-white py-4 sm:py-8">
-              <div className="container mx-auto">
+            <section className="bg-white py-4 sm:py-8 w-full">
+              <div className="w-full">
                 <div className="flex flex-col space-y-4 sm:space-y-0">
                   <MapHandler
                     place={selectedPlace}
-                    defaultZoom={2}
-                    defaultSelectedZoom={9}
+                    defaultZoom={3}
+                    defaultSelectedZoom={5}
                   />
-                  <div className="flex-1 bg-gray-50 p-4 rounded-t-lg h-full">
+                  <div className="flex-1 h-full mb-4">
                     <Map
                       mapId={"bf51a910020fa25a"}
-                      style={{ width: "100%", height: "50vh" }}
+                      style={{ width: "100%", height: "80vh" }}
                       defaultCenter={{
                         lat: map?.getCenter()?.lat() || 0,
                         lng: map?.getCenter()?.lng() || 0,
@@ -515,6 +521,9 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                       defaultZoom={2}
                       gestureHandling="greedy"
                       disableDefaultUI={true}
+                      minZoom={3}
+                      zoomControl
+                      scrollwheel={false}
                     >
                       {selectedPlace ? (
                         <Marker position={selectedPlace.geometry?.location} />
@@ -546,126 +555,41 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                         : null}
                     </Map>
                   </div>
-                  <div className="bg-gray-50 p-4 pt-0 rounded-b-lg">
-                    <span className="font-medium">
-                      {tf("results", {
-                        total: Array.isArray(itemList) ? itemList.length : 0,
-                      })}
-                    </span>
-                    <div className="grid grid-cols-5 gap-2 h-full w-full max-sm:grid-cols-1 max-md:grid-cols-2 mt-4">
-                      {isLoadingItemList ? (
-                        <SkeletonList />
-                      ) : (
-                        itemList?.map(
-                          ({
+                  <ResultList
+                    isLoading={isLoadingItemGroupList}
+                    results={itemList?.map(
+                      ({
+                        festival,
+                        country,
+                        lang,
+                        countryLang,
+                        event,
+                        cover,
+                      }) => ({
+                        icon: <CalendarCheck />,
+                        images: [cover?.url || "/placeholder.svg"],
+                        title: lang.name ?? "",
+                        endDate: event?.endDate,
+                        startDate: event?.startDate,
+                        location: festival?.location || countryLang?.name,
+                        detailLink: `/festivals/${festival.id}`,
+                        handleClick: () =>
+                          handleClickSelected(
                             festival,
                             country,
                             lang,
-                            countryLang,
-                            event,
-                            cover,
-                          }) => (
-                            <div
-                              key={festival.id}
-                              className={cn(
-                                " w-full justify-self-center space-y-3 p-4 rounded-lg bg-gray-100 hover:bg-gray-200 hover:cursor-pointer",
-                                festival.id === selectedFestival?.id
-                                  ? "bg-gray-200"
-                                  : null
-                              )}
-                              onClick={() =>
-                                handleClickSelected(
-                                  festival,
-                                  country,
-                                  lang,
-                                  countryLang
-                                )
-                              }
-                            >
-                              <div>
-                                <div className="relative w-full h-[220px]">
-                                  <Image
-                                    fill
-                                    src={cover?.url || "/placeholder.svg"}
-                                    alt="Festival Picture"
-                                    className="rounded-lg object-cover"
-                                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOsbmysBwAE+gH+lB3PkwAAAABJRU5ErkJggg=="
-                                  />
-                                </div>
-                              </div>
-                              <div className="w-full flex flex-col gap-1">
-                                <Link
-                                  href={`/festivals/${festival.id}`}
-                                  target="_blank"
-                                  tabIndex={-1}
-                                  className="text-black text-sm sm:text-base truncate sm:max-w-[170px] md:max-w-[200px] lg:max-w-[300px] hover:underline hover:decoration-solid"
-                                >
-                                  {lang.name}
-                                </Link>
-                                {event?.startDate ? (
-                                  <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
-                                    <CalendarCheck size={16} />
-                                    <span>
-                                      {event?.startDate
-                                        ? formatter.dateTime(
-                                            new Date(event.startDate),
-                                            {
-                                              year: "numeric",
-                                              month: "long",
-                                              day: "numeric",
-                                            }
-                                          )
-                                        : null}
-                                      {" - "}
-                                      {event?.endDate &&
-                                      event?.startDate !== event?.endDate
-                                        ? formatter.dateTime(
-                                            new Date(event.endDate),
-                                            {
-                                              year: "numeric",
-                                              month: "long",
-                                              day: "numeric",
-                                            }
-                                          )
-                                        : null}
-                                    </span>
-                                  </p>
-                                ) : null}
-                                <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
-                                  <MapPin size={16} />
-                                  <span>
-                                    {festival?.location ||
-                                      countryLang?.name ||
-                                      country?.id}
-                                  </span>
-                                </p>
-                                <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">
-                                  {lang.description}
-                                </p>
-                              </div>
-                            </div>
-                          )
-                        )
-                      )}
-                      {itemList?.length ? (
-                        <div className="w-full h-full flex justify-center items-center col-span-5 max-sm:col-span-1 max-md:col-span-2">
-                          <Button variant="link" size="sm" asChild>
-                            <Link
-                              href={`/search?categories=${JSON.stringify(
-                                selectedCategories
-                              )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&page=1&regions=${JSON.stringify(
-                                selectedRegions
-                              )}&countries=${JSON.stringify(
-                                selectedCountries
-                              )}${search ? `&${search}` : ""}`}
-                            >
-                              See more festivals 🎉
-                            </Link>
-                          </Button>
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
+                            countryLang
+                          ),
+                      })
+                    )}
+                    viewMoreLink={`/search?categories=${JSON.stringify(
+                      selectedCategories
+                    )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&page=1&regions=${JSON.stringify(
+                      selectedRegions
+                    )}&countries=${JSON.stringify(selectedCountries)}${
+                      search ? `&${search}` : ""
+                    }`}
+                  />
                 </div>
               </div>
             </section>
@@ -689,18 +613,18 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                 showIconLabels
               />
             </div>
-            <section className="bg-white py-4 sm:py-8">
-              <div className="container mx-auto">
+            <section className="bg-white py-4 sm:py-8 w-full">
+              <div className="w-full">
                 <div className="flex flex-col space-y-4 sm:space-y-0">
                   <MapHandler
                     place={selectedPlace}
-                    defaultZoom={2}
-                    defaultSelectedZoom={9}
+                    defaultZoom={3}
+                    defaultSelectedZoom={5}
                   />
-                  <div className="flex-1 bg-gray-50 p-4 rounded-t-lg">
+                  <div className="flex-1 h-full">
                     <Map
                       mapId={"bf51a910020fa25a"}
-                      style={{ width: "100%", height: "50vh" }}
+                      style={{ width: "100%", height: "80vh" }}
                       defaultCenter={{
                         lat: map?.getCenter()?.lat() || 0,
                         lng: map?.getCenter()?.lng() || 0,
@@ -708,6 +632,9 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                       defaultZoom={2}
                       gestureHandling="greedy"
                       disableDefaultUI={true}
+                      minZoom={3}
+                      zoomControl
+                      scrollwheel={false}
                     >
                       {selectedPlace ? (
                         <Marker position={selectedPlace.geometry?.location} />
@@ -742,89 +669,28 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                         : null}
                     </Map>
                   </div>
-                  <div className="bg-gray-50 p-4 pt-0 rounded-b-lg">
-                    <span className="font-medium">
-                      {tf("results", {
-                        total: Array.isArray(itemGroupList)
-                          ? itemGroupList.length
-                          : 0,
-                      })}
-                    </span>
-                    <div className="grid grid-cols-5 gap-2 h-full w-full max-sm:grid-cols-1 max-md:grid-cols-2 mt-4">
-                      {isLoadingItemGroupList ? (
-                        <SkeletonList />
-                      ) : (
-                        itemGroupList?.map(
-                          ({ group, cover, lang, countryLang, country }) => (
-                            <div
-                              key={group.id}
-                              className={cn(
-                                " w-full justify-self-center space-y-3 p-4 rounded-lg bg-gray-100 hover:bg-gray-200 hover:cursor-pointer"
-                              )}
-                              // onClick={() =>
-                              //   handleClickSelected(
-                              //     festival,
-                              //     country,
-                              //     lang,
-                              //     countryLang,
-                              //   )
-                              // }
-                            >
-                              <div>
-                                <div className="relative w-full h-[220px]">
-                                  <Image
-                                    fill
-                                    src={cover?.url || "/placeholder.svg"}
-                                    alt="Festival Picture"
-                                    className="rounded-lg object-cover"
-                                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOsbmysBwAE+gH+lB3PkwAAAABJRU5ErkJggg=="
-                                  />
-                                </div>
-                              </div>
-                              <div className="w-full flex flex-col gap-1">
-                                <Link
-                                  href={`/groups/${group.id}`}
-                                  target="_blank"
-                                  tabIndex={-1}
-                                  className="text-black text-sm sm:text-base truncate sm:max-w-[170px] md:max-w-[200px] lg:max-w-[300px] hover:underline hover:decoration-solid"
-                                >
-                                  {lang.name}
-                                </Link>
-                                <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
-                                  <MapPin size={16} />
-                                  <span>
-                                    {group?.location ||
-                                      countryLang?.name ||
-                                      country?.id}
-                                  </span>
-                                </p>
-                                <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">
-                                  {lang.description}
-                                </p>
-                              </div>
-                            </div>
-                          )
-                        )
-                      )}
-                      {itemGroupList?.length ? (
-                        <div className="w-full h-full flex justify-center items-center col-span-5 max-sm:col-span-1 max-md:col-span-2">
-                          <Button variant="link" size="sm" asChild>
-                            <Link
-                              href={`/search?categories=${JSON.stringify(
-                                selectedCategories
-                              )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&page=1&regions=${JSON.stringify(
-                                selectedRegions
-                              )}&countries=${JSON.stringify(
-                                selectedCountries
-                              )}${search ? `&${search}` : ""}`}
-                            >
-                              See more groups 🎉
-                            </Link>
-                          </Button>
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
+                  <ResultList
+                    isLoading={isLoadingItemGroupList}
+                    results={itemGroupList?.map(
+                      ({ group, cover, lang, countryLang }) => ({
+                        icon: <Users />,
+                        images: [cover?.url || "/placeholder.svg"],
+                        title: lang.name,
+                        location: group?.location || countryLang?.name,
+                        hideDate: true,
+                        description:
+                          lang.description || translations("noDescription"),
+                        detailLink: `/groups/${group.id}`,
+                      })
+                    )}
+                    viewMoreLink={`/search?categories=${JSON.stringify(
+                      selectedCategories
+                    )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&page=1&regions=${JSON.stringify(
+                      selectedRegions
+                    )}&countries=${JSON.stringify(selectedCountries)}${
+                      search ? `&${search}` : ""
+                    }`}
+                  />
                 </div>
               </div>
             </section>
@@ -857,7 +723,7 @@ export default function GlobalFilterPreview({
       fallbackCountryCast={fallbackCountryCast}
       fallbackFestivals={fallbackFestivals}
     >
-      <BaseWrapperFilter categories={categories} />;
+      <BaseWrapperFilter categories={categories} />
     </SWRProvider>
   );
 }

@@ -121,7 +121,7 @@ export default function CarouselHistory({
           loop: true,
         }}
       >
-        <CarouselContent>{items}</CarouselContent>
+        <CarouselContent className="w-full">{items}</CarouselContent>
         <CarouselPrevious />
         <CarouselNext />
       </Carousel>

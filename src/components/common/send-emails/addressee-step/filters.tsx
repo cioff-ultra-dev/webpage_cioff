@@ -112,7 +112,7 @@ function Filters(props: FiltersProps): JSX.Element {
             <div
               className={cn(
                 showIconLabels
-                  ? "flex-1 flex gap-2 items-center"
+                  ? "flex-1 flex gap-2 items-center max-sm:w-full"
                   : "flex-1 max-sm:w-full"
               )}
             >
@@ -122,7 +122,7 @@ function Filters(props: FiltersProps): JSX.Element {
               <Input
                 placeholder={t("filters.inputSearch")}
                 name="search"
-                className="min-w-[20vw]"
+                className="min-w-[20vw] max-sm:w-full"
               />
             </div>
           )}
@@ -130,7 +130,7 @@ function Filters(props: FiltersProps): JSX.Element {
             <div
               className={cn(
                 showIconLabels
-                  ? "flex-1 flex gap-2 items-center"
+                  ? "flex-1 flex gap-2 items-center max-sm:w-full"
                   : "flex-1 max-sm:w-full"
               )}
             >
@@ -155,7 +155,7 @@ function Filters(props: FiltersProps): JSX.Element {
           <div
             className={cn(
               showIconLabels
-                ? "flex-1 flex gap-2 items-center"
+                ? "flex-1 flex gap-2 items-center max-sm:w-full"
                 : "flex-1 max-sm:w-full"
             )}
           >
@@ -177,7 +177,7 @@ function Filters(props: FiltersProps): JSX.Element {
           <div
             className={cn(
               showIconLabels
-                ? "flex-1 flex gap-2 items-center"
+                ? "flex-1 flex gap-2 items-center max-sm:w-full"
                 : "flex-1 max-sm:w-full"
             )}
           >

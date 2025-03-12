@@ -50,12 +50,12 @@ async function LatestNews({ limit, classes }: LatestNewsProps) {
     <div className={cn("bg-white", classes)}>
       <section className="py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold mb-6">{translations("title")}</h2>
-          <div className="grid md:grid-cols-3 gap-8">
+          <h2 className="text-3xl font-bold mb-6 text-center text-roboto uppercase">{translations("title")}</h2>
+          <div className="md:columns-4 gap-8">
             {items.length > 0 ? (
               items
             ) : (
-              <div className="col-span-3 h-[300px] w-full flex justify-center items-center">
+              <div className="h-[300px] w-full flex justify-center items-center">
                 {translations("emptyContent")}
               </div>
             )}

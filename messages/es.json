@@ -1,6 +1,6 @@
 {
   "home": {
-    "title": "Por Las Tradiciones Vivas"
+    "firstTitle": "Conectando el mundo a través del folclore"
   },
   "page": {
     "all": "Todos",
@@ -423,7 +423,7 @@
     "young": "CIOFF juventud"
   },
   "latestNews": {
-    "title": "Noticias recientes",
+    "title": "Noticias",
     "emptyContent": "No hay noticias recientes."
   },
   "customization": {
@@ -568,6 +568,13 @@
   },
   "common": {
     "forbiddenDescription": "Debe iniciar sesión para ver la información de contacto.",
-    "signIn": "Ingresar"
+    "signIn": "Ingresar",
+    "dateRange": "Desde {start} hasta {end}",
+    "dateRangeFrom": "Desde {start}",
+    "dateRangeTo": "Hasta {end}",
+    "pendingDate": "Fecha pendiente",
+    "viewMore": "Ver más...",
+    "results": "Resultados: {total}",
+    "noDescription": "Sin descripción."
   }
 }
