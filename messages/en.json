@@ -1,6 +1,8 @@
 {
   "home": {
-    "firstTitle": "Connecting The World Through Folklore"
+    "firstTitle": "Connecting The World Through Folklore",
+    "loadMore": "Load more",
+    "moreEvents": "more events..."
   },
   "page": {
     "all": "All",
@@ -594,5 +596,9 @@
     "viewMore": "View more...",
     "results": "Results: {total}",
     "noDescription": "No description."
+  },
+  "events": {
+    "title": "Events",
+    "emptyContent": "No recent events."
   }
 }

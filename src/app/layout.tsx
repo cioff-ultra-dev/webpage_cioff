@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Rouge_Script, Secular_One, Roboto_Condensed } from "next/font/google";
+import { Inter, Rouge_Script, Secular_One, Roboto_Condensed, Poppins } from "next/font/google";
 import { getLocale, getMessages } from "next-intl/server";
 import { cn } from "@/lib/utils";
 import "./globals.css";
@@ -35,6 +35,12 @@ const fontRoboto = Roboto_Condensed({
   weight: ["400", "700", "900", "100", "300","500","600","800"],
 })
 
+const fontPoppins = Poppins({
+  subsets: ["latin"],
+  variable: "--font-poppins",
+  weight: ["400", "700", "900", "100", "300","500","600","800"],
+})
+
 export const metadata: Metadata = {
   title: "CIOFF Website",
   description: "Small description for the CIOFF site",
@@ -57,7 +63,8 @@ export default async function RootLayout({
           fontBody.variable,
           fontBanner.variable,
           fontSecular.variable,
-          fontRoboto.variable
+          fontRoboto.variable,
+          fontPoppins.variable
         )}
       >
         <I18NProvider messages={messages} locale={locale}>

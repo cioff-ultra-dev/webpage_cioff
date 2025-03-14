@@ -1,6 +1,8 @@
 {
   "home": {
-    "firstTitle": "Conectando el mundo a través del folclore"
+    "firstTitle": "Conectando el mundo a través del folclore",
+    "loadMore": "Cargar más",
+    "moreEvents": "Más eventos..."
   },
   "page": {
     "all": "Todos",
@@ -576,5 +578,9 @@
     "viewMore": "Ver más...",
     "results": "Resultados: {total}",
     "noDescription": "Sin descripción."
+  },
+  "events": {
+    "title": "Eventos",
+    "emptyContent": "No hay eventos recientes."
   }
 }

@@ -54,7 +54,7 @@ export function ResultList(props: ResultListProps): JSX.Element {
   const handleViewMore = useCallback(() => router.push(viewMoreLink), [router, viewMoreLink]);
 
   return (
-    <div className="relative py-4 !mt-14 px-52 max-lg:px-36 max-md:px-28 max-sm:px-8">
+    <div className="relative py-4 !mt-14 px-52 max-lg:px-24 max-md:px-28 max-sm:px-8">
       <span className="font-medium">
         {translations("results", {
           total: Array.isArray(results) ? results.length : 0,

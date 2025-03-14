@@ -1,6 +1,8 @@
 {
   "home": {
-    "firstTitle": "Connecter le monde à travers le folklore"
+    "firstTitle": "Connecter le monde à travers le folklore",
+    "loadMore": "Charger plus",
+    "moreEvents": "Plus d'événements..."
   },
   "page": {
     "all": "Tous",
@@ -576,5 +578,9 @@
     "viewMore": "Voir plus...",
     "results": "Résultats : {total}",
     "noDescription": "Aucune description."
+  },
+  "events": {
+    "title": "Événements",
+    "emptyContent": "Pas d'événements récents."
   }
 }

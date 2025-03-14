@@ -94,7 +94,7 @@ export function FilterCard(props: FilterCardProps): JSX.Element {
   return (
     <div
       className={cn(
-        "rounded-md border transition-transform duration-300 hover:scale-110 hover:z-20",
+        "bg-white rounded-md border transition-transform duration-300 hover:scale-110 hover:z-10",
         containerClass
       )}
     >

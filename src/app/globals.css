@@ -93,3 +93,7 @@
 .text-roboto {
   font-family: var(--font-roboto);
 }
+
+.text-poppins {
+  font-family: var(--font-poppins);
+}

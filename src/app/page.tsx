@@ -1,9 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import {
-  Instagram,
-  Link as LinkComponent,
-} from "lucide-react";
+import { Instagram, Link as LinkComponent } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { Input } from "@/components/ui/input";
@@ -23,6 +20,7 @@ import Tiktok from "@/components/common/icons/tiktok";
 import Youtube from "@/components/common/icons/youtube";
 import Facebook from "@/components/common/icons/facebook";
 import News from "@/components/common/news/latest-news";
+import EventList from "@/components/common/event/event-list";
 
 export default async function Home() {
   const locale = await getLocale();
@@ -91,7 +89,9 @@ export default async function Home() {
             )}
           </div>
         </section>
-        <p className="text-secular text-2xl text-center mt-[70px] mb-5">{t("firstTitle")}</p>
+        <p className="text-secular text-2xl text-center mt-[70px] mb-5">
+          {t("firstTitle")}
+        </p>
         <GlobalFilterPreview
           fallbackFestivals={festivals}
           fallbackCountryCast={countryCast}
@@ -105,24 +105,51 @@ export default async function Home() {
             className="absolute inset-0 w-full h-full object-cover"
             fill
           />
-          <div className="absolute text-white text-roboto font-bold text-end text-3xl right-4 capitalize">
+          <div className="absolute text-white text-roboto font-bold text-end text-3xl right-6 capitalize">
             <p>CIOFF@ Promotes intangible cultural</p>
             <p>Heritage through folklore</p>
-            <Button className="bg-white text-black hover:bg-black hover:text-white">Learn about our NGO</Button>
+            <Button className="bg-white text-black rounded-xl text-xs px-2 h-8 hover:bg-white">
+              Learn about our NGO
+            </Button>
           </div>
         </div>
-        <section className="bg-white py-4 sm:py-8">
-          <News />
-        </section>
-        <section className="bg-white py-4 sm:py-8">
-          <div className="container mx-auto px-4">
-            <h2 className="text-xl font-bold text-black sm:text-2xl">
-              Our History
-            </h2>
-            <div className="flex space-y-4 mt-4 sm:flex-row sm:space-x-4 sm:space-y-0 w-full">
-              <CarouselHistory />
-            </div>
+        <section className="py-4 sm:py-8 px-52 max-lg:px-24 max-md:px-28 max-sm:px-8 flex flex-col items-center">
+          <div className="max-h-[60vh] overflow-hidden w-full">
+            <News resultClasses="max-sm:columns-1 max-md:columns-2" />
           </div>
+          <Button
+            size="sm"
+            className="rounded-xl text-roboto font-semibold text-xs px-4 text-white hover:bg-white hover:text-primary hover:border hover:border-primary mt-8 mb-16 capitalize"
+          >
+            <Link href="/news">{t("loadMore")}</Link>
+          </Button>
+        </section>
+        <div className="relative w-full h-[35rem] flex items-center">
+          <Image
+            src="https://static.wixstatic.com/media/f0ab27_4192ee051b6a41929772cbf6e78e0a63~mv2.jpg/v1/fill/w_1600,h_509,al_c,q_85,enc_auto/f0ab27_4192ee051b6a41929772cbf6e78e0a63~mv2.jpg"
+            alt="Hero background"
+            objectPosition="50% 20%"
+            className="absolute inset-0 w-full h-full object-cover"
+            fill
+          />
+          <div className="absolute text-white text-secular font-bold text-start text-5xl left-6 capitalize">
+            <p>Official Partner of UNESCO</p>
+            <p>Accredited to the 2003 Convention</p>
+            <Button className="bg-white text-black rounded-xl text-sm px-3 h-10 hover:bg-white capitalize">
+              Learn about our work with UNESCO
+            </Button>
+          </div>
+        </div>
+        <section className="py-4 sm:py-8 px-52 max-lg:px-24 max-md:px-28 max-sm:px-8 flex flex-col items-center">
+          <div className="max-h-[60vh] overflow-hidden w-full">
+            <EventList limit={5} resultClasses="max-sm:columns-1 max-md:columns-2" />
+          </div>
+          <Button
+            size="sm"
+            className="rounded-xl text-roboto font-semibold text-sm px-4 text-white hover:bg-white hover:text-primary hover:border hover:border-primary mt-8 mb-16 capitalize"
+          >
+            <Link href="/news">{t("moreEvents")}</Link>
+          </Button>
         </section>
         <section className="bg-gray-900 py-4 sm:py-8 hidden">
           <div className="container mx-auto px-4">

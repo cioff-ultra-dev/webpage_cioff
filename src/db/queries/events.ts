@@ -12,11 +12,13 @@ import {
   SelectLanguages,
   languages,
   components,
+  festivalsLang,
+  SelectFestivalLang,
 } from "@/db/schema";
 import { db } from "@/db";
-import { eq, inArray } from "drizzle-orm";
+import { eq, gte, inArray, and } from "drizzle-orm";
 import { auth } from "@/auth";
-import { defaultLocale } from "@/i18n/config";
+import { defaultLocale, Locale } from "@/i18n/config";
 
 export async function getAllEvents(): Promise<Array<SelectEvent>> {
   return db.query.events.findMany({
@@ -97,11 +99,11 @@ export async function getFestivalById(
           l: true,
         },
       },
-      coverPhotos:{
-        with:{
-          photo:true
-        }
-      }
+      coverPhotos: {
+        with: {
+          photo: true,
+        },
+      },
     },
   });
 }
@@ -403,4 +405,43 @@ export async function buildFestival(countryId: number) {
       },
     },
   });
+}
+
+interface EventsParams {
+  fromDate: Date;
+  limit: number;
+  locale:Locale;
+}
+
+export interface EventsByDate {
+  festival: SelectFestival;
+  event: SelectEvent;
+  info: SelectFestivalLang;
+}
+
+export async function getEventsByDate({
+  fromDate,
+  limit,
+  locale
+}: EventsParams): Promise<EventsByDate[]> {
+   const sq = db
+      .select({ id: languages.id })
+      .from(languages)
+      .where(eq(languages.code, locale));
+
+  const response = await db
+    .select({ festival: festivals, event: events, info: festivalsLang })
+    .from(festivals)
+    .innerJoin(events, eq(events.festivalId, festivals.id))
+    .innerJoin(
+      festivalsLang,
+      and(
+        eq(festivalsLang.festivalId, festivals.id),
+        eq(festivalsLang.lang, sq)
+      )
+    )
+    .where(gte(events.startDate, fromDate))
+    .limit(limit);
+
+  return response;
 }
