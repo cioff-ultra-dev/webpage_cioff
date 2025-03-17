@@ -12,7 +12,7 @@ import FilePondPluginImageCrop from "filepond-plugin-image-crop";
 import FilePondPluginFileValidateSize from "filepond-plugin-file-validate-size";
 
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 registerPlugin(
   FilePondPluginImagePreview,
@@ -29,6 +29,10 @@ export function FilepondImageUploader({
 }: FilePondProps & { defaultFiles?: FilePondProps["files"] }) {
   const [files, setFiles] = useState<FilePondProps["files"]>(defaultFiles);
   const fileRef = useRef(null);
+
+  useEffect(() => {
+    setFiles(defaultFiles);
+  }, [defaultFiles]);
 
   return (
     <div className="w-full">

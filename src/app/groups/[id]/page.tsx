@@ -59,11 +59,17 @@ export default async function EventDetail({
       height: 600,
     })) || [];
 
-  const coverImages: ICarouselImage[] =
-    festival?.coverPhotos.map(({ photo = {} }) => ({
-      name: photo?.name!,
-      url: photo?.url!,
-    })) || [];
+  const coverImages: ICarouselImage[] = festival?.coverPhotos.length
+    ? festival?.coverPhotos.map(({ photo = {} }) => ({
+        name: photo?.name!,
+        url: photo?.url!,
+      }))
+    : [
+        {
+          url: festival?.coverPhoto?.url ?? "/placeholder.svg",
+          name: festival?.coverPhoto?.name ?? "default",
+        },
+      ];
 
   return (
     <div className="flex flex-col w-full min-h-screen">
