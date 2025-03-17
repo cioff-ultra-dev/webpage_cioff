@@ -430,7 +430,11 @@ export async function getEventsByDate({
       .where(eq(languages.code, locale));
 
   const response = await db
-    .select({ festival: festivals, event: events, info: festivalsLang })
+    .selectDistinctOn([festivals.id], {
+      festival: festivals,
+      event: events,
+      info: festivalsLang,
+    })
     .from(festivals)
     .innerJoin(events, eq(events.festivalId, festivals.id))
     .innerJoin(
