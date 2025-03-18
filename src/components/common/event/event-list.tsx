@@ -23,9 +23,9 @@ export default async function EventList(
   const events = await getEventsByDate({ fromDate: new Date(), limit, locale });
 
   const items = events.map(({ festival, info }) => (
-    <div key={festival.id} className="flex justify-between">
+    <div key={festival.id} className="flex justify-between py-8 border-b">
       <div>{info.name}</div>
-      <Button className="rounded-xl">RSVP</Button>
+      <Button className="rounded-3xl h-8 px-6">RSVP</Button>
     </div>
   ));
 

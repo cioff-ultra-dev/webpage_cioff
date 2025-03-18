@@ -46,18 +46,13 @@ function NewsCard(props: NewsCardProps) {
         )}
       </div>
       <div className="px-4 pt-3 pb-2 relative text-center h-32">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <h3 className="text-sm font-medium mb-2 line-clamp-1 transition-colors text-secular">
-              {title}
-            </h3>
-          </TooltipTrigger>
-          <TooltipContent side="top">{title}</TooltipContent>
-        </Tooltip>
+        <h3 className="text-sm font-medium mb-2 transition-colors text-secular">
+          {title}
+        </h3>
         <p
           className="text-xs line-clamp-3 text-poppins"
           dangerouslySetInnerHTML={{ __html: description }}
-        ></p>
+        />
       </div>
     </div>
   );
