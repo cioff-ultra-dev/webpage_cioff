@@ -109,8 +109,8 @@ export async function Header({
         </SheetContent>
       </Sheet>
       <nav className="hidden space-x-4 sm:space-x-6 lg:flex items-center">
-        <Link href="/" className={`${text}`} prefetch={false}>
-          <Image src="/logo.png" width="100" height="100" alt="CIOFF Logo" />
+        <Link href="/" prefetch={false}>
+          <Image src="/logo.png" width="121" height="100" alt="CIOFF Logo" />
         </Link>
       </nav>
       <nav className="hidden lg:flex space-x-4 sm:space-x-6">{items}</nav>

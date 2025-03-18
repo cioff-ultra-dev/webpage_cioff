@@ -395,7 +395,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                 onSubmit={handleSubmit}
                 className="flex items-end space-y-4 space-x-4 sm:space-y-0 px-4"
               >
-                <Input placeholder={tf("inputSearch")} name="search" />
+                <Input placeholder={tf("search")} name="search" type="search"/>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
