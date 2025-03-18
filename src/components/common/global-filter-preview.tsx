@@ -382,15 +382,15 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
           className="w-full"
           onValueChange={(value) => setTabSelected(value)}
         >
-          <div className="container mx-auto flex gap-4 max-sm:flex-col max-sm:items-center">
-            <TabsList className="max-sm:flex max-sm:w-fit">
+          <div className="container mx-auto flex gap-4 flex-col items-center">
+            <TabsList className="flex w-fit justify-center">
               <TabsTrigger value="festivals">{tf("festivals")}</TabsTrigger>
               <TabsTrigger value="groups">{tf("groups")}</TabsTrigger>
               <TabsTrigger value="national_section">
                 {tf("countries")}
               </TabsTrigger>
             </TabsList>
-            <div className="flex-1 max-sm:w-full">
+            <div className="flex-1 w-2/3 max-md:w-full lg:w-1/3">
               <form
                 onSubmit={handleSubmit}
                 className="flex items-end space-y-4 space-x-4 sm:space-y-0 px-4"
@@ -401,11 +401,10 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                     <TooltipTrigger asChild>
                       <Button
                         variant="ghost"
-                        size="icon"
                         type="submit"
-                        className="rounded-full"
+                        className="rounded-full bg-black h-10 w-10 hover:bg-black/80 px-3"
                       >
-                        <SearchIcon className="text-black" />
+                        <SearchIcon className="text-white scale-150" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent align="center" side="bottom">
@@ -440,9 +439,9 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
             <div className="flex-1 h-full">
               <Map
                 mapId={"bf51a910020fa25a"}
-                style={{ width: "100%", height: "80vh" }}
+                style={{ width: "100%", height: "60vh" }}
                 defaultCenter={{
-                  lat: map?.getCenter()?.lat() || 0,
+                  lat: 40,
                   lng: map?.getCenter()?.lng() || 0,
                 }}
                 defaultZoom={2}
@@ -468,16 +467,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                         title={t("marker_located_at", {
                           name: item.name,
                         })}
-                      >
-                        <div
-                          className={cn(
-                            "w-5 h-5 bg-red-300 flex justify-center items-center rounded-full p-3",
-                            item.id === selectedCountryId && "bg-red-400"
-                          )}
-                        >
-                          <span>{item.count}</span>
-                        </div>
-                      </AdvancedMarker>
+                      />
                     ))
                   : null}
               </Map>
@@ -513,15 +503,15 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                   <div className="flex-1 h-full mb-4">
                     <Map
                       mapId={"bf51a910020fa25a"}
-                      style={{ width: "100%", height: "80vh" }}
+                      style={{ width: "100%", height: "60vh" }}
                       defaultCenter={{
-                        lat: map?.getCenter()?.lat() || 0,
+                        lat: 40,
                         lng: map?.getCenter()?.lng() || 0,
                       }}
                       defaultZoom={2}
                       gestureHandling="greedy"
                       disableDefaultUI={true}
-                      minZoom={3}
+                      minZoom={3.5}
                       zoomControl
                       scrollwheel={false}
                     >
@@ -541,16 +531,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                               title={t("marker_located_at", {
                                 name: item.name,
                               })}
-                            >
-                              <div
-                                className={cn(
-                                  "w-5 h-5 bg-red-300 flex justify-center items-center rounded-full p-3",
-                                  item.id === selectedCountryId && "bg-red-400"
-                                )}
-                              >
-                                <span>{item.count}</span>
-                              </div>
-                            </AdvancedMarker>
+                            />
                           ))
                         : null}
                     </Map>
@@ -624,9 +605,9 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                   <div className="flex-1 h-full">
                     <Map
                       mapId={"bf51a910020fa25a"}
-                      style={{ width: "100%", height: "80vh" }}
+                      style={{ width: "100%", height: "60vh" }}
                       defaultCenter={{
-                        lat: map?.getCenter()?.lat() || 0,
+                        lat: 40,
                         lng: map?.getCenter()?.lng() || 0,
                       }}
                       defaultZoom={2}
@@ -653,17 +634,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                                 title={t("marker_located_at", {
                                   name: item.name,
                                 })}
-                              >
-                                <div
-                                  className={cn(
-                                    "w-5 h-5 bg-red-300 flex justify-center items-center rounded-full p-3",
-                                    item.id === selectedCountryId &&
-                                      "bg-red-400"
-                                  )}
-                                >
-                                  <span>{item.count}</span>
-                                </div>
-                              </AdvancedMarker>
+                              />
                             ) : null
                           )
                         : null}
