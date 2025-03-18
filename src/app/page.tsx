@@ -97,7 +97,7 @@ export default async function Home() {
           fallbackCountryCast={countryCast}
           categories={categories}
         />
-        <div className="relative w-full h-96 flex items-center">
+        <div className="relative w-full h-[35rem] flex items-center">
           <Image
             src={image?.value || "/hero-image.webp"}
             alt="Hero background"
@@ -105,10 +105,10 @@ export default async function Home() {
             className="absolute inset-0 w-full h-full object-cover"
             fill
           />
-          <div className="absolute text-white text-roboto font-bold text-end text-3xl right-6 capitalize">
+          <div className="absolute text-white text-secular font-bold text-end text-5xl right-6 capitalize">
             <p>CIOFF@ Promotes intangible cultural</p>
             <p>Heritage through folklore</p>
-            <Button className="bg-white text-black rounded-xl text-xs px-2 h-8 hover:bg-white">
+            <Button className="bg-white text-black rounded-xl text-xs px-3 h-10 hover:bg-white">
               Learn about our NGO
             </Button>
           </div>
@@ -135,14 +135,17 @@ export default async function Home() {
           <div className="absolute text-white text-secular font-bold text-start text-5xl left-6 capitalize">
             <p>Official Partner of UNESCO</p>
             <p>Accredited to the 2003 Convention</p>
-            <Button className="bg-white text-black rounded-xl text-sm px-3 h-10 hover:bg-white capitalize">
+            <Button className="bg-white text-black rounded-xl text-xs px-3 h-10 hover:bg-white capitalize">
               Learn about our work with UNESCO
             </Button>
           </div>
         </div>
         <section className="py-4 sm:py-8 px-52 max-lg:px-24 max-md:px-28 max-sm:px-8 flex flex-col items-center">
-          <div className="max-h-[60vh] overflow-hidden w-full">
-            <EventList limit={5} resultClasses="max-sm:columns-1 max-md:columns-2" />
+          <div className="max-h-[65vh] overflow-hidden w-full">
+            <EventList
+              limit={5}
+              resultClasses="max-sm:columns-1 max-md:columns-2"
+            />
           </div>
           <Button
             size="sm"
