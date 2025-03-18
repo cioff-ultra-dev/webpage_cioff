@@ -53,24 +53,23 @@ export default function LocaleSwitcher({
       disabled={isPending}
       defaultValue={currentLocale || defaultLocale}
     >
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger className="w-fit">
         <SelectValue placeholder="Select your current locale" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="min-w-fit">
         {locales.map((locale) => (
           <SelectItem
             key={locale.code}
             value={locale.code}
-            className="flex gap-1"
+            className="flex gap-1 w-20 pl-0 py-2 justify-center"
           >
             <span
-              className="text-base pr-2"
+              className="text-base text-center"
               role="presentation"
               aria-label={`Flag for ${locale.name}`}
             >
               {flags[locale.code]}
             </span>
-            {t(locale.code)}
           </SelectItem>
         ))}
       </SelectContent>
