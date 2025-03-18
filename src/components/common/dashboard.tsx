@@ -247,6 +247,7 @@ export default async function Dashboard({
               href="/"
               className="flex items-center gap-4 px-2.5 text-foreground"
               prefetch={false}
+              target="_blank"
             >
               {t("website")}
             </Link>
