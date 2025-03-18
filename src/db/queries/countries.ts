@@ -29,7 +29,6 @@ export type CountryCastFestivals = {
   lat: string | null;
   lng: string | null;
   name: string | null;
-  festivalsCount: number;
 }[];
 
 export async function getAllCountryCastFestivals(
@@ -45,20 +44,19 @@ export async function getAllCountryCastFestivals(
 
   const query = db
     .select({
-      id: countries.id,
+      id: festivals.id,
       country: countries.slug,
-      lat: countries.lat,
-      lng: countries.lng,
-      name: countriesLang.name,
-      festivalsCount: countDistinct(festivals.id),
+      lat: festivals.lat,
+      lng: festivals.lng,
+      name: festivals.location,
     })
-    .from(countries)
-    .leftJoin(countriesLang, eq(countries.id, countriesLang.countryId))
-    .leftJoin(festivals, eq(countries.id, festivals.countryId))
+    .from(festivals)
+    .leftJoin(countriesLang, eq(festivals.countryId, countriesLang.countryId))
+    .leftJoin(countries, eq(countries.id, festivals.countryId))
     .$dynamic();
 
   filters.push(
-    // isNotNull(festivals.countryId),
+    isNotNull(festivals.countryId),
     isNotNull(festivals.location),
     eq(countriesLang.lang, sq)
   );
@@ -69,7 +67,7 @@ export async function getAllCountryCastFestivals(
 
   query
     .where(and(...filters))
-    .groupBy(countries.id, countriesLang.id)
+    .groupBy(countries.id, countriesLang.id, festivals.id)
     .orderBy(countries.slug);
 
   return query;

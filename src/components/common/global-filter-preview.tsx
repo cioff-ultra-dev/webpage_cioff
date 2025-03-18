@@ -126,11 +126,13 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
         tabSelected === "festivals"
           ? `api/filter?categories=${JSON.stringify(
               selectedCategories
-            )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&regions=${JSON.stringify(
+            )}&type=${tabSelected}&locale=${locale}&festivalId=${selectedCountryId}&regions=${JSON.stringify(
               selectedRegions
             )}&countries=${JSON.stringify(
               selectedCountries.length
                 ? selectedCountries
+                : selectedCountryId
+                ? []
                 : countryCast.map((item) => item.id)
             )}&page=1${search ? `&${search}` : ""}`
           : null,
@@ -176,7 +178,6 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
         ?.filter((item) => item.lat && item.lng)
         .map((item) => ({
           id: item.id,
-          count: item.festivalsCount,
           name: item.name,
           position: {
             lat: parseFloat(item.lat!),
@@ -395,7 +396,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                 onSubmit={handleSubmit}
                 className="flex items-end space-y-4 space-x-4 sm:space-y-0 px-4"
               >
-                <Input placeholder={tf("search")} name="search" type="search"/>
+                <Input placeholder={tf("search")} name="search" type="search" />
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
