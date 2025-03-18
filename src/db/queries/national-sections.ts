@@ -387,16 +387,17 @@ export async function getAllCountryCastNationalSections(
 
   const query = db
     .select({
-      id: countries.id,
+      id: nationalSections.id,
+      countryId: countries.id,
       country: countries.slug,
       lat: countries.lat,
       lng: countries.lng,
       name: countriesLang.name,
       nationalSectionsCount: countDistinct(nationalSections.id),
     })
-    .from(countries)
+    .from(nationalSections)
+    .leftJoin(countries, eq(countries.id, nationalSections.countryId))
     .leftJoin(countriesLang, eq(countries.id, countriesLang.countryId))
-    .leftJoin(nationalSections, eq(countries.id, nationalSections.countryId))
     .$dynamic();
 
   filters.push(
@@ -410,7 +411,7 @@ export async function getAllCountryCastNationalSections(
 
   query
     .where(and(...filters))
-    .groupBy(countries.id, countriesLang.id)
+    .groupBy(nationalSections.id, countriesLang.id, countries.id)
     .orderBy(countries.slug);
 
   return query;
