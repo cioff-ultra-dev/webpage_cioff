@@ -43,7 +43,6 @@ import { MultiSelectProps } from "../ui/multi-select";
 import { Skeleton } from "../ui/skeleton";
 import NationalSectionsTab from "./send-emails/addressee-step/national-sections-tab";
 import Filters from "./send-emails/addressee-step/filters";
-import { FilterCard } from "./filters/filter-card";
 import { ResultList } from "./filters/result-list";
 
 interface FormElements extends HTMLFormControlsCollection {
@@ -145,11 +144,13 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
         tabSelected === "groups"
           ? `api/filter/group?categories=${JSON.stringify(
               selectedCategories
-            )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&regions=${JSON.stringify(
+            )}&type=${tabSelected}&locale=${locale}&groupId=${selectedCountryId}&regions=${JSON.stringify(
               selectedRegions
             )}&countries=${JSON.stringify(
               selectedCountries.length
                 ? selectedCountries
+                : selectedCountryId
+                ? []
                 : countryGroupCast.map((item) => item.id)
             )}&page=1${search ? `&${search}` : ""}`
           : null,
@@ -193,7 +194,6 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
         ?.filter((item) => item.lat && item.lng)
         .map((item) => ({
           id: item.id,
-          count: item.groupsCount,
           name: item.name,
           position: {
             lat: parseFloat(item.lat!),
@@ -622,22 +622,18 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                         <Marker position={selectedPlace.geometry?.location} />
                       ) : null}
                       {!selectedPlace
-                        ? countryGroupMapClusters.map((item) =>
-                            item.count ? (
-                              <AdvancedMarker
-                                key={item.id}
-                                position={item.position}
-                                onClick={() =>
-                                  setSelectedCountryId((prevState) => {
-                                    return prevState === item.id ? 0 : item.id;
-                                  })
-                                }
-                                title={t("marker_located_at", {
-                                  name: item.name,
-                                })}
-                              />
-                            ) : null
-                          )
+                        ? countryGroupMapClusters.map((item) => (
+                            <AdvancedMarker
+                              key={item.id}
+                              position={item.position}
+                              onClick={() =>
+                                setSelectedCountryId((prevState) => {
+                                  return prevState === item.id ? 0 : item.id;
+                                })
+                              }
+                              title={item.name}
+                            />
+                          ))
                         : null}
                     </Map>
                   </div>
@@ -657,7 +653,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                     )}
                     viewMoreLink={`/search?categories=${JSON.stringify(
                       selectedCategories
-                    )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&page=1&regions=${JSON.stringify(
+                    )}&type=${tabSelected}&locale=${locale}&groupId=${selectedCountryId}&page=1&regions=${JSON.stringify(
                       selectedRegions
                     )}&countries=${JSON.stringify(selectedCountries)}${
                       search ? `&${search}` : ""

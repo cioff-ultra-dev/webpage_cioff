@@ -113,7 +113,7 @@ export async function Header({
           <Image src="/logo.png" width="121" height="100" alt="CIOFF Logo" />
         </Link>
       </nav>
-      <nav className="hidden lg:flex space-x-4 sm:space-x-6">{items}</nav>
+      <nav className="hidden lg:flex space-x-4 sm:space-x-6 text-center">{items}</nav>
       <div className="flex items-center space-x-4">
         <LocaleSwitcher locales={locales} />
         {session?.user ? (

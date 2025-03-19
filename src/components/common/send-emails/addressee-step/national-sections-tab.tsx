@@ -16,6 +16,7 @@ import { CountryCastNationalSections } from "@/db/queries/national-sections";
 import { SearchFormElement, Action } from "@/types/send-email";
 import { Card, CardContent } from "@/components/ui/card";
 import { CategoriesType } from "@/db/queries/categories";
+import { FilterCard } from "@/components/common/filters/filter-card";
 
 import SkeletonList from "./skeleton-list";
 import Filters from "./filters";
@@ -119,37 +120,46 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
             const countryUrl = findFlagUrlByCountryName(country.slug);
 
             return isCard ? (
-              <div
-                key={id}
-                className={cn(
-                  "w-full justify-self-center space-y-3 p-4 rounded-lg bg-gray-100 hover:bg-gray-200 cursor-default hover:cursor-pointer"
-                )}
-                onClick={() => router.push(`/national-sections/${id}`)}
-              >
-                <div>
-                  <div className="relative w-full h-[220px]">
-                    <Image
-                      fill
-                      src={cover?.url || countryUrl || "/placeholder.svg"}
-                      alt="Festival Picture"
-                      className="rounded-lg aspect-video"
-                      blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOsbmysBwAE+gH+lB3PkwAAAABJRU5ErkJggg=="
-                    />
+              <>
+                <FilterCard
+                  key={id}
+                  title={lang.name}
+                  location={countryLang.name}
+                  description={lang?.about??''}
+                  images={[cover?.url || countryUrl || "/placeholder.svg"]}
+                />
+                <div
+                  key={id}
+                  className={cn(
+                    "w-full justify-self-center space-y-3 p-4 rounded-lg bg-gray-100 hover:bg-gray-200 cursor-default hover:cursor-pointer"
+                  )}
+                  onClick={() => router.push(`/national-sections/${id}`)}
+                >
+                  <div>
+                    <div className="relative w-full h-[220px]">
+                      <Image
+                        fill
+                        src={cover?.url || countryUrl || "/placeholder.svg"}
+                        alt="Festival Picture"
+                        className="rounded-lg aspect-video"
+                        blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOsbmysBwAE+gH+lB3PkwAAAABJRU5ErkJggg=="
+                      />
+                    </div>
+                  </div>
+                  <div className="w-full flex flex-col gap-1">
+                    <h3 className="text-black text-sm sm:text-base truncate sm:max-w-[170px] md:max-w-[200px] lg:max-w-[300px]">
+                      {lang.name}
+                    </h3>
+                    <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
+                      <MapPin size={16} />
+                      <span>{countryLang.name}</span>
+                    </p>
+                    <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">
+                      {lang?.about}
+                    </p>
                   </div>
                 </div>
-                <div className="w-full flex flex-col gap-1">
-                  <h3 className="text-black text-sm sm:text-base truncate sm:max-w-[170px] md:max-w-[200px] lg:max-w-[300px]">
-                    {lang.name}
-                  </h3>
-                  <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
-                    <MapPin size={16} />
-                    <span>{countryLang.name}</span>
-                  </p>
-                  <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">
-                    {lang?.about}
-                  </p>
-                </div>
-              </div>
+              </>
             ) : (
               <ListItem
                 key={id}
