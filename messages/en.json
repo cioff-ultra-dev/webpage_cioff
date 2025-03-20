@@ -347,6 +347,19 @@
               ]
             }
           ]
+        },
+        "group": {
+          "_reportFestivals": [
+            {
+              "generalComment": "General Comment",
+              "_questions": [
+                {
+                  "comment": "Comment",
+                  "rating": "Rating"
+                }
+              ]
+            }
+          ]
         }
       }
     }

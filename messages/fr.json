@@ -41,28 +41,31 @@
     "en": "English"
   },
   "notification": {
-    "success": "Sauvegardé avec succès",
-    "email_exist": "Email déjà existant",
-    "user_already_actived": "Compte utilisateur déjà activé",
+    "success": "Enregistré avec succès",
+    "email_exist": "L'adresse e-mail existe déjà",
+    "user_already_actived": "Le compte utilisateur est déjà activé",
     "sent_success": "Envoyé avec succès",
+    "invalid_credentials: ": "Identifiants invalides",
+    "something_went_wrong": "Une erreur s'est produite",
+    "report_not_found": "Rapport introuvable",
     "email": {
-      "festival_invitation_subject": "Festivals Invitation des utilisateurs - CIOFF",
-      "group_invitation_subject": "Invitation des utilisateurs du groupe - CIOFF",
-      "login_to": "Se connecter au CIOFF",
-      "activation_account": "Activation de l'intranet CIOFF"
+      "festival_invitation_subject": "Invitation Utilisateur Festivals - CIOFF",
+      "group_invitation_subject": "Invitation Utilisateur Groupes - CIOFF",
+      "login_to": "Connectez-vous à CIOFF",
+      "activation_account": "Activation de l'Intranet CIOFF"
     }
   },
   "link": {
     "dashboard": "Tableau de bord",
-    "national-sections": "Sections nationales",
+    "national-sections": "Sections Nationales",
     "festivals": "Festivals",
     "groups": "Groupes",
-    "edit": "Editer",
+    "edit": "Modifier",
     "settings": "Paramètres",
     "sub-pages": "Sous-pages",
-    "send-emails": "Envoyer un courrier",
+    "send-emails": "Envoyer des emails",
     "customization": "Personnalisation",
-    "website": "Aller sur le site web",
+    "website": "Aller au site web",
     "subscribe": "S'abonner",
     "billingPortal": "Portail de facturation",
     "reports": "Rapports"
@@ -307,6 +310,37 @@
       "cancel": "Annuler",
       "save": "Gurdar",
       "imageDimensions": "Maximum de 3 images. Les dimensions de l'image doivent être de 1200 x 400 px."
+    },
+    "reports": {
+      "form": {
+        "festival": {
+          "_reportGroups": [
+            {
+              "generalComment": "Commentaire Général",
+              "_questions": [
+                {
+                  "bringLiveMusic": "Le groupe a-t-il apporté de la musique live ?",
+                  "comment": "Commentaire",
+                  "rating": "Évaluation"
+                }
+              ]
+            }
+          ]
+        },
+        "group": {
+          "_reportFestivals": [
+            {
+              "generalComment": "Commentaire Général",
+              "_questions": [
+                {
+                  "comment": "Commentaire",
+                  "rating": "Évaluation"
+                }
+              ]
+            }
+          ]
+        }
+      }
     }
   },
   "maps": {
@@ -332,9 +366,11 @@
   },
   "customErrors": {
     "file_required": "Veuillez télécharger un fichier",
-    "invalid_phone_number": "Veuillez entrer un numéro de téléphone valide",
+    "invalid_phone_number": "Veuillez saisir un numéro de téléphone valide",
     "password_match": "Les mots de passe ne correspondent pas",
-    "mandatory_rating_comment": "Les commentaires sont obligatoires pour les notes de 0 à 3"
+    "mandatory_rating_comment": "Les commentaires sont obligatoires pour les évaluations de 0 à 3",
+    "mandatory_rating_comment_1": "Les commentaires sont obligatoires pour les évaluations de 1 à 3",
+    "description_limit": "La description doit comporter moins de 300 mots"
   },
   "formNews": {
     "countrySelect": "Sélectionner un pays"
@@ -604,59 +640,107 @@
   },
   "reports": {
     "title": "Rapport",
-    "sideActivities": "Activités Annexes",
+    "sideActivities": "Activités Complémentaires",
+    "sideActivitiesDescription": "Mentionnez si vous avez eu des activités supplémentaires aux performances principales",
+    "sideActivitiesTypeDescription": "Sélectionnez les activités qui étaient présentes pendant le festival",
     "evaluateOtherGroup": "Souhaitez-vous évaluer un autre groupe ?",
-    "evaluateOtherFestival": "Si vous souhaitez évaluer un autre festival :",
+    "evaluateOtherFestival": "Si vous souhaitez évaluer un festival différent :",
+    "page": {
+      "createReport": "Créer un Rapport",
+      "festivals": "Festivals",
+      "festivalsDescription": "Gérez vos rapports de festival et consultez leurs détails.",
+      "groups": "Groupes",
+      "groupsDescription": "Gérez vos rapports de groupe et consultez leurs détails.",
+      "ns": "Sections Nationales",
+      "nsDescription": "Gérez vos rapports de Section Nationale et consultez leurs détails.",
+      "reportId": "ID du Rapport",
+      "dateCreated": "Date de Création",
+      "status": "Statut",
+      "actions": "Actions",
+      "draft": "Brouillon",
+      "pending": "En attente",
+      "completed": "Terminé",
+      "notFoundReports": "Aucun rapport trouvé...",
+      "viewReport": "Voir le Rapport",
+      "editReport": "Modifier le Rapport"
+    },
     "form": {
       "festival": {
         "details": "Détails du Festival",
         "addReportFromFestival": "AJOUTER UN RAPPORT DE FESTIVAL",
-        "reportFestivalDescription": "Veuillez remplir les informations suivantes sur votre festival.",
+        "reportFestivalDescription": "Veuillez remplir les informations suivantes concernant votre festival.",
         "nonCioffGroups": "Avez-vous eu des groupes non-CIOFF ?",
         "howMany": "Combien ?",
-        "email": "Email",
-        "provideEmail": "Fournissez l'email du groupe non-CIOFF",
+        "email": "Courriel",
+        "provideEmail": "Indiquez l'adresse e-mail du groupe non-CIOFF",
         "reportQuestions": "Questions du Rapport",
         "bringLiveMusic": "Le groupe a-t-il apporté de la musique live ?",
         "rating": "Évaluation",
         "comment": "Commentaire",
         "commentPlaceholder": "Parlez-nous de votre expérience",
-        "commentDescription": "Veuillez limiter votre commentaire à 300 mots",
+        "commentDescription": "Veuillez limiter votre commentaire à moins de 300 mots",
         "selectCountry": "Sélectionner un Pays",
-        "selectVerifiedCountry": "Sélectionnez un pays vérifié à afficher",
+        "selectVerifiedCountry": "Sélectionnez un pays vérifié pour l'affichage",
         "selectGroups": "Sélectionner des Groupes",
         "generalComment": "Commentaire Général",
-        "sourceData": "Quelle est la source de ce chiffre ?"
+        "sourceData": "Quelle est la source de ce chiffre ?",
+        "sourceDataDescription": "Veuillez indiquer la source de ce chiffre",
+        "confirmed": "Confirmé",
+        "addEmail": "Ajouter un Courriel",
+        "numberOfPeople": "Nombre de personnes",
+        "totalNumberOfPeople": "Nombre total de personnes ayant assisté au festival",
+        "numberOfDisabledAdults": "Nombre d'adultes handicapés",
+        "totalNumberOfDisabledAdults": "Nombre total d'adultes handicapés ayant assisté au festival",
+        "numberOfDisabledYouth": "Nombre de jeunes handicapés",
+        "totalNumberOfDisabledYouth": "Nombre total de jeunes handicapés ayant assisté au festival",
+        "numberOfDisabledChildren": "Nombre d'enfants handicapés",
+        "totalNumberOfDisabledChildren": "Nombre total d'enfants handicapés ayant assisté au festival",
+        "numberOfDisabledElderly": "Nombre de personnes âgées handicapées",
+        "totalNumberOfDisabledElderly": "Nombre total de personnes âgées handicapées ayant assisté au festival",
+        "numberOfPerformances": "Nombre de spectacles",
+        "totalNumberOfPerformances": "Nombre total de spectacles tenus pendant le festival",
+        "averageCostTicket": "Coût moyen d'un billet",
+        "averageCostTicketDescription": "Coût moyen d'un billet pour le festival",
+        "reportGroups": "Rapport sur les groupes",
+        "inviteThisGroup": "Comment avez-vous invité ce groupe ?",
+        "throughtByWebsite": "Via le site web",
+        "throughtByNs": "Via la Section Nationale",
+        "amountPersonsGroup": "Combien de personnes le groupe a-t-il amené ?",
+        "amountPersonsGroupDescription": "Veuillez indiquer le nombre de personnes du groupe",
+        "save": "Enregistrer",
+        "submit": "Soumettre",
+        "cancel": "Annuler",
+        "savingReport": "Enregistrement du rapport..."
       },
       "group": {
         "details": "Détails du Groupe",
         "addReportFromGroup": "AJOUTER UN RAPPORT DE GROUPE",
         "generalReport": "Rapport Général du Groupe",
-        "reportGroupDescription": "Veuillez remplir les informations suivantes sur votre groupe.",
+        "reportGroupDescription": "Veuillez remplir les informations suivantes concernant votre groupe.",
         "reportQuestions": "Questions du Rapport",
         "bringLiveMusic": "Le groupe a-t-il apporté de la musique live ?",
         "rating": "Évaluation",
         "comment": "Commentaire",
         "commentPlaceholder": "Parlez-nous de votre expérience",
-        "commentDescription": "Veuillez limiter votre commentaire à 300 mots",
+        "commentDescription": "Veuillez limiter votre commentaire à moins de 300 mots",
         "selectCountry": "Sélectionner un Pays",
-        "selectVerifiedCountry": "Sélectionnez un pays vérifié à afficher",
+        "selectVerifiedCountry": "Sélectionnez un pays vérifié pour l'affichage",
         "selectFestivals": "Sélectionner des Festivals",
         "selectOptions": "Sélectionner des options",
         "generalComment": "Commentaire Général",
         "inscribedICH": "Avez-vous représenté un élément PCI inscrit de votre pays ?",
         "name": "Nom",
-        "provideNameICH": "Fournissez le nom de l'élément PCI inscrit",
-        "introductionPerformance": "Le festival a-t-il une introduction CIOFF avant les performances ?",
+        "provideNameICH": "Indiquez le nom de l'élément PCI inscrit",
+        "introductionPerformance": "Le festival a-t-il une introduction CIOFF avant les spectacles ?",
         "leastFiveForeignGroups": "Le festival avait-il au moins 5 groupes étrangers ?",
-        "travelCost": "Le festival a-t-il couvert les frais de déplacement à l'intérieur du pays ?",
-        "refreshmentsPerformance": "Aviez-vous des rafraîchissements pendant les performances ?",
+        "travelCost": "Le festival a-t-il couvert les frais de déplacement dans le pays ?",
+        "refreshmentsPerformance": "Avez-vous eu des rafraîchissements pendant les spectacles ?",
         "type_compensation": "Le festival a-t-il fourni un type de compensation ?",
         "select_type_compensation_display": "Sélectionnez votre type de compensation à afficher",
         "financial_compensation": "Compensation Financière",
         "in_kind_compensation": "Compensation en Nature",
         "you_can_manage_type_compensation": "Vous pouvez gérer votre type de compensation ici.",
-        "localePerform": "Où vous êtes-vous produits ?",
+        "localePerform": "Où avez-vous joué ?",
         "sleepPerform": "Où avez-vous dormi ?",
         "personGroupTravelledThisYear": "Combien de personnes de votre groupe ont voyagé cette année ?",
         "totalPeopleTravelledGroup": "Nombre total de personnes de votre groupe ayant voyagé cette année",
@@ -668,7 +752,44 @@
         "selectActivitiesPresentFestival": "Sélectionnez les activités qui étaient présentes pendant le festival",
         "selectLocalesPresenteSleep": "Sélectionnez les lieux qui étaient disponibles pour dormir au festival",
         "cancel": "Annuler",
-        "save": "Enregistrer"
+        "save": "Enregistrer",
+        "submit": "Soumettre",
+        "savingReport": "Enregistrement du rapport..."
+      },
+      "ns": {
+        "addReportNationaSection": "AJOUTER UN RAPPORT DE SECTION NATIONALE",
+        "reports": "Rapports",
+        "reportsDescription": "Veuillez remplir les informations suivantes concernant votre organisation et vos activités.",
+        "members": "Membres",
+        "numberFestivals": "Nombre de festivals",
+        "extractNumberFestivals": "Extrait du nombre de profils de festivals",
+        "numbersGroups": "Nombre de groupes",
+        "extractNumberGroups": "Extrait du nombre de profils de groupes",
+        "numbersAssociations": "Nombre d'associations ou autres organisations",
+        "numbersIndividualMembers": "Nombre de membres individuels",
+        "addNumberSizeMembers": "Ajoutez le nombre et la taille des membres",
+        "cooperationWithUnesco": "Coopération avec l'UNESCO",
+        "engagedWithNationalCommission": "Êtes-vous activement engagé avec votre Commission Nationale ?",
+        "yes": "Oui",
+        "not": "Non",
+        "description": "Description",
+        "descriptionPlaceholder": "Comment avez-vous travaillé avec eux cette année",
+        "max500Words": "Vous pouvez utiliser max. 500 mots pour cette saisie",
+        "culturalActivities": "Activités Culturelles",
+        "culturalActivitiesDescription": "Veuillez énumérer toutes les activités tenues par votre SN. Ne listez pas les festivals internationaux.",
+        "activity": "Activité",
+        "chooseTypeActivity": "Choisissez le type d'activité",
+        "selectType": "Sélectionner le type",
+        "activityName": "Nom/titre de l'activité",
+        "activityNamePlaceholder": "Tapez le nom de l'activité",
+        "modalityActivity": "Choisissez la modalité de l'activité",
+        "selectModalityPlaceholder": "Sélectionner la modalité",
+        "lengthActivity": "Durée",
+        "selectUnit": "Sélectionner l'unité",
+        "numbersSpeakers": "Nombre d'intervenants/artistes",
+        "addActivity": "Ajouter une activité",
+        "cancel": "Annuler",
+        "submit": "Soumettre"
       },
       "rates": {
         "zero": "0 - Non applicable",
