@@ -2,6 +2,10 @@
 
 import { useTransition } from "react";
 import { Globe } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { findFlagUrlByIso2Code } from "country-flags-svg";
+import Image from "next/image";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +17,7 @@ import { LanguagesType } from "@/db/queries/languages";
 import { defaultLocale, Locale } from "@/i18n/config";
 import { setUserLocale } from "@/lib/locale";
 import { cn } from "@/lib/utils";
-import { useLocale, useTranslations } from "next-intl";
+
 import {
   Select,
   SelectContent,
@@ -23,9 +27,9 @@ import {
 } from "../ui/select";
 
 const flags = {
-  es: "🇪🇸",
-  en: "🇬🇧",
-  fr: "🇫🇷",
+  es: "ES",
+  en: "US",
+  fr: "FR",
 } as const;
 
 export default function LocaleSwitcher({
@@ -68,7 +72,7 @@ export default function LocaleSwitcher({
               role="presentation"
               aria-label={`Flag for ${locale.name}`}
             >
-              {flags[locale.code]}
+              <Image src={findFlagUrlByIso2Code(flags[locale.code])} width={20} height={20} alt={locale.code} />
             </span>
           </SelectItem>
         ))}
