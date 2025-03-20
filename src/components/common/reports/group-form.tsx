@@ -289,6 +289,7 @@ export default function ReportGroupForm({
           if (data.success && data.reportId) {
             toast.success(data.success);
             customRevalidateTag("/dashboard/reports");
+            toast.dismiss();
             router.push("/dashboard/reports");
           } else if (data.error) {
             toast.error(data.error);

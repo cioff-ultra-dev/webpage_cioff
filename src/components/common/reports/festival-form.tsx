@@ -62,7 +62,7 @@ import { useEffect, useState } from "react";
 
 async function insertReport(
   url: string,
-  { arg }: { arg: z.infer<typeof formReportFestivalSchema> },
+  { arg }: { arg: z.infer<typeof formReportFestivalSchema> }
 ) {
   return await fetch(url, {
     method: "POST",
@@ -85,7 +85,7 @@ export const formReportFestivalSchema = insertReportFestivalSchema.merge(
           .pick({
             emailProvided: true,
           })
-          .optional(),
+          .optional()
       )
       .optional(),
     _reportGroups: z.array(
@@ -102,7 +102,7 @@ export const formReportFestivalSchema = insertReportFestivalSchema.merge(
                 z.object({
                   name: z.string(),
                   questionId: z.number(),
-                }),
+                })
               )
               .refine(
                 (data) =>
@@ -113,13 +113,13 @@ export const formReportFestivalSchema = insertReportFestivalSchema.merge(
                 {
                   path: ["comment"],
                   params: { i18n: "mandatory_rating_comment" },
-                },
-              ),
+                }
+              )
           ),
-        }),
-      ),
+        })
+      )
     ),
-  }),
+  })
 );
 
 function Submit({
@@ -198,7 +198,7 @@ export default function ReportFestivalForm({
       sourceData: currentReport?.sourceData ?? "",
       _typeActivitiesSelected:
         currentReport?.activities?.map((item) =>
-          String(item.reportTypeCategoryId),
+          String(item.reportTypeCategoryId)
         )! ?? [],
       _isNonCioffGroups: !!currentReport?.nonGroups.length,
       _currentNonCioffGroups: currentReport?.nonGroups.length
@@ -219,7 +219,7 @@ export default function ReportFestivalForm({
               item.group?.langs.find((lang) => lang?.l?.code === locale)
                 ?.name || item.group?.langs.at(0)?.name,
             country: item.group?.country?.langs.find(
-              (lang) => lang?.l?.code === locale,
+              (lang) => lang?.l?.code === locale
             )?.name,
             amountPersonsGroup: 0,
             _questions: ratingQuestions.map((question) => {
@@ -236,14 +236,14 @@ export default function ReportFestivalForm({
             id: item.groupId!,
             groupId: item.groupId,
             confirmed: groupsConfirmed.some(
-              (group) => group.groupId === item.groupId,
+              (group) => group.groupId === item.groupId
             ),
             ratingResult: item.ratingResult,
             generalComment: item.generalComment,
             name: item.group?.langs.find((lang) => lang?.l?.code === locale)
               ?.name,
             country: item.group?.country?.langs.find(
-              (lang) => lang?.l?.code === locale,
+              (lang) => lang?.l?.code === locale
             )?.name,
             amountPersonsGroup: item.amountPersonsGroup ?? 0,
             isGroupLiveMusic: item.isGroupLiveMusic,
@@ -252,8 +252,8 @@ export default function ReportFestivalForm({
             _invitationThrough: item.isInvitationPerWebsite
               ? "isInvitationPerWebsite"
               : item.isInvitationPerNs
-                ? "isInvitationPerNs"
-                : "",
+              ? "isInvitationPerNs"
+              : "",
             _questions: item.answers.map((answer) => ({
               questionId: answer.ratingQuestionId,
               name: ratingQuestions
@@ -298,7 +298,7 @@ export default function ReportFestivalForm({
 
   const stateGroupFetch = useSWR<{ results: CurrentGroups }>(
     `/api/group?countryId=${currentCountrySelected ?? ""}`,
-    fetcher,
+    fetcher
   );
 
   const { trigger, isMutating } = useSWRMutation(
@@ -312,13 +312,14 @@ export default function ReportFestivalForm({
           if (data.success && data.reportId) {
             toast.success(data.success);
             customRevalidateTag("/dashboard/reports");
+            toast.dismiss();
             router.push("/dashboard/reports");
           } else if (data.error) {
             toast.error(data.error);
           }
         }
       },
-    },
+    }
   );
 
   useEffect(() => {
@@ -561,7 +562,7 @@ export default function ReportFestivalForm({
                         reportTypeCategories.map((item) => ({
                           value: String(item.id),
                           label: item.langs.find(
-                            (lang) => lang.l.code === locale,
+                            (lang) => lang.l.code === locale
                           )?.name!,
                           caption: "",
                         }));
@@ -575,7 +576,7 @@ export default function ReportFestivalForm({
                               onValueChange={(values) => {
                                 form.setValue(
                                   "_typeActivitiesSelected",
-                                  values,
+                                  values
                                 );
                               }}
                             />
@@ -715,7 +716,7 @@ export default function ReportFestivalForm({
                                     {
                                       item.langs.find(
                                         (itemLang) =>
-                                          itemLang.l?.code === locale,
+                                          itemLang.l?.code === locale
                                       )?.name
                                     }
                                   </SelectItem>
@@ -752,7 +753,7 @@ export default function ReportFestivalForm({
                                 options={options}
                                 defaultValue={
                                   field.value.map((item) =>
-                                    String(item.groupId),
+                                    String(item.groupId)
                                   ) || []
                                 }
                                 disabled={
@@ -766,16 +767,14 @@ export default function ReportFestivalForm({
                                       name:
                                         data
                                           ?.find(
-                                            (value) =>
-                                              value.id === Number(item),
+                                            (value) => value.id === Number(item)
                                           )
                                           ?.langs.find(
-                                            (lang) => lang?.l?.code === locale,
+                                            (lang) => lang?.l?.code === locale
                                           )?.name! ||
                                         data
                                           ?.find(
-                                            (value) =>
-                                              value.id === Number(item),
+                                            (value) => value.id === Number(item)
                                           )
                                           ?.langs.at(0)?.name!,
                                       country:
@@ -783,16 +782,16 @@ export default function ReportFestivalForm({
                                           ?.find(
                                             (country) =>
                                               country.id ===
-                                              Number(currentCountrySelected),
+                                              Number(currentCountrySelected)
                                           )
                                           ?.langs.find(
-                                            (lang) => lang?.l?.code === locale,
+                                            (lang) => lang?.l?.code === locale
                                           )?.name! ||
                                         countries
                                           ?.find(
                                             (country) =>
                                               country.id ===
-                                              Number(currentCountrySelected),
+                                              Number(currentCountrySelected)
                                           )
                                           ?.langs.at(0)?.name!,
                                       id: Number(item),
@@ -804,12 +803,12 @@ export default function ReportFestivalForm({
                                       _questions: ratingQuestions.map(
                                         (question) => ({
                                           name: question.langs.find(
-                                            (lang) => lang.l.code === locale,
+                                            (lang) => lang.l.code === locale
                                           )?.name!,
                                           questionId: question.id,
                                           rating: 0,
                                           comment: "",
-                                        }),
+                                        })
                                       ),
                                     };
                                   });
@@ -818,7 +817,7 @@ export default function ReportFestivalForm({
                                     currentReportGroups.filter((item) => {
                                       return !values.some(
                                         (value) =>
-                                          value === String(item.groupId),
+                                          value === String(item.groupId)
                                       );
                                     });
 
@@ -828,7 +827,7 @@ export default function ReportFestivalForm({
                                       const index =
                                         currentReportGroups.findIndex(
                                           (item) =>
-                                            item.groupId === deprecate.groupId,
+                                            item.groupId === deprecate.groupId
                                         );
                                       nextDeprecate.push(index);
                                     }
@@ -841,8 +840,8 @@ export default function ReportFestivalForm({
                                       !currentReportGroups.some(
                                         (festival) =>
                                           festival.groupId ===
-                                          Number(value.groupId),
-                                      ),
+                                          Number(value.groupId)
+                                      )
                                   );
                                   appendCurrentReportGroups(nextContents);
                                 }}
@@ -903,21 +902,21 @@ export default function ReportFestivalForm({
                                         ) {
                                           form.setValue(
                                             `_reportGroups.${index}.isInvitationPerWebsite`,
-                                            true,
+                                            true
                                           );
                                           form.setValue(
                                             `_reportGroups.${index}.isInvitationPerNs`,
-                                            false,
+                                            false
                                           );
                                         }
                                         if (value === "isInvitationPerNs") {
                                           form.setValue(
                                             `_reportGroups.${index}.isInvitationPerWebsite`,
-                                            false,
+                                            false
                                           );
                                           form.setValue(
                                             `_reportGroups.${index}.isInvitationPerNs`,
-                                            true,
+                                            true
                                           );
                                         }
                                         field.onChange(value);
@@ -1019,16 +1018,16 @@ export default function ReportFestivalForm({
                                       .find(
                                         (question) =>
                                           question.id ===
-                                          itemQuestion.questionId,
+                                          itemQuestion.questionId
                                       )
                                       ?.langs.find(
-                                        (lang) => lang.l.code === locale,
+                                        (lang) => lang.l.code === locale
                                       )?.name ||
                                       ratingQuestions
                                         .find(
                                           (question) =>
                                             question.id ===
-                                            itemQuestion.questionId,
+                                            itemQuestion.questionId
                                         )
                                         ?.langs.at(0)?.name}
                                   </h5>
@@ -1087,7 +1086,7 @@ export default function ReportFestivalForm({
                                         <FormControl>
                                           <Textarea
                                             placeholder={tForm(
-                                              "commentPlaceholder",
+                                              "commentPlaceholder"
                                             )}
                                             disabled={isCurrentReport}
                                             className="resize-none"
@@ -1105,7 +1104,7 @@ export default function ReportFestivalForm({
                                     )}
                                   />
                                 </div>
-                              ),
+                              )
                             )}
                           </div>
                         </div>

@@ -645,7 +645,7 @@ export default function ReportNationalSectionForm({
               <Card className="flex justify-end gap-4 w-full">
                 <CardContent className="flex-row items-center p-4 flex w-full justify-end">
                   <div className="flex gap-2">
-                    <Button variant="ghost" asChild>
+                    <Button variant="ghost" asChild disabled={isMutating}>
                       <Link href="/dashboard/reports">{tForm("cancel")}</Link>
                     </Button>
                     <Submit label={tForm("submit")} isPending={isMutating} />
