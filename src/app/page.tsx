@@ -111,8 +111,8 @@ export default async function Home() {
           <div className="absolute text-white text-secular font-bold text-end text-5xl right-6 capitalize">
             <p>CIOFF@ Promotes intangible cultural</p>
             <p>Heritage through folklore</p>
-            <Button className="bg-white text-black rounded-xl text-xs px-3 h-10 hover:bg-white">
-              Learn about our NGO
+            <Button asChild className="bg-white text-black rounded-xl text-xs px-3 h-10 hover:bg-white">
+            <Link href="/about-us">Learn about our NGO</Link>
             </Button>
           </div>
         </div>
@@ -138,8 +138,8 @@ export default async function Home() {
           <div className="absolute text-white text-secular font-bold text-start text-5xl left-6 capitalize">
             <p>Official Partner of UNESCO</p>
             <p>Accredited to the 2003 Convention</p>
-            <Button className="bg-white text-black rounded-xl text-xs px-3 h-10 hover:bg-white capitalize">
-              Learn about our work with UNESCO
+            <Button asChild className="bg-white text-black rounded-xl text-xs px-3 h-10 hover:bg-white capitalize">
+              <Link href="/about-us">Learn about our work with UNESCO</Link>
             </Button>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { JSX, useState, useMemo, PropsWithChildren, useEffect } from "react";
-import { MapPin, CheckCircle } from "lucide-react";
+import { MapPin, CheckCircle, House } from "lucide-react";
 import useSWR from "swr";
 import Image from "next/image";
 import { findFlagUrlByCountryName } from "country-flags-svg";
@@ -17,8 +17,8 @@ import { SearchFormElement, Action } from "@/types/send-email";
 import { Card, CardContent } from "@/components/ui/card";
 import { CategoriesType } from "@/db/queries/categories";
 import { FilterCard } from "@/components/common/filters/filter-card";
+import { SkeletonList } from "@/components/common/filters/result-list";
 
-import SkeletonList from "./skeleton-list";
 import Filters from "./filters";
 import { ListItem } from "./list-item";
 
@@ -62,6 +62,7 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 
   const translations = useTranslations("filters");
+  const tCommon = useTranslations("common");
   const router = useRouter();
 
   useEffect(() => {
@@ -120,46 +121,16 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
             const countryUrl = findFlagUrlByCountryName(country.slug);
 
             return isCard ? (
-              <>
-                <FilterCard
-                  key={id}
-                  title={lang.name}
-                  location={countryLang.name}
-                  description={lang?.about??''}
-                  images={[cover?.url || countryUrl || "/placeholder.svg"]}
-                />
-                <div
-                  key={id}
-                  className={cn(
-                    "w-full justify-self-center space-y-3 p-4 rounded-lg bg-gray-100 hover:bg-gray-200 cursor-default hover:cursor-pointer"
-                  )}
-                  onClick={() => router.push(`/national-sections/${id}`)}
-                >
-                  <div>
-                    <div className="relative w-full h-[220px]">
-                      <Image
-                        fill
-                        src={cover?.url || countryUrl || "/placeholder.svg"}
-                        alt="Festival Picture"
-                        className="rounded-lg aspect-video"
-                        blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOsbmysBwAE+gH+lB3PkwAAAABJRU5ErkJggg=="
-                      />
-                    </div>
-                  </div>
-                  <div className="w-full flex flex-col gap-1">
-                    <h3 className="text-black text-sm sm:text-base truncate sm:max-w-[170px] md:max-w-[200px] lg:max-w-[300px]">
-                      {lang.name}
-                    </h3>
-                    <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
-                      <MapPin size={16} />
-                      <span>{countryLang.name}</span>
-                    </p>
-                    <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">
-                      {lang?.about}
-                    </p>
-                  </div>
-                </div>
-              </>
+              <FilterCard
+                key={id}
+                title={lang.name}
+                location={countryLang.name}
+                description={lang?.about ?? tCommon("noDescription")}
+                images={[cover?.url || countryUrl || "/placeholder.svg"]}
+                icon={<House />}
+                hideDate
+                detailLink={`/national-sections/${id}`}
+              />
             ) : (
               <ListItem
                 key={id}
@@ -224,35 +195,38 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
             )}
           >
             {children}
-            {showTotal && (
-              <label className="font-medium px-4">
-                {translations("results", {
-                  total: Array.isArray(items) ? items.length : 0,
-                })}
-              </label>
-            )}
-            <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-              <div
-                className={cn(
-                  "flex-1 p-4",
-                  !!children ? "rounded-b-lg" : "rounded-lg"
-                )}
-              >
-                <ScrollArea
+            <div className={cn(isCard && "relative py-4 !mt-14 px-52 max-lg:px-24 max-md:px-28 max-sm:px-8")}>
+              {showTotal && (
+                <label className="font-medium">
+                  {translations("results", {
+                    total: Array.isArray(items) ? items.length : 0,
+                  })}
+                </label>
+              )}
+              <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+                <div
                   className={cn(
-                    isCard ? "h-full w -full" : "h-[400px] w -full p-4"
+                    "flex-1",
+                    !isCard && "p-4",
+                    !!children ? "rounded-b-lg" : "rounded-lg"
                   )}
                 >
-                  <div
+                  <ScrollArea
                     className={cn(
-                      isCard
-                        ? "grid grid-cols-5 gap-2 h-full w-full max-sm:grid-cols-1 max-md:grid-cols-2"
-                        : "flex flex-col gap-2"
+                      isCard ? "h-full w -full" : "h-[400px] w -full p-4"
                     )}
                   >
-                    {items}
-                  </div>
-                </ScrollArea>
+                    <div
+                      className={cn(
+                        isCard
+                          ? "grid grid-cols-5 gap-4 h-full w-full max-sm:grid-cols-1 max-md:grid-cols-2 max-lg:grid-cols-4 mt-4"
+                          : "flex flex-col gap-2"
+                      )}
+                    >
+                      {items}
+                    </div>
+                  </ScrollArea>
+                </div>
               </div>
             </div>
           </div>

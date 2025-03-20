@@ -1,6 +1,6 @@
 import { JSX, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import {  useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 
@@ -15,19 +15,23 @@ interface ResultListProps {
   viewMoreLink: string;
 }
 
-function SkeletonList() {
+export function SkeletonList() {
   return (
     <>
-      {Array.from({ length: 6 }).map((_, index) => (
+      {Array.from({ length: 10 }).map((_, index) => (
         <div
           key={`skeleton-list-search-${index}`}
-          className="bg-gray-50 p-4 rounded-lg flex flex-col space-y-4 w-full"
+          className="bg-gray-50 rounded-lg flex flex-col space-y-4 w-full border"
         >
-          <Skeleton className="h-64 sm:h-48 bg-gray-300 rounded-lg" />
-          <Skeleton className="h-4 w-[250px] bg-gray-300" />
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-[200px] bg-gray-300" />
-            <Skeleton className="h-6 w-[250px] bg-gray-300" />
+          <Skeleton className="h-64 sm:h-48 bg-gray-300 rounded-t-lg" />
+          <div className="flex flex-col gap-1 relative px-2 pb-4">
+            <Skeleton
+              className="rounded-full h-12 w-12 absolute -top-10 right-2 bg-gray-400"
+            />
+            <Skeleton className="h-3 w-2/5 bg-gray-300 mb-2" />
+            <Skeleton className="h-5 w-full bg-gray-300 mb-2" />
+            <Skeleton className="h-4 w-4/5 bg-gray-300 mb-1" />
+            <Skeleton className="h-7 w-full bg-gray-300" />
           </div>
         </div>
       ))}
@@ -38,8 +42,8 @@ function SkeletonList() {
 export function ResultList(props: ResultListProps): JSX.Element {
   const { isLoading, results, viewMoreLink } = props;
 
-    const router = useRouter();
-    const translations = useTranslations("common");
+  const router = useRouter();
+  const translations = useTranslations("common");
 
   const component = useMemo(
     () =>

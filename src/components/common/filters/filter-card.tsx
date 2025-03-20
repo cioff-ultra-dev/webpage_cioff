@@ -103,10 +103,9 @@ export function FilterCard(props: FilterCardProps): JSX.Element {
       </div>
       <div
         className="flex flex-col gap-1 relative px-2 pb-4 cursor-default"
-        onClick={handleClick}
       >
         <Button
-          className="rounded-full h-12 w-12 absolute -top-7 right-2 group transition-transform duration-300"
+          className="rounded-full h-12 w-12 absolute -top-7 right-2 group transition-transform duration-300 cursor-pointer"
           onClick={handleItemDetail}
         >
           {cloneElement(icon, {
@@ -117,10 +116,10 @@ export function FilterCard(props: FilterCardProps): JSX.Element {
           <FilledStar className="h-4 w-4" />
           <p className="text-roboto text-xs">4.5/5</p>
         </span>
-        <label className="line-clamp-1 text-base font-medium text-roboto">
+        <label className="line-clamp-1 text-base font-medium text-roboto cursor-pointer" onClick={handleItemDetail}>
           {title}
         </label>
-        <p className="flex gap-1 items-center w-full mb-2">
+        <p className="flex gap-1 items-center w-full mb-2 cursor-pointer" onClick={handleClick}>
           <div className="w-5 h-5">
             <MapPin size={20} strokeWidth={2} className="text-primary" />
           </div>

@@ -429,8 +429,8 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
             showInputSearch={false}
             searchText={new URLSearchParams(search).get("search") ?? ""}
             showIconLabels
-            contentClassName="p-0 bg-white py-4 sm:py-6 w-full"
-            wrapperClassName="w-full"
+            contentClassName="p-0 bg-white py-4 sm:py-6 w-full h-full"
+            wrapperClassName="w-full h-full"
           >
             <MapHandler
               place={selectedPlace}
@@ -501,7 +501,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                     defaultZoom={3}
                     defaultSelectedZoom={5}
                   />
-                  <div className="flex-1 h-full mb-4">
+                  <div className="flex-1 h-full">
                     <Map
                       mapId={"bf51a910020fa25a"}
                       style={{ width: "100%", height: "60vh" }}
@@ -538,7 +538,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                     </Map>
                   </div>
                   <ResultList
-                    isLoading={isLoadingItemGroupList}
+                    isLoading={isLoadingItemList}
                     results={itemList?.map(
                       ({
                         festival,
