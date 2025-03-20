@@ -1,0 +1,1 @@
+ALTER TABLE "report_festival" ALTER COLUMN "average_cost_ticket" SET DATA TYPE text;

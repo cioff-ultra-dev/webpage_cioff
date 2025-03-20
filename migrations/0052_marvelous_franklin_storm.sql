@@ -1,0 +1,1 @@
+ALTER TABLE "report_festival" ADD COLUMN "draft" boolean DEFAULT false;

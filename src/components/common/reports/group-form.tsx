@@ -2,7 +2,6 @@
 
 import { UserDataAuthType } from "@/db/queries";
 import {
-  CountByCountriesResult,
   RatingQuestionsType,
   ReportGroupType,
   ReportTypeCategoriesType,
@@ -45,7 +44,7 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Link from "next/link";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, X } from "lucide-react";
 import useSWRMutation from "swr/mutation";
 import { useRouter } from "next/navigation";
 import { customRevalidateTag } from "../revalidateTag";
@@ -60,6 +59,7 @@ import useSWR from "swr";
 import fetcher from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useI18nZodErrors } from "@/hooks/use-i18n-zod-errors";
+import { useEffect, useState } from "react";
 
 async function insertReport(
   url: string,
@@ -76,6 +76,7 @@ async function insertReport(
 
 export const formReportGroupSchema = insertReportGroupSchema.merge(
   z.object({
+    _shouldDraft: z.boolean().optional(),
     _isInscribedICH: z.boolean().optional(),
     _countrySelected: z.string().optional(),
     _reportFestivals: z.array(
@@ -154,6 +155,7 @@ export default function ReportGroupForm({
 }) {
   useI18nZodErrors("reports.form.group");
 
+  const [loadingToastId, setLoadingToastId] = useState<string | number>(0);
   const router = useRouter();
   const t = useTranslations("reports");
   const tForm = useTranslations("reports.form.group");
@@ -163,7 +165,8 @@ export default function ReportGroupForm({
   const currentReportSelectedFestivals =
     currentReport?.ratingGroupToFestivals ?? [];
 
-  const isCurrentReport = Boolean(currentReport?.id);
+  const isDraft = Boolean(currentReport?.draft);
+  const isCurrentReport = Boolean(currentReport?.id) && !isDraft;
 
   const ratesValues = [
     tRates("one"),
@@ -177,6 +180,7 @@ export default function ReportGroupForm({
     resolver: zodResolver(formReportGroupSchema),
     defaultValues: {
       groupId: currentGroup?.id!,
+      _shouldDraft: false,
       amountPersonsTravelled: currentReport?.amountPersonsTravelled ?? 0,
       ich: currentReport?.ich ?? "",
       _isInscribedICH: !!currentReport?.ich,
@@ -186,13 +190,19 @@ export default function ReportGroupForm({
             festivalId: item.festivalId,
             confirmed: true,
             ratingResult: "",
+            generalComment: "",
+            atLeast5ForeginGroups: false,
+            introductionBeforePerformances: false,
+            festivalCoverTravelCosts: false,
+            refreshmentsDuringPerformances: false,
             inKindCompensation: "",
             financialCompensation: 0,
             typeOfCompensation: "",
             _typeActivitiesLocalesSelected: [],
             _typeActivitiesSleepsSelected: [],
-            name: item.festival?.langs.find((lang) => lang?.l?.code === locale)
-              ?.name,
+            name:
+              item.festival?.langs.find((lang) => lang?.l?.code === locale)
+                ?.name || item.festival?.langs.at(0)?.name,
             country: item.festival?.country?.langs.find(
               (lang) => lang?.l?.code === locale
             )?.name,
@@ -242,8 +252,6 @@ export default function ReportGroupForm({
     },
   });
 
-  console.log(form.formState.errors);
-
   const {
     fields: currentReportFestivals,
     append: appendCurrentReportFestivals,
@@ -271,7 +279,9 @@ export default function ReportGroupForm({
   );
 
   const { trigger, isMutating } = useSWRMutation(
-    "/api/report/group",
+    isDraft
+      ? `/api/report/group/edit?reportId=${currentReport?.id}`
+      : "/api/report/group",
     insertReport,
     {
       onSuccess(data, _key, _config) {
@@ -279,7 +289,7 @@ export default function ReportGroupForm({
           if (data.success && data.reportId) {
             toast.success(data.success);
             customRevalidateTag("/dashboard/reports");
-            router.push("/dashboard/reports");
+            // router.push("/dashboard/reports");
           } else if (data.error) {
             toast.error(data.error);
           }
@@ -288,14 +298,29 @@ export default function ReportGroupForm({
     }
   );
 
+  useEffect(() => {
+    if (isMutating && !loadingToastId) {
+      setLoadingToastId(toast.loading(tForm("savingReport")));
+    } else if (!isMutating && loadingToastId) {
+      toast.dismiss(loadingToastId);
+      setLoadingToastId(0);
+    }
+  }, [isMutating, tForm, loadingToastId]);
+
   async function onSubmit(values: z.infer<typeof formReportGroupSchema>) {
     trigger(values);
+  }
+
+  function onDraft() {
+    const formData = form.getValues();
+    formData._shouldDraft = true;
+    trigger(formData);
   }
 
   return (
     <div className="w-full p-4 md:p-6">
       <h1 className="text-2xl font-bold pb-10">
-        {isCurrentReport
+        {currentReport?.id || currentReport?.draft
           ? `#REPORT-G-${currentReport?.id}`
           : tForm("addReportFromGroup")}
       </h1>
@@ -320,7 +345,7 @@ export default function ReportGroupForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          How many persons from your group travelled this year?
+                          {tForm("personGroupTravelledThisYear")}
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -333,8 +358,7 @@ export default function ReportGroupForm({
                           />
                         </FormControl>
                         <FormDescription>
-                          Total number of people travelled from your group this
-                          year
+                          {tForm("totalPeopleTravelledGroup")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -394,7 +418,7 @@ export default function ReportGroupForm({
           </Card>
           <Card className="w-full mx-auto mt-4">
             <CardHeader>
-              <CardTitle>Group report on the festivals</CardTitle>
+              <CardTitle>{tForm("groupReportFestival")}</CardTitle>
               <CardDescription>
                 {tForm("reportGroupDescription")}
               </CardDescription>
@@ -459,7 +483,9 @@ export default function ReportGroupForm({
                               label:
                                 item.langs.find(
                                   (lang) => lang.l?.code === locale
-                                )?.name || "",
+                                )?.name ||
+                                item.langs.at(0)?.name ||
+                                "",
                               caption: "",
                             })) ?? [];
                           return (
@@ -468,6 +494,7 @@ export default function ReportGroupForm({
                               <FormControl>
                                 <MultiSelect
                                   options={options}
+                                  placeholder={tForm("selectOptions")}
                                   defaultValue={
                                     field.value.map((item) =>
                                       String(item.festivalId)
@@ -481,22 +508,38 @@ export default function ReportGroupForm({
                                   onValueChange={(values) => {
                                     const contents = values.map((item) => {
                                       return {
-                                        name: data
-                                          ?.find(
-                                            (value) => value.id === Number(item)
-                                          )
-                                          ?.langs.find(
-                                            (lang) => lang?.l?.code === locale
-                                          )?.name!,
-                                        country: countries
-                                          ?.find(
-                                            (country) =>
-                                              country.id ===
-                                              Number(currentCountrySelected)
-                                          )
-                                          ?.langs.find(
-                                            (lang) => lang?.l?.code === locale
-                                          )?.name!,
+                                        name:
+                                          data
+                                            ?.find(
+                                              (value) =>
+                                                value.id === Number(item)
+                                            )
+                                            ?.langs.find(
+                                              (lang) => lang?.l?.code === locale
+                                            )?.name! ||
+                                          data
+                                            ?.find(
+                                              (value) =>
+                                                value.id === Number(item)
+                                            )
+                                            ?.langs.at(0)?.name!,
+                                        country:
+                                          countries
+                                            ?.find(
+                                              (country) =>
+                                                country.id ===
+                                                Number(currentCountrySelected)
+                                            )
+                                            ?.langs.find(
+                                              (lang) => lang?.l?.code === locale
+                                            )?.name! ||
+                                          countries
+                                            ?.find(
+                                              (country) =>
+                                                country.id ===
+                                                Number(currentCountrySelected)
+                                            )
+                                            ?.langs.at(0)?.name!,
                                         id: Number(item),
                                         festivalId: Number(item),
                                         confirmed: false,
@@ -570,9 +613,22 @@ export default function ReportGroupForm({
                         <CardTitle>{item.name}</CardTitle>
                         <div className="flex justify-between">
                           <CardDescription>{item.country}</CardDescription>
-                          {item.confirmed ? (
-                            <Badge variant="secondary">Confirmed</Badge>
-                          ) : null}
+                          <div className="flex gap-2 items-center">
+                            {item.confirmed ? (
+                              <Badge variant="secondary">
+                                {tForm("confirmed")}
+                              </Badge>
+                            ) : null}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                removeCurrentReportFestivals(index);
+                              }}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-4">
@@ -719,7 +775,7 @@ export default function ReportGroupForm({
                                   <FormItem>
                                     <FormControl>
                                       <Input
-                                        placeholder="How much?"
+                                        placeholder={tForm("howMuch")}
                                         type="number"
                                         disabled={isCurrentReport}
                                         value={
@@ -731,8 +787,7 @@ export default function ReportGroupForm({
                                       />
                                     </FormControl>
                                     <FormDescription>
-                                      Please, provide the value required on this
-                                      field.
+                                      {tForm("provideValueRequired")}
                                     </FormDescription>
                                     <FormMessage />
                                   </FormItem>
@@ -754,12 +809,13 @@ export default function ReportGroupForm({
                                         {...field}
                                         disabled={isCurrentReport}
                                         value={field.value || ""}
-                                        placeholder="Provide your in-kind compensation"
+                                        placeholder={tForm(
+                                          "provideInkindCompensation"
+                                        )}
                                       />
                                     </FormControl>
                                     <FormDescription>
-                                      Please, provide the value required on this
-                                      field.
+                                      {tForm("provideValueRequired")}
                                     </FormDescription>
                                     <FormMessage />
                                   </FormItem>
@@ -799,8 +855,7 @@ export default function ReportGroupForm({
                                       />
                                     </FormControl>
                                     <FormDescription>
-                                      Select the activities that were present
-                                      during the festival
+                                      {tForm("selectActivitiesPresentFestival")}
                                     </FormDescription>
                                     <FormMessage />
                                   </FormItem>
@@ -837,8 +892,7 @@ export default function ReportGroupForm({
                                       />
                                     </FormControl>
                                     <FormDescription>
-                                      Select the locales that were present to
-                                      sleep on the festival
+                                      {tForm("selectLocalesPresenteSleep")}
                                     </FormDescription>
                                     <FormMessage />
                                   </FormItem>
@@ -859,7 +913,22 @@ export default function ReportGroupForm({
                                   className="space-y-2"
                                 >
                                   <h5 className="text-sm font-bold">
-                                    {itemQuestion.name}
+                                    {ratingQuestions
+                                      .find(
+                                        (question) =>
+                                          question.id ===
+                                          itemQuestion.questionId
+                                      )
+                                      ?.langs.find(
+                                        (lang) => lang.l.code === locale
+                                      )?.name ||
+                                      ratingQuestions
+                                        .find(
+                                          (question) =>
+                                            question.id ===
+                                            itemQuestion.questionId
+                                        )
+                                        ?.langs.at(0)?.name}
                                   </h5>
                                   <FormField
                                     control={form.control}
@@ -981,10 +1050,17 @@ export default function ReportGroupForm({
               <Card className="flex justify-end gap-4 w-full">
                 <CardContent className="flex-row items-center p-4 flex w-full justify-end">
                   <div className="flex gap-2">
-                    <Button variant="ghost" asChild>
-                      <Link href="/dashboard/national-section">Cancel</Link>
+                    <Button variant="ghost" asChild disabled={isMutating}>
+                      <Link href="/dashboard/reports">{tForm("cancel")}</Link>
                     </Button>
-                    <Submit label="Save" isPending={isMutating} />
+                    <Button
+                      variant="secondary"
+                      onClick={onDraft}
+                      disabled={isMutating}
+                    >
+                      {tForm("save")}
+                    </Button>
+                    <Submit label={tForm("submit")} isPending={isMutating} />
                   </div>
                 </CardContent>
               </Card>

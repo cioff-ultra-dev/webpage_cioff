@@ -1,9 +1,8 @@
-import { relations, SQL, sql } from "drizzle-orm";
+import { SQL, sql } from "drizzle-orm";
 import {
   AnyPgColumn,
-  boolean,
-  date,
   integer,
+  boolean,
   pgEnum,
   pgSchema,
   pgTable,
@@ -11,7 +10,6 @@ import {
   serial,
   text,
   timestamp,
-  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "next-auth/adapters";
 

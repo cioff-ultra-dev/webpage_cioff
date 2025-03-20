@@ -220,15 +220,18 @@ export async function authenticate(
   formData: FormData
 ) {
   formData.set("redirectTo", "/dashboard");
+
+  const t = await getTranslations("notification");
+
   try {
     await signIn("credentials", formData);
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":
-          return "Invalid Credentials";
+          return t("invalid_credentials");
         default:
-          return "Something went wrong.";
+          return t("something_went_wrong");
       }
     }
     throw error;
@@ -237,7 +240,7 @@ export async function authenticate(
   revalidatePath("/dashboard");
 }
 
-export async function createFestival(prevState: unknown, formData: FormData) {
+export async function createFestival(_prevState: unknown, formData: FormData) {
   const schema = insertFestivalSchema;
   const logo = formData.get("logo") as File;
   const photos = formData.getAll("photos") as Array<File>;
@@ -793,9 +796,8 @@ export async function updateNationalSection(formData: FormData) {
           const message = replaceTags(emailTemplate.template, {
             name: name,
             password: password,
-            url: `<a target="_blank" href="${
-              process.env.HOSTNAME_URL
-            }/login">${t("email.login_to")}</a>`,
+            url: `<a target="_blank" href="${process.env.HOSTNAME_URL
+              }/login">${t("email.login_to")}</a>`,
           });
 
           await transport.sendMail({
@@ -909,9 +911,8 @@ export async function updateNationalSection(formData: FormData) {
           const message = replaceTags(emailTemplate.template, {
             name: name,
             // password: password,
-            url: `<a target="_blank" href="${
-              process.env.HOSTNAME_URL
-            }/login">${t("email.login_to")}</a>`,
+            url: `<a target="_blank" href="${process.env.HOSTNAME_URL
+              }/login">${t("email.login_to")}</a>`,
           });
 
           await transport.sendMail({

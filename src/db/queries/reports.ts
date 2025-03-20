@@ -33,6 +33,9 @@ export async function getReportsFestivals(id: SelectFestival["id"]) {
     where(fields, { eq }) {
       return eq(fields.festivalId, id);
     },
+    orderBy(fields, { desc }) {
+      return desc(fields.createdAt);
+    },
   });
 }
 
@@ -45,6 +48,9 @@ export async function getReportsGroups(id: SelectGroup["id"]) {
     where(fields, { eq }) {
       return eq(fields.groupId, id);
     },
+    orderBy(fields, { desc }) {
+      return desc(fields.createdAt);
+    },
   });
 }
 
@@ -56,6 +62,9 @@ export async function getReportsNationalSections(
   return db.query.reportNationalSections.findMany({
     where(fields, { eq }) {
       return eq(fields.nsId, id);
+    },
+    orderBy(fields, { desc }) {
+      return desc(fields.createdAt);
     },
   });
 }

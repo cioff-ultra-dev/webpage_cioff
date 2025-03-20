@@ -37,6 +37,7 @@ export async function POST(request: Request) {
         groupId: result.groupId,
         amountPersonsTravelled: result.amountPersonsTravelled,
         ich: result.ich,
+        draft: !!result._shouldDraft,
       })
       .returning({ id: reportGroup.id });
 

@@ -1,7 +1,3 @@
-import {
-  getAllNationalSections,
-  LangWithNationalSection,
-} from "@/db/queries/national-sections";
 import DashboardReportPage from "./base";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";

@@ -1087,8 +1087,9 @@ export const reportFestival = pgTable("report_festival", {
   disabledYouth: integer("any_disabled_youth"),
   disabledChildren: integer("any_disabled_children"),
   amountPerformances: integer("amount_performances"),
-  averageCostTicket: integer("average_cost_ticket"),
+  averageCostTicket: text("average_cost_ticket"),
   sourceData: text("source_data"),
+  draft: boolean("draft").default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -1098,7 +1099,7 @@ export const reportFestivalActivities = pgTable("report_festival_activities", {
     .references(() => reportTypeCategories.id)
     .notNull(),
   reportFestivalId: integer("report_festival_id")
-    .references(() => reportFestival.id)
+    .references(() => reportFestival.id, { onDelete: "cascade" })
     .notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
@@ -1226,6 +1227,7 @@ export const reportGroup = pgTable("report_group", {
     .notNull(),
   amountPersonsTravelled: integer("amount_persons_travelled"),
   ich: text("ich"),
+  draft: boolean("draft").default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });

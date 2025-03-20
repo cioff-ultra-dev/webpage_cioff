@@ -6,7 +6,6 @@ import {
   ReportTypeCategoriesType,
 } from "@/db/queries/reports";
 import {
-  groups,
   insertRatingFestivalToGroupsAnswersSchema,
   insertRatingFestivalToGroupsSchema,
   insertReportFestivalNonGroupsSchema,
@@ -38,7 +37,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button, ButtonProps } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Link from "next/link";
-import { PlusCircle } from "lucide-react";
 import useSWRMutation from "swr/mutation";
 import { useRouter } from "next/navigation";
 import { customRevalidateTag } from "../revalidateTag";
@@ -59,14 +57,8 @@ import {
 import fetcher from "@/lib/utils";
 import useSWR from "swr";
 import { buildGroup } from "@/db/queries/groups";
-
-function calculateRatingResult(ratings: number[]) {
-  const totalRatings = ratings.length;
-  if (totalRatings === 0) return 0;
-
-  const sumRatings = ratings.reduce((sum, rating) => sum + rating, 0);
-  return sumRatings / totalRatings;
-}
+import { PlusCircle, X } from "lucide-react";
+import { useEffect, useState } from "react";
 
 async function insertReport(
   url: string,
@@ -83,14 +75,18 @@ async function insertReport(
 
 export const formReportFestivalSchema = insertReportFestivalSchema.merge(
   z.object({
+    _shouldDraft: z.boolean().optional(),
     _typeActivitiesSelected: z.array(z.string()),
     _isNonCioffGroups: z.boolean().optional(),
     _countrySelected: z.string().optional(),
-    _currentNonCioffGroups: insertReportFestivalNonGroupsSchema
-      .pick({
-        howMany: true,
-        emailProvided: true,
-      })
+    _currentNonCioffGroups: z
+      .array(
+        insertReportFestivalNonGroupsSchema
+          .pick({
+            emailProvided: true,
+          })
+          .optional()
+      )
       .optional(),
     _reportGroups: z.array(
       insertRatingFestivalToGroupsSchema.omit({ reportFestivalId: true }).merge(
@@ -165,8 +161,7 @@ export default function ReportFestivalForm({
 }) {
   useI18nZodErrors("reports.form.festival");
 
-  console.log(currentReport);
-
+  const [loadingToastId, setLoadingToastId] = useState<string | number>(0);
   const router = useRouter();
   const t = useTranslations("reports");
   const tForm = useTranslations("reports.form.festival");
@@ -176,7 +171,8 @@ export default function ReportFestivalForm({
   const currentReportsSelectedGroups =
     currentReport?.ratingFestivalToGroups ?? [];
 
-  const isCurrentReport = Boolean(currentReport?.id);
+  const isDraft = Boolean(currentReport?.draft);
+  const isCurrentReport = Boolean(currentReport?.id) && !isDraft;
 
   const ratesValues = [
     tRates("zero"),
@@ -192,40 +188,49 @@ export default function ReportFestivalForm({
     defaultValues: {
       slug: "",
       festivalId,
+      _shouldDraft: false,
       amountPeople: currentReport?.amountPeople ?? 0,
       disabledAdults: currentReport?.disabledAdults ?? 0,
       disabledYouth: currentReport?.disabledYouth ?? 0,
       disabledChildren: currentReport?.disabledChildren ?? 0,
       amountPerformances: currentReport?.amountPerformances ?? 0,
-      averageCostTicket: currentReport?.averageCostTicket ?? 0,
+      averageCostTicket: currentReport?.averageCostTicket ?? "",
       sourceData: currentReport?.sourceData ?? "",
-      _typeActivitiesSelected: currentReport?.activities?.map((item) =>
-        String(item.reportTypeCategoryId)
-      )!,
+      _typeActivitiesSelected:
+        currentReport?.activities?.map((item) =>
+          String(item.reportTypeCategoryId)
+        )! ?? [],
       _isNonCioffGroups: !!currentReport?.nonGroups.length,
-      _currentNonCioffGroups: currentReport?.nonGroups.at(0) ?? {
-        howMany: 0,
-        emailProvided: "",
-      },
+      _currentNonCioffGroups: currentReport?.nonGroups.length
+        ? currentReport?.nonGroups
+        : [
+            {
+              emailProvided: "",
+            },
+          ],
       _reportGroups: !currentReportsSelectedGroups.length
         ? groupsConfirmed.map((item) => ({
             id: item.groupId!,
             groupId: item.groupId,
             confirmed: true,
             ratingResult: "",
-            name: item.group?.langs.find((lang) => lang?.l?.code === locale)
-              ?.name,
+            generalComment: "",
+            name:
+              item.group?.langs.find((lang) => lang?.l?.code === locale)
+                ?.name || item.group?.langs.at(0)?.name,
             country: item.group?.country?.langs.find(
               (lang) => lang?.l?.code === locale
             )?.name,
             amountPersonsGroup: 0,
-            _questions: ratingQuestions.map((question) => ({
-              questionId: question.id,
-              name: question.langs.find((lang) => lang.l.code === locale)
-                ?.name!,
-              rating: 0,
-              comment: "",
-            })),
+            _questions: ratingQuestions.map((question) => {
+              return {
+                questionId: question.id,
+                name: question.langs.find((lang) => lang.l.code === locale)
+                  ?.name!,
+                rating: 0,
+                comment: "",
+              };
+            }),
           }))
         : currentReportsSelectedGroups.map((item) => ({
             id: item.groupId!,
@@ -262,6 +267,15 @@ export default function ReportFestivalForm({
   });
 
   const {
+    fields: currentFieldsEmailsProvided,
+    append: appendFieldsEmailsProvided,
+    remove: removeFieldsEmailsProvided,
+  } = useFieldArray({
+    control: form.control,
+    name: "_currentNonCioffGroups",
+  });
+
+  const {
     fields: currentReportGroups,
     append: appendCurrentReportGroups,
     remove: removeCurrentReportGroups,
@@ -288,7 +302,9 @@ export default function ReportFestivalForm({
   );
 
   const { trigger, isMutating } = useSWRMutation(
-    "/api/report/festival",
+    isDraft
+      ? `/api/report/festival/edit?reportId=${currentReport?.id}`
+      : "/api/report/festival",
     insertReport,
     {
       onSuccess(data, _key, _config) {
@@ -296,7 +312,7 @@ export default function ReportFestivalForm({
           if (data.success && data.reportId) {
             toast.success(data.success);
             customRevalidateTag("/dashboard/reports");
-            router.push("/dashboard/reports");
+            // router.push("/dashboard/reports");
           } else if (data.error) {
             toast.error(data.error);
           }
@@ -305,14 +321,29 @@ export default function ReportFestivalForm({
     }
   );
 
-  async function onSubmit(values: z.infer<typeof formReportFestivalSchema>) {
+  useEffect(() => {
+    if (isMutating && !loadingToastId) {
+      setLoadingToastId(toast.loading(tForm("savingReport")));
+    } else if (!isMutating && loadingToastId) {
+      toast.dismiss(loadingToastId);
+      setLoadingToastId(0);
+    }
+  }, [isMutating, tForm, loadingToastId]);
+
+  function onSubmit(values: z.infer<typeof formReportFestivalSchema>) {
     trigger(values);
+  }
+
+  function onDraft() {
+    const formData = form.getValues();
+    formData._shouldDraft = true;
+    trigger(formData);
   }
 
   return (
     <div className="w-full p-4 md:p-6">
       <h1 className="text-2xl font-bold pb-10">
-        {isCurrentReport
+        {currentReport?.id || currentReport?.draft
           ? `#REPORT-F-${currentReport?.id}`
           : tForm("addReportFromFestival")}
       </h1>
@@ -335,7 +366,7 @@ export default function ReportFestivalForm({
                       name="amountPeople"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Number of people</FormLabel>
+                          <FormLabel>{tForm("numberOfPeople")}</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -347,7 +378,7 @@ export default function ReportFestivalForm({
                             />
                           </FormControl>
                           <FormDescription>
-                            Total number of people attended the festival
+                            {tForm("totalNumberOfPeople")}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -360,7 +391,9 @@ export default function ReportFestivalForm({
                       name="disabledAdults"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Number of disabled adults</FormLabel>
+                          <FormLabel>
+                            {tForm("numberOfDisabledAdults")}
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -372,8 +405,7 @@ export default function ReportFestivalForm({
                             />
                           </FormControl>
                           <FormDescription>
-                            Total number of disabled adults attended the
-                            festival
+                            {tForm("totalNumberOfDisabledAdults")}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -388,7 +420,9 @@ export default function ReportFestivalForm({
                       name="disabledYouth"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Number of disabled youth</FormLabel>
+                          <FormLabel>
+                            {tForm("numberOfDisabledYouth")}
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -400,7 +434,7 @@ export default function ReportFestivalForm({
                             />
                           </FormControl>
                           <FormDescription>
-                            Total number of disabled youth attended the festival
+                            {tForm("totalNumberOfDisabledYouth")}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -413,7 +447,9 @@ export default function ReportFestivalForm({
                       name="disabledChildren"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Number of disabled children</FormLabel>
+                          <FormLabel>
+                            {tForm("numberOfDisabledChildren")}
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -425,8 +461,7 @@ export default function ReportFestivalForm({
                             />
                           </FormControl>
                           <FormDescription>
-                            Total number of disabled children attended the
-                            festival
+                            {tForm("totalNumberOfDisabledChildren")}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -441,7 +476,7 @@ export default function ReportFestivalForm({
                       name="amountPerformances"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Number of performances</FormLabel>
+                          <FormLabel>{tForm("numberOfPerformances")}</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -453,8 +488,7 @@ export default function ReportFestivalForm({
                             />
                           </FormControl>
                           <FormDescription>
-                            Total number of performances held during the
-                            festival
+                            {tForm("totalNumberOfPerformances")}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -467,19 +501,17 @@ export default function ReportFestivalForm({
                       name="averageCostTicket"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Average cost of ticket</FormLabel>
+                          <FormLabel>{tForm("averageCostTicket")}</FormLabel>
                           <FormControl>
                             <Input
-                              type="number"
+                              type="text"
                               disabled={isCurrentReport}
-                              value={field.value ? String(field.value) : "0"}
-                              onChange={(e) =>
-                                field.onChange(Number(e.target.value))
-                              }
+                              value={field.value ?? ""}
+                              onChange={(e) => field.onChange(e.target.value)}
                             />
                           </FormControl>
                           <FormDescription>
-                            Average cost of a ticket for the festival
+                            {tForm("averageCostTicketDescription")}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -496,7 +528,6 @@ export default function ReportFestivalForm({
                         <FormLabel>{tForm("sourceData")}</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Provide the source of the data"
                             disabled={isCurrentReport}
                             className="resize-none"
                             onChange={(e) => field.onChange(e.target.value)}
@@ -504,7 +535,7 @@ export default function ReportFestivalForm({
                           />
                         </FormControl>
                         <FormDescription>
-                          Provide the source of the data used in this report
+                          {tForm("sourceDataDescription")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -518,8 +549,7 @@ export default function ReportFestivalForm({
                     {t("sideActivities")}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Mention if you had activities additional to the main
-                    performances
+                    {t("sideActivitiesDescription")}
                   </p>
                 </div>
                 <div className="space-y-4">
@@ -551,8 +581,7 @@ export default function ReportFestivalForm({
                             />
                           </FormControl>
                           <FormDescription>
-                            Select the activities that were present during the
-                            festival
+                            {t("sideActivitiesTypeDescription")}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -565,7 +594,7 @@ export default function ReportFestivalForm({
           </Card>
           <Card className="w-full mx-auto mt-4">
             <CardHeader>
-              <CardTitle>Report on the groups</CardTitle>
+              <CardTitle>{tForm("reportGroups")}</CardTitle>
               <CardDescription>
                 {tForm("reportFestivalDescription")}
               </CardDescription>
@@ -593,55 +622,62 @@ export default function ReportFestivalForm({
                   />
                 </div>
                 {currentIsNonCioffGroup ? (
-                  <div className="pl-5 border-l grid grid-cols-2 gap-4">
-                    <div>
-                      <FormField
-                        control={form.control}
-                        name="_currentNonCioffGroups.howMany"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{tForm("howMany")}</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                disabled={isCurrentReport}
-                                onChange={(event) => {
-                                  field.onChange(Number(event.target.value));
-                                }}
-                                onBlur={field.onBlur}
-                                value={field.value ? Number(field.value) : 0}
-                                name={field.name}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div>
-                      <FormField
-                        control={form.control}
-                        name="_currentNonCioffGroups.emailProvided"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{tForm("email")}</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="email"
-                                disabled={isCurrentReport}
-                                onChange={field.onChange}
-                                onBlur={field.onBlur}
-                                value={field.value ? String(field.value) : ""}
-                                name={field.name}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              {tForm("provideEmail")}
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                  <div className="pl-5 border-l grid gap-4">
+                    <div className="space-y-2">
+                      {currentFieldsEmailsProvided.map((item, index) => {
+                        return (
+                          <FormField
+                            key={item.id}
+                            control={form.control}
+                            name={`_currentNonCioffGroups.${index}.emailProvided`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="flex justify-between items-center">
+                                  <span>
+                                    #{index + 1} - {tForm("email")}
+                                  </span>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      removeFieldsEmailsProvided(index);
+                                    }}
+                                  >
+                                    <X className="w-2 h-2" />
+                                  </Button>
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="email"
+                                    disabled={isCurrentReport}
+                                    onChange={field.onChange}
+                                    onBlur={field.onBlur}
+                                    value={
+                                      field.value ? String(field.value) : ""
+                                    }
+                                    name={field.name}
+                                  />
+                                </FormControl>
+                                <FormDescription>
+                                  {tForm("provideEmail")}
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        );
+                      })}
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="mt-2"
+                        onClick={() =>
+                          appendFieldsEmailsProvided({ emailProvided: "" })
+                        }
+                      >
+                        <PlusCircle className="mr-2 h-4 w-4" />{" "}
+                        {tForm("addEmail")}
+                      </Button>
                     </div>
                   </div>
                 ) : null}
@@ -703,7 +739,9 @@ export default function ReportFestivalForm({
                             value: String(item.id) || "",
                             label:
                               item.langs.find((lang) => lang.l?.code === locale)
-                                ?.name || "",
+                                ?.name ||
+                              item.langs.at(0)?.name ||
+                              "",
                             caption: "",
                           })) ?? [];
                         return (
@@ -725,22 +763,36 @@ export default function ReportFestivalForm({
                                 onValueChange={(values) => {
                                   const contents = values.map((item) => {
                                     return {
-                                      name: data
-                                        ?.find(
-                                          (value) => value.id === Number(item)
-                                        )
-                                        ?.langs.find(
-                                          (lang) => lang?.l?.code === locale
-                                        )?.name!,
-                                      country: countries
-                                        ?.find(
-                                          (country) =>
-                                            country.id ===
-                                            Number(currentCountrySelected)
-                                        )
-                                        ?.langs.find(
-                                          (lang) => lang?.l?.code === locale
-                                        )?.name!,
+                                      name:
+                                        data
+                                          ?.find(
+                                            (value) => value.id === Number(item)
+                                          )
+                                          ?.langs.find(
+                                            (lang) => lang?.l?.code === locale
+                                          )?.name! ||
+                                        data
+                                          ?.find(
+                                            (value) => value.id === Number(item)
+                                          )
+                                          ?.langs.at(0)?.name!,
+                                      country:
+                                        countries
+                                          ?.find(
+                                            (country) =>
+                                              country.id ===
+                                              Number(currentCountrySelected)
+                                          )
+                                          ?.langs.find(
+                                            (lang) => lang?.l?.code === locale
+                                          )?.name! ||
+                                        countries
+                                          ?.find(
+                                            (country) =>
+                                              country.id ===
+                                              Number(currentCountrySelected)
+                                          )
+                                          ?.langs.at(0)?.name!,
                                       id: Number(item),
                                       groupId: Number(item),
                                       confirmed: false,
@@ -804,14 +856,27 @@ export default function ReportFestivalForm({
               <div className="space-y-4">
                 {currentReportGroups.map((item, index) => {
                   return (
-                    <Card key={item.id} className="w-full">
+                    <Card key={index} className="w-full">
                       <CardHeader>
                         <CardTitle>{item.name}</CardTitle>
                         <div className="flex justify-between">
                           <CardDescription>{item.country}</CardDescription>
-                          {item.confirmed ? (
-                            <Badge variant="secondary">Confirmed</Badge>
-                          ) : null}
+                          <div className="flex gap-2 items-center">
+                            {item.confirmed ? (
+                              <Badge variant="secondary">
+                                {tForm("confirmed")}
+                              </Badge>
+                            ) : null}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                removeCurrentReportGroups(index);
+                              }}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-4">
@@ -826,7 +891,7 @@ export default function ReportFestivalForm({
                               render={({ field }) => (
                                 <FormItem className="space-y-3">
                                   <FormLabel>
-                                    How did you invite this group?
+                                    {tForm("inviteThisGroup")}
                                   </FormLabel>
                                   <FormControl>
                                     <RadioGroup
@@ -864,7 +929,7 @@ export default function ReportFestivalForm({
                                           <RadioGroupItem value="isInvitationPerWebsite" />
                                         </FormControl>
                                         <FormLabel className="font-normal">
-                                          Through the website
+                                          {tForm("throughtByWebsite")}
                                         </FormLabel>
                                       </FormItem>
                                       <FormItem className="flex items-center space-x-3 space-y-0">
@@ -872,7 +937,7 @@ export default function ReportFestivalForm({
                                           <RadioGroupItem value="isInvitationPerNs" />
                                         </FormControl>
                                         <FormLabel className="font-normal">
-                                          Through the NS
+                                          {tForm("throughtByNs")}
                                         </FormLabel>
                                       </FormItem>
                                     </RadioGroup>
@@ -889,7 +954,7 @@ export default function ReportFestivalForm({
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>
-                                    How many persons did the group bring?
+                                    {tForm("amountPersonsGroup")}
                                   </FormLabel>
                                   <FormControl>
                                     <Input
@@ -904,8 +969,7 @@ export default function ReportFestivalForm({
                                     />
                                   </FormControl>
                                   <FormDescription>
-                                    Please provide the number of persons the
-                                    group
+                                    {tForm("amountPersonsGroupDescription")}
                                   </FormDescription>
                                   <FormMessage />
                                 </FormItem>
@@ -945,11 +1009,26 @@ export default function ReportFestivalForm({
                             {item._questions.map(
                               (itemQuestion, indexQuestion) => (
                                 <div
-                                  key={`${item.id}-${itemQuestion.name}`}
+                                  key={`${item.id}-${itemQuestion.name}-${indexQuestion}`}
                                   className="space-y-2"
                                 >
                                   <h5 className="text-sm font-bold">
-                                    {itemQuestion.name}
+                                    {ratingQuestions
+                                      .find(
+                                        (question) =>
+                                          question.id ===
+                                          itemQuestion.questionId
+                                      )
+                                      ?.langs.find(
+                                        (lang) => lang.l.code === locale
+                                      )?.name ||
+                                      ratingQuestions
+                                        .find(
+                                          (question) =>
+                                            question.id ===
+                                            itemQuestion.questionId
+                                        )
+                                        ?.langs.at(0)?.name}
                                   </h5>
                                   <FormField
                                     control={form.control}
@@ -1071,10 +1150,17 @@ export default function ReportFestivalForm({
               <Card className="flex justify-end gap-4 w-full">
                 <CardContent className="flex-row items-center p-4 flex w-full justify-end">
                   <div className="flex gap-2">
-                    <Button variant="ghost" asChild>
-                      <Link href="/dashboard/festivals">Cancel</Link>
+                    <Button variant="ghost" asChild disabled={isMutating}>
+                      <Link href="/dashboard/reports">{tForm("cancel")}</Link>
                     </Button>
-                    <Submit label="Save" isPending={isMutating} />
+                    <Button
+                      variant="secondary"
+                      onClick={onDraft}
+                      disabled={isMutating}
+                    >
+                      {tForm("save")}
+                    </Button>
+                    <Submit label={tForm("submit")} isPending={isMutating} />
                   </div>
                 </CardContent>
               </Card>

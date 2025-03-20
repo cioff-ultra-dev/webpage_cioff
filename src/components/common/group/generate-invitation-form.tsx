@@ -1,6 +1,6 @@
 "use client";
 
-import { generateFestival, generateGroup } from "@/app/actions";
+import { generateGroup } from "@/app/actions";
 import { Button, ButtonProps } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -19,7 +19,6 @@ import { useRef } from "react";
 import { toast } from "sonner";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { customRevalidatePath } from "../revalidateTag";
 import { useRouter } from "next/navigation";
 import { CurrentNationalSectionType } from "@/db/queries/national-sections";
 

@@ -47,7 +47,7 @@ import { PlusCircle } from "lucide-react";
 import useSWRMutation from "swr/mutation";
 import { useRouter } from "next/navigation";
 import { customRevalidateTag } from "../revalidateTag";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { NationalSectionByIdType } from "@/db/queries/national-sections";
 
@@ -112,6 +112,7 @@ export default function ReportNationalSectionForm({
   currentReport?: ReportNationalSectionType;
 }) {
   const router = useRouter();
+  const tForm = useTranslations("reports.form.ns");
   const locale = useLocale();
   const currentActivitiesSelected = currentReport?.activities ?? [];
 
@@ -182,24 +183,18 @@ export default function ReportNationalSectionForm({
   return (
     <div className="w-full p-4 md:p-6">
       <h1 className="text-2xl font-bold pb-10">
-        ADD A REPORT FROM NATIONAL SECTION
+        {tForm("addReportNationaSection")}
       </h1>
-      {/* <p className="text-sm text-muted-foreground pb-10">
-        The fields with * are mandatory.
-      </p> */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <Card className="w-full mx-auto">
             <CardHeader>
-              <CardTitle>Reports</CardTitle>
-              <CardDescription>
-                Please fill out the following information about your
-                organization and activities.
-              </CardDescription>
+              <CardTitle>{tForm("reports")}</CardTitle>
+              <CardDescription>{tForm("reportsDescription")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Members</h3>
+                <h3 className="text-lg font-semibold">{tForm("members")}</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <FormField
@@ -207,7 +202,7 @@ export default function ReportNationalSectionForm({
                       name="festivalSize"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Number of festivals</FormLabel>
+                          <FormLabel>{tForm("numberFestivals")}</FormLabel>
                           <FormControl>
                             <Input
                               defaultValue={String(field.value)}
@@ -215,7 +210,7 @@ export default function ReportNationalSectionForm({
                             />
                           </FormControl>
                           <FormDescription>
-                            Extract from the number of festivals profiles
+                            {tForm("extractNumberFestivals")}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -228,7 +223,7 @@ export default function ReportNationalSectionForm({
                       name="groupSize"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Number of groups</FormLabel>
+                          <FormLabel>{tForm("numbersGroups")}</FormLabel>
                           <FormControl>
                             <Input
                               defaultValue={String(field.value)}
@@ -236,7 +231,7 @@ export default function ReportNationalSectionForm({
                             />
                           </FormControl>
                           <FormDescription>
-                            Extract from the number of groups profiles
+                            {tForm("extractNumberGroups")}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -250,9 +245,7 @@ export default function ReportNationalSectionForm({
                     name="associationSize"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>
-                          Number of associations or other organizations
-                        </FormLabel>
+                        <FormLabel>{tForm("numbersAssociations")}</FormLabel>
                         <FormControl>
                           <Input
                             ref={field.ref}
@@ -276,7 +269,9 @@ export default function ReportNationalSectionForm({
                     name="individualMemberSize"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Number of individual members</FormLabel>
+                        <FormLabel>
+                          {tForm("numbersIndividualMembers")}
+                        </FormLabel>
                         <FormControl>
                           <Input
                             ref={field.ref}
@@ -290,7 +285,7 @@ export default function ReportNationalSectionForm({
                           />
                         </FormControl>
                         <FormDescription>
-                          Add the number size of members
+                          {tForm("addNumberSizeMembers")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -300,7 +295,7 @@ export default function ReportNationalSectionForm({
               </div>
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">
-                  Cooperation with UNESCO
+                  {tForm("cooperationWithUnesco")}
                 </h3>
                 <div>
                   <FormField
@@ -309,8 +304,7 @@ export default function ReportNationalSectionForm({
                     render={({ field }) => (
                       <FormItem className="space-y-3">
                         <FormLabel>
-                          Are you actively engaged with your National
-                          Commission?
+                          {tForm("engagedWithNationalCommission")}
                         </FormLabel>
                         <FormControl>
                           <RadioGroup
@@ -325,13 +319,17 @@ export default function ReportNationalSectionForm({
                               <FormControl>
                                 <RadioGroupItem value="yes" />
                               </FormControl>
-                              <FormLabel className="font-normal">Yes</FormLabel>
+                              <FormLabel className="font-normal">
+                                {tForm("yes")}
+                              </FormLabel>
                             </FormItem>
                             <FormItem className="flex items-center space-x-3 space-y-0">
                               <FormControl>
                                 <RadioGroupItem value="no" />
                               </FormControl>
-                              <FormLabel className="font-normal">No</FormLabel>
+                              <FormLabel className="font-normal">
+                                {tForm("not")}
+                              </FormLabel>
                             </FormItem>
                           </RadioGroup>
                         </FormControl>
@@ -346,11 +344,11 @@ export default function ReportNationalSectionForm({
                     name="workDescription"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Description</FormLabel>
+                        <FormLabel>{tForm("description")}</FormLabel>
                         <FormControl>
                           <Textarea
                             disabled={isCurrentReport}
-                            placeholder="How did you work with them this year"
+                            placeholder={tForm("descriptionPlaceholder")}
                             className="resize-none"
                             onChange={(value) =>
                               field.onChange(value.target.value)
@@ -361,7 +359,7 @@ export default function ReportNationalSectionForm({
                           />
                         </FormControl>
                         <FormDescription>
-                          You can use max. 500 words for this input
+                          {tForm("max500Words")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -370,16 +368,19 @@ export default function ReportNationalSectionForm({
                 </div>
               </div>
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Cultural activities</h3>
+                <h3 className="text-lg font-semibold">
+                  {tForm("culturalActivities")}
+                </h3>
                 <p className="text-sm text-muted-foreground">
-                  Please list all the activities held by your NS. Don't list
-                  international festivals.
+                  {tForm("culturalActivitiesDescription")}
                 </p>
                 {fields.map((field, index) => {
                   return (
                     <Card key={field.id}>
                       <CardHeader>
-                        <CardTitle>Activity {index + 1}</CardTitle>
+                        <CardTitle>
+                          {tForm("activity")} {index + 1}
+                        </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div>
@@ -388,7 +389,9 @@ export default function ReportNationalSectionForm({
                             name={`_activities.${index}.reportTypeCategoryId`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Choose type of activity</FormLabel>
+                                <FormLabel>
+                                  {tForm("chooseTypeActivity")}
+                                </FormLabel>
                                 <Select
                                   disabled={isCurrentReport}
                                   onValueChange={(value) => {
@@ -405,7 +408,9 @@ export default function ReportNationalSectionForm({
                                       ref={field.ref}
                                       onBlur={field.onBlur}
                                     >
-                                      <SelectValue placeholder="Select type" />
+                                      <SelectValue
+                                        placeholder={tForm("selectType")}
+                                      />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
@@ -435,7 +440,7 @@ export default function ReportNationalSectionForm({
                             name={`_activities.${index}.name`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Activity name/title</FormLabel>
+                                <FormLabel>{tForm("activityName")}</FormLabel>
                                 <FormControl>
                                   <Input
                                     ref={field.ref}
@@ -445,7 +450,9 @@ export default function ReportNationalSectionForm({
                                     }
                                     value={field.value ?? undefined}
                                     onBlur={field.onBlur}
-                                    placeholder="Type the name of the activity"
+                                    placeholder={tForm(
+                                      "activityNamePlaceholder"
+                                    )}
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -460,7 +467,7 @@ export default function ReportNationalSectionForm({
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>
-                                  Choose modality of activity
+                                  {tForm("modalityActivity")}
                                 </FormLabel>
                                 <Select
                                   disabled={isCurrentReport}
@@ -478,7 +485,11 @@ export default function ReportNationalSectionForm({
                                       ref={field.ref}
                                       onBlur={field.onBlur}
                                     >
-                                      <SelectValue placeholder="Select modality" />
+                                      <SelectValue
+                                        placeholder={tForm(
+                                          "selectModalityPlaceholder"
+                                        )}
+                                      />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
@@ -506,7 +517,7 @@ export default function ReportNationalSectionForm({
                         </div>
                         <div>
                           <Label htmlFor={`activity-length-${index}`}>
-                            Length
+                            {tForm("lengthActivity")}
                           </Label>
                           <div className="grid grid-cols-2 gap-4">
                             <FormField
@@ -530,7 +541,9 @@ export default function ReportNationalSectionForm({
                                         ref={field.ref}
                                         onBlur={field.onBlur}
                                       >
-                                        <SelectValue placeholder="Select unit" />
+                                        <SelectValue
+                                          placeholder={tForm("selectUnit")}
+                                        />
                                       </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
@@ -583,7 +596,7 @@ export default function ReportNationalSectionForm({
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>
-                                  Number of speakers/performers
+                                  {tForm("numbersSpeakers")}
                                 </FormLabel>
                                 <Input
                                   ref={field.ref}
@@ -619,7 +632,8 @@ export default function ReportNationalSectionForm({
                         })
                       }
                     >
-                      <PlusCircle className="mr-2 h-4 w-4" /> Add Activity
+                      <PlusCircle className="mr-2 h-4 w-4" />{" "}
+                      {tForm("addActivity")}
                     </Button>
                   </div>
                 ) : null}
@@ -632,9 +646,9 @@ export default function ReportNationalSectionForm({
                 <CardContent className="flex-row items-center p-4 flex w-full justify-end">
                   <div className="flex gap-2">
                     <Button variant="ghost" asChild>
-                      <Link href="/dashboard/national-section">Cancel</Link>
+                      <Link href="/dashboard/reports">{tForm("cancel")}</Link>
                     </Button>
-                    <Submit label="Save" isPending={isMutating} />
+                    <Submit label={tForm("submit")} isPending={isMutating} />
                   </div>
                 </CardContent>
               </Card>

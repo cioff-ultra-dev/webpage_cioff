@@ -22,7 +22,6 @@ export async function POST(request: Request) {
   const result = (await request.json()) as z.infer<
     typeof formReportFestivalSchema
   >;
-  console.log(result);
   const t = await getTranslations("notification");
 
   const reportId = await db.transaction(async (tx) => {
@@ -36,6 +35,7 @@ export async function POST(request: Request) {
         disabledYouth: result.disabledYouth,
         amountPerformances: result.amountPerformances,
         sourceData: result.sourceData,
+        draft: !!result._shouldDraft,
       })
       .returning({ id: reportFestival.id });
 
@@ -53,11 +53,12 @@ export async function POST(request: Request) {
     }
 
     if (result._isNonCioffGroups && result._currentNonCioffGroups) {
-      await tx.insert(reportFestivalNonGroups).values({
-        reportFestivalId: report.id,
-        howMany: result._currentNonCioffGroups.howMany ?? 0,
-        emailProvided: result._currentNonCioffGroups.emailProvided,
-      });
+      await tx.insert(reportFestivalNonGroups).values(
+        result._currentNonCioffGroups.map((group) => ({
+          reportFestivalId: report.id,
+          emailProvided: group?.emailProvided,
+        }))
+      );
     }
 
     if (result._reportGroups.length) {

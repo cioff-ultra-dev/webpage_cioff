@@ -20,6 +20,12 @@ declare module "next-auth" {
   }
 }
 
+declare module "next-auth" {
+  interface Session {
+    user: DefaultSession["user"] & UserDataAuthType;
+  }
+}
+
 export type User = {
   id: string;
   email: string;

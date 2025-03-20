@@ -22,7 +22,7 @@ export default function I18NProvider({
       timeZone="America/Bogota"
     >
       {children}
-      <SToaster richColors />
+      <SToaster richColors visibleToasts={1} position="bottom-center" />
     </NextIntlClientProvider>
   );
 }
