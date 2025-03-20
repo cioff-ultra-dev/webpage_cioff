@@ -174,7 +174,6 @@ export function WrapperFilter({
         ?.filter((item) => item.lat && item.lng)
         .map((item) => ({
           id: item.id,
-          count: item.festivalsCount,
           name: item.country,
           position: {
             lat: parseFloat(item.lat!),
@@ -190,7 +189,6 @@ export function WrapperFilter({
         ?.filter((item) => item.lat && item.lng)
         .map((item) => ({
           id: item.id,
-          count: item.groupsCount,
           name: item.name,
           position: {
             lat: parseFloat(item.lat!),
@@ -436,16 +434,7 @@ export function WrapperFilter({
                               })
                             }
                             title={`Markers located at ${item.name}`}
-                          >
-                            <div
-                              className={cn(
-                                "w-5 h-5 bg-red-300 flex justify-center items-center rounded-full p-3",
-                                item.id === selectedCountryId && "bg-red-400"
-                              )}
-                            >
-                              <span>{item.count}</span>
-                            </div>
-                          </AdvancedMarker>
+                          />
                         ))
                       : null}
                   </Map>
@@ -594,16 +583,7 @@ export function WrapperFilter({
                               })
                             }
                             title={`Markers located at ${item.name}`}
-                          >
-                            <div
-                              className={cn(
-                                "w-5 h-5 bg-red-300 flex justify-center items-center rounded-full p-3",
-                                item.id === selectedCountryId && "bg-red-400"
-                              )}
-                            >
-                              <span>{item.count}</span>
-                            </div>
-                          </AdvancedMarker>
+                          />
                         ))
                       : null}
                   </Map>
