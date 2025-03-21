@@ -53,26 +53,6 @@ interface SearchFormElement extends HTMLFormElement {
   readonly elements: FormElements;
 }
 
-function SkeletonList() {
-  return (
-    <>
-      {Array.from({ length: 6 }).map((_, index) => (
-        <div
-          key={`skeleton-list-search-${index}`}
-          className="bg-gray-50 p-4 rounded-lg flex flex-col space-y-4 w-full"
-        >
-          <Skeleton className="h-64 sm:h-48 bg-gray-300 rounded-lg" />
-          <Skeleton className="h-4 w-[250px] bg-gray-300" />
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-[200px] bg-gray-300" />
-            <Skeleton className="h-6 w-[250px] bg-gray-300" />
-          </div>
-        </div>
-      ))}
-    </>
-  );
-}
-
 export function WrapperFilter({ categories }: { categories: CategoriesType }) {
   const locale = useLocale();
   const t = useTranslations("maps");
@@ -130,7 +110,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
             )}&countries=${JSON.stringify(
               selectedCountries.length
                 ? selectedCountries
-                : selectedCountryId
+                : selectedCountryId || search.length > 0
                 ? []
                 : countryCast.map((item) => item.id)
             )}&page=1${search ? `&${search}` : ""}`
@@ -149,7 +129,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
             )}&countries=${JSON.stringify(
               selectedCountries.length
                 ? selectedCountries
-                : selectedCountryId
+                : selectedCountryId || search.length > 0
                 ? []
                 : countryGroupCast.map((item) => item.id)
             )}&page=1${search ? `&${search}` : ""}`
@@ -180,6 +160,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
         .map((item) => ({
           id: item.id,
           name: item.name,
+          location: item.location,
           position: {
             lat: parseFloat(item.lat!),
             lng: parseFloat(item.lng!),
@@ -195,6 +176,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
         .map((item) => ({
           id: item.id,
           name: item.name,
+          location: item.location,
           position: {
             lat: parseFloat(item.lat!),
             lng: parseFloat(item.lng!),
@@ -529,9 +511,9 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                                   return prevState === item.id ? 0 : item.id;
                                 })
                               }
-                              title={t("marker_located_at", {
-                                name: item.name,
-                              })}
+                              title={item.name
+                                ?.concat(" (", item?.location ?? "Pendiente")
+                                .concat(")")}
                             />
                           ))
                         : null}
@@ -631,7 +613,9 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                                   return prevState === item.id ? 0 : item.id;
                                 })
                               }
-                              title={item.name}
+                              title={item.name
+                                ?.concat(" (", item?.location ?? "Pendiente")
+                                .concat(")")}
                             />
                           ))
                         : null}

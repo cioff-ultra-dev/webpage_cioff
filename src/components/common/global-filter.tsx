@@ -82,7 +82,8 @@ export function WrapperFilter({
     searchParams?.countries ? JSON.parse(searchParams?.countries as string) : []
   );
   const [search, setSearch] = useState(
-    `search=${searchParams?.search ?? ""}&rangeDateFrom=${searchParams?.rangeDateFrom ?? ""
+    `search=${searchParams?.search ?? ""}&rangeDateFrom=${
+      searchParams?.rangeDateFrom ?? ""
     }&rangeDateTo=${searchParams?.rangeDateTo ?? ""}`
   );
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() =>
@@ -107,8 +108,8 @@ export function WrapperFilter({
       () =>
         tabSelected === "festivals"
           ? `/api/filter/country?locale=${locale}&regions=${JSON.stringify(
-            selectedRegions
-          )}`
+              selectedRegions
+            )}`
           : null,
       fetcher
     );
@@ -118,8 +119,8 @@ export function WrapperFilter({
       () =>
         tabSelected === "groups"
           ? `/api/filter/country/group?locale=${locale}&regions=${JSON.stringify(
-            selectedRegions
-          )}`
+              selectedRegions
+            )}`
           : null,
       fetcher
     );
@@ -128,11 +129,13 @@ export function WrapperFilter({
     (index, _) =>
       `api/filter?categories=${JSON.stringify(
         selectedCategories
-      )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&regions=${JSON.stringify(
+      )}&type=${tabSelected}&locale=${locale}&festivalId=${selectedCountryId}&regions=${JSON.stringify(
         selectedRegions
       )}&countries=${JSON.stringify(
         selectedCountries.length
           ? selectedCountries
+          : selectedCountryId || search.length > 0
+          ? []
           : countryCast.map((item) => item.id)
       )}&page=${index + 1}${search ? `&${search}` : ""}`,
     fetcher
@@ -142,11 +145,13 @@ export function WrapperFilter({
     (index, _) =>
       `api/filter/group?categories=${JSON.stringify(
         selectedCategories
-      )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&regions=${JSON.stringify(
+      )}&type=${tabSelected}&locale=${locale}&groupId=${selectedCountryId}&regions=${JSON.stringify(
         selectedRegions
       )}&countries=${JSON.stringify(
         selectedCountries.length
           ? selectedCountries
+          : selectedCountryId || search.length > 0
+          ? []
           : countryGroupCast.map((item) => item.id)
       )}&page=${index + 1}${search ? `&${search}` : ""}`,
     fetcher
@@ -158,7 +163,8 @@ export function WrapperFilter({
         ?.filter((item) => item.lat && item.lng)
         .map((item) => ({
           id: item.id,
-          name: item.country,
+          name: item.name,
+          location: item.location,
           position: {
             lat: parseFloat(item.lat!),
             lng: parseFloat(item.lng!),
@@ -174,6 +180,7 @@ export function WrapperFilter({
         .map((item) => ({
           id: item.id,
           name: item.name,
+          location: item.location,
           position: {
             lat: parseFloat(item.lat!),
             lng: parseFloat(item.lng!),
@@ -290,8 +297,10 @@ export function WrapperFilter({
 
     const searchValue = event.currentTarget.elements?.search.value;
     setSearch(
-      `search=${searchValue}&rangeDateFrom=${dateRange?.from ? Math.floor(dateRange!.from!.getTime() / 1000) : ""
-      }&rangeDateTo=${dateRange?.to ? Math.floor(dateRange!.to!.getTime() / 1000) : ""
+      `search=${searchValue}&rangeDateFrom=${
+        dateRange?.from ? Math.floor(dateRange!.from!.getTime() / 1000) : ""
+      }&rangeDateTo=${
+        dateRange?.to ? Math.floor(dateRange!.to!.getTime() / 1000) : ""
       }`
     );
   }
@@ -412,17 +421,19 @@ export function WrapperFilter({
                     ) : null}
                     {!selectedPlace
                       ? countryMapClusters.map((item) => (
-                        <AdvancedMarker
-                          key={item.id}
-                          position={item.position}
-                          onClick={() =>
-                            setSelectedCountryId((prevState) => {
-                              return prevState === item.id ? 0 : item.id;
-                            })
-                          }
-                          title={`Markers located at ${item.name}`}
-                        />
-                      ))
+                          <AdvancedMarker
+                            key={item.id}
+                            position={item.position}
+                            onClick={() =>
+                              setSelectedCountryId((prevState) => {
+                                return prevState === item.id ? 0 : item.id;
+                              })
+                            }
+                            title={item.name
+                              ?.concat(" (", item?.location ?? "Pendiente")
+                              .concat(")")}
+                          />
+                        ))
                       : null}
                   </Map>
                 </div>
@@ -474,7 +485,8 @@ export function WrapperFilter({
                           endDate={event?.endDate}
                           startDate={event?.startDate}
                           location={festival?.location || countryLang?.name}
-                          detailLink={`/festivals/${festival.id}`} />
+                          detailLink={`/festivals/${festival.id}`}
+                        />
                       )
                     )
                   }
@@ -512,17 +524,19 @@ export function WrapperFilter({
                     ) : null}
                     {!selectedPlace
                       ? countryGroupMapClusters.map((item) => (
-                        <AdvancedMarker
-                          key={item.id}
-                          position={item.position}
-                          onClick={() =>
-                            setSelectedCountryId((prevState) => {
-                              return prevState === item.id ? 0 : item.id;
-                            })
-                          }
-                          title={`Markers located at ${item.name}`}
-                        />
-                      ))
+                          <AdvancedMarker
+                            key={item.id}
+                            position={item.position}
+                            onClick={() =>
+                              setSelectedCountryId((prevState) => {
+                                return prevState === item.id ? 0 : item.id;
+                              })
+                            }
+                            title={item.name
+                              ?.concat(" (", item?.location ?? "Pendiente")
+                              .concat(")")}
+                          />
+                        ))
                       : null}
                   </Map>
                 </div>
@@ -566,7 +580,9 @@ export function WrapperFilter({
                           title={lang.name}
                           location={group?.location || countryLang?.name}
                           hideDate={true}
-                          description={lang.description || tCommon("noDescription")}
+                          description={
+                            lang.description || tCommon("noDescription")
+                          }
                           detailLink={`/groups/${group.id}`}
                         />
                       )

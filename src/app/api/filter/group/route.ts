@@ -82,8 +82,8 @@ const pageSize: number = Number(
       logo: logoStorage,
       cover: coverStorage,
     })
-    .from(groupToCategories)
-    .innerJoin(groups, eq(groupToCategories.groupId, groups.id))
+    .from(groups)
+    .leftJoin(groupToCategories, eq(groupToCategories.groupId, groups.id))
     .leftJoin(groupsLang, eq(groups.id, groupsLang.groupId))
     .leftJoin(countries, eq(groups.countryId, countries.id))
     .leftJoin(countriesLang, eq(countriesLang.countryId, countries.id))

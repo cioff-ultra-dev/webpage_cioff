@@ -9,6 +9,7 @@ import {
   languages,
   SelectGroup,
   SelectLanguages,
+  groupsLang,
 } from "@/db/schema";
 import { defaultLocale, Locale } from "@/i18n/config";
 import { and, countDistinct, eq, inArray, sql, SQLWrapper } from "drizzle-orm";
@@ -140,11 +141,11 @@ export async function getGroupById(id: SelectGroup["id"]) {
           },
         },
       },
-      coverPhotos:{
-        with:{
-          photo:true,
-        }
-      }
+      coverPhotos: {
+        with: {
+          photo: true,
+        },
+      },
     },
   });
 }
@@ -334,6 +335,7 @@ export type CountryCastGroups = {
   lat: string | null;
   lng: string | null;
   name: string | null;
+  location: string | null;
 }[];
 
 export async function getAllCountryCastGroups(
@@ -353,9 +355,11 @@ export async function getAllCountryCastGroups(
       country: countries.slug,
       lat: groups.lat,
       lng: groups.lng,
-      name: groups.location,
+      location: groups.location,
+      name: groupsLang.name,
     })
     .from(groups)
+    .leftJoin(groupsLang, eq(groups.id, groupsLang.groupId))
     .leftJoin(countriesLang, eq(groups.countryId, countriesLang.countryId))
     .leftJoin(countries, eq(countries.id, groups.countryId))
     .innerJoin(groupToCategories, eq(groupToCategories.groupId, groups.id))
@@ -364,7 +368,8 @@ export async function getAllCountryCastGroups(
 
   filters.push(
     // isNotNull(festivals.countryId),
-    eq(countriesLang.lang, sq)
+    eq(countriesLang.lang, sq),
+    eq(groupsLang.lang, sq)
   );
 
   if (regionsIn.length) {
@@ -373,7 +378,7 @@ export async function getAllCountryCastGroups(
 
   query
     .where(and(...filters))
-    .groupBy(countries.id, groups.id)
+    .groupBy(countries.id, groups.id, groupsLang.id)
     .orderBy(countries.slug);
 
   return query;

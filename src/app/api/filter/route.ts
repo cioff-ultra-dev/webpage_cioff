@@ -78,8 +78,8 @@ async function buildFilter(request: NextRequest) {
       logo: logoStorage,
       cover: coverStorage,
     })
-    .from(festivalToCategories)
-    .innerJoin(festivals, eq(festivalToCategories.festivalId, festivals.id))
+    .from(festivals)
+    .leftJoin(festivalToCategories, eq(festivalToCategories.festivalId, festivals.id))
     .leftJoin(events, eq(events.festivalId, festivals.id))
     .leftJoin(festivalsLang, eq(festivals.id, festivalsLang.festivalId))
     .leftJoin(countries, eq(festivals.countryId, countries.id))
