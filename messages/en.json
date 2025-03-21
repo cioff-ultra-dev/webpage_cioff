@@ -498,7 +498,8 @@
       "menu": "Menu",
       "network": "Social networks",
       "categories": "Categories",
-      "timeline": "Timeline"
+      "timeline": "Timeline",
+      "reportQuestions": "Report Questions"
     },
     "menu": {
       "description": "View and manage the main menu of the website. Remember that the maximum limit is 6 items.",
@@ -581,6 +582,27 @@
       "contentDescription": "Description",
       "updated": "Timeline successfully updated.",
       "notUpdated": "The timeline could not be updated."
+    },
+    "reportQuestions": {
+      "description": "View and manage the report questions.",
+      "deleteTitle": "Delete question",
+      "deleteMessage": "Are you sure you want to delete \"{name}\"?",
+      "pending": "Pending",
+      "disabled": "The question has been successfully changed status.",
+      "notDisabled": "The question could not be changed the status.",
+      "updated": "Question successfully updated.",
+      "notUpdated": "The question could not be updated.",
+      "added": "Question successfully created.",
+      "error": "An error occurred while creating the question.",
+      "addQuestion": "Add Question",
+      "selectOption": "Select an option",
+      "group": "Group",
+      "festival": "Festival",
+      "form": {
+        "title": "Add a new question",
+        "name": "Name",
+        "nameDescription": "Question name"
+      }
     }
   },
   "table": {
@@ -593,7 +615,9 @@
     "delete": "Delete",
     "facebook": "Facebook",
     "instagram": "Instagram",
-    "website": "Website"
+    "website": "Website",
+    "disable": "Disable",
+    "enable": "Enable"
   },
   "sendEmails": {
     "addressee": "Addressee",

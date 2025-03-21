@@ -63,7 +63,7 @@ import { useEffect, useState } from "react";
 
 async function insertReport(
   url: string,
-  { arg }: { arg: z.infer<typeof formReportGroupSchema> }
+  { arg }: { arg: z.infer<typeof formReportGroupSchema> },
 ) {
   return await fetch(url, {
     method: "POST",
@@ -94,7 +94,7 @@ export const formReportGroupSchema = insertReportGroupSchema.merge(
                 z.object({
                   name: z.string(),
                   questionId: z.number(),
-                })
+                }),
               )
               .refine(
                 (data) =>
@@ -105,13 +105,13 @@ export const formReportGroupSchema = insertReportGroupSchema.merge(
                 {
                   path: ["comment"],
                   params: { i18n: "mandatory_rating_comment_1" },
-                }
-              )
+                },
+              ),
           ),
-        })
-      )
+        }),
+      ),
     ),
-  })
+  }),
 );
 
 function Submit({
@@ -204,21 +204,23 @@ export default function ReportGroupForm({
               item.festival?.langs.find((lang) => lang?.l?.code === locale)
                 ?.name || item.festival?.langs.at(0)?.name,
             country: item.festival?.country?.langs.find(
-              (lang) => lang?.l?.code === locale
+              (lang) => lang?.l?.code === locale,
             )?.name,
-            _questions: ratingQuestions.map((question) => ({
-              questionId: question.id,
-              name: question.langs.find((lang) => lang.l.code === locale)
-                ?.name!,
-              rating: 1,
-              comment: "",
-            })),
+            _questions: ratingQuestions
+              .filter((question) => question.active)
+              .map((question) => ({
+                questionId: question.id,
+                name: question.langs.find((lang) => lang.l.code === locale)
+                  ?.name!,
+                rating: 1,
+                comment: "",
+              })),
           }))
         : currentReportSelectedFestivals.map((item) => ({
             id: item.festivalId!,
             festivalId: item.festivalId,
             confirmed: festivalsConfirmed.some(
-              (festival) => festival.festivalId === item.festivalId
+              (festival) => festival.festivalId === item.festivalId,
             ),
             ratingResult: item.ratingResult,
             generalComment: item.generalComment,
@@ -230,24 +232,43 @@ export default function ReportGroupForm({
             financialCompensation: item.financialCompensation,
             typeOfCompensation: item.typeOfCompensation,
             _typeActivitiesLocalesSelected: item.reportGroupTypeLocales.map(
-              (item) => String(item.reportTypeCategoryId)
+              (item) => String(item.reportTypeCategoryId),
             ),
             _typeActivitiesSleepsSelected: item.reportGroupTypeLocalesSleep.map(
-              (item) => String(item.reportTypeCategoryId)
+              (item) => String(item.reportTypeCategoryId),
             ),
             name: item.festival?.langs.find((lang) => lang?.l?.code === locale)
               ?.name,
             country: item.festival?.country?.langs.find(
-              (lang) => lang?.l?.code === locale
+              (lang) => lang?.l?.code === locale,
             )?.name,
-            _questions: item.answers.map((answer) => ({
-              questionId: answer.ratingQuestionId,
-              name: ratingQuestions
-                .find((question) => question.id === answer.ratingQuestionId)
-                ?.langs.find((lang) => lang.l.code === locale)?.name!,
-              rating: answer.rating,
-              comment: answer.comment,
-            })),
+            _questions:
+              currentReport?.id && !isDraft
+                ? item.answers.map((answer) => ({
+                    questionId: answer.ratingQuestionId,
+                    name: ratingQuestions
+                      .find(
+                        (question) => question.id === answer.ratingQuestionId,
+                      )
+                      ?.langs.find((lang) => lang.l.code === locale)?.name!,
+                    rating: answer.rating,
+                    comment: answer.comment,
+                  }))
+                : ratingQuestions
+                    .filter((question) => question.active)
+                    .map((question) => {
+                      const currentQuestion = item.answers.find(
+                        (answer) => answer.ratingQuestionId === question.id,
+                      );
+                      return {
+                        questionId: question.id,
+                        name: question.langs.find(
+                          (lang) => lang.l.code === locale,
+                        )?.name!,
+                        rating: currentQuestion ? currentQuestion.rating : 0,
+                        comment: currentQuestion ? currentQuestion.comment : "",
+                      };
+                    }),
           })),
     },
   });
@@ -275,7 +296,7 @@ export default function ReportGroupForm({
 
   const stateFestivalFetch = useSWR<{ results: CurrentFestivals }>(
     `/api/festival?countryId=${currentCountrySelected ?? ""}`,
-    fetcher
+    fetcher,
   );
 
   const { trigger, isMutating } = useSWRMutation(
@@ -296,7 +317,7 @@ export default function ReportGroupForm({
           }
         }
       },
-    }
+    },
   );
 
   useEffect(() => {
@@ -459,7 +480,7 @@ export default function ReportGroupForm({
                                       {
                                         item.langs.find(
                                           (itemLang) =>
-                                            itemLang.l?.code === locale
+                                            itemLang.l?.code === locale,
                                         )?.name
                                       }
                                     </SelectItem>
@@ -483,7 +504,7 @@ export default function ReportGroupForm({
                               value: String(item.id) || "",
                               label:
                                 item.langs.find(
-                                  (lang) => lang.l?.code === locale
+                                  (lang) => lang.l?.code === locale,
                                 )?.name ||
                                 item.langs.at(0)?.name ||
                                 "",
@@ -498,7 +519,7 @@ export default function ReportGroupForm({
                                   placeholder={tForm("selectOptions")}
                                   defaultValue={
                                     field.value.map((item) =>
-                                      String(item.festivalId)
+                                      String(item.festivalId),
                                     ) || []
                                   }
                                   disabled={
@@ -513,15 +534,16 @@ export default function ReportGroupForm({
                                           data
                                             ?.find(
                                               (value) =>
-                                                value.id === Number(item)
+                                                value.id === Number(item),
                                             )
                                             ?.langs.find(
-                                              (lang) => lang?.l?.code === locale
+                                              (lang) =>
+                                                lang?.l?.code === locale,
                                             )?.name! ||
                                           data
                                             ?.find(
                                               (value) =>
-                                                value.id === Number(item)
+                                                value.id === Number(item),
                                             )
                                             ?.langs.at(0)?.name!,
                                         country:
@@ -529,16 +551,17 @@ export default function ReportGroupForm({
                                             ?.find(
                                               (country) =>
                                                 country.id ===
-                                                Number(currentCountrySelected)
+                                                Number(currentCountrySelected),
                                             )
                                             ?.langs.find(
-                                              (lang) => lang?.l?.code === locale
+                                              (lang) =>
+                                                lang?.l?.code === locale,
                                             )?.name! ||
                                           countries
                                             ?.find(
                                               (country) =>
                                                 country.id ===
-                                                Number(currentCountrySelected)
+                                                Number(currentCountrySelected),
                                             )
                                             ?.langs.at(0)?.name!,
                                         id: Number(item),
@@ -551,12 +574,12 @@ export default function ReportGroupForm({
                                         _questions: ratingQuestions.map(
                                           (question) => ({
                                             name: question.langs.find(
-                                              (lang) => lang.l.code === locale
+                                              (lang) => lang.l.code === locale,
                                             )?.name!,
                                             questionId: question.id,
                                             rating: 1,
                                             comment: "",
-                                          })
+                                          }),
                                         ),
                                       };
                                     });
@@ -565,7 +588,7 @@ export default function ReportGroupForm({
                                       currentReportFestivals.filter((item) => {
                                         return !values.some(
                                           (value) =>
-                                            value === String(item.festivalId)
+                                            value === String(item.festivalId),
                                         );
                                       });
 
@@ -576,13 +599,13 @@ export default function ReportGroupForm({
                                           currentReportFestivals.findIndex(
                                             (item) =>
                                               item.festivalId ===
-                                              deprecate.festivalId
+                                              deprecate.festivalId,
                                           );
                                         nextDeprecate.push(index);
                                       }
 
                                       removeCurrentReportFestivals(
-                                        nextDeprecate
+                                        nextDeprecate,
                                       );
                                     }
 
@@ -591,8 +614,8 @@ export default function ReportGroupForm({
                                         !currentReportFestivals.some(
                                           (festival) =>
                                             festival.festivalId ===
-                                            Number(value.festivalId)
-                                        )
+                                            Number(value.festivalId),
+                                        ),
                                     );
                                     appendCurrentReportFestivals(nextContents);
                                   }}
@@ -743,7 +766,7 @@ export default function ReportGroupForm({
                                       <SelectTrigger>
                                         <SelectValue
                                           placeholder={tForm(
-                                            "select_type_compensation_display"
+                                            "select_type_compensation_display",
                                           )}
                                         />
                                       </SelectTrigger>
@@ -766,7 +789,7 @@ export default function ReportGroupForm({
                             />
                           </div>
                           {form.watch(
-                            `_reportFestivals.${index}.typeOfCompensation`
+                            `_reportFestivals.${index}.typeOfCompensation`,
                           ) === "financial" ? (
                             <div className="pl-5 border-l grid gap-4">
                               <FormField
@@ -797,7 +820,7 @@ export default function ReportGroupForm({
                             </div>
                           ) : null}
                           {form.watch(
-                            `_reportFestivals.${index}.typeOfCompensation`
+                            `_reportFestivals.${index}.typeOfCompensation`,
                           ) === "in-kind" ? (
                             <div className="pl-5 border-l grid gap-4">
                               <FormField
@@ -811,7 +834,7 @@ export default function ReportGroupForm({
                                         disabled={isCurrentReport}
                                         value={field.value || ""}
                                         placeholder={tForm(
-                                          "provideInkindCompensation"
+                                          "provideInkindCompensation",
                                         )}
                                       />
                                     </FormControl>
@@ -836,7 +859,7 @@ export default function ReportGroupForm({
                                   reportTypeCategoriesLocales.map((item) => ({
                                     value: String(item.id),
                                     label: item.langs.find(
-                                      (lang) => lang.l.code === locale
+                                      (lang) => lang.l.code === locale,
                                     )?.name!,
                                     caption: "",
                                   }));
@@ -874,7 +897,7 @@ export default function ReportGroupForm({
                                   reportTypeCategoriesSleeps.map((item) => ({
                                     value: String(item.id),
                                     label: item.langs.find(
-                                      (lang) => lang.l.code === locale
+                                      (lang) => lang.l.code === locale,
                                     )?.name!,
                                     caption: "",
                                   }));
@@ -920,16 +943,16 @@ export default function ReportGroupForm({
                                       .find(
                                         (question) =>
                                           question.id ===
-                                          itemQuestion.questionId
+                                          itemQuestion.questionId,
                                       )
                                       ?.langs.find(
-                                        (lang) => lang.l.code === locale
+                                        (lang) => lang.l.code === locale,
                                       )?.name ||
                                       ratingQuestions
                                         .find(
                                           (question) =>
                                             question.id ===
-                                            itemQuestion.questionId
+                                            itemQuestion.questionId,
                                         )
                                         ?.langs.at(0)?.name}
                                   </h5>
@@ -988,7 +1011,7 @@ export default function ReportGroupForm({
                                         <FormControl>
                                           <Textarea
                                             placeholder={tForm(
-                                              "commentPlaceholder"
+                                              "commentPlaceholder",
                                             )}
                                             disabled={isCurrentReport}
                                             className="resize-none"
@@ -1006,7 +1029,7 @@ export default function ReportGroupForm({
                                     )}
                                   />
                                 </div>
-                              )
+                              ),
                             )}
                           </div>
                         </div>
