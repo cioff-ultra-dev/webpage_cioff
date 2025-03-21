@@ -4,18 +4,18 @@ import { getAllCountries } from "@/db/queries/countries";
 import { getFestivalById } from "@/db/queries/events";
 import {
   getAllRatingQuestionByType,
-  getAllReportTypeCategories,
   getOwnerByUserId,
   getReportTypeCategoriesBySlugs,
 } from "@/db/queries/reports";
 import { getLocale } from "next-intl/server";
+import { redirect } from "next/navigation";
 
 export default async function ReportNationalSection() {
   const session = await auth();
   const locale = await getLocale();
 
   if (!session?.user) {
-    return <p>User not authenticated</p>;
+    return redirect("/dashboard/reports");
   }
 
   const owner = await getOwnerByUserId(session.user.id);
@@ -26,7 +26,7 @@ export default async function ReportNationalSection() {
   const countries = await getAllCountries();
 
   if (owner && !owner.festivalId) {
-    return <p>Festival's Owner not found</p>;
+    return redirect("/dashboard/reports");
   }
 
   const currentFestival = await getFestivalById(owner?.festivalId!, locale);

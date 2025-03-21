@@ -1099,7 +1099,7 @@ export const reportFestivalActivities = pgTable("report_festival_activities", {
     .references(() => reportTypeCategories.id)
     .notNull(),
   reportFestivalId: integer("report_festival_id")
-    .references(() => reportFestival.id, { onDelete: "cascade" })
+    .references(() => reportFestival.id)
     .notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),

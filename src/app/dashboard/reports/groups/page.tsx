@@ -8,13 +8,14 @@ import {
   getReportTypeCategoriesBySlugs,
 } from "@/db/queries/reports";
 import { getLocale } from "next-intl/server";
+import { redirect } from "next/navigation";
 
 export default async function ReportNationalSection() {
   const session = await auth();
   const locale = await getLocale();
 
   if (!session?.user) {
-    return <p>User not authenticated</p>;
+    return redirect("/dashboard/reports");
   }
 
   const owner = await getOwnerByUserId(session.user.id);
@@ -30,7 +31,7 @@ export default async function ReportNationalSection() {
   const countries = await getAllCountries();
 
   if (owner && !owner.groupId) {
-    return <p>Festival's Owner not found</p>;
+    return redirect("/dashboard/reports");
   }
 
   const currentGroup = await getGroupById(owner?.groupId!);

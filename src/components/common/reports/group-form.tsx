@@ -849,6 +849,7 @@ export default function ReportGroupForm({
                                       <MultiSelect
                                         options={options}
                                         disabled={isCurrentReport}
+                                        placeholder={tForm("selectOptions")}
                                         defaultValue={field.value}
                                         onValueChange={(values) => {
                                           field.onChange(values);
@@ -886,6 +887,7 @@ export default function ReportGroupForm({
                                       <MultiSelect
                                         options={options}
                                         disabled={isCurrentReport}
+                                        placeholder={tForm("selectOptions")}
                                         defaultValue={field.value}
                                         onValueChange={(values) => {
                                           field.onChange(values);
