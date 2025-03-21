@@ -620,7 +620,10 @@
   },
   "events": {
     "title": "Événements",
-    "emptyContent": "Pas d'événements récents."
+    "emptyContent": "Pas d'événements récents.",
+    "title1": "Réunion du Conseil",
+    "title2": "Réunion du Secteur Amérique Latine et Caraïbes",
+    "title3": "Congrès Mondial et Assemblée Générale"
   },
   "impact": {
     "impactTitle": "Impact",

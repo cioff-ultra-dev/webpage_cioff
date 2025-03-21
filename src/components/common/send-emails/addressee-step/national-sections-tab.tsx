@@ -126,7 +126,7 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
                 title={lang.name}
                 location={countryLang.name}
                 description={lang?.about ?? tCommon("noDescription")}
-                images={[cover?.url || countryUrl || "/placeholder.svg"]}
+                images={[ countryUrl || "/placeholder.svg"]}
                 icon={<House />}
                 hideDate
                 detailLink={`/national-sections/${id}`}

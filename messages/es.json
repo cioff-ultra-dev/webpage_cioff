@@ -621,7 +621,10 @@
   },
   "events": {
     "title": "Eventos",
-    "emptyContent": "No hay eventos recientes."
+    "emptyContent": "No hay eventos recientes.",
+    "title1": "Reunión del Consejo",
+    "title2": "Reunión del Sector de América Latina y el Caribe",
+    "title3": "Congreso Mundial y Asamblea General"
   },
   "impact": {
     "impactTitle": "Impacto",

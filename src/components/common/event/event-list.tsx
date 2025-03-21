@@ -1,11 +1,11 @@
 import { JSX } from "react";
-import { getTranslations, getLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
+import { format } from "date-fns";
 
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { getEventsByDate } from "@/db/queries/events";
-import { Button } from "@/components/ui/button";
-import { Locale } from "@/i18n/config";
+//import { getEventsByDate } from "@/db/queries/events";
+//import { Locale } from "@/i18n/config";
 
 interface LatestNewsProps {
   limit?: number;
@@ -18,14 +18,40 @@ export default async function EventList(
 ): Promise<JSX.Element> {
   const { classes, resultClasses, limit = 1000 } = props;
   const translations = await getTranslations("events");
-  const locale = await getLocale() as Locale;
 
-  const events = await getEventsByDate({ fromDate: new Date(), limit, locale });
+  //const events = await getEventsByDate({ fromDate: new Date(), limit, locale });
 
-  const items = events.map(({ festival, info }) => (
-    <div key={festival.id} className="flex justify-between py-8 border-b">
-      <div>{info.name}</div>
-      <Button className="rounded-3xl h-8 px-6">RSVP</Button>
+  const items = [
+    {
+      title: translations("title1"),
+      country: "Slovenia",
+      start: "03/22/2025",
+      end: "03/28/2025",
+    },
+    {
+      title: translations("title2"),
+      country: "Costa Rica",
+      start: "05/21/2025",
+      end: "05/25/2025",
+    },
+    {
+      title: translations("title3"),
+      country: "Chile",
+      start: "10/19/2025",
+      end: "10/26/2025",
+    },
+  ].map(({ country, end, start, title }) => (
+    <div key={country} className="flex justify-start py-8 border-b items-end">
+      <div className="flex flex-col">
+        <span className="text-secular text-sm">
+          {format(new Date(start), "LLL, dd")} -{" "}
+          {format(new Date(end), "LLL, dd")}
+        </span>
+        <p>
+          <span className="font-medium text-xl text-secular">{title} / </span>
+          <span className="text-roboto">{country}</span>
+        </p>
+      </div>
     </div>
   ));
 

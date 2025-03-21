@@ -643,7 +643,10 @@
   },
   "events": {
     "title": "Events",
-    "emptyContent": "No recent events."
+    "emptyContent": "No recent events.",
+    "title1": "Council Meeting",
+    "title2": "Latin America and the Caribbean Sector Meeting",
+    "title3": "World Congress and General Assembly"
   },
   "impact": {
     "impactTitle": "Impact",

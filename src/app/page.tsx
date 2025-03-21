@@ -146,7 +146,7 @@ export default async function Home() {
           </Button>
         </section>
         <section className="py-4 sm:py-8 px-52 max-lg:px-24 max-md:px-28 max-sm:px-8 flex flex-col items-center">
-          <div className="min-h-[65vh] overflow-hidden w-full">
+          <div className="min-h-auto overflow-hidden w-full">
             <EventList
               limit={5}
               resultClasses="max-sm:columns-1 max-md:columns-2"
