@@ -1,14 +1,10 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { TabsContent } from "@radix-ui/react-tabs";
 import useSWR, { preload } from "swr";
 import useSWRInfinite from "swr/infinite";
-import InfiniteScroll from "@/components/extension/swr-infinite-scroll";
-import fetcher, { cn } from "@/lib/utils";
-import { SelectFestival } from "@/db/schema";
-import { MapPin, CalendarCheck } from "lucide-react";
+import { MapPin, CalendarCheck, Users } from "lucide-react";
 import {
   APIProvider,
   useMap,
@@ -17,31 +13,39 @@ import {
   Marker,
   AdvancedMarker,
 } from "@vis.gl/react-google-maps";
-import MapHandler from "@/components/common/map-handler";
 import { DateRange } from "react-day-picker";
 import Link from "next/link";
+import Image from "next/image";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
+
+import InfiniteScroll from "@/components/extension/swr-infinite-scroll";
+import fetcher, { cn } from "@/lib/utils";
+import { SelectFestival } from "@/db/schema";
+import MapHandler from "@/components/common/map-handler";
 import { Badge } from "@/components/ui/badge";
 import { CountryCastFestivals } from "@/db/queries/countries";
 import { SWRProvider } from "@/components/provider/swr";
+import { BuildFilterType } from "@/app/api/filter/route";
+import constants from "@/constants";
+import { RegionsType } from "@/db/queries/regions";
+import { CountryCastGroups } from "@/db/queries/groups";
+import { CategoriesType } from "@/db/queries/categories";
+import { BuildGroupFilterType } from "@/app/api/filter/group/route";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
 import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
   TooltipProvider,
 } from "../ui/tooltip";
-import Image from "next/image";
 import { Skeleton } from "../ui/skeleton";
-import { BuildFilterType } from "@/app/api/filter/route";
-import constants from "@/constants";
-import { useFormatter, useLocale, useTranslations } from "next-intl";
-import { RegionsType } from "@/db/queries/regions";
-import { CountryCastGroups } from "@/db/queries/groups";
 import { MultiSelectProps } from "../ui/multi-select";
-import { CategoriesType } from "@/db/queries/categories";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
-import { TabsContent } from "@radix-ui/react-tabs";
-import { BuildGroupFilterType } from "@/app/api/filter/group/route";
 import Filters from "./send-emails/addressee-step/filters";
+import { FilterCard } from "./filters/filter-card";
+import { SkeletonList } from "./filters/result-list";
 
 interface FormElements extends HTMLFormControlsCollection {
   search: HTMLInputElement;
@@ -54,26 +58,6 @@ interface SearchFormElement extends HTMLFormElement {
 preload("/api/filter?categories=[]&countryId=0&page=1", fetcher);
 preload("/api/filter/country", fetcher);
 
-function SkeletonList() {
-  return (
-    <>
-      {Array.from({ length: 6 }).map((_, index) => (
-        <div
-          key={`skeleton-list-search-${index}`}
-          className="bg-gray-50 p-4 rounded-lg flex flex-col space-y-4 w-full"
-        >
-          <Skeleton className="h-64 sm:h-48 bg-gray-300 rounded-lg" />
-          <Skeleton className="h-4 w-[250px] bg-gray-300" />
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-[200px] bg-gray-300" />
-            <Skeleton className="h-6 w-[250px] bg-gray-300" />
-          </div>
-        </div>
-      ))}
-    </>
-  );
-}
-
 export function WrapperFilter({
   searchParams,
   categories,
@@ -85,6 +69,7 @@ export function WrapperFilter({
   const t = useTranslations("maps");
   const tc = useTranslations("categories");
   const tf = useTranslations("filters");
+  const tCommon = useTranslations("common");
   const formatter = useFormatter();
 
   const [tabSelected, setTabSelected] = useState<string>(
@@ -97,8 +82,7 @@ export function WrapperFilter({
     searchParams?.countries ? JSON.parse(searchParams?.countries as string) : []
   );
   const [search, setSearch] = useState(
-    `search=${searchParams?.search ?? ""}&rangeDateFrom=${
-      searchParams?.rangeDateFrom ?? ""
+    `search=${searchParams?.search ?? ""}&rangeDateFrom=${searchParams?.rangeDateFrom ?? ""
     }&rangeDateTo=${searchParams?.rangeDateTo ?? ""}`
   );
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() =>
@@ -123,8 +107,8 @@ export function WrapperFilter({
       () =>
         tabSelected === "festivals"
           ? `/api/filter/country?locale=${locale}&regions=${JSON.stringify(
-              selectedRegions
-            )}`
+            selectedRegions
+          )}`
           : null,
       fetcher
     );
@@ -134,8 +118,8 @@ export function WrapperFilter({
       () =>
         tabSelected === "groups"
           ? `/api/filter/country/group?locale=${locale}&regions=${JSON.stringify(
-              selectedRegions
-            )}`
+            selectedRegions
+          )}`
           : null,
       fetcher
     );
@@ -306,10 +290,8 @@ export function WrapperFilter({
 
     const searchValue = event.currentTarget.elements?.search.value;
     setSearch(
-      `search=${searchValue}&rangeDateFrom=${
-        dateRange?.from ? Math.floor(dateRange!.from!.getTime() / 1000) : ""
-      }&rangeDateTo=${
-        dateRange?.to ? Math.floor(dateRange!.to!.getTime() / 1000) : ""
+      `search=${searchValue}&rangeDateFrom=${dateRange?.from ? Math.floor(dateRange!.from!.getTime() / 1000) : ""
+      }&rangeDateTo=${dateRange?.to ? Math.floor(dateRange!.to!.getTime() / 1000) : ""
       }`
     );
   }
@@ -343,15 +325,15 @@ export function WrapperFilter({
       <Tabs
         defaultValue="festivals"
         value={tabSelected}
-        className="w-full pt-6 bg-gray-50"
+        className="w-full pt-6"
         onValueChange={(value) => setTabSelected(value)}
       >
-        <div className="container mx-auto flex gap-4">
+        <div className="container mx-auto flex gap-4 flex-col items-center">
           <TabsList>
             <TabsTrigger value="festivals">Festivals</TabsTrigger>
             <TabsTrigger value="groups">Groups</TabsTrigger>
           </TabsList>
-          <div className="flex-1">
+          <div className="flex-1 w-2/3 max-md:w-full lg:w-1/3">
             <form
               onSubmit={handleSubmit}
               className="flex flex-col items-end space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
@@ -362,11 +344,10 @@ export function WrapperFilter({
                   <TooltipTrigger asChild>
                     <Button
                       variant="ghost"
-                      size="icon"
                       type="submit"
-                      className="rounded-full"
+                      className="rounded-full bg-black h-10 w-10 hover:bg-black/80 px-3"
                     >
-                      <SearchIcon className="text-black" />
+                      <SearchIcon className="text-white scale-150" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent align="center" side="bottom">
@@ -378,7 +359,7 @@ export function WrapperFilter({
           </div>
         </div>
         <section className="py-4 sm:py-8">
-          <div className="container mx-auto">
+          <div className="container mx-auto px-2">
             <Filters
               categories={categories}
               countries={
@@ -404,38 +385,44 @@ export function WrapperFilter({
         </section>
         <TabsContent value="festivals">
           <section className="bg-white py-4 sm:py-8">
-            <div className="container mx-auto px-4">
-              <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 h-[600px]">
-                <MapHandler place={selectedPlace} />
-                <div className="flex-1 bg-gray-50 p-4 rounded-lg">
+            <div className="w-full">
+              <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0">
+                <MapHandler
+                  place={selectedPlace}
+                  defaultZoom={3}
+                  defaultSelectedZoom={5}
+                />
+                <div className="flex-1 rounded-lg">
                   <Map
                     mapId={"bf51a910020fa25a"}
-                    style={{ width: "100%", height: "100%" }}
+                    style={{ width: "100%", height: "60vh" }}
                     defaultCenter={{
-                      lat: map?.getCenter()?.lat() || 0,
+                      lat: 40,
                       lng: map?.getCenter()?.lng() || 0,
                     }}
                     defaultZoom={2}
-                    minZoom={2}
                     gestureHandling="greedy"
                     disableDefaultUI={true}
+                    minZoom={3}
+                    zoomControl
+                    scrollwheel={false}
                   >
                     {selectedPlace ? (
                       <Marker position={selectedPlace.geometry?.location} />
                     ) : null}
                     {!selectedPlace
                       ? countryMapClusters.map((item) => (
-                          <AdvancedMarker
-                            key={item.id}
-                            position={item.position}
-                            onClick={() =>
-                              setSelectedCountryId((prevState) => {
-                                return prevState === item.id ? 0 : item.id;
-                              })
-                            }
-                            title={`Markers located at ${item.name}`}
-                          />
-                        ))
+                        <AdvancedMarker
+                          key={item.id}
+                          position={item.position}
+                          onClick={() =>
+                            setSelectedCountryId((prevState) => {
+                              return prevState === item.id ? 0 : item.id;
+                            })
+                          }
+                          title={`Markers located at ${item.name}`}
+                        />
+                      ))
                       : null}
                   </Map>
                 </div>
@@ -447,7 +434,7 @@ export function WrapperFilter({
               <h2 className="text-xl font-bold text-black sm:text-2xl mb-5">
                 Festival Results
               </h2>
-              <div className="grid grid-cols-3 gap-4 w-full">
+              <div className="grid grid-cols-5 gap-4 h-full w-full max-sm:grid-cols-1 max-md:grid-cols-2 max-lg:grid-cols-4 mt-4">
                 <InfiniteScroll
                   swr={swr}
                   loadingIndicator={<SkeletonList />}
@@ -466,7 +453,7 @@ export function WrapperFilter({
                         lastPosition.length < 10)
                     );
                   }}
-                  classNameWrapper="w-full col-span-3"
+                  classNameWrapper="w-full h-full flex justify-center items-center col-span-5 max-sm:col-span-1 max-md:col-span-2 max-lg:col-span-4 mt-6"
                   offset={-600}
                 >
                   {(response) =>
@@ -479,70 +466,15 @@ export function WrapperFilter({
                         countryLang,
                         event,
                       }) => (
-                        <Link
-                          href={`/festivals/${festival.id}`}
-                          className="bg-gray-50 hover:bg-gray-100 hover:cursor-pointer p-4 space-y-3 rounded-lg w-full justify-self-center"
-                          target="_blank"
+                        <FilterCard
                           key={festival.id}
-                        >
-                          <div className="relative w-full h-[250px]">
-                            <Image
-                              fill
-                              src={cover?.url ?? "/placeholder.svg"}
-                              alt="Profile Festival Picture"
-                              className="rounded-lg aspect-video"
-                              blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOsbmysBwAE+gH+lB3PkwAAAABJRU5ErkJggg=="
-                            />
-                          </div>
-                          <h3 className="text-black mt-2 text-sm sm:text-base">
-                            {lang.name}
-                          </h3>
-                          <p className="text-gray-700 text-xs sm:text-sm flex gap-1">
-                            {event?.startDate ? (
-                              <p className="text-gray-500 text-xs sm:text-sm flex gap-1 items-center">
-                                <CalendarCheck size={16} />
-                                <span>
-                                  {event?.startDate
-                                    ? formatter.dateTime(
-                                        new Date(event.startDate),
-                                        {
-                                          year: "numeric",
-                                          month: "long",
-                                          day: "numeric",
-                                        }
-                                      )
-                                    : null}
-                                  {" - "}
-                                  {event?.endDate &&
-                                  event?.startDate !== event?.endDate
-                                    ? formatter.dateTime(
-                                        new Date(event.endDate),
-                                        {
-                                          year: "numeric",
-                                          month: "long",
-                                          day: "numeric",
-                                        }
-                                      )
-                                    : null}
-                                </span>
-                              </p>
-                            ) : (
-                              "No event date"
-                            )}
-                            •
-                            <span className="flex gap-1 items-center">
-                              <MapPin size={16} />
-                              <span>
-                                {festival?.location ||
-                                  countryLang?.name ||
-                                  country?.id}
-                              </span>
-                            </span>
-                          </p>
-                          <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">
-                            {lang.description}
-                          </p>
-                        </Link>
+                          icon={<CalendarCheck />}
+                          images={[cover?.url || "/placeholder.svg"]}
+                          title={lang.name ?? ""}
+                          endDate={event?.endDate}
+                          startDate={event?.startDate}
+                          location={festival?.location || countryLang?.name}
+                          detailLink={`/festivals/${festival.id}`} />
                       )
                     )
                   }
@@ -553,38 +485,44 @@ export function WrapperFilter({
         </TabsContent>
         <TabsContent value="groups">
           <section className="bg-white py-4 sm:py-8">
-            <div className="container mx-auto px-4">
-              <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 h-[600px]">
-                <MapHandler place={selectedPlace} />
-                <div className="flex-1 bg-gray-50 p-4 rounded-lg">
+            <div className="w-full">
+              <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0">
+                <MapHandler
+                  place={selectedPlace}
+                  defaultZoom={3}
+                  defaultSelectedZoom={5}
+                />
+                <div className="flex-1 rounded-lg">
                   <Map
                     mapId={"bf51a910020fa25a"}
-                    style={{ width: "100%", height: "100%" }}
+                    style={{ width: "100%", height: "60vh" }}
                     defaultCenter={{
-                      lat: map?.getCenter()?.lat() || 0,
+                      lat: 40,
                       lng: map?.getCenter()?.lng() || 0,
                     }}
                     defaultZoom={2}
-                    minZoom={2}
                     gestureHandling="greedy"
                     disableDefaultUI={true}
+                    minZoom={3}
+                    zoomControl
+                    scrollwheel={false}
                   >
                     {selectedPlace ? (
                       <Marker position={selectedPlace.geometry?.location} />
                     ) : null}
                     {!selectedPlace
                       ? countryGroupMapClusters.map((item) => (
-                          <AdvancedMarker
-                            key={item.id}
-                            position={item.position}
-                            onClick={() =>
-                              setSelectedCountryId((prevState) => {
-                                return prevState === item.id ? 0 : item.id;
-                              })
-                            }
-                            title={`Markers located at ${item.name}`}
-                          />
-                        ))
+                        <AdvancedMarker
+                          key={item.id}
+                          position={item.position}
+                          onClick={() =>
+                            setSelectedCountryId((prevState) => {
+                              return prevState === item.id ? 0 : item.id;
+                            })
+                          }
+                          title={`Markers located at ${item.name}`}
+                        />
+                      ))
                       : null}
                   </Map>
                 </div>
@@ -596,7 +534,7 @@ export function WrapperFilter({
               <h2 className="text-xl font-bold text-black sm:text-2xl mb-5">
                 Group Results
               </h2>
-              <div className="grid grid-cols-3 gap-4 w-full">
+              <div className="grid grid-cols-5 gap-4 h-full w-full max-sm:grid-cols-1 max-md:grid-cols-2 max-lg:grid-cols-4 mt-4">
                 <InfiniteScroll
                   swr={swrGroup}
                   loadingIndicator={<SkeletonList />}
@@ -615,44 +553,22 @@ export function WrapperFilter({
                         lastPosition.length < 10)
                     );
                   }}
-                  classNameWrapper="w-full col-span-3"
+                  classNameWrapper="w-full h-full flex justify-center items-center col-span-5 max-sm:col-span-1 max-md:col-span-2 max-lg:col-span-4 mt-6"
                   offset={-600}
                 >
                   {(response) =>
                     response.map(
                       ({ group, lang, countryLang, cover, country }) => (
-                        <Link
-                          href={`/groups/${group.id}`}
-                          className="bg-gray-50 hover:bg-gray-100 hover:cursor-pointer p-4 space-y-3 rounded-lg w-full justify-self-center"
-                          target="_blank"
+                        <FilterCard
                           key={group.id}
-                        >
-                          <div className="relative w-full h-[250px]">
-                            <Image
-                              fill
-                              src={cover?.url ?? "/placeholder.svg"}
-                              alt="Profile Festival Picture"
-                              className="rounded-lg aspect-video"
-                              blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOsbmysBwAE+gH+lB3PkwAAAABJRU5ErkJggg=="
-                            />
-                          </div>
-                          <h3 className="text-black mt-2 text-sm sm:text-base">
-                            {lang.name}
-                          </h3>
-                          <p className="text-gray-700 text-xs sm:text-sm flex gap-1">
-                            <span className="flex gap-1 items-center">
-                              <MapPin size={16} />
-                              <span>
-                                {group?.location ||
-                                  countryLang?.name ||
-                                  country?.id}
-                              </span>
-                            </span>
-                          </p>
-                          <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">
-                            {lang.description}
-                          </p>
-                        </Link>
+                          icon={<Users />}
+                          images={[cover?.url || "/placeholder.svg"]}
+                          title={lang.name}
+                          location={group?.location || countryLang?.name}
+                          hideDate={true}
+                          description={lang.description || tCommon("noDescription")}
+                          detailLink={`/groups/${group.id}`}
+                        />
                       )
                     )
                   }

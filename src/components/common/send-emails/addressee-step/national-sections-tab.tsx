@@ -171,7 +171,7 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
   return (
     <TabsContent value="national_section">
       <section className="pb-6 pt-2">
-        <div className="container mx-auto">
+        <div className="container mx-auto px-2">
           <Filters
             categories={categories}
             countries={countries}

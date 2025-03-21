@@ -10,7 +10,7 @@ import { FilterCardProps, FilterCard } from "./filter-card";
 export type ResultList = FilterCardProps[];
 
 interface ResultListProps {
-  isLoading: boolean;
+  isLoading?: boolean;
   results: ResultList;
   viewMoreLink: string;
 }
@@ -40,7 +40,7 @@ export function SkeletonList() {
 }
 
 export function ResultList(props: ResultListProps): JSX.Element {
-  const { isLoading, results, viewMoreLink } = props;
+  const { isLoading = false, results, viewMoreLink } = props;
 
   const router = useRouter();
   const translations = useTranslations("common");

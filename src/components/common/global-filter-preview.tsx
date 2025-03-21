@@ -475,7 +475,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
             </div>
           </NationalSectionsTab>
           <TabsContent value="festivals">
-            <div className="container mx-auto pb-6 pt-2">
+            <div className="container mx-auto pb-6 pt-2 px-2">
               <Filters
                 categories={categories}
                 countries={countriesMap}
@@ -577,7 +577,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
             </section>
           </TabsContent>
           <TabsContent value="groups">
-            <div className="container mx-auto pb-6 pt-2">
+            <div className="container mx-auto pb-6 pt-2 px-2">
               <Filters
                 categories={categories}
                 countries={countriesGroupMap}
