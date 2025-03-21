@@ -2,7 +2,7 @@
 
 ## Stripe Integration
 
-> Please, follow this file to include the Environment Varialbes for Stripe - [Doc Link](https://docs.google.com/document/d/1tkV0vCfuaaKuSJsxTK93LmjFLVBZj8xW2H7_xHoyUD0/edit?usp=sharing)
+> Please, follow this file to include the Environment Variables for Stripe - [Doc Link](https://docs.google.com/document/d/1tkV0vCfuaaKuSJsxTK93LmjFLVBZj8xW2H7_xHoyUD0/edit?usp=sharing)
 
 ## Getting Started
 
