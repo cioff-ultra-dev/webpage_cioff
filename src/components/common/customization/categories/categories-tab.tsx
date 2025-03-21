@@ -1,4 +1,4 @@
-import { useCallback, BaseSyntheticEvent } from "react";
+import { useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { PlusCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -42,7 +42,7 @@ function CategoriesTab({
         toast.error(translations("categories.error"));
       }
     },
-    [locale, router, translations]
+    [locale, router, translations],
   );
 
   return (

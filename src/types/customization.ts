@@ -3,7 +3,8 @@ export type TabOptions =
   | "menu"
   | "social-networks"
   | "categories"
-  | "timeline";
+  | "timeline"
+  | "report-questions";
 
 export interface MenuItem {
   id?: string;

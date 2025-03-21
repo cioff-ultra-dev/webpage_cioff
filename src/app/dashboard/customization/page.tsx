@@ -10,6 +10,7 @@ import { getAllCategories } from "@/db/queries/categories";
 import { getFirstSocialMediaLink } from "@/db/queries/social-media-links";
 import { getBannerFromLocale } from "@/db/queries/design";
 import { getTimelineFromLocale } from "@/db/queries/timeline";
+import { getAllRatingQuestions, getAllRatingTypes } from "@/db/queries/reports";
 
 export interface CustomizationProps {
   searchParams: {
@@ -47,7 +48,13 @@ async function CustomizationPage({
     case "timeline":
       const timeline = await getTimelineFromLocale(locale);
 
-      props.timeline = timeline;
+    case "report-questions":
+      const ratingTypes = await getAllRatingTypes();
+      const ratingQuestions = await getAllRatingQuestions(locale);
+
+      props.ratingTypes = ratingTypes;
+      props.ratingQuestions = ratingQuestions;
+      break;
   }
 
   return <Tabs {...props} />;

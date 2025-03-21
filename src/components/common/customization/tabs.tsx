@@ -17,6 +17,8 @@ import BannerTab from "./banner/banner-tab";
 import TimelineTab from "./timeline/timeline-tab";
 import { DesignListType } from "@/db/queries/design";
 import { TimelineType } from "@/db/queries/timeline";
+import { RatingQuestionsType, ReportRatingType } from "@/db/queries/reports";
+import ReportQuestionsTab from "./reportQuestions/report-questions-tab";
 
 export interface TabsComponentProps {
   currentTab: TabOptions;
@@ -25,6 +27,8 @@ export interface TabsComponentProps {
   socialLink?: SocialMedialLink;
   banner?: DesignListType;
   timeline?: TimelineType;
+  ratingTypes?: ReportRatingType;
+  ratingQuestions?: RatingQuestionsType;
 }
 
 function TabsComponent({
@@ -34,6 +38,8 @@ function TabsComponent({
   socialLink,
   banner,
   timeline,
+  ratingTypes,
+  ratingQuestions,
 }: TabsComponentProps) {
   const router = useRouter();
   const locale = useLocale() as Locale;
@@ -41,7 +47,7 @@ function TabsComponent({
 
   const handleTabChange = useCallback(
     async (value: string) => router.push(`?tab=${value}`),
-    [router]
+    [router],
   );
 
   return (
@@ -58,12 +64,20 @@ function TabsComponent({
         <TabsTrigger value="timeline">
           {translations("tabs.timeline")}
         </TabsTrigger>
+        <TabsTrigger value="report-questions">
+          {translations("tabs.reportQuestions")}
+        </TabsTrigger>
       </TabsList>
       <TimelineTab timeline={timeline} locale={locale} />
       <BannerTab banner={banner ?? []} locale={locale} />
       <MenuTab locale={locale} menu={menu ?? []} />
       <CategoriesTab locale={locale} categories={categories ?? []} />
       <SocialMediaTab socialLink={socialLink} />
+      <ReportQuestionsTab
+        locale={locale}
+        ratingTypes={ratingTypes ?? []}
+        ratingQuestions={ratingQuestions ?? []}
+      />
     </Tabs>
   );
 }

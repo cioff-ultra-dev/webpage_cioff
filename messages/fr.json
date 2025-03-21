@@ -475,7 +475,8 @@
       "menu": "Menu",
       "network": "Réseaux sociaux",
       "categories": "Catégories",
-      "timeline": "Chronologie"
+      "timeline": "Chronologie",
+      "reportQuestions": "Questions du Rapport"
     },
     "menu": {
       "description": "Voir et gérer le menu principal du site web. N'oubliez pas que la limite maximale est de 6 éléments.",
@@ -558,6 +559,27 @@
       "contentDescription": "Description",
       "updated": "Chronologie mise à jour avec succès.",
       "notUpdated": "La chronologie n'a pas pu être mise à jour."
+    },
+    "reportQuestions": {
+      "description": "Consultez et gérez les questions des rapports.",
+      "deleteTitle": "Supprimer la question",
+      "deleteMessage": "Êtes-vous sûr de vouloir supprimer \"{name}\" ?",
+      "pending": "En attente",
+      "disabled": "Le statut de la question a été modifié avec succès.",
+      "notDisabled": "Le statut de la question n'a pas pu être modifié.",
+      "updated": "Question mise à jour avec succès.",
+      "notUpdated": "La question n'a pas pu être mise à jour.",
+      "added": "Question créée avec succès.",
+      "error": "Une erreur s'est produite lors de la création de la question.",
+      "addQuestion": "Ajouter une question",
+      "selectOption": "Sélectionnez une option",
+      "group": "Groupe",
+      "festival": "Festival",
+      "form": {
+        "title": "Ajouter une nouvelle question",
+        "name": "Nom",
+        "nameDescription": "Nom de la question"
+      }
     }
   },
   "table": {
@@ -570,7 +592,9 @@
     "delete": "Supprimer",
     "facebook": "Facebook",
     "instagram": "Instagram",
-    "website": "Website"
+    "website": "Website",
+    "disable": "Désactiver",
+    "enable": "Activer"
   },
   "sendEmails": {
     "addressee": "Destinataire",

@@ -57,7 +57,7 @@ export async function getReportsGroups(id: SelectGroup["id"]) {
 export type ReportGroupsType = Awaited<ReturnType<typeof getReportsGroups>>;
 
 export async function getReportsNationalSections(
-  id: SelectNationalSection["id"]
+  id: SelectNationalSection["id"],
 ) {
   return db.query.reportNationalSections.findMany({
     where(fields, { eq }) {
@@ -74,7 +74,7 @@ export type ReportNationalSectionsProType = Awaited<
 >;
 
 export async function getFestivalsAndGroupsCounts(
-  countryId: SelectCountries["id"]
+  countryId: SelectCountries["id"],
 ): Promise<CountByCountriesResult> {
   const allCountsFestivalByCountries = db
     .select({ countFestivals: count() })
@@ -113,7 +113,7 @@ export async function getOwnerByUserId(userId: SelectUser["id"]) {
 
 export async function getReportTypeCategoriesBySlugs(
   slugs: string[],
-  locale: string = defaultLocale as SelectLanguages["code"]
+  locale: string = defaultLocale as SelectLanguages["code"],
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
@@ -147,7 +147,7 @@ export async function getReportTypeCategoriesBySlugs(
 }
 
 export async function getAllReportTypeCategories(
-  locale: string = defaultLocale as SelectLanguages["code"]
+  locale: string = defaultLocale as SelectLanguages["code"],
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
@@ -183,7 +183,7 @@ export type ReportTypeCategoriesType = Awaited<
 
 export async function getAllRatingQuestionByType(
   name: SelectRatingType["name"],
-  locale: string = defaultLocale as SelectLanguages["code"]
+  locale: string = defaultLocale as SelectLanguages["code"],
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
@@ -227,7 +227,7 @@ export type RatingQuestionsType = Awaited<
 
 export async function getReportGroup(
   id: number,
-  locale: string = defaultLocale as SelectLanguages["code"]
+  locale: string = defaultLocale as SelectLanguages["code"],
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
@@ -306,7 +306,7 @@ export type ReportGroupType = Awaited<ReturnType<typeof getReportGroup>>;
 
 export async function getReportFestival(
   id: number,
-  locale: string = defaultLocale as SelectLanguages["code"]
+  locale: string = defaultLocale as SelectLanguages["code"],
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
@@ -393,7 +393,7 @@ export type ReportFestivalType = Awaited<ReturnType<typeof getReportFestival>>;
 
 export async function getReportNationalSection(
   id: number,
-  locale: string = defaultLocale as SelectLanguages["code"]
+  locale: string = defaultLocale as SelectLanguages["code"],
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
@@ -437,3 +437,43 @@ export async function getReportNationalSection(
 export type ReportNationalSectionType = Awaited<
   ReturnType<typeof getReportNationalSection>
 >;
+
+export async function getAllRatingQuestions(
+  locale: string = defaultLocale as SelectLanguages["code"],
+) {
+  const localeValue = locale as SelectLanguages["code"];
+  const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
+
+  const pushLocales = [localeValue];
+
+  if (localeValue !== currentDefaultLocale) {
+    pushLocales.push(currentDefaultLocale);
+  }
+
+  const sq = db
+    .select({ id: languages.id })
+    .from(languages)
+    .where(inArray(languages.code, pushLocales));
+
+  return db.query.ratingQuestions.findMany({
+    orderBy(fields, { desc }) {
+      return [desc(fields.active)];
+    },
+    with: {
+      langs: {
+        where(fields, { inArray }) {
+          return inArray(fields.lang, sq);
+        },
+        with: {
+          l: true,
+        },
+      },
+    },
+  });
+}
+
+export async function getAllRatingTypes() {
+  return db.query.ratingType.findMany({});
+}
+
+export type ReportRatingType = Awaited<ReturnType<typeof getAllRatingTypes>>;
