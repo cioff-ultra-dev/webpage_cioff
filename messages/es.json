@@ -44,7 +44,7 @@
     "email_exist": "El correo electrónico ya existe",
     "user_already_actived": "La cuenta de usuario ya está activada",
     "sent_success": "Enviado con éxito",
-    "invalid_credentials: ": "Credenciales inválidas",
+    "invalid_credentials": "Credenciales inválidas",
     "something_went_wrong": "Algo salió mal",
     "report_not_found": "Informe no encontrado",
     "email": {

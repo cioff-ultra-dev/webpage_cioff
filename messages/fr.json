@@ -33,7 +33,6 @@
     "website": "Aller sur le site web",
     "previewProfile": "Aperçu du profil"
   },
-
   "locale_switch": {
     "select": "Sélectionner la langue",
     "es": "Español",
@@ -45,7 +44,7 @@
     "email_exist": "L'adresse e-mail existe déjà",
     "user_already_actived": "Le compte utilisateur est déjà activé",
     "sent_success": "Envoyé avec succès",
-    "invalid_credentials: ": "Identifiants invalides",
+    "invalid_credentials": "Identifiants invalides",
     "something_went_wrong": "Une erreur s'est produite",
     "report_not_found": "Rapport introuvable",
     "email": {

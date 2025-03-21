@@ -66,7 +66,7 @@
     "email_exist": "Email already exist",
     "user_already_actived": "User account already activated",
     "sent_success": "Sent Successfully",
-    "invalid_credentials: ": "Invalid Credentials",
+    "invalid_credentials": "Invalid Credentials",
     "something_went_wrong": "Something went wrong",
     "report_not_found": "Report not found",
     "email": {
