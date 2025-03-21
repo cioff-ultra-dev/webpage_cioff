@@ -562,24 +562,24 @@
       "notUpdated": "No se pudo actualizar la linea de tiempo."
     },
     "reportQuestions": {
-      "description": "View and manage the report questions.",
-      "deleteTitle": "Delete question",
-      "deleteMessage": "Are you sure you want to delete \"{name}\"?",
-      "pending": "Pending",
-      "disabled": "The question has been successfully changed status.",
-      "notDisabled": "The question could not be changed the status.",
-      "updated": "Question successfully updated.",
-      "notUpdated": "The question could not be updated.",
-      "added": "Question successfully created.",
-      "error": "An error occurred while creating the question.",
-      "addQuestion": "Add Question",
-      "selectOption": "Select an option",
-      "group": "Group",
+      "description": "Ver y gestionar las preguntas de informe.",
+      "deleteTitle": "Eliminar pregunta",
+      "deleteMessage": "¿Estás seguro de que quieres eliminar \"{name}\"?",
+      "pending": "Pendiente",
+      "disabled": "El estado de la pregunta ha sido cambiado con éxito.",
+      "notDisabled": "No se pudo cambiar el estado de la pregunta.",
+      "updated": "Pregunta actualizada con éxito.",
+      "notUpdated": "No se pudo actualizar la pregunta.",
+      "added": "Pregunta creada con éxito.",
+      "error": "Se produjo un error al crear la pregunta.",
+      "addQuestion": "Añadir Pregunta",
+      "selectOption": "Seleccionar una opción",
+      "group": "Grupo",
       "festival": "Festival",
       "form": {
-        "title": "Add a new question",
-        "name": "Name",
-        "nameDescription": "Question name"
+        "title": "Añadir una nueva pregunta",
+        "name": "Nombre",
+        "nameDescription": "Nombre de la pregunta"
       }
     }
   },
