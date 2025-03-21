@@ -3,8 +3,6 @@
 import { useTransition } from "react";
 import { Globe } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { findFlagUrlByIso2Code } from "country-flags-svg";
-import Image from "next/image";
 
 import {
   DropdownMenu,
@@ -25,12 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-
-const flags = {
-  es: "ES",
-  en: "US",
-  fr: "FR",
-} as const;
 
 export default function LocaleSwitcher({
   locales,
@@ -68,11 +60,11 @@ export default function LocaleSwitcher({
             className="flex gap-1 w-20 pl-0 py-2 justify-center"
           >
             <span
-              className="text-base text-center"
+              className="text-base text-center uppercase"
               role="presentation"
               aria-label={`Flag for ${locale.name}`}
             >
-              <Image src={findFlagUrlByIso2Code(flags[locale.code])} width={20} height={20} alt={locale.code} />
+              {locale.code}
             </span>
           </SelectItem>
         ))}
@@ -107,11 +99,11 @@ export default function LocaleSwitcher({
             )}
           >
             <span
-              className="text-base"
+              className="text-base uppercase"
               role="img"
               aria-label={`Flag for ${locale.name}`}
             >
-              {flags[locale.code]}
+              {locale.code}
             </span>
             {t(locale.code)}
           </DropdownMenuItem>
