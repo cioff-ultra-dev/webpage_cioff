@@ -22,7 +22,7 @@ interface SubPage {
   title: string;
   subtitle: string;
   url: string;
-  countryId: number;
+  countryId?: number;
   sections: Section[];
   mainImage: string;
   published?: boolean;

@@ -70,7 +70,7 @@ export const formSubPageSchema = z.object({
   title: z.string().min(1),
   subtitle: z.string(),
   originalDate: z.string(),
-  country: z.string(),
+  country: z.string().optional(),
   isNews: z.boolean().optional(),
   url: z.string(),
 });
@@ -144,7 +144,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
   const handleSaveClick = async (values: z.infer<typeof formSubPageSchema>) => {
     try {
       const contentToSave = {
-        countryId: +values.country,
+        countryId: values.country ? +values.country : undefined,
         url: window.location.origin.concat(
           values.isNews ? "/news/" : "/",
           values.url.toLowerCase().replaceAll(" ", "-")

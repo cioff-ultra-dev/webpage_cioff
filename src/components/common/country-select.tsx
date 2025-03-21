@@ -16,7 +16,7 @@ import {
 export interface CountrySelectProps {
   handleChange: (value: string) => void;
   countries: SelectCountries[];
-  value: string;
+  value?: string;
 }
 
 const CountrySelect = forwardRef<HTMLDivElement, CountrySelectProps>(

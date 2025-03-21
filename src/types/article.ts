@@ -61,7 +61,7 @@ export interface ArticleBody {
   title: string;
   subtitle: string;
   url: string;
-  countryId: number;
+  countryId?: number;
   sections: Section[];
   subPageId?: number;
   mainImage: string;
