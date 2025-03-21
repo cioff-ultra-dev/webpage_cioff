@@ -336,7 +336,7 @@ export function WrapperFilter({
           <div className="flex-1 w-2/3 max-md:w-full lg:w-1/3">
             <form
               onSubmit={handleSubmit}
-              className="flex flex-col items-end space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
+              className="flex items-end space-y-4 space-x-4 sm:space-y-0 px-4"
             >
               <Input placeholder={tf("inputSearch")} name="search" />
               <TooltipProvider>
@@ -612,7 +612,7 @@ export default function GlobalFilter({
       fallbackCountryCast={fallbackCountryCast}
       fallbackFestivals={fallbackFestivals}
     >
-      <BaseWrapperFilter searchParams={searchParams} categories={categories} />;
+      <BaseWrapperFilter searchParams={searchParams} categories={categories} />
     </SWRProvider>
   );
 }

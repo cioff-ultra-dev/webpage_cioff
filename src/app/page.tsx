@@ -21,6 +21,7 @@ import Youtube from "@/components/common/icons/youtube";
 import Facebook from "@/components/common/icons/facebook";
 import News from "@/components/common/news/latest-news";
 import EventList from "@/components/common/event/event-list";
+import { ImpactSection } from "@/components/common/impact/impact-section";
 
 export default async function Home() {
   const locale = await getLocale();
@@ -116,17 +117,7 @@ export default async function Home() {
             </Button>
           </div>
         </div>
-        <section className="py-4 sm:py-8 px-52 max-lg:px-24 max-md:px-28 max-sm:px-8 flex flex-col items-center">
-          <div className="max-h-[60vh] overflow-hidden w-full">
-            <News resultClasses="max-sm:columns-1 max-md:columns-2" />
-          </div>
-          <Button
-            size="sm"
-            className="rounded-xl text-roboto font-semibold text-xs px-4 text-white hover:bg-white hover:text-primary hover:border hover:border-primary mt-8 mb-16 capitalize"
-          >
-            <Link href="/news">{t("loadMore")}</Link>
-          </Button>
-        </section>
+        <ImpactSection/>
         <div className="relative w-full h-[35rem] flex items-center">
           <Image
             src="https://static.wixstatic.com/media/f0ab27_4192ee051b6a41929772cbf6e78e0a63~mv2.jpg/v1/fill/w_1600,h_509,al_c,q_85,enc_auto/f0ab27_4192ee051b6a41929772cbf6e78e0a63~mv2.jpg"
@@ -144,7 +135,18 @@ export default async function Home() {
           </div>
         </div>
         <section className="py-4 sm:py-8 px-52 max-lg:px-24 max-md:px-28 max-sm:px-8 flex flex-col items-center">
-          <div className="max-h-[65vh] overflow-hidden w-full">
+          <div className="max-h-[60vh] overflow-hidden w-full">
+            <News resultClasses="max-sm:columns-1 max-md:columns-2" />
+          </div>
+          <Button
+            size="sm"
+            className="rounded-xl text-roboto font-semibold text-xs px-4 text-white hover:bg-white hover:text-primary hover:border hover:border-primary mt-8 mb-16 capitalize"
+          >
+            <Link href="/news">{t("loadMore")}</Link>
+          </Button>
+        </section>
+        <section className="py-4 sm:py-8 px-52 max-lg:px-24 max-md:px-28 max-sm:px-8 flex flex-col items-center">
+          <div className="min-h-[65vh] overflow-hidden w-full">
             <EventList
               limit={5}
               resultClasses="max-sm:columns-1 max-md:columns-2"

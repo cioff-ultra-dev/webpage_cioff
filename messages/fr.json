@@ -582,5 +582,18 @@
   "events": {
     "title": "Événements",
     "emptyContent": "Pas d'événements récents."
+  },
+  "impact":{
+    "impactTitle": "Impact",
+    "volunteers": "XXX Bénévoles actifs au CIOFF@ international",
+    "countries": "XX Pays<br/>6 Secteurs géographiques",
+    "artists": "XXX Artistes amateurs",
+    "festivals": "XX Festivals folkloriques à travers le monde",
+    "groups": "XX Groupes folkloriques à travers le monde",
+    "age": "XX Ans en moyenne",
+    "experience": "XX Années d'expérience",
+    "unesco": "Avec l'UNESCO depuis 1984",
+    "children": "XX Festivals pour enfants et XX Groupes pour enfants",
+    "more": "Plus de faits et de chiffres..."
   }
 }

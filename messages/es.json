@@ -582,5 +582,18 @@
   "events": {
     "title": "Eventos",
     "emptyContent": "No hay eventos recientes."
+  },
+  "impact":{
+    "impactTitle": "Impacto",
+    "volunteers": "XXX Voluntarios activos en CIOFF@ internacional",
+    "countries": "XX Países<br/>6 Sectores geográficos",
+    "artists": "XXX Artistas amateurs",
+    "festivals": "XX Festivales de folclore en todo el mundo",
+    "groups": "XX Grupos de folclore en todo el mundo",
+    "age": "XX Años de edad en promedio",
+    "experience": "XX Años de experiencia",
+    "unesco": "Con la UNESCO desde 1984",
+    "children": "XX Festivales infantiles y XX Grupos infantiles",
+    "more": "Más datos y cifras..."
   }
 }

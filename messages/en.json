@@ -600,5 +600,18 @@
   "events": {
     "title": "Events",
     "emptyContent": "No recent events."
+  },
+  "impact": {
+    "impactTitle": "Impact",
+    "volunteers": "XXX Active volunteers at CIOFF@ international",
+    "countries": "XX Countries<br/>6 Geografical sectors",
+    "artists": "XXX Amateur artists",
+    "festivals": "XX Folklore festivals around the world",
+    "groups": "XX Folklore groups around the world",
+    "age": "XX Years old in average",
+    "experience": "XX Years of experience",
+    "unesco": "With UNESCO since 1984",
+    "children": "XX Children festivals and XX Children groups",
+    "more":"More facts and figures..."
   }
 }
