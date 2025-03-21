@@ -1,6 +1,6 @@
 {
-  "id": "ba0e1e6f-7c5d-43e8-915c-4ac5aaadcff0",
-  "prevId": "d67cd548-9213-412d-8dc9-bd5a035aaedc",
+  "id": "971b17e3-d01b-4474-8ae9-3a3e9e68eca3",
+  "prevId": "ba0e1e6f-7c5d-43e8-915c-4ac5aaadcff0",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -149,6 +149,12 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
+        },
+        "main_image": {
+          "name": "main_image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -176,7 +182,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "set null",
           "onUpdate": "no action"
         },
         "sub_pages_created_by_user_id_fk": {
@@ -225,8 +231,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "description": {
-          "name": "description",
+        "subtitle": {
+          "name": "subtitle",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -239,7 +245,7 @@
         },
         "sections": {
           "name": "sections",
-          "type": "text",
+          "type": "json",
           "primaryKey": false,
           "notNull": false
         },
@@ -519,7 +525,7 @@
           "name": "category_names",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "created_by": {
           "name": "created_by",
@@ -1202,8 +1208,20 @@
           "primaryKey": true,
           "notNull": true
         },
-        "banner_media_id": {
-          "name": "banner_media_id",
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lang": {
+          "name": "lang",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -1224,17 +1242,17 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "design_banner_media_id_storage_id_fk": {
-          "name": "design_banner_media_id_storage_id_fk",
+        "design_lang_languages_id_fk": {
+          "name": "design_lang_languages_id_fk",
           "tableFrom": "design",
-          "tableTo": "storage",
+          "tableTo": "languages",
           "columnsFrom": [
-            "banner_media_id"
+            "lang"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
@@ -2022,7 +2040,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "set null",
           "onUpdate": "no action"
         },
         "festivals_region_for_groups_regions_id_fk": {
@@ -3250,7 +3268,7 @@
           "name": "order",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
@@ -3285,19 +3303,19 @@
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "lang": {
           "name": "lang",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "menu_id": {
           "name": "menu_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
@@ -3504,7 +3522,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "set null",
           "onUpdate": "no action"
         },
         "national_section_type_national_section_id_type_national_section_id_fk": {
@@ -5946,6 +5964,24 @@
           "primaryKey": false,
           "notNull": false
         },
+        "youtube_link": {
+          "name": "youtube_link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tiktok_link": {
+          "name": "tiktok_link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "x_link": {
+          "name": "x_link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -6406,72 +6442,11 @@
           "primaryKey": false,
           "notNull": true
         },
-        "video_id": {
-          "name": "video_id",
-          "type": "text",
+        "sections": {
+          "name": "sections",
+          "type": "json",
           "primaryKey": false,
           "notNull": false
-        },
-        "media_id": {
-          "name": "media_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "timeline_media_id_storage_id_fk": {
-          "name": "timeline_media_id_storage_id_fk",
-          "tableFrom": "timeline",
-          "tableTo": "storage",
-          "columnsFrom": [
-            "media_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.timeline_lang": {
-      "name": "timeline_lang",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
         },
         "lang": {
           "name": "lang",
@@ -6479,12 +6454,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "timeline_id": {
-          "name": "timeline_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -6501,9 +6470,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "timeline_lang_lang_languages_id_fk": {
-          "name": "timeline_lang_lang_languages_id_fk",
-          "tableFrom": "timeline_lang",
+        "timeline_lang_languages_id_fk": {
+          "name": "timeline_lang_languages_id_fk",
+          "tableFrom": "timeline",
           "tableTo": "languages",
           "columnsFrom": [
             "lang"
@@ -6511,20 +6480,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "timeline_lang_timeline_id_timeline_id_fk": {
-          "name": "timeline_lang_timeline_id_timeline_id_fk",
-          "tableFrom": "timeline_lang",
-          "tableTo": "timeline",
-          "columnsFrom": [
-            "timeline_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
+          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },

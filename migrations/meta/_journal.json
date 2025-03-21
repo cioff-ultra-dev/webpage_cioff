@@ -295,6 +295,118 @@
       "when": 1731776316061,
       "tag": "0038_gorgeous_sunfire",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1738357152003,
+      "tag": "0039_high_carmella_unuscione",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1738777524643,
+      "tag": "0040_overconfident_midnight",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1738784575967,
+      "tag": "0041_light_spectrum",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1739893008526,
+      "tag": "0042_puzzling_echo",
+      "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1740014786016,
+      "tag": "0043_quiet_dracula",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1740151868956,
+      "tag": "0044_conscious_power_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1740152911964,
+      "tag": "0045_silly_sabra",
+      "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1740234441373,
+      "tag": "0046_shocking_daimon_hellstrom",
+      "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1740244178388,
+      "tag": "0047_wise_albert_cleary",
+      "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1740353123177,
+      "tag": "0048_tired_multiple_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1740353943431,
+      "tag": "0049_illegal_roulette",
+      "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1740411694716,
+      "tag": "0050_broken_big_bertha",
+      "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1741025738638,
+      "tag": "0051_conscious_spencer_smythe",
+      "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "7",
+      "when": 1741453539818,
+      "tag": "0052_marvelous_franklin_storm",
+      "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1742334718087,
+      "tag": "0053_lonely_bucky",
+      "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1742480757397,
+      "tag": "0054_unique_infant_terrible",
+      "breakpoints": true
     }
   ]
 }

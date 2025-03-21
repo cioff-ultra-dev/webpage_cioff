@@ -32,7 +32,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> => {
 
 const getKeyAndValues = (
   param: unknown,
-  defaultKey: string,
+  defaultKey: string
 ): {
   values: Record<string, unknown>;
   key: string;
@@ -69,7 +69,17 @@ export const makeZodI18nMap: MakeZodI18nMap = (option) => (issue, ctx) => {
 
   const path =
     issue.path.length > 0 && !!tForm
-      ? { path: tForm(issue.path.join(".") as any) }
+      ? {
+          path: tForm(
+            issue.path
+              .map((item) => {
+                if (typeof item === "string") return item;
+                if (typeof item === "number") return 0;
+                return item;
+              })
+              .join(".") as any
+          ),
+        }
       : {};
 
   switch (issue.code) {
@@ -163,14 +173,14 @@ export const makeZodI18nMap: MakeZodI18nMap = (option) => (issue, ctx) => {
           issue.exact
             ? "exact"
             : issue.inclusive
-              ? "inclusive"
-              : "not_inclusive"
+            ? "inclusive"
+            : "not_inclusive"
         }`,
         {
           minimum,
           count: typeof minimum === "number" ? minimum : undefined,
           ...path,
-        },
+        }
       );
       break;
     }
@@ -185,21 +195,21 @@ export const makeZodI18nMap: MakeZodI18nMap = (option) => (issue, ctx) => {
           issue.exact
             ? "exact"
             : issue.inclusive
-              ? "inclusive"
-              : "not_inclusive"
+            ? "inclusive"
+            : "not_inclusive"
         }`,
         {
           maximum,
           count: typeof maximum === "number" ? maximum : undefined,
           ...path,
-        },
+        }
       );
       break;
     }
     case ZodIssueCode.custom: {
       const { key, values } = getKeyAndValues(
         issue.params?.i18n,
-        "errors.custom",
+        "errors.custom"
       );
 
       message = (tCustom || t)(key as Parameters<typeof t>[0], {

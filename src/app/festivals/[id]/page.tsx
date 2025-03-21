@@ -9,7 +9,7 @@ import { Header } from "@/components/common/header";
 import { MapMarkerEvent } from "@/components/common/event/map-marker";
 import { GalleryImageEvent } from "@/components/common/event/gallery-images";
 import { CoverImageEvent } from "@/components/common/event/cover";
-import { getFormatter, getLocale } from "next-intl/server";
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
 import Link from "next/link";
 import {
@@ -29,13 +29,13 @@ import {
   TimelineTitle,
   TimelineIcon,
 } from "@/components/extension/timeline";
-import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { ForbiddenContent } from "@/components/common/forbidden-content";
 import {
   CarouselImage,
   ICarouselImage,
 } from "@/components/common/carousel-image";
+import Comments from "@/components/common/comments";
 
 export interface CustomImage extends GalleryImage {}
 
@@ -49,6 +49,7 @@ export default async function EventDetail({
   const formatter = await getFormatter();
   const festival = await getFestivalById(Number(params.id), locale);
   const translations = await getTranslations("detailFestivals");
+  const t = await getTranslations("page.festival");
 
   let youtubeId = "";
 
@@ -279,6 +280,46 @@ export default async function EventDetail({
                       ) : (
                         <ForbiddenContent />
                       )}
+                      <p>
+                        {festival?.langs.find((item) => item.l?.code === locale)
+                          ?.address ||
+                          festival?.langs.find(
+                            (item) => item.l?.code === defaultLocale
+                          )?.address}
+                      </p>
+                      <p className="flex gap-1 items-center">
+                        <Phone size={14} className="text-gray-500" />
+                        <span className="text-gray-500">{festival?.phone}</span>
+                      </p>
+                      <p className="flex gap-2 pt-6">
+                        {festival?.social?.websiteLink ? (
+                          <Link
+                            href={festival?.social?.websiteLink}
+                            target="_blank"
+                            title="Website"
+                          >
+                            <Link2 size={20} className="text-gray-500" />
+                          </Link>
+                        ) : null}
+                        {festival?.social?.facebookLink ? (
+                          <Link
+                            href={festival?.social?.facebookLink}
+                            target="_blank"
+                            title="Facebook Link"
+                          >
+                            <Facebook size={20} className="text-gray-500" />
+                          </Link>
+                        ) : null}
+                        {festival?.social?.instagramLink ? (
+                          <Link
+                            href={festival?.social?.instagramLink}
+                            target="_blank"
+                            title="Instagram Link"
+                          >
+                            <Instagram size={20} className="text-gray-500" />
+                          </Link>
+                        ) : null}
+                      </p>
                     </CardContent>
                   </Card>
                 </div>
@@ -332,6 +373,34 @@ export default async function EventDetail({
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
+                      />
+                    </CardContent>
+                  </Card>
+                ) : null}
+                {festival?.reportsFromGroups.length ? (
+                  <Card className="col-span-1">
+                    <CardHeader>
+                      <CardTitle>{t("comments")}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Comments
+                        items={festival.reportsFromGroups.map(
+                          (reportToFestival) => {
+                            return {
+                              authorName:
+                                reportToFestival.report.group.langs.find(
+                                  (item) => item?.l?.code === locale
+                                )?.name! ||
+                                reportToFestival.report.group.langs.find(
+                                  (item) => item?.l?.code === defaultLocale
+                                )?.name!,
+                              logoUrl: reportToFestival.report.group.logo?.url,
+                              comment: reportToFestival.generalComment,
+                              rating: parseFloat(reportToFestival.ratingResult),
+                              createdAt: reportToFestival.createdAt,
+                            };
+                          }
+                        )}
                       />
                     </CardContent>
                   </Card>

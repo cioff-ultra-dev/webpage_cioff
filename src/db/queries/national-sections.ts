@@ -91,6 +91,61 @@ export type NationalSectionDetailsType = Awaited<
   ReturnType<typeof getNationalSectionBySlug>
 >;
 
+export async function getNationalSectionById(
+  id: SelectNationalSection["id"],
+  currentLocale: string = defaultLocale as SelectLanguages["code"]
+) {
+  const sq = db
+    .select({ id: languages.id })
+    .from(languages)
+    .where(eq(languages.code, currentLocale as SelectLanguages["code"]));
+
+  return db.query.nationalSections.findFirst({
+    where: eq(nationalSections.id, id),
+    with: {
+      positions: {
+        with: {
+          type: true,
+          photo: true,
+          langs: {
+            where(fields, { eq }) {
+              return eq(fields.lang, sq);
+            },
+            with: {
+              l: true,
+            },
+          },
+        },
+      },
+      social: true,
+      otherEvents: {
+        with: {
+          langs: {
+            where(fields, { eq }) {
+              return eq(fields.lang, sq);
+            },
+            with: {
+              l: true,
+            },
+          },
+        },
+      },
+      langs: {
+        where(fields, { eq }) {
+          return eq(fields.lang, sq);
+        },
+        with: {
+          l: true,
+        },
+      },
+    },
+  });
+}
+
+export type NationalSectionByIdType = Awaited<
+  ReturnType<typeof getNationalSectionById>
+>;
+
 export async function getCurrentNationalSection(
   countryId: SelectNationalSection["countryId"]
 ) {

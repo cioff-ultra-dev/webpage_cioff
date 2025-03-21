@@ -1,4 +1,4 @@
-import { InferModel, relations, SQL, sql } from "drizzle-orm";
+import { relations, SQL, sql } from "drizzle-orm";
 import {
   AnyPgColumn,
   boolean,
@@ -174,7 +174,7 @@ export const users = pgTable(
     emailVerified: timestamp("emailVerified", { mode: "date" }),
     photoId: integer("image_id").references(() => storages.id),
     isCreationNotified: boolean("is_creation_notified").default(false),
-    // stripeCustomerId: text("stripe_customer_id"),
+    stripeCustomerId: text("stripe_customer_id"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   },
@@ -938,16 +938,38 @@ export const ratingQuestionsLang = pgTable("rating_questions_lang", {
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
+export const ratingQuestionsRelations = relations(
+  ratingQuestions,
+  ({ many }) => ({
+    langs: many(ratingQuestionsLang),
+  })
+);
+
+export const ratingQuestionsLangRelations = relations(
+  ratingQuestionsLang,
+  ({ one }) => ({
+    ratingQuestion: one(ratingQuestions, {
+      fields: [ratingQuestionsLang.ratingQuestionlId],
+      references: [ratingQuestions.id],
+    }),
+    l: one(languages, {
+      fields: [ratingQuestionsLang.lang],
+      references: [languages.id],
+    }),
+  })
+);
+
 /* 15. NS Reports */
 
 export const reportNationalSections = pgTable("report_ns", {
   id: serial("id").primaryKey(),
-  slug: text("slug").notNull(),
+  slug: text("slug").notNull().default(""),
   festivalSize: integer("festival_size"),
   groupSize: integer("group_size"),
   associationSize: integer("association_size"),
   individualMemberSize: integer("individual_memeber_size"),
   activeNationalCommission: boolean("active_national_commission"),
+  workDescription: text("work_description"),
   nsId: integer("ns_id")
     .references(() => nationalSections.id)
     .notNull(),
@@ -975,11 +997,21 @@ export const reportNationalSectionsLang = pgTable("report_ns_lang", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
+
 export const reportNationalSectionActivities = pgTable("report_ns_activities", {
   id: serial("id").primaryKey(),
+  name: text("name").notNull(),
   reportTypeCategoryId: integer("report_type_category_id")
     .references(() => reportTypeCategories.id)
     .notNull(),
+  reportModalityCategoryId: integer("report_modality_category_id")
+    .references(() => reportTypeCategories.id)
+    .notNull(),
+  reportLengthCategoryId: integer("report_length_category_id")
+    .references(() => reportTypeCategories.id)
+    .notNull(),
+  lengthSize: integer("length_size"),
+  performerSize: integer("performer_size"),
   reportNsId: integer("report_ns_id")
     .references(() => reportNationalSections.id)
     .notNull(),
@@ -987,11 +1019,66 @@ export const reportNationalSectionActivities = pgTable("report_ns_activities", {
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
+export const insertReportNationalSectionsActivitiesSchema = createInsertSchema(
+  reportNationalSectionActivities,
+  {
+    reportTypeCategoryId: (schema) =>
+      schema.reportTypeCategoryId.refine((value) => value > 0, {
+        message: "Report Type Category is required",
+      }),
+    reportModalityCategoryId: (schema) =>
+      schema.reportModalityCategoryId.refine((value) => value > 0, {
+        message: "Report Modality Category is required",
+      }),
+    reportLengthCategoryId: (schema) =>
+      schema.reportLengthCategoryId.refine((value) => value > 0, {
+        message: "Report Length Category is required",
+      }),
+    lengthSize: (schema) =>
+      schema.lengthSize.refine((value) => value > 0, {
+        message: "Length Size is required",
+      }),
+    performerSize: (schema) =>
+      schema.performerSize.refine((value) => value > 0, {
+        message: "Performer Size is required",
+      }),
+  }
+);
+
+export const reportNationalSectionsRelations = relations(
+  reportNationalSections,
+  ({ many }) => ({
+    activities: many(reportNationalSectionActivities),
+  })
+);
+
+export const reportNationalSectionsActivitiesRelations = relations(
+  reportNationalSectionActivities,
+  ({ one }) => ({
+    reportNs: one(reportNationalSections, {
+      fields: [reportNationalSectionActivities.reportNsId],
+      references: [reportNationalSections.id],
+    }),
+    reportTypeCategory: one(reportTypeCategories, {
+      fields: [reportNationalSectionActivities.reportTypeCategoryId],
+      references: [reportTypeCategories.id],
+    }),
+    reportModalityCategory: one(reportTypeCategories, {
+      fields: [reportNationalSectionActivities.reportModalityCategoryId],
+      references: [reportTypeCategories.id],
+    }),
+    reportLengthCategory: one(reportTypeCategories, {
+      fields: [reportNationalSectionActivities.reportLengthCategoryId],
+      references: [reportTypeCategories.id],
+    }),
+  })
+);
+
 /* 16. Festivals Reports */
 
 export const reportFestival = pgTable("report_festival", {
   id: serial("id").primaryKey(),
-  slug: text("slug").notNull(),
+  slug: text("slug").notNull().default(""),
   festivalId: integer("festival_id")
     .references(() => festivals.id)
     .notNull(),
@@ -1000,8 +1087,9 @@ export const reportFestival = pgTable("report_festival", {
   disabledYouth: integer("any_disabled_youth"),
   disabledChildren: integer("any_disabled_children"),
   amountPerformances: integer("amount_performances"),
-  averageCostTicket: integer("average_cost_ticket"),
+  averageCostTicket: text("average_cost_ticket"),
   sourceData: text("source_data"),
+  draft: boolean("draft").default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -1017,11 +1105,56 @@ export const reportFestivalActivities = pgTable("report_festival_activities", {
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
+export const reportFestivalNonGroups = pgTable("report_festival_non_groups", {
+  id: serial("id").primaryKey(),
+  howMany: integer("how_many"),
+  emailProvided: text("email_provided"),
+  reportFestivalId: integer("report_festival_id")
+    .references(() => reportFestival.id)
+    .notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const reportFestivalActivitiesRelations = relations(
+  reportFestivalActivities,
+  ({ one }) => ({
+    reportFestival: one(reportFestival, {
+      fields: [reportFestivalActivities.reportFestivalId],
+      references: [reportFestival.id],
+    }),
+    reportTypeCategory: one(reportTypeCategories, {
+      fields: [reportFestivalActivities.reportTypeCategoryId],
+      references: [reportTypeCategories.id],
+    }),
+  })
+);
+export const reportTypeCategoriesRelations = relations(
+  reportTypeCategories,
+  ({ many }) => ({
+    langs: many(reportTypeCategoriesNsLang),
+  })
+);
+export const reportTypeCategoriesLangRelations = relations(
+  reportTypeCategoriesNsLang,
+  ({ one }) => ({
+    reportTypeCategory: one(reportTypeCategories, {
+      fields: [reportTypeCategoriesNsLang.reportTypeCategoryId],
+      references: [reportTypeCategories.id],
+    }),
+    l: one(languages, {
+      fields: [reportTypeCategoriesNsLang.lang],
+      references: [languages.id],
+    }),
+  })
+);
+
 /* 17. Festival Rating */
 
 export const ratingFestivalToGroups = pgTable("rating_festival_to_groups", {
   id: serial("id").primaryKey(),
-  ratingResult: integer("rating_result").notNull(),
+  ratingResult: text("rating_result").notNull(),
+  generalComment: text("general_comment").notNull(),
   reportFestivalId: integer("report_festival_id")
     .references(() => reportFestival.id)
     .notNull(),
@@ -1039,6 +1172,7 @@ export const ratingFestivalToGroupsAnswers = pgTable(
   {
     id: serial("id").primaryKey(),
     rating: integer("rating").notNull(),
+    comment: text("comment"),
     ratingFestivalToGroupsId: integer("rating_festival_to_groups_id")
       .references(() => ratingFestivalToGroups.id)
       .notNull(),
@@ -1049,6 +1183,7 @@ export const ratingFestivalToGroupsAnswers = pgTable(
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   }
 );
+
 export const ratingFestivalToGroupsAnswersLang = pgTable(
   "rating_festival_to_groups_answers_lang",
   {
@@ -1084,25 +1219,29 @@ export const ratingFestivalResultsLangProd = pgTable(
 
 /* 18. Groups Reports */
 
-export const ReportGroupProd = pgTable("report_group", {
+export const reportGroup = pgTable("report_group", {
   id: serial("id").primaryKey(),
-  slug: text("slug").notNull(),
+  slug: text("slug").notNull().default(""),
   groupId: integer("group_id")
     .references(() => groups.id)
     .notNull(),
   amountPersonsTravelled: integer("amount_persons_travelled"),
   ich: text("ich"),
+  draft: boolean("draft").default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
+
+export const insertReportGroupSchema = createInsertSchema(reportGroup);
 
 /* 19. Group Rating */
 
 export const ratingGroupToFestivals = pgTable("rating_group_to_festivals", {
   id: serial("id").primaryKey(),
-  ratingResult: integer("rating_result").notNull(),
+  ratingResult: text("rating_result").notNull(),
+  generalComment: text("general_comment").notNull(),
   reportGroupId: integer("report_group_id")
-    .references(() => ReportGroupProd.id)
+    .references(() => reportGroup.id)
     .notNull(),
   festivalId: integer("festival_id").references(() => festivals.id),
   nameNoCioffFestival: text("name_no_cioff_festival"),
@@ -1112,9 +1251,25 @@ export const ratingGroupToFestivals = pgTable("rating_group_to_festivals", {
   festivalCoverTravelCosts: boolean("festival_cover_travel_costs"),
   refreshmentsDuringPerformances: boolean("refreshments_during_performances"),
   financialCompensationPerMember: integer("financial_compensation_per_member"),
+  typeOfCompensation: text("type_of_compensation"),
+  financialCompensation: integer("financial_compensation"),
+  inKindCompensation: text("in_kind_compnesation"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
+
+export const insertRatingGroupToFestivalsSchema = createInsertSchema(
+  ratingGroupToFestivals
+);
+
+export const reportGroupRelations = relations(reportGroup, ({ many, one }) => ({
+  group: one(groups, {
+    fields: [reportGroup.groupId],
+    references: [groups.id],
+  }),
+  ratingGroupToFestivals: many(ratingGroupToFestivals),
+}));
+
 export const reportGroupTypeLocales = pgTable("report_group_type_locales", {
   id: serial("id").primaryKey(),
   reportTypeCategoryId: integer("report_type_category_id")
@@ -1145,6 +1300,7 @@ export const ratingGroupToFestivalsAnswers = pgTable(
   {
     id: serial("id").primaryKey(),
     rating: integer("rating").notNull(),
+    comment: text("comment"),
     reportGroupToFestivalsId: integer("report_group_to_festivals_id")
       .references(() => ratingGroupToFestivals.id)
       .notNull(),
@@ -1155,6 +1311,70 @@ export const ratingGroupToFestivalsAnswers = pgTable(
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   }
 );
+
+export const insertRatingGroupToFestivalsAnswersSchema = createInsertSchema(
+  ratingGroupToFestivalsAnswers
+);
+
+export const ratingGroupToFestivalsRelations = relations(
+  ratingGroupToFestivals,
+  ({ many, one }) => ({
+    answers: many(ratingGroupToFestivalsAnswers),
+    festival: one(festivals, {
+      fields: [ratingGroupToFestivals.festivalId],
+      references: [festivals.id],
+    }),
+    report: one(reportGroup, {
+      fields: [ratingGroupToFestivals.reportGroupId],
+      references: [reportGroup.id],
+    }),
+    reportGroupTypeLocales: many(reportGroupTypeLocales),
+    reportGroupTypeLocalesSleep: many(reportGroupTypeLocalesSleep),
+  })
+);
+
+export const ratingGroupToFestivalsAnswersRelations = relations(
+  ratingGroupToFestivalsAnswers,
+  ({ one }) => ({
+    ratingGroupToFestivals: one(ratingGroupToFestivals, {
+      fields: [ratingGroupToFestivalsAnswers.reportGroupToFestivalsId],
+      references: [ratingGroupToFestivals.id],
+    }),
+    question: one(ratingQuestions, {
+      fields: [ratingGroupToFestivalsAnswers.ratingQuestionId],
+      references: [ratingQuestions.id],
+    }),
+  })
+);
+
+export const reportGroupTypeLocalesRelations = relations(
+  reportGroupTypeLocales,
+  ({ one }) => ({
+    reportGroupToFestivals: one(ratingGroupToFestivals, {
+      fields: [reportGroupTypeLocales.reportGroupToFestivalsId],
+      references: [ratingGroupToFestivals.id],
+    }),
+    reportTypeCategory: one(reportTypeCategories, {
+      fields: [reportGroupTypeLocales.reportTypeCategoryId],
+      references: [reportTypeCategories.id],
+    }),
+  })
+);
+
+export const reportGroupTypeLocalesSleepRelations = relations(
+  reportGroupTypeLocalesSleep,
+  ({ one }) => ({
+    reportGroupToFestivals: one(ratingGroupToFestivals, {
+      fields: [reportGroupTypeLocalesSleep.reportGroupToFestivalsId],
+      references: [ratingGroupToFestivals.id],
+    }),
+    reportTypeCategory: one(reportTypeCategories, {
+      fields: [reportGroupTypeLocalesSleep.reportTypeCategoryId],
+      references: [reportTypeCategories.id],
+    }),
+  })
+);
+
 export const ratingGroupAnswersLang = pgTable(
   "rating_group_to_festivals_answers_lang",
   {
@@ -1233,6 +1453,27 @@ export const videoTutorialLinks = pgTable("video_tutorial_links", {
   tag: text("tag"),
 });
 
+/* Subscriptions */
+
+export const subscriptions = pgTable("subscriptions", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id")
+    .references(() => users.id)
+    .notNull(),
+  stripeSubscriptionId: text("stripe_subscription_id").notNull().unique(),
+  stripeCustomerId: text("stripe_customer_id").notNull(),
+  status: text("status"), // active, canceled, past_due, etc.
+  currentPeriodStart: timestamp("current_period_start", {
+    withTimezone: true,
+  }).notNull(),
+  currentPeriodEnd: timestamp("current_period_end", {
+    withTimezone: true,
+  }).notNull(),
+  cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
 /* Relations */
 
 export const userRelations = relations(users, ({ one }) => ({
@@ -1243,6 +1484,17 @@ export const userRelations = relations(users, ({ one }) => ({
   country: one(countries, {
     fields: [users.countryId],
     references: [countries.id],
+  }),
+  subscription: one(subscriptions, {
+    fields: [users.id],
+    references: [subscriptions.userId],
+  }),
+}));
+
+export const subscriptionRelations = relations(subscriptions, ({ one }) => ({
+  user: one(users, {
+    fields: [subscriptions.userId],
+    references: [users.id],
   }),
 }));
 
@@ -1293,6 +1545,7 @@ export const festivalRelations = relations(festivals, ({ many, one }) => ({
     references: [storages.id],
   }),
   coverPhotos: many(festivalCoverPhotos),
+  reportsFromGroups: many(ratingGroupToFestivals),
 }));
 
 export const transportLocationRelations = relations(
@@ -1570,7 +1823,60 @@ export const groupsRelations = relations(groups, ({ one, many }) => ({
     references: [regions.id],
   }),
   coverPhotos: many(groupCoverPhotos),
+  reportsFromFestivals: many(ratingFestivalToGroups),
 }));
+
+export const reportFestivalRelations = relations(
+  reportFestival,
+  ({ many, one }) => ({
+    activities: many(reportFestivalActivities),
+    fesival: one(festivals, {
+      fields: [reportFestival.festivalId],
+      references: [festivals.id],
+    }),
+    ratingFestivalToGroups: many(ratingFestivalToGroups),
+    nonGroups: many(reportFestivalNonGroups),
+  })
+);
+
+export const reportFestivalNonGroupsRelations = relations(
+  reportFestivalNonGroups,
+  ({ one }) => ({
+    reportFestival: one(reportFestival, {
+      fields: [reportFestivalNonGroups.reportFestivalId],
+      references: [reportFestival.id],
+    }),
+  })
+);
+
+export const ratingFestivalToGroupsRelations = relations(
+  ratingFestivalToGroups,
+  ({ many, one }) => ({
+    answers: many(ratingFestivalToGroupsAnswers),
+    group: one(groups, {
+      fields: [ratingFestivalToGroups.groupId],
+      references: [groups.id],
+    }),
+    report: one(reportFestival, {
+      fields: [ratingFestivalToGroups.reportFestivalId],
+      references: [reportFestival.id],
+    }),
+  })
+);
+
+export const ratingFestivalToGroupsAnswersRelations = relations(
+  ratingFestivalToGroupsAnswers,
+  ({ one }) => ({
+    ratingFestivalToGroups: one(ratingFestivalToGroups, {
+      fields: [ratingFestivalToGroupsAnswers.ratingFestivalToGroupsId],
+      references: [ratingFestivalToGroups.id],
+    }),
+    question: one(ratingQuestions, {
+      fields: [ratingFestivalToGroupsAnswers.ratingQuestionId],
+      references: [ratingQuestions.id],
+    }),
+  })
+);
 
 export const groupLangRelations = relations(groupsLang, ({ one }) => ({
   group: one(groups, {
@@ -1949,7 +2255,18 @@ export const insertGroupLangSchema = createInsertSchema(groupsLang, {
 export const selectFestivalSchema = createSelectSchema(festivals);
 
 export const insertReportNationalSectionsSchema = createInsertSchema(
-  reportNationalSections
+  reportNationalSections,
+  {
+    workDescription: (schema) =>
+      schema.workDescription.min(1).refine(
+        (value) => {
+          return value.split(" ").length <= 500;
+        },
+        {
+          message: "Description can't be more than 500 words",
+        }
+      ),
+  }
 );
 
 export const insertReportNationalSectionLangSchema = createInsertSchema(
@@ -1962,6 +2279,30 @@ export const insertReportNationalSectionLangSchema = createInsertSchema(
         },
         {
           message: "Description can't be more than 500 words",
+        }
+      ),
+  }
+);
+
+export const insertReportFestivalSchema = createInsertSchema(reportFestival);
+
+export const insertReportTypeCategoriesSchema =
+  createInsertSchema(reportTypeCategories);
+
+export const insertReportFestivalNonGroupsSchema = createInsertSchema(
+  reportFestivalNonGroups
+);
+
+export const insertRatingFestivalToGroupsSchema = createInsertSchema(
+  ratingFestivalToGroups,
+  {
+    generalComment: (schema) =>
+      schema.generalComment.min(1).refine(
+        (value) => {
+          return value.split(" ").length <= 300;
+        },
+        {
+          params: { i18n: "description_limit" },
         }
       ),
   }
@@ -2037,6 +2378,10 @@ export const insertSubPagesSchema = createInsertSchema(SubPagesProd);
 
 export const insertSubPagesTextsLangSchema = createInsertSchema(
   SubPagesTextsLangProd
+);
+
+export const insertRatingFestivalToGroupsAnswersSchema = createInsertSchema(
+  ratingFestivalToGroupsAnswers
 );
 
 /* Infered Types */
@@ -2138,3 +2483,5 @@ export type InsertFestivalStagePhotos = typeof festivalStagePhotos.$inferInsert;
 export type SelectFestivalStagePhotos = typeof festivalStagePhotos.$inferSelect;
 
 export type SelectOwner = typeof owners.$inferSelect;
+
+export type SelectRatingType = typeof ratingType.$inferSelect;

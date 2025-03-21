@@ -28,10 +28,11 @@ import { Image as GalleryImage } from "react-grid-gallery";
 import { getGroupById } from "@/db/queries/groups";
 import { auth } from "@/auth";
 import { ForbiddenContent } from "@/components/common/forbidden-content";
+import Comments from "@/components/common/comments";
 
 export interface CustomImage extends GalleryImage {}
 
-export default async function EventDetail({
+export default async function GroupDetail({
   params,
 }: {
   params: { id: string };
@@ -347,6 +348,46 @@ export default async function EventDetail({
                       ) : (
                         <ForbiddenContent />
                       )}
+                      <p>
+                        {festival?.langs.find((item) => item.l?.code === locale)
+                          ?.address ||
+                          festival?.langs.find(
+                            (item) => item.l?.code === defaultLocale
+                          )?.address}
+                      </p>
+                      <p className="flex gap-1 items-center">
+                        <Phone size={14} className="text-gray-500" />
+                        <span className="text-gray-500">{festival?.phone}</span>
+                      </p>
+                      <p className="flex gap-2 pt-6">
+                        {festival?.websiteLink ? (
+                          <Link
+                            href={festival?.websiteLink}
+                            target="_blank"
+                            title="Website"
+                          >
+                            <Link2 size={20} className="text-gray-500" />
+                          </Link>
+                        ) : null}
+                        {festival?.facebookLink ? (
+                          <Link
+                            href={festival?.facebookLink}
+                            target="_blank"
+                            title="Facebook Link"
+                          >
+                            <Facebook size={20} className="text-gray-500" />
+                          </Link>
+                        ) : null}
+                        {festival?.instagramLink ? (
+                          <Link
+                            href={festival?.instagramLink}
+                            target="_blank"
+                            title="Instagram Link"
+                          >
+                            <Instagram size={20} className="text-gray-500" />
+                          </Link>
+                        ) : null}
+                      </p>
                     </CardContent>
                   </Card>
                 </div>
@@ -485,6 +526,34 @@ export default async function EventDetail({
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
+                      />
+                    </CardContent>
+                  </Card>
+                ) : null}
+                {festival?.reportsFromFestivals.length ? (
+                  <Card className="col-span-1">
+                    <CardHeader>
+                      <CardTitle>{t("comments")}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Comments
+                        items={festival.reportsFromFestivals.map(
+                          (reportToGroup) => {
+                            return {
+                              authorName:
+                                reportToGroup.report.fesival.langs.find(
+                                  (item) => item?.l?.code === locale
+                                )?.name! ||
+                                reportToGroup.report.fesival.langs.find(
+                                  (item) => item?.l?.code === defaultLocale
+                                )?.name!,
+                              logoUrl: reportToGroup.report.fesival.logo?.url,
+                              comment: reportToGroup.generalComment,
+                              rating: parseFloat(reportToGroup.ratingResult),
+                              createdAt: reportToGroup.createdAt,
+                            };
+                          }
+                        )}
                       />
                     </CardContent>
                   </Card>

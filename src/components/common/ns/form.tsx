@@ -91,7 +91,7 @@ const positionsSchema = insertNationalSectionPositionsSchema.merge(
     // .refine((item) => item instanceof File || typeof item === "undefined", {
     //   params: { i18n: "file_required" },
     // }),
-  })
+  }),
 );
 
 const formNationalSectionSchema = insertNationalSectionSchema.merge(
@@ -108,10 +108,10 @@ const formNationalSectionSchema = insertNationalSectionSchema.merge(
           to: z.string().optional(),
         }),
         _lang: insertEventLangSchema,
-      })
+      }),
     ),
     _social: insertSocialMediaLinkSchema,
-  })
+  }),
 );
 
 function Submit({
@@ -274,27 +274,27 @@ export default function NationalSectionForm({
     currentNationalSection?.positions.forEach((position, index) => {
       form.setValue(
         `_positions.${index}._lang.shortBio`,
-        position.langs.at(0)?.shortBio || ""
+        position.langs.at(0)?.shortBio || "",
       );
       form.setValue(
         `_positions.${index}._lang.otherMemberName`,
-        position.langs.at(0)?.otherMemberName || ""
+        position.langs.at(0)?.otherMemberName || "",
       );
       form.setValue(
         `_positions.${index}._lang.id`,
-        position.langs.at(0)?.id ?? 0
+        position.langs.at(0)?.id ?? 0,
       );
     });
 
     currentNationalSection?.otherEvents.forEach((event, index) => {
       form.setValue(
         `_events.${index}._lang.name`,
-        event.langs.at(0)?.name || ""
+        event.langs.at(0)?.name || "",
       );
 
       form.setValue(
         `_events.${index}._lang.description`,
-        event.langs.at(0)?.description || ""
+        event.langs.at(0)?.description || "",
       );
       form.setValue(`_events.${index}._lang.id`, event.langs.at(0)?.id ?? 0);
     });
@@ -547,7 +547,7 @@ export default function NationalSectionForm({
                                     data-test={field.value}
                                     className={cn(
                                       "justify-between capitalize",
-                                      !field.value && "text-muted-foreground"
+                                      !field.value && "text-muted-foreground",
                                     )}
                                     disabled={!isNSAccount}
                                   >
@@ -556,10 +556,10 @@ export default function NationalSectionForm({
                                           ?.find(
                                             (typePosition) =>
                                               String(typePosition.id) ===
-                                              field.value
+                                              field.value,
                                           )
                                           ?.langs.find(
-                                            (lang) => lang.l?.code === locale
+                                            (lang) => lang.l?.code === locale,
                                           )?.name
                                       : t("select_type_positi")}
                                     <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -581,23 +581,23 @@ export default function NationalSectionForm({
                                         <CommandItem
                                           value={String(
                                             typePosition.langs.find(
-                                              (lang) => lang.l?.code === locale
-                                            )?.name
+                                              (lang) => lang.l?.code === locale,
+                                            )?.name,
                                           )}
                                           key={`_positions.${index}._type.${String(
-                                            typePosition.id
+                                            typePosition.id,
                                           )}`}
                                           className="capitalize"
                                           onSelect={() => {
                                             form.setValue(
                                               `_positions.${index}._type`,
-                                              String(typePosition.id)
+                                              String(typePosition.id),
                                             );
                                           }}
                                         >
                                           {
                                             typePosition.langs.find(
-                                              (lang) => lang.l?.code === locale
+                                              (lang) => lang.l?.code === locale,
                                             )?.name
                                           }
                                           <CheckIcon
@@ -606,7 +606,7 @@ export default function NationalSectionForm({
                                               String(typePosition.id) ===
                                                 field.value
                                                 ? "opacity-100"
-                                                : "opacity-0"
+                                                : "opacity-0",
                                             )}
                                           />
                                         </CommandItem>
@@ -631,7 +631,7 @@ export default function NationalSectionForm({
                       />
                     </div>
                     {typePositions?.find(
-                      (item) => item.id === Number(positions?.[index]?._type)
+                      (item) => item.id === Number(positions?.[index]?._type),
                     )?.slug === "other-member" ? (
                       <div className="grid w-full items-center gap-1.5 pl-5 border-l">
                         <FormField
@@ -865,7 +865,7 @@ export default function NationalSectionForm({
                                             className={cn(
                                               "w-full pl-3 text-left font-normal",
                                               !field.value &&
-                                                "text-muted-foreground"
+                                                "text-muted-foreground",
                                             )}
                                             disabled={!isNSAccount}
                                           >
@@ -928,7 +928,7 @@ export default function NationalSectionForm({
                                             className={cn(
                                               "w-full pl-3 text-left font-normal",
                                               !field.value &&
-                                                "text-muted-foreground"
+                                                "text-muted-foreground",
                                             )}
                                             disabled={!isNSAccount}
                                           >
@@ -1244,28 +1244,28 @@ export default function NationalSectionForm({
                                     buttonClassName="w-full"
                                     defaultDates={{
                                       from: form.getValues(
-                                        `_events.${index}._rangeDate.from`
+                                        `_events.${index}._rangeDate.from`,
                                       )
                                         ? new Date(
                                             form.getValues(
-                                              `_events.${index}._rangeDate.from`
-                                            )
+                                              `_events.${index}._rangeDate.from`,
+                                            ),
                                           )
                                         : undefined,
                                       to:
                                         form.getValues(
-                                          `_events.${index}._rangeDate.to`
+                                          `_events.${index}._rangeDate.to`,
                                         ) &&
                                         form.getValues(
-                                          `_events.${index}._rangeDate.from`
+                                          `_events.${index}._rangeDate.from`,
                                         ) !==
                                           form.getValues(
-                                            `_events.${index}._rangeDate.to`
+                                            `_events.${index}._rangeDate.to`,
                                           )
                                           ? new Date(
                                               form.getValues(
-                                                `_events.${index}._rangeDate.to`
-                                              )!
+                                                `_events.${index}._rangeDate.to`,
+                                              )!,
                                             )
                                           : undefined,
                                     }}
@@ -1292,16 +1292,16 @@ export default function NationalSectionForm({
                                 </>
                               </FormControl>
                               {form?.getFieldState(
-                                `_events.${index}._rangeDate.from`
+                                `_events.${index}._rangeDate.from`,
                               ).error?.message ? (
                                 <p
                                   className={cn(
-                                    "text-sm font-medium text-destructive"
+                                    "text-sm font-medium text-destructive",
                                   )}
                                 >
                                   {
                                     form?.getFieldState(
-                                      `_events.${index}._rangeDate.from`
+                                      `_events.${index}._rangeDate.from`,
                                     ).error?.message
                                   }
                                 </p>

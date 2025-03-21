@@ -1,0 +1,1 @@
+ALTER TABLE "rating_festival_to_groups_answers" ADD COLUMN "comment" text;

@@ -1,0 +1,61 @@
+-- DROP TABLE "timeline_lang";--> statement-breakpoint
+-- ALTER TABLE "design" RENAME COLUMN "banner_media_id" TO "key";--> statement-breakpoint
+-- ALTER TABLE "sub_pages" DROP CONSTRAINT "sub_pages_socia_media_links_id_social_media_links_id_fk";
+-- --> statement-breakpoint
+-- ALTER TABLE "design" DROP CONSTRAINT "design_banner_media_id_storage_id_fk";
+-- --> statement-breakpoint
+-- ALTER TABLE "festivals" DROP CONSTRAINT "festivals_socia_media_links_id_social_media_links_id_fk";
+-- --> statement-breakpoint
+-- ALTER TABLE "national_section" DROP CONSTRAINT "national_section_socia_media_links_id_social_media_links_id_fk";
+-- --> statement-breakpoint
+-- ALTER TABLE "timeline" DROP CONSTRAINT "timeline_media_id_storage_id_fk";
+-- --> statement-breakpoint
+-- ALTER TABLE "sub_pages_texts_lang" ALTER COLUMN "sections" SET DATA TYPE json;--> statement-breakpoint
+-- ALTER TABLE "announcements" ALTER COLUMN "category_names" DROP NOT NULL;--> statement-breakpoint
+-- ALTER TABLE "design" ALTER COLUMN "key" SET DATA TYPE text;--> statement-breakpoint
+-- ALTER TABLE "menu" ALTER COLUMN "order" SET NOT NULL;--> statement-breakpoint
+-- ALTER TABLE "menu_lang" ALTER COLUMN "name" SET NOT NULL;--> statement-breakpoint
+-- ALTER TABLE "menu_lang" ALTER COLUMN "lang" SET NOT NULL;--> statement-breakpoint
+-- ALTER TABLE "menu_lang" ALTER COLUMN "menu_id" SET NOT NULL;--> statement-breakpoint
+-- ALTER TABLE "sub_pages" ADD COLUMN IF NOT EXISTS "main_image" text;--> statement-breakpoint
+-- ALTER TABLE "sub_pages_texts_lang" ADD COLUMN IF NOT EXISTS "subtitle" text NOT NULL;--> statement-breakpoint
+-- ALTER TABLE "design" ADD COLUMN "value" text NOT NULL;--> statement-breakpoint
+-- ALTER TABLE "design" ADD COLUMN "lang" integer NOT NULL;--> statement-breakpoint
+-- ALTER TABLE "social_media_links" ADD COLUMN "youtube_link" text;--> statement-breakpoint
+-- ALTER TABLE "social_media_links" ADD COLUMN "tiktok_link" text;--> statement-breakpoint
+-- ALTER TABLE "social_media_links" ADD COLUMN "x_link" text;--> statement-breakpoint
+-- ALTER TABLE "timeline" ADD COLUMN "sections" json;--> statement-breakpoint
+-- ALTER TABLE "timeline" ADD COLUMN "lang" integer;--> statement-breakpoint
+-- DO $$ BEGIN
+--  ALTER TABLE "sub_pages" ADD CONSTRAINT "sub_pages_socia_media_links_id_social_media_links_id_fk" FOREIGN KEY ("socia_media_links_id") REFERENCES "public"."social_media_links"("id") ON DELETE set null ON UPDATE no action;
+-- EXCEPTION
+--  WHEN duplicate_object THEN null;
+-- END $$;
+-- --> statement-breakpoint
+-- DO $$ BEGIN
+--  ALTER TABLE "design" ADD CONSTRAINT "design_lang_languages_id_fk" FOREIGN KEY ("lang") REFERENCES "public"."languages"("id") ON DELETE set null ON UPDATE no action;
+-- EXCEPTION
+--  WHEN duplicate_object THEN null;
+-- END $$;
+-- --> statement-breakpoint
+-- DO $$ BEGIN
+--  ALTER TABLE "festivals" ADD CONSTRAINT "festivals_socia_media_links_id_social_media_links_id_fk" FOREIGN KEY ("socia_media_links_id") REFERENCES "public"."social_media_links"("id") ON DELETE set null ON UPDATE no action;
+-- EXCEPTION
+--  WHEN duplicate_object THEN null;
+-- END $$;
+-- --> statement-breakpoint
+-- DO $$ BEGIN
+--  ALTER TABLE "national_section" ADD CONSTRAINT "national_section_socia_media_links_id_social_media_links_id_fk" FOREIGN KEY ("socia_media_links_id") REFERENCES "public"."social_media_links"("id") ON DELETE set null ON UPDATE no action;
+-- EXCEPTION
+--  WHEN duplicate_object THEN null;
+-- END $$;
+-- --> statement-breakpoint
+-- DO $$ BEGIN
+--  ALTER TABLE "timeline" ADD CONSTRAINT "timeline_lang_languages_id_fk" FOREIGN KEY ("lang") REFERENCES "public"."languages"("id") ON DELETE set null ON UPDATE no action;
+-- EXCEPTION
+--  WHEN duplicate_object THEN null;
+-- END $$;
+-- --> statement-breakpoint
+-- ALTER TABLE "sub_pages_texts_lang" DROP COLUMN IF EXISTS "description";--> statement-breakpoint
+-- ALTER TABLE "timeline" DROP COLUMN IF EXISTS "video_id";--> statement-breakpoint
+-- ALTER TABLE "timeline" DROP COLUMN IF EXISTS "media_id";
