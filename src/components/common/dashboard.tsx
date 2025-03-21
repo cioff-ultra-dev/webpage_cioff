@@ -150,9 +150,7 @@ export default async function Dashboard({
                 </Tooltip>
               </>
             )}
-            {["National Sections", "Groups", "Festivals"].includes(
-              roleName
-            ) && (
+            {["Admin"].includes(roleName) && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Link
