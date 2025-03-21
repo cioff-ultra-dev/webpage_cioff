@@ -1,4 +1,6 @@
-import { InsertUser, SelectUser, users } from "@/db/schema";
+"use server";
+
+import { InsertUser, SelectUser, subscriptions, users } from "@/db/schema";
 import { db } from ".";
 import { eq, sql } from "drizzle-orm";
 
@@ -10,13 +12,13 @@ const selectUserByP1 = db
   .prepare("selectUserByP1");
 
 export async function getUserById(
-  id: SelectUser["id"],
+  id: SelectUser["id"]
 ): Promise<Array<SelectUser>> {
   return db.select().from(users).where(eq(users.id, id));
 }
 
 export async function getUserByEmail(
-  email: SelectUser["email"],
+  email: SelectUser["email"]
 ): Promise<Array<SelectUser>> {
   return selectUserByP1.execute({ email });
 }
@@ -26,6 +28,26 @@ export async function getUserAuth(email: SelectUser["email"]) {
     where: eq(users.email, email),
     with: {
       role: true,
+      subscription: true,
+    },
+  });
+}
+
+export async function getUserAuthById(userId: SelectUser["id"]) {
+  return db.query.users.findFirst({
+    where: eq(users.id, userId),
+    with: {
+      role: true,
+      subscription: true,
+    },
+  });
+}
+
+export async function getCurrentSubscriptionByUserId(userId: SelectUser["id"]) {
+  return db.query.subscriptions.findFirst({
+    where: eq(subscriptions.userId, userId),
+    with: {
+      user: true,
     },
   });
 }

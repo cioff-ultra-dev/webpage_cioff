@@ -20,6 +20,12 @@ declare module "next-auth" {
   }
 }
 
+declare module "next-auth" {
+  interface Session {
+    user: DefaultSession["user"] & UserDataAuthType;
+  }
+}
+
 export type User = {
   id: string;
   email: string;
@@ -27,7 +33,13 @@ export type User = {
   emailVerified: Date;
 };
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+export const {
+  handlers,
+  signIn,
+  signOut,
+  auth,
+  unstable_update: update,
+} = NextAuth({
   ...authConfig,
   debug: process.env.NODE_ENV !== "production",
   session: {
@@ -47,7 +59,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: {},
       },
       async authorize(credentials) {
-        const parsedCredentials = requestAuthSchema.safeParse(credentials);
+        const parsedCredentials = await requestAuthSchema.safeParseAsync(
+          credentials
+        );
 
         if (!parsedCredentials.success) {
           return null;
@@ -61,7 +75,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const passwordMatch = await isSamePassword(
           password || "",
-          user?.password || "",
+          user?.password || ""
         );
 
         if (passwordMatch) {
@@ -77,7 +91,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user = token.user as UserDataAuthType;
       return session;
     },
-    jwt({ token, user }) {
+    jwt({ token, user, trigger, session }) {
+      if (trigger === "update") {
+        token.user = session.user;
+        return token;
+      }
+
       if (user) {
         token.user = user;
       }

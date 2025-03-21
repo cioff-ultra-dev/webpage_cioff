@@ -1,6 +1,6 @@
 import constants from "@/constants";
 import { Locale, pickLocales } from "@/i18n/config";
-import { v2 } from "@google-cloud/translate";
+import { v2, v3 } from "@google-cloud/translate";
 
 const projectId = constants.google.apiKey;
 

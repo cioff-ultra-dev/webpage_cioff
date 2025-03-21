@@ -8,7 +8,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -25,6 +24,7 @@ import { getAllLanguages } from "@/db/queries/languages";
 import LocaleSwitcher from "./locale-switcher";
 import { getLocale, getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
+import SubscribeButton from "./payments/subscribe";
 
 export default async function Dashboard({
   children,
@@ -117,48 +117,56 @@ export default async function Dashboard({
               </Tooltip>
             )}
             {["Admin"].includes(roleName) && (
+              <>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link
+                      href="/dashboard/customization"
+                      className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                      prefetch={false}
+                    >
+                      <Palette className="h-5 w-5" />
+                      <span className="sr-only">{t("customization")}</span>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    {t("customization")}
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Link
+                      href="/dashboard/send-emails"
+                      className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                      prefetch={false}
+                    >
+                      <MailIcon className="h-5 w-5" />
+                      <span className="sr-only">{t("send-emails")}</span>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    {t("send-emails")}
+                  </TooltipContent>
+                </Tooltip>
+              </>
+            )}
+            {["National Sections", "Groups", "Festivals"].includes(
+              roleName
+            ) && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Link
-                    href="/dashboard/customization"
+                    href="/dashboard/reports"
                     className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                     prefetch={false}
                   >
-                    <Palette className="h-5 w-5" />
-                    <span className="sr-only">{t("customization")}</span>
+                    <LineChartIcon className="h-5 w-5" />
+                    <span className="sr-only">{t("reports")}</span>
                   </Link>
                 </TooltipTrigger>
-                <TooltipContent side="right">
-                  {t("customization")}
-                </TooltipContent>
+                <TooltipContent side="right">{t("reports")}</TooltipContent>
               </Tooltip>
             )}
-            {/*<Tooltip>
-              <TooltipTrigger>
-                <Link
-                  href="/dashboard/send-emails"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-                  prefetch={false}
-                >
-                  <MailIcon className="h-5 w-5" />
-                  <span className="sr-only">{t("send-emails")}</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">{t("send-emails")}</TooltipContent>
-            </Tooltip>*/}
-            {/* <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href="/dashboard/reports"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-                  prefetch={false}
-                >
-                  <LineChartIcon className="h-5 w-5" />
-                  <span className="sr-only">Reports</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">Reports</TooltipContent>
-            </Tooltip> */}
           </TooltipProvider>
         </nav>
         <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
@@ -171,10 +179,10 @@ export default async function Dashboard({
                   prefetch={false}
                 >
                   <SettingsIcon className="h-5 w-5" />
-                  <span className="sr-only">Settings</span>
+                  <span className="sr-only">{t("settings")}</span>
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">Settings</TooltipContent>
+              <TooltipContent side="right">{t("settings")}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </nav>
@@ -235,12 +243,8 @@ export default async function Dashboard({
           </Sheet>
           <DashboardBreadcrumb capitalizeLinks />
           <div className="relative ml-auto flex-1 md:grow-0">
-            <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search events..."
-              className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
-            />
+            {/* TODO: Uncomment when API STRIPE KEYS are added */}
+            {/* <SubscribeButton variant="positive" label={t("subscribe")} /> */}
           </div>
           <Button variant="outline">
             <Link
@@ -252,6 +256,7 @@ export default async function Dashboard({
               {t("website")}
             </Link>
           </Button>
+
           <div>
             <LocaleSwitcher
               locales={locales}

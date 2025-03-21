@@ -32,7 +32,7 @@ export async function updateBannerInfo(
     subtitle: Param;
     image: Param;
   },
-  locale: Locale
+  locale: Locale,
 ) {
   const allLanguages = await getAllLanguages();
 
@@ -59,10 +59,10 @@ export async function updateBannerInfo(
             value: item.result,
           })
           .where(
-            and(eq(design.key, "title"), eq(design.lang, language?.id ?? 0))
+            and(eq(design.key, "title"), eq(design.lang, language?.id ?? 0)),
           );
       },
-      Promise.resolve()
+      Promise.resolve(),
     );
 
     const subtitleTranslations = await getTranslateText(subtitle.value, locale);
@@ -79,10 +79,10 @@ export async function updateBannerInfo(
             value: item.result,
           })
           .where(
-            and(eq(design.key, "subtitle"), eq(design.lang, language?.id ?? 0))
+            and(eq(design.key, "subtitle"), eq(design.lang, language?.id ?? 0)),
           );
       },
-      Promise.resolve()
+      Promise.resolve(),
     );
   });
 }
