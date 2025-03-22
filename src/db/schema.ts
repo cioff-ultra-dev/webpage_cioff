@@ -921,6 +921,7 @@ export const ratingQuestions = pgTable("rating_questions", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull(),
   ratingTypeId: integer("rating_type_id").references(() => ratingType.id),
+  active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -944,6 +945,10 @@ export const ratingQuestionsRelations = relations(
     langs: many(ratingQuestionsLang),
   })
 );
+
+export const ratingTypeRelations = relations(ratingType, ({ many }) => ({
+  ratingQuestions: many(ratingQuestions),
+}));
 
 export const ratingQuestionsLangRelations = relations(
   ratingQuestionsLang,

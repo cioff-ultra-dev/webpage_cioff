@@ -481,7 +481,8 @@
       "menu": "Menú",
       "network": "Redes sociales",
       "categories": "Categorías",
-      "timeline": "Linea de tiempo"
+      "timeline": "Linea de tiempo",
+      "reportQuestions": "Preguntas del Informe"
     },
     "menu": {
       "description": "Vea y administre el menú principal de la página web. Recuerda que el límite máximo es de 6 ítems",
@@ -564,6 +565,27 @@
       "contentDescription": "Descripción",
       "updated": "Linea de tiempo actualizado con éxito.",
       "notUpdated": "No se pudo actualizar la linea de tiempo."
+    },
+    "reportQuestions": {
+      "description": "Ver y gestionar las preguntas de informe.",
+      "deleteTitle": "Eliminar pregunta",
+      "deleteMessage": "¿Estás seguro de que quieres eliminar \"{name}\"?",
+      "pending": "Pendiente",
+      "disabled": "El estado de la pregunta ha sido cambiado con éxito.",
+      "notDisabled": "No se pudo cambiar el estado de la pregunta.",
+      "updated": "Pregunta actualizada con éxito.",
+      "notUpdated": "No se pudo actualizar la pregunta.",
+      "added": "Pregunta creada con éxito.",
+      "error": "Se produjo un error al crear la pregunta.",
+      "addQuestion": "Añadir Pregunta",
+      "selectOption": "Seleccionar una opción",
+      "group": "Grupo",
+      "festival": "Festival",
+      "form": {
+        "title": "Añadir una nueva pregunta",
+        "name": "Nombre",
+        "nameDescription": "Nombre de la pregunta"
+      }
     }
   },
   "table": {
@@ -576,7 +598,9 @@
     "delete": "Eliminar",
     "facebook": "Facebook",
     "instagram": "Instagram",
-    "website": "Sitio web"
+    "website": "Sitio web",
+    "disable": "Deshabilitar",
+    "enable": "Habilitar"
   },
   "sendEmails": {
     "addressee": "Destinatario",
