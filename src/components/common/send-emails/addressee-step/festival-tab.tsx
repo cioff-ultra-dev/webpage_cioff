@@ -185,6 +185,7 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
             isCountryLoading={isCountryLoading}
             showInputSearch={showInputSearch}
             showIconLabels
+            categoryType="festivals"
           />
         </div>
       </section>

@@ -24,15 +24,34 @@ import { CategoriesType } from "@/db/queries/categories";
 
 import { TreeSelect } from "../../tree-select/select";
 
-const CATEGORY_MAP = {
+const FESTIVAL_CATEGORY_MAP = {
   music: "typeOfFestival",
   dance: "typeOfFestival",
-  "teenagers-children": "styleOfFestival",
-  "youth-adults-seniors": "styleOfFestival",
+  "dance-music": "typeOfFestival",
+  "youth-adults": "ageParticipants",
+  seniors: "ageParticipants",
+  "teenagers-children": "ageParticipants",
+  mixed: "ageParticipants",
+  authentic: "styleOfFestival",
+  elaborado: "styleOfFestival",
+  stylized: "styleOfFestival",
+  cioff: "status",
+  international: "status",
+  "host-families": "typeOfAccomodation",
   "hotel-hostel-campus": "typeOfAccomodation",
-  "family-houses": "typeOfAccomodation",
   "schools-gym-halls": "typeOfAccomodation",
-  default: "others",
+};
+
+const GROUP_CATEGORY_MAP = {
+  music: "groupType",
+  dance: "groupType",
+  "dance-music": "groupType",
+  "youth-adults": "groupAge",
+  seniors: "groupAge",
+  "teenagers-children": "groupAge",
+  authentic: "styleGroup",
+  elaborado: "styleGroup",
+  stylized: "styleGroup",
 };
 
 interface FiltersProps {
@@ -52,6 +71,7 @@ interface FiltersProps {
   defaultCategories?: string[];
   defaultRegions?: string[];
   defaultCountries?: string[];
+  categoryType: "festivals" | "groups";
 }
 
 function Filters(props: FiltersProps): JSX.Element {
@@ -72,18 +92,24 @@ function Filters(props: FiltersProps): JSX.Element {
     defaultCategories,
     defaultRegions,
     defaultCountries,
+    categoryType,
   } = props;
   const t = useTranslations();
   const locale = useLocale();
 
   const categoryOptions = useMemo(() => {
-    const groupedItems = Object.groupBy(categories, (item) => {
-      const key =
-        CATEGORY_MAP[item.slug as keyof typeof CATEGORY_MAP] ??
-        CATEGORY_MAP.default;
+    const groupedItems = Object.groupBy(categories, (item) =>
+      categoryType === "groups"
+        ? GROUP_CATEGORY_MAP[item.slug as keyof typeof GROUP_CATEGORY_MAP]
+        : FESTIVAL_CATEGORY_MAP[item.slug as keyof typeof FESTIVAL_CATEGORY_MAP]
+    );
 
-      return key;
-    });
+    delete groupedItems.undefined;
+
+    categoryType === "festivals" &&
+      groupedItems["styleOfFestival"]?.push(
+        categories.find((cat) => cat.slug === "mixed")!
+      );
 
     return Object.keys(groupedItems).map((key) => {
       const categories = groupedItems[key];
@@ -93,13 +119,15 @@ function Filters(props: FiltersProps): JSX.Element {
         value: key,
         children: categories?.length
           ? categories.map((cat) => ({
-              label: cat.langs.find((lang) => lang.l?.code === locale)?.name ?? cat.slug,
+              label:
+                cat.langs.find((lang) => lang.l?.code === locale)?.name ??
+                cat.slug,
               value: cat.id.toString(),
             }))
           : undefined,
       };
     }) as TreeNode[];
-  }, [categories, locale,t]);
+  }, [categories, locale, t, categoryType]);
 
   return (
     <Card>

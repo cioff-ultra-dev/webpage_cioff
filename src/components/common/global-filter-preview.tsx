@@ -473,6 +473,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                 }
                 showInputSearch={false}
                 showIconLabels
+                categoryType="festivals"
               />
             </div>
             <section className="bg-white py-4 sm:py-8 w-full">
@@ -575,6 +576,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                 }
                 showInputSearch={false}
                 showIconLabels
+                categoryType="groups"
               />
             </div>
             <section className="bg-white py-4 sm:py-8 w-full">

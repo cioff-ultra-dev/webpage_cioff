@@ -389,6 +389,7 @@ export function WrapperFilter({
               defaultCategories={selectedCategories}
               defaultRegions={selectedRegions}
               defaultCountries={selectedCountries}
+              categoryType={tabSelected as "festivals" | "groups"}
             />
           </div>
         </section>

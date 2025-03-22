@@ -183,6 +183,7 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
             isCountryLoading={isCountryLoading}
             showInputSearch={showInputSearch}
             showIconLabels={showIconLabels}
+            categoryType="festivals"
           />
         </div>
       </section>
@@ -195,7 +196,12 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
             )}
           >
             {children}
-            <div className={cn(isCard && "relative py-4 !mt-14 px-52 max-lg:px-24 max-md:px-28 max-sm:px-8")}>
+            <div
+              className={cn(
+                isCard &&
+                  "relative py-4 !mt-14 px-52 max-lg:px-24 max-md:px-28 max-sm:px-8"
+              )}
+            >
               {showTotal && (
                 <label className="font-medium">
                   {translations("results", {

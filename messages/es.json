@@ -100,7 +100,12 @@
         "ageOfParticipants": "Edad de los participantes",
         "styleOfFestival": "Estilo del festival",
         "typeOfAccomodation": "Tipo de alojamiento",
-        "others": "Otros"
+        "others": "Otros",
+        "status": "Estado",
+        "ageParticipants": "Edad de los participantes",
+        "groupType": "Tipo de grupo",
+        "groupAge": "Edad del grupo",
+        "styleGroup": "Estilo del grupo"
       },
       "name": "Nombre del festival",
       "phone": "Número de teléfono",

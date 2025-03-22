@@ -143,6 +143,7 @@ function GroupTab(props: GroupTabProps): JSX.Element {
             isCountryLoading={isCountryLoading}
             showInputSearch={showInputSearch}
             showIconLabels={showIconLabels}
+            categoryType="groups"
           />
         </div>
       </section>

@@ -101,7 +101,12 @@
         "typeOfFestival": "Type de festival",
         "ageOfParticipants": "Âge des participants",
         "styleOfFestival": "Style de festival",
-        "typeOfAccomodation": "Type de logement"
+        "typeOfAccomodation": "Type de logement",
+        "status": "Statut",
+        "ageParticipants": "Âge des participants",
+        "groupType": "Type de groupe",
+        "groupAge": "Âge du groupe",
+        "styleGroup": "Style du groupe"
       },
       "name": "Nom",
       "phone": "Numéro de téléphone",
