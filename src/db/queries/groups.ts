@@ -380,6 +380,7 @@ export type CountryCastGroups = {
   lng: string | null;
   name: string | null;
   location: string | null;
+  countryId: number | null;
 }[];
 
 export async function getAllCountryCastGroups(
@@ -396,7 +397,8 @@ export async function getAllCountryCastGroups(
   const query = db
     .select({
       id: groups.id,
-      country: countries.slug,
+      country: countriesLang.name,
+      countryId: countries.id,
       lat: groups.lat,
       lng: groups.lng,
       location: groups.location,
@@ -422,7 +424,7 @@ export async function getAllCountryCastGroups(
 
   query
     .where(and(...filters))
-    .groupBy(countries.id, groups.id, groupsLang.id)
+    .groupBy(countries.id, groups.id, groupsLang.id, countriesLang.id)
     .orderBy(countries.slug);
 
   return query;

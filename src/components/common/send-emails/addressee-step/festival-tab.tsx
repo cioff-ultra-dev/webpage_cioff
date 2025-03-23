@@ -82,10 +82,12 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
     );
 
   const countries: MultiSelectProps["options"] = useMemo(() => {
-    return countriesData.map((country) => {
+    return countriesData.filter((value, index, self) =>
+      index === self.findIndex((t) => t.countryId === value.countryId)
+    ).map((country) => {
       return {
-        label: country.name || "",
-        value: String(country.id),
+        label: country.country || "",
+        value: String(country.countryId),
       };
     });
   }, [countriesData]);

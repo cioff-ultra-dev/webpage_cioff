@@ -202,19 +202,23 @@ export function WrapperFilter({
   }, [regionCast, locale]);
 
   const countriesMap: MultiSelectProps["options"] = useMemo(() => {
-    return countryCast.map((country) => {
+    return countryCast.filter((value, index, self) =>
+      index === self.findIndex((t) => t.countryId === value.countryId)
+    ).map((country) => {
       return {
-        label: country.name || "",
-        value: String(country.id),
+        label: country.country || "",
+        value: String(country.countryId),
       };
     });
   }, [countryCast]);
 
   const countriesGroupMap: MultiSelectProps["options"] = useMemo(() => {
-    return countryGroupCast.map((country) => {
+    return countryGroupCast.filter((value, index, self) =>
+      index === self.findIndex((t) => t.countryId === value.countryId)
+    ).map((country) => {
       return {
-        label: country.name || "",
-        value: String(country.id),
+        label: country.country || "",
+        value: String(country.countryId),
       };
     });
   }, [countryGroupCast]);

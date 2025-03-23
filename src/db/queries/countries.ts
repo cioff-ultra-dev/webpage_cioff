@@ -20,6 +20,7 @@ export type CountryCastFestivals = {
   lng: string | null;
   name: string | null;
   location: string | null;
+  countryId: number | null;
 }[];
 
 export async function getAllCountryCastFestivals(
@@ -36,7 +37,8 @@ export async function getAllCountryCastFestivals(
   const query = db
     .select({
       id: festivals.id,
-      country: countries.slug,
+      country: countriesLang.name,
+      countryId: countries.id,
       lat: festivals.lat,
       lng: festivals.lng,
       location: festivals.location,

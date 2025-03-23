@@ -82,8 +82,8 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
       () =>
         tabSelected === "festivals"
           ? `/api/filter/country?locale=${locale}&regions=${JSON.stringify(
-              selectedRegions
-            )}`
+            selectedRegions
+          )}`
           : null,
       fetcher
     );
@@ -93,8 +93,8 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
       () =>
         tabSelected === "groups"
           ? `/api/filter/country/group?locale=${locale}&regions=${JSON.stringify(
-              selectedRegions
-            )}`
+            selectedRegions
+          )}`
           : null,
       fetcher
     );
@@ -104,16 +104,16 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
       () =>
         tabSelected === "festivals"
           ? `api/filter?categories=${JSON.stringify(
-              selectedCategories
-            )}&type=${tabSelected}&locale=${locale}&festivalId=${selectedCountryId}&regions=${JSON.stringify(
-              selectedRegions
-            )}&countries=${JSON.stringify(
-              selectedCountries.length
-                ? selectedCountries
-                : selectedCountryId || search.length > 0
+            selectedCategories
+          )}&type=${tabSelected}&locale=${locale}&festivalId=${selectedCountryId}&regions=${JSON.stringify(
+            selectedRegions
+          )}&countries=${JSON.stringify(
+            selectedCountries.length
+              ? selectedCountries
+              : selectedCountryId || search.length > 0
                 ? []
                 : countryCast.map((item) => item.id)
-            )}&page=1${search ? `&${search}` : ""}`
+          )}&page=1${search ? `&${search}` : ""}`
           : null,
       fetcher
     );
@@ -123,16 +123,16 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
       () =>
         tabSelected === "groups"
           ? `api/filter/group?categories=${JSON.stringify(
-              selectedCategories
-            )}&type=${tabSelected}&locale=${locale}&groupId=${selectedCountryId}&regions=${JSON.stringify(
-              selectedRegions
-            )}&countries=${JSON.stringify(
-              selectedCountries.length
-                ? selectedCountries
-                : selectedCountryId || search.length > 0
+            selectedCategories
+          )}&type=${tabSelected}&locale=${locale}&groupId=${selectedCountryId}&regions=${JSON.stringify(
+            selectedRegions
+          )}&countries=${JSON.stringify(
+            selectedCountries.length
+              ? selectedCountries
+              : selectedCountryId || search.length > 0
                 ? []
                 : countryGroupCast.map((item) => item.id)
-            )}&page=1${search ? `&${search}` : ""}`
+          )}&page=1${search ? `&${search}` : ""}`
           : null,
       fetcher
     );
@@ -207,19 +207,23 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
   }, [regionCast, locale]);
 
   const countriesMap: MultiSelectProps["options"] = useMemo(() => {
-    return countryCast.map((country) => {
+    return countryCast.filter((value, index, self) =>
+      index === self.findIndex((t) => t.countryId === value.countryId)
+    ).map((country) => {
       return {
-        label: country.name || "",
-        value: String(country.id),
+        label: country.country || "",
+        value: String(country.countryId),
       };
     });
   }, [countryCast]);
 
   const countriesGroupMap: MultiSelectProps["options"] = useMemo(() => {
-    return countryGroupCast.map((country) => {
+    return countryGroupCast.filter((value, index, self) =>
+      index === self.findIndex((t) => t.countryId === value.countryId)
+    ).map((country) => {
       return {
-        label: country.name || "",
-        value: String(country.id),
+        label: country.country || "",
+        value: String(country.countryId),
       };
     });
   }, [countryGroupCast]);
@@ -314,10 +318,8 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
 
     const searchValue = event.currentTarget.elements?.search.value;
     setSearch(
-      `search=${searchValue}&rangeDateFrom=${
-        dateRange?.from ? Math.floor(dateRange!.from!.getTime() / 1000) : ""
-      }&rangeDateTo=${
-        dateRange?.to ? Math.floor(dateRange!.to!.getTime() / 1000) : ""
+      `search=${searchValue}&rangeDateFrom=${dateRange?.from ? Math.floor(dateRange!.from!.getTime() / 1000) : ""
+      }&rangeDateTo=${dateRange?.to ? Math.floor(dateRange!.to!.getTime() / 1000) : ""
       }`
     );
   }
@@ -337,9 +339,8 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
 
     if (!lang && !festival?.location) return;
 
-    const possiblePredicctionAddress = `${festival?.location || ""} ${
-      countryLang?.name
-    }`;
+    const possiblePredicctionAddress = `${festival?.location || ""} ${countryLang?.name
+      }`;
 
     const locationPredictionAddress = {
       lat: Number(festival.lat ?? 0),
@@ -403,7 +404,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
             regions={regionsMap}
             isRegionLoading={isLoadingRegionCast}
             locale={locale as Locale}
-            dispatch={() => {}}
+            dispatch={() => { }}
             selectedSections={[]}
             setCountries={setNationalSectionsCast}
             isCard
@@ -439,19 +440,19 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                 ) : null}
                 {!selectedPlace
                   ? nationalSectionMapClusters.map((item) => (
-                      <AdvancedMarker
-                        key={item.id}
-                        position={item.position}
-                        onClick={() =>
-                          setSelectedCountryId((prevState) => {
-                            return prevState === item.id ? 0 : item.id;
-                          })
-                        }
-                        title={t("marker_located_at", {
-                          name: item.name,
-                        })}
-                      />
-                    ))
+                    <AdvancedMarker
+                      key={item.id}
+                      position={item.position}
+                      onClick={() =>
+                        setSelectedCountryId((prevState) => {
+                          return prevState === item.id ? 0 : item.id;
+                        })
+                      }
+                      title={t("marker_located_at", {
+                        name: item.name,
+                      })}
+                    />
+                  ))
                   : null}
               </Map>
             </div>
@@ -504,19 +505,19 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                       ) : null}
                       {!selectedPlace
                         ? countryMapClusters.map((item) => (
-                            <AdvancedMarker
-                              key={item.id}
-                              position={item.position}
-                              onClick={() =>
-                                setSelectedCountryId((prevState) => {
-                                  return prevState === item.id ? 0 : item.id;
-                                })
-                              }
-                              title={item.name
-                                ?.concat(" (", item?.location ?? "Pendiente")
-                                .concat(")")}
-                            />
-                          ))
+                          <AdvancedMarker
+                            key={item.id}
+                            position={item.position}
+                            onClick={() =>
+                              setSelectedCountryId((prevState) => {
+                                return prevState === item.id ? 0 : item.id;
+                              })
+                            }
+                            title={item.name
+                              ?.concat(" (", item?.location ?? "Pendiente")
+                              .concat(")")}
+                          />
+                        ))
                         : null}
                     </Map>
                   </div>
@@ -551,9 +552,8 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                       selectedCategories
                     )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&page=1&regions=${JSON.stringify(
                       selectedRegions
-                    )}&countries=${JSON.stringify(selectedCountries)}${
-                      search ? `&${search}` : ""
-                    }`}
+                    )}&countries=${JSON.stringify(selectedCountries)}${search ? `&${search}` : ""
+                      }`}
                   />
                 </div>
               </div>
@@ -607,19 +607,19 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                       ) : null}
                       {!selectedPlace
                         ? countryGroupMapClusters.map((item) => (
-                            <AdvancedMarker
-                              key={item.id}
-                              position={item.position}
-                              onClick={() =>
-                                setSelectedCountryId((prevState) => {
-                                  return prevState === item.id ? 0 : item.id;
-                                })
-                              }
-                              title={item.name
-                                ?.concat(" (", item?.location ?? "Pendiente")
-                                .concat(")")}
-                            />
-                          ))
+                          <AdvancedMarker
+                            key={item.id}
+                            position={item.position}
+                            onClick={() =>
+                              setSelectedCountryId((prevState) => {
+                                return prevState === item.id ? 0 : item.id;
+                              })
+                            }
+                            title={item.name
+                              ?.concat(" (", item?.location ?? "Pendiente")
+                              .concat(")")}
+                          />
+                        ))
                         : null}
                     </Map>
                   </div>
@@ -641,9 +641,8 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                       selectedCategories
                     )}&type=${tabSelected}&locale=${locale}&groupId=${selectedCountryId}&page=1&regions=${JSON.stringify(
                       selectedRegions
-                    )}&countries=${JSON.stringify(selectedCountries)}${
-                      search ? `&${search}` : ""
-                    }`}
+                    )}&countries=${JSON.stringify(selectedCountries)}${search ? `&${search}` : ""
+                      }`}
                   />
                 </div>
               </div>

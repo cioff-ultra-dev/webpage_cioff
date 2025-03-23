@@ -61,9 +61,11 @@ function GroupTab(props: GroupTabProps): JSX.Element {
 
   const countries: MultiSelectProps["options"] = useMemo(
     () =>
-      countriesData.map((country) => ({
-        label: country.name || "",
-        value: String(country.id),
+      countriesData.filter((value, index, self) =>
+        index === self.findIndex((t) => t.countryId === value.countryId)
+      ).map((country) => ({
+          label: country.country || "",
+          value: String(country.countryId)
       })),
     [countriesData]
   );
