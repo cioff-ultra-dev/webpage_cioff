@@ -1,16 +1,12 @@
 import { auth } from "@/auth";
 import GroupForm from "@/components/common/group/form";
+import { getAllCategories } from "@/db/queries/categories";
 import {
-  AgeGroupsType,
-  getAllAgeGroups,
-  getAllGroupStyles,
-  getAllTypeOfGroups,
   getGroupById,
   GroupDetailsType,
-  GroupStyleType,
-  TypeOfGroupType,
 } from "@/db/queries/groups";
 import { getAllRegions, RegionsType } from "@/db/queries/regions";
+import { Locale } from "@/i18n/config";
 import { getLocale } from "next-intl/server";
 
 export default async function EditGroup({
@@ -24,9 +20,7 @@ export default async function EditGroup({
   const session = await auth();
   const locale = await getLocale();
 
-  const typeOfGroups: TypeOfGroupType = await getAllTypeOfGroups();
-  const ageGroups: AgeGroupsType = await getAllAgeGroups();
-  const groupStyles: GroupStyleType = await getAllGroupStyles();
+  const categories = await getAllCategories(locale as Locale);
 
   const regions: RegionsType = await getAllRegions();
 
@@ -40,11 +34,9 @@ export default async function EditGroup({
 
   return (
     <GroupForm
+      categories={categories}
       currentGroup={group}
       id={params.id}
-      typeOfGroups={typeOfGroups}
-      ageGroups={ageGroups}
-      groupStyles={groupStyles}
       session={session!}
       locale={locale}
       currentLang={currentLang}

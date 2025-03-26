@@ -236,6 +236,7 @@
       "_lang": {
         "name": "Nom du groupe"
       },
+      "_categories": "Categories",
       "add_a_group": "AJOUTER UN GROUPE",
       "the_fields_mandatory": "Champs obligatoires",
       "group_nformation": "Informations sur le groupe",
@@ -312,7 +313,7 @@
       "recognition_certification": "Attestation de reconnaissance",
       "upload_recogn_cert": "Télécharger le certificat de reconnaissance",
       "cancel": "Annuler",
-      "save": "Gurdar",
+      "save": "Garder",
       "imageDimensions": "Maximum de 3 images. Les dimensions de l'image doivent être de 1200 x 400 px."
     },
     "reports": {

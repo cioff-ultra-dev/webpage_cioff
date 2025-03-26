@@ -237,6 +237,7 @@
       "_lang": {
         "name": "Nombre del grupo"
       },
+      "_categories": "Categorias",
       "add_a_group": "AÑADIR UN GRUPO",
       "the_fields_mandatory": "Campos obligatorios",
       "group_nformation": "Información del grupo",
@@ -313,7 +314,7 @@
       "recognition_certification": "Certificación de reconocimiento",
       "upload_recogn_cert": "Cargar certificado de reconocimiento",
       "cancel": "Cancelar",
-      "save": "Gurdar",
+      "save": "Guardar",
       "imageDimensions": "Máximo 3 imagenes. Las medidas de la imagen debe ser de 1200 x 400 px."
     },
     "reports": {

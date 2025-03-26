@@ -1,9 +1,9 @@
 import { auth } from "@/auth";
 import EventForm from "@/components/common/event/form";
-import { getCategoryGroupsWithCategories } from "@/db/queries/category-group";
-import { getCategoryForGroups } from "@/db/queries/events";
+import { getAllCategories } from "@/db/queries/categories";
 import { getAllLanguages } from "@/db/queries/languages";
 import { getAllStatuses } from "@/db/queries/statuses";
+import { Locale } from "@/i18n/config";
 import { getLocale, getTranslations } from "next-intl/server";
 
 export default async function NewEvent() {
@@ -11,51 +11,11 @@ export default async function NewEvent() {
   const locale = await getLocale();
   const languages = await getAllLanguages();
   const statuses = await getAllStatuses();
-  const t = await getTranslations("form.festival.tag");
+  const categories = await getAllCategories(locale as Locale);
 
-  const typeOfFestival = await getCategoryForGroups(locale, ["music", "dance"]);
-  const ageOfParticipants = await getCategoryForGroups(locale, [
-    "teenagers-children",
-    "youth-adults-seniors",
-  ]);
-  const styleOfFestival = await getCategoryForGroups(locale, [
-    "stylized",
-    "elaborate",
-    "authentic",
-  ]);
-  const typeOfAccomodation = await getCategoryForGroups(locale, [
-    "hotel-hostel-campus",
-    "family-houses",
-    "schools-gym-halls",
-  ]);
   return (
     <EventForm
-      categoryGroups={[
-        {
-          // name: t("typeOfFestival"),
-          slug: "type-of-festival",
-          title: t("typeOfFestival"),
-          categories: typeOfFestival,
-        },
-        {
-          // name: t("ageOfParticipants"),
-          slug: "age-of-participants",
-          title: t("ageOfParticipants"),
-          categories: ageOfParticipants,
-        },
-        {
-          // name: t("styleOfFestival"),
-          slug: "style-of-festival",
-          title: t("styleOfFestival"),
-          categories: styleOfFestival,
-        },
-        {
-          // name: t("typeOfAccomodation"),
-          slug: "type-of-accomodation",
-          title: t("typeOfAccomodation"),
-          categories: typeOfAccomodation,
-        },
-      ]}
+      categoryGroups={categories}
       currentCategoriesSelected={[]}
       languages={languages}
       statuses={statuses}

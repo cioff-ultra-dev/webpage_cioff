@@ -1,16 +1,18 @@
+import { getLocale, getTranslations } from "next-intl/server";
+
 import { auth } from "@/auth";
 import EventForm from "@/components/common/event/form";
+import { getAllCategories } from "@/db/queries/categories";
 import { getAllCountries } from "@/db/queries/countries";
 import {
   FestivalBySlugType,
-  getCategoryForGroups,
   getComponentForGroups,
   getFestivalBySlug,
 } from "@/db/queries/events";
 import { getAllLanguages } from "@/db/queries/languages";
 import { getAllRegions } from "@/db/queries/regions";
 import { getAllStatuses } from "@/db/queries/statuses";
-import { getLocale, getTranslations } from "next-intl/server";
+import { Locale } from "@/i18n/config";
 
 export default async function EditFestival({
   params,
@@ -22,28 +24,13 @@ export default async function EditFestival({
   const t = await getTranslations("form.festival.tag");
   const festival: FestivalBySlugType | undefined = await getFestivalBySlug(
     params.id,
-    locale,
+    locale
   );
   const languages = await getAllLanguages();
   const countries = await getAllCountries();
   const regions = await getAllRegions();
   const statuses = await getAllStatuses();
-
-  const typeOfFestival = await getCategoryForGroups(locale, ["music", "dance"]);
-  const ageOfParticipants = await getCategoryForGroups(locale, [
-    "teenagers-children",
-    "youth-adults-seniors",
-  ]);
-  const styleOfFestival = await getCategoryForGroups(locale, [
-    "stylized",
-    "elaborate",
-    "authentic",
-  ]);
-  const typeOfAccomodation = await getCategoryForGroups(locale, [
-    "hotel-hostel-campus",
-    "family-houses",
-    "schools-gym-halls",
-  ]);
+  const categories = await getAllCategories(locale as Locale);
 
   const componentsRecognized = await getComponentForGroups(locale, [
     "arts-crafts-market",
@@ -71,34 +58,13 @@ export default async function EditFestival({
       .filter((id) => Boolean(id)) ?? [];
   const currentLang = festival?.langs.find((lang) => lang.l?.code === locale);
   const currentOwner = festival?.owners.find(
-    (owner) => owner.user?.role?.name === "Festivals",
+    (owner) => owner.user?.role?.name === "Festivals"
   );
   const currentStatus = festival?.festivalsToStatuses.at(0);
 
   return (
     <EventForm
-      categoryGroups={[
-        {
-          slug: "type-of-festival",
-          title: t("typeOfFestival"),
-          categories: typeOfFestival,
-        },
-        {
-          slug: "age-of-participants",
-          title: t("ageOfParticipants"),
-          categories: ageOfParticipants,
-        },
-        {
-          slug: "style-of-festival",
-          title: t("styleOfFestival"),
-          categories: styleOfFestival,
-        },
-        {
-          slug: "type-of-accomodation",
-          title: t("typeOfAccomodation"),
-          categories: typeOfAccomodation,
-        },
-      ]}
+      categoryGroups={categories}
       languages={languages}
       statuses={statuses}
       currentLang={currentLang}

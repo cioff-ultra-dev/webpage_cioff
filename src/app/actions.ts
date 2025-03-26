@@ -796,8 +796,9 @@ export async function updateNationalSection(formData: FormData) {
           const message = replaceTags(emailTemplate.template, {
             name: name,
             password: password,
-            url: `<a target="_blank" href="${process.env.HOSTNAME_URL
-              }/login">${t("email.login_to")}</a>`,
+            url: `<a target="_blank" href="${
+              process.env.HOSTNAME_URL
+            }/login">${t("email.login_to")}</a>`,
           });
 
           await transport.sendMail({
@@ -911,8 +912,9 @@ export async function updateNationalSection(formData: FormData) {
           const message = replaceTags(emailTemplate.template, {
             name: name,
             // password: password,
-            url: `<a target="_blank" href="${process.env.HOSTNAME_URL
-              }/login">${t("email.login_to")}</a>`,
+            url: `<a target="_blank" href="${
+              process.env.HOSTNAME_URL
+            }/login">${t("email.login_to")}</a>`,
           });
 
           await transport.sendMail({
@@ -2270,12 +2272,8 @@ export async function updateGroup(formData: FormData) {
   const subgroupSize = Number(formData.get("_subgroupSize"));
   const repertorySize = Number(formData.get("_repertorySize"));
 
-  const typeGroups = JSON.parse(
-    (formData.get("_typeOfGroup") as string) || "[]"
-  );
-  const groupAge = JSON.parse((formData.get("_groupAge") as string) || "[]");
-  const styleGroup = JSON.parse(
-    (formData.get("_styleOfGroup") as string) || "[]"
+  const groupCategories: string[] = JSON.parse(
+    (formData.get("_categories") as string) || "[]"
   );
 
   const cover = formData.get("coverPhoto") as string;
@@ -2292,8 +2290,6 @@ export async function updateGroup(formData: FormData) {
   const lat = formData.get("lat") as string;
   const lng = formData.get("lng") as string;
   const countryId = Number(formData.get("countryId"));
-
-  const groupCategories = [...typeGroups, ...groupAge, ...styleGroup];
 
   const currentPhotos: InsertGroupPhotos[] = [];
   const groupLangs: InsertGroupLang[] = [];

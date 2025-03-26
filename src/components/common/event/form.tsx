@@ -102,6 +102,8 @@ import FormStateNS from "./form-state-ns";
 import { TreeSelect } from "../tree-select/select";
 import { TreeNode } from "@/types/tree-select";
 import { FilePondErrorDescription, FilePondFile } from "filepond";
+import { CategoriesType } from "@/db/queries/categories";
+import { CategoriesSelect } from "../categories-select";
 
 const dateRangeSchema = z.object({
   id: z.string().optional(),
@@ -219,7 +221,7 @@ export default function EventForm({
   locale,
   session,
 }: {
-  categoryGroups: CategoryGroupWithCategories[];
+  categoryGroups: CategoriesType;
   languages: SelectLanguages[];
   statuses: SelectStatus[];
   currentFestival?: FestivalBySlugType | undefined;
@@ -240,7 +242,7 @@ export default function EventForm({
   const t = useTranslations("form.festival");
   const router = useRouter();
   const isNSAccount = session?.user.role?.name === "National Sections";
-
+  console.log(currentCategoriesSelected);
   const [selectedPlace, setSelectedPlace] =
     useState<google.maps.places.PlaceResult | null>(null);
   const [selectedTransportPlace, setSelectedTransportPlace] =
@@ -292,12 +294,7 @@ export default function EventForm({
       lat: currentFestival?.lat ?? "",
       lng: currentFestival?.lng ?? "",
       translatorLanguages: currentFestival?.translatorLanguages ?? null,
-      _typeOfAccomodation:
-        currentCategoriesSelected?.find((item) => {
-          return categoryGroups
-            .find((group) => group.slug === "type-of-accomodation")
-            ?.categories.some((category) => item === String(category.id));
-        }) ?? "",
+      _typeOfAccomodation: "",
       _categories: currentCategoriesSelected,
       _status: currentFestival?.status?.id
         ? String(currentFestival?.status.id)
@@ -524,40 +521,40 @@ export default function EventForm({
     fetcher
   );
 
-  const categoryOptions = useMemo(
-    () =>
-      categoryGroups.map((category) => ({
-        label: category.title,
-        value: category.slug,
-        children: category.categories.length
-          ? category.categories.map((cat) => ({
-              label: cat.langs.find((lang) => lang.l?.code === locale)?.name,
-              value: cat.id.toString(),
-            }))
-          : undefined,
-      })) as TreeNode[],
-    [categoryGroups, locale]
-  );
+  // const categoryOptions = useMemo(
+  //   () =>
+  //     categoryGroups.map((category) => ({
+  //       label: category.title,
+  //       value: category.slug,
+  //       children: category.categories.length
+  //         ? category.categories.map((cat) => ({
+  //             label: cat.langs.find((lang) => lang.l?.code === locale)?.name,
+  //             value: cat.id.toString(),
+  //           }))
+  //         : undefined,
+  //     })) as TreeNode[],
+  //   [categoryGroups, locale]
+  // );
 
-  const selectedCategories = useMemo(
-    () =>
-      currentCategoriesSelected?.map((value) => {
-        const currentSelectedOption = categoryOptions.find(
-          (o) =>
-            o.value === value ||
-            o.children?.find((option) => option.value === value)
-        );
-        const option =
-          currentSelectedOption?.value === value
-            ? currentSelectedOption
-            : currentSelectedOption?.children?.find(
-                (option) => option.value === value
-              );
+  // const selectedCategories:string[] = useMemo(
+  //   () =>
+  //     currentCategoriesSelected?.map((value) =>                          {
+  //       const currentSelectedOption = categoryOptions.find(
+  //         (o) =>
+  //           o.value === value ||
+  //           o.children?.find((option) => option.value === value)
+  //       );
+  //       const option =
+  //         currentSelectedOption?.value === value
+  //           ? currentSelectedOption
+  //           : currentSelectedOption?.children?.find(
+  //               (option) => option.value === value
+  //             );
 
-        return option?.value ?? "";
-      }),
-    [categoryOptions, currentCategoriesSelected]
-  );
+  //       return option?.value ?? "";
+  //     }),
+  //   [categoryOptions, currentCategoriesSelected]
+  // );
 
   return (
     <APIProvider apiKey={constants.google.apiKey!}>
@@ -1121,15 +1118,15 @@ export default function EventForm({
                       <FormItem>
                         <FormLabel>{t("_categories")}</FormLabel>
                         <FormControl>
-                          <TreeSelect
+                          <CategoriesSelect
                             ref={field.ref}
                             disabled={isNSAccount}
-                            defaultValue={selectedCategories}
+                            defaultValue={currentCategoriesSelected!}
                             value={field.value}
-                            placeholder={t("placeholder_categories")}
-                            variant="default"
-                            onValueChange={(value) => field.onChange(value)}
-                            options={categoryOptions}
+                            handleChange={field.onChange}
+                            categories={categoryGroups}
+                            categoryType="festivals"
+                            isLoading={false}
                           />
                         </FormControl>
                         <FormMessage />
@@ -1145,7 +1142,17 @@ export default function EventForm({
                         .filter(Boolean) || "[]"
                     )}
                   />
-                  {form.getValues("_typeOfAccomodation") ? (
+                  {form.getValues("_categories").some((categoryId) => {
+                    const category = categoryGroups?.find(
+                      (cate) => String(cate.id) === categoryId
+                    );
+
+                    return [
+                      "host-families",
+                      "hotel-hostel-campus",
+                      "schools-gym-halls",
+                    ].includes(category?.slug ?? "");
+                  }) ? (
                     <div className="pl-5 border-l">
                       <FormField
                         control={form.control}

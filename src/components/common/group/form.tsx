@@ -52,14 +52,8 @@ import {
 } from "@/db/schema";
 import { cn, formatBytes } from "@/lib/utils";
 import { PlusCircle } from "lucide-react";
-import {
-  AgeGroupsType,
-  GroupDetailsType,
-  GroupStyleType,
-  TypeOfGroupType,
-} from "@/db/queries/groups";
+import { GroupDetailsType } from "@/db/queries/groups";
 import { Cross2Icon, FileTextIcon } from "@radix-ui/react-icons";
-import { MultiSelect, MultiSelectProps } from "@/components/ui/multi-select";
 import { Switch } from "@/components/ui/switch";
 import { useI18nZodErrors } from "@/hooks/use-i18n-zod-errors";
 import { useTranslations } from "next-intl";
@@ -75,12 +69,15 @@ import { AutocompletePlaces } from "@/components/ui/autocomplete-places";
 import MapHandler from "@/components/common/map-handler";
 import constants from "@/constants";
 import { FilePondErrorDescription, FilePondFile } from "filepond";
+import { CategoriesType } from "@/db/queries/categories";
+import { CategoriesSelect } from "../categories-select";
 
 const globalGroupSchema = insertGroupSchema.extend({
+  _categories: z.array(z.string()).nonempty(),
   _lang: insertGroupLangSchema,
-  _typeOfGroup: z.array(z.string()),
-  _groupAge: z.array(z.string()),
-  _styleOfGroup: z.array(z.string()),
+  _typeOfGroup: z.array(z.string()).optional(),
+  _groupAge: z.array(z.string()).optional(),
+  _styleOfGroup: z.array(z.string()).optional(),
   _generalDirectorPhoto: z
     .any()
     .refine((item) => item instanceof File || typeof item === "undefined", {
@@ -121,6 +118,10 @@ const globalGroupSchema = insertGroupSchema.extend({
 
 interface FilePreviewProps {
   file: File & { preview: string };
+}
+
+function removeDuplicates(data: string[]) {
+  return Array.from(new Set(Array.from(data)));
 }
 
 function FilePreview({ file }: FilePreviewProps) {
@@ -251,20 +252,16 @@ interface RepertoireItem {
 export default function GroupForm({
   currentGroup,
   id,
-  typeOfGroups,
-  ageGroups,
-  groupStyles,
   session,
   locale,
   currentLang,
   currentCategoriesSelected,
   regions,
+  categories,
 }: {
+  categories: CategoriesType;
   currentGroup?: GroupDetailsType | undefined;
   id?: string;
-  typeOfGroups: TypeOfGroupType;
-  ageGroups: AgeGroupsType;
-  groupStyles: GroupStyleType;
   currentLang?: NonNullable<GroupDetailsType>["langs"][number];
   session?: Session;
   locale?: string;
@@ -295,20 +292,15 @@ export default function GroupForm({
   const form = useForm<z.infer<typeof globalGroupSchema>>({
     resolver: zodResolver(globalGroupSchema),
     defaultValues: {
+      _categories: currentCategoriesSelected,
       id: currentGroup?.id ?? 0,
       generalDirectorName: currentGroup?.generalDirectorName || "",
       artisticDirectorName: currentGroup?.artisticDirectorName || "",
       musicalDirectorName: currentGroup?.musicalDirectorName || "",
       phone: currentGroup?.phone || "",
-      _groupAge: currentCategoriesSelected?.filter((item) => {
-        return ageGroups.some((category) => category.id === Number(item));
-      }),
-      _typeOfGroup: currentCategoriesSelected?.filter((item) => {
-        return typeOfGroups.some((category) => category.id === Number(item));
-      }),
-      _styleOfGroup: currentCategoriesSelected?.filter((item) => {
-        return groupStyles.some((category) => category.id === Number(item));
-      }),
+      _groupAge: undefined,
+      _typeOfGroup: undefined,
+      _styleOfGroup: undefined,
       membersNumber: currentGroup?.membersNumber,
       _specificRegion: currentGroup?.specificRegion
         ? String(currentGroup?.specificRegion)
@@ -1011,6 +1003,43 @@ export default function GroupForm({
                   <div className="space-y-2">
                     <FormField
                       control={form.control}
+                      name="_categories"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t("_categories")}</FormLabel>
+                          <FormControl>
+                            <CategoriesSelect
+                              ref={field.ref}
+                              disabled={isNSAccount}
+                              defaultValue={currentCategoriesSelected!}
+                              value={field.value}
+                              handleChange={field.onChange}
+                              categories={categories}
+                              categoryType="festivals"
+                              isLoading={false}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                          <input
+                            type="hidden"
+                            name="_categories"
+                            value={JSON.stringify(
+                              [
+                                ...removeDuplicates(
+                                  form.getValues("_categories") ?? []
+                                ),
+                              ]
+                                .flat()
+                                .filter(Boolean) || "[]"
+                            )}
+                          />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  {/* <div className="space-y-2">
+                    <FormField
+                      control={form.control}
                       name="_typeOfGroup"
                       render={({ field }) => {
                         const options: MultiSelectProps["options"] =
@@ -1054,7 +1083,7 @@ export default function GroupForm({
                         );
                       }}
                     />
-                  </div>
+                  </div> */}
                   <div className="space-y-2">
                     <FormField
                       control={form.control}
@@ -1104,7 +1133,7 @@ export default function GroupForm({
                       )}
                     />
                   </div>
-                  <div className="space-y-2">
+                  {/* <div className="space-y-2">
                     <FormField
                       control={form.control}
                       name="_groupAge"
@@ -1150,7 +1179,7 @@ export default function GroupForm({
                         );
                       }}
                     />
-                  </div>
+                  </div> */}
                   <div className="space-y-2">
                     <FormField
                       control={form.control}
@@ -1186,7 +1215,7 @@ export default function GroupForm({
                       )}
                     />
                   </div>
-                  <div className="space-y-2">
+                  {/* <div className="space-y-2">
                     <FormField
                       control={form.control}
                       name="_styleOfGroup"
@@ -1232,7 +1261,7 @@ export default function GroupForm({
                         );
                       }}
                     />
-                  </div>
+                  </div> */}
                   <div className="space-y-4 border-t pt-4">
                     <h2 className="text-lg font-semibold">{t("sub_groups")}</h2>
                     {subGroupFields.map((field, index) => (
@@ -1334,7 +1363,7 @@ export default function GroupForm({
                               )}
                             />
                           </div>
-                          <div className="grid w-full items-center gap-1.5">
+                          {/* <div className="grid w-full items-center gap-1.5">
                             <FormField
                               control={form.control}
                               name={`_subgroups.${index}._groupAge`}
@@ -1375,7 +1404,7 @@ export default function GroupForm({
                                 );
                               }}
                             />
-                          </div>
+                          </div> */}
                           <div className="grid w-full items-center gap-1.5">
                             <FormField
                               control={form.control}
@@ -2020,10 +2049,14 @@ export default function GroupForm({
                           {t("cancel")}
                         </Link>
                       </Button>
-                      <Submit
-                        label={t("save")}
-                        isLoading={form.formState.isSubmitting}
-                      />
+                      <Button
+                        type="submit"
+                        aria-disabled={form.formState.isSubmitting}
+                        disabled={form.formState.isSubmitting}
+                        className="space-y-0"
+                      >
+                        {t("save")}
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>

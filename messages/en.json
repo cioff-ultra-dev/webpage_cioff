@@ -255,6 +255,7 @@
       "confirmPassword": "Confirm Password"
     },
     "group": {
+      "_categories": "Categories",
       "_lang": {
         "name": "Name of the group"
       },
