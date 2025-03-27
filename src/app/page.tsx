@@ -110,8 +110,8 @@ export default async function Home() {
         />
         <div className="relative w-full h-[35rem] flex items-center">
           <Image
-            src={image?.value || "/hero-image.webp"}
-            alt="Hero background"
+            src="/banner-1.jpg"
+            alt="banner 1"
             objectPosition="50% 20%"
             className="absolute inset-0 w-full h-full object-cover"
             fill
