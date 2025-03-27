@@ -98,12 +98,13 @@ export function FilterCard(props: FilterCardProps): JSX.Element {
         containerClass
       )}
     >
-      <div className="w-full h-[220px] rounded-t-md overflow-hidden relative">
+      <div
+        className="w-full h-[220px] rounded-t-md overflow-hidden relative"
+        onClick={handleItemDetail}
+      >
         <CarouselImage images={CoverImages} />
       </div>
-      <div
-        className="flex flex-col gap-1 relative px-2 pb-4 cursor-default"
-      >
+      <div className="flex flex-col gap-1 relative px-2 pb-4 cursor-default">
         <Button
           className="rounded-full h-12 w-12 absolute -top-7 right-2 group transition-transform duration-300 cursor-pointer"
           onClick={handleItemDetail}
@@ -112,14 +113,20 @@ export function FilterCard(props: FilterCardProps): JSX.Element {
             className: "group-hover:scale-90 transition-transform duration-300",
           })}
         </Button>
-        <span className="my-2 flex gap-1 items-center">
+        {/* <span className="my-2 flex gap-1 items-center">
           <FilledStar className="h-4 w-4" />
           <p className="text-roboto text-xs">4.5/5</p>
-        </span>
-        <label className="line-clamp-1 text-base font-medium text-roboto cursor-pointer" onClick={handleItemDetail}>
+        </span> */}
+        <label
+          className="line-clamp-1 text-base font-medium text-roboto cursor-pointer mt-3"
+          onClick={handleItemDetail}
+        >
           {title}
         </label>
-        <p className="flex gap-1 items-center w-full mb-2 cursor-pointer" onClick={handleClick}>
+        <p
+          className="flex gap-1 items-center w-full mb-2 cursor-pointer"
+          onClick={handleClick}
+        >
           <div className="w-5 h-5">
             <MapPin size={20} strokeWidth={2} className="text-primary" />
           </div>
