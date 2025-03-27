@@ -92,7 +92,12 @@ export default async function EventList(
         </span>
         <p>
           <span className="font-medium text-xl text-secular">
-            {translations(title)} /{" "}
+            {translations.rich(title, {
+              mark: (chunks) => (
+                <span className="text-base align-top">{chunks}</span>
+              ),
+            })}{" "}
+            /{" "}
           </span>
           <span className="text-roboto">{translations(country)}</span>
         </p>

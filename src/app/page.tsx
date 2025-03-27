@@ -9,7 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Header } from "@/components/common/header";
 import GlobalFilterPreview from "@/components/common/global-filter-preview";
 import { getAllNestedFestivals } from "@/db/queries/events";
-import CarouselHistory from "@/components/common/carousel-history";
 import { getAllCountryCastFestivals } from "@/db/queries/countries";
 import { Locale } from "@/i18n/config";
 import { getAllCategories } from "@/db/queries/categories";
@@ -118,15 +117,18 @@ export default async function Home() {
           />
           <div className="absolute text-white text-secular font-bold text-end text-5xl right-6 capitalize">
             <p>
-              CIOFF<span className="text-lg align-top">®</span> Promotes intangible
-              cultural
+              {t.rich("bannerTitle1", {
+                mark: (chunks) => (
+                  <span className="text-xl align-top">{chunks}</span>
+                ),
+              })}
             </p>
-            <p>Heritage through folklore</p>
+            <p>{t("bannerDescription1")}</p>
             <Button
               asChild
               className="bg-white text-black rounded-xl text-xs px-3 h-10 hover:bg-white"
             >
-              <Link href="/about-us">Learn about our NGO</Link>
+              <Link href="/about-us">{t("bannerLink1")}</Link>
             </Button>
           </div>
         </div>
@@ -140,13 +142,13 @@ export default async function Home() {
             fill
           />
           <div className="absolute text-white text-secular font-bold text-start text-5xl left-6 capitalize">
-            <p>Official Partner of UNESCO</p>
-            <p>Accredited to the 2003 Convention</p>
+            <p>{t("bannerTitle2")}</p>
+            <p>{t("bannerDescription2")}</p>
             <Button
               asChild
               className="bg-white text-black rounded-xl text-xs px-3 h-10 hover:bg-white capitalize"
             >
-              <Link href="/about-us">Learn about our work with UNESCO</Link>
+              <Link href="/about-us">{t("bannerLink1")}</Link>
             </Button>
           </div>
         </div>
