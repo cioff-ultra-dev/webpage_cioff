@@ -53,9 +53,16 @@ export default async function Home() {
             fill
           />
           <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-center text-white">
-            <h1 className="text-8xl font-extrabold text-secular">
-              {title?.value}
-            </h1>
+            <h1
+              className="text-8xl font-extrabold text-secular"
+              dangerouslySetInnerHTML={{
+                __html:
+                  title?.value?.replace(
+                    "®",
+                    "<span class='text-5xl align-top'>®</span>"
+                  ) ?? "",
+              }}
+            />
             <h2 className="text-7xl font-bold mt-4 text-cursive italic">
               {subtitle?.value?.replace("¡", "")}
             </h2>
@@ -110,14 +117,20 @@ export default async function Home() {
             fill
           />
           <div className="absolute text-white text-secular font-bold text-end text-5xl right-6 capitalize">
-            <p>CIOFF@ Promotes intangible cultural</p>
+            <p>
+              CIOFF<span className="text-lg align-top">®</span> Promotes intangible
+              cultural
+            </p>
             <p>Heritage through folklore</p>
-            <Button asChild className="bg-white text-black rounded-xl text-xs px-3 h-10 hover:bg-white">
-            <Link href="/about-us">Learn about our NGO</Link>
+            <Button
+              asChild
+              className="bg-white text-black rounded-xl text-xs px-3 h-10 hover:bg-white"
+            >
+              <Link href="/about-us">Learn about our NGO</Link>
             </Button>
           </div>
         </div>
-        <ImpactSection/>
+        <ImpactSection />
         <div className="relative w-full h-[35rem] flex items-center">
           <Image
             src="https://static.wixstatic.com/media/f0ab27_4192ee051b6a41929772cbf6e78e0a63~mv2.jpg/v1/fill/w_1600,h_509,al_c,q_85,enc_auto/f0ab27_4192ee051b6a41929772cbf6e78e0a63~mv2.jpg"
@@ -129,7 +142,10 @@ export default async function Home() {
           <div className="absolute text-white text-secular font-bold text-start text-5xl left-6 capitalize">
             <p>Official Partner of UNESCO</p>
             <p>Accredited to the 2003 Convention</p>
-            <Button asChild className="bg-white text-black rounded-xl text-xs px-3 h-10 hover:bg-white capitalize">
+            <Button
+              asChild
+              className="bg-white text-black rounded-xl text-xs px-3 h-10 hover:bg-white capitalize"
+            >
               <Link href="/about-us">Learn about our work with UNESCO</Link>
             </Button>
           </div>
