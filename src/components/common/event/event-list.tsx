@@ -7,6 +7,68 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 //import { getEventsByDate } from "@/db/queries/events";
 //import { Locale } from "@/i18n/config";
 
+const EVENTS = [
+  {
+    title: "title1",
+    country: "country1",
+    start: "03/22/2025",
+    end: "03/28/2025",
+  },
+  {
+    title: "title4",
+    country: "country4",
+    start: "04/26/2025",
+  },
+  {
+    title: "title2",
+    country: "country2",
+    start: "05/21/2025",
+    end: "05/25/2025",
+  },
+  {
+    title: "title5",
+    country: "country5",
+    start: "05/09/2025",
+    end: "05/11/2025",
+  },
+  {
+    title: "title6",
+    country: "country6",
+    start: "05/21/2025",
+    end: "05/25/2025",
+  },
+  {
+    title: "title7",
+    country: "country7",
+    start: "05/22/2025",
+    end: "05/26/2025",
+  },
+  {
+    title: "title9",
+    country: "country9",
+    start: "05/10/2025",
+    end: "05/15/2025",
+  },
+  {
+    title: "title8",
+    country: "country8",
+    start: "06/24/2025",
+    end: "06/28/2025",
+  },
+  {
+    title: "title3",
+    country: "country3",
+    start: "10/19/2025",
+    end: "10/26/2025",
+  },
+  {
+    title: "title10",
+    country: "country10",
+    start: "10/19/2025",
+    end: "10/26/2025",
+  },
+];
+
 interface LatestNewsProps {
   limit?: number;
   classes?: string;
@@ -21,35 +83,18 @@ export default async function EventList(
 
   //const events = await getEventsByDate({ fromDate: new Date(), limit, locale });
 
-  const items = [
-    {
-      title: translations("title1"),
-      country: "Slovenia",
-      start: "03/22/2025",
-      end: "03/28/2025",
-    },
-    {
-      title: translations("title2"),
-      country: "Costa Rica",
-      start: "05/21/2025",
-      end: "05/25/2025",
-    },
-    {
-      title: translations("title3"),
-      country: "Chile",
-      start: "10/19/2025",
-      end: "10/26/2025",
-    },
-  ].map(({ country, end, start, title }) => (
+  const items = EVENTS.map(({ country, end, start, title }) => (
     <div key={country} className="flex justify-start py-8 border-b items-end">
       <div className="flex flex-col">
         <span className="text-secular text-sm">
-          {format(new Date(start), "LLL, dd")} -{" "}
-          {format(new Date(end), "LLL, dd")}
+          {format(new Date(start), "LLL, dd")}
+          {end ? format(new Date(end), " - LLL, dd") : null}
         </span>
         <p>
-          <span className="font-medium text-xl text-secular">{title} / </span>
-          <span className="text-roboto">{country}</span>
+          <span className="font-medium text-xl text-secular">
+            {translations(title)} /{" "}
+          </span>
+          <span className="text-roboto">{translations(country)}</span>
         </p>
       </div>
     </div>

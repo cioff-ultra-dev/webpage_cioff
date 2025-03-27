@@ -3,6 +3,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { DateRange } from "react-day-picker";
 import { MultiSelectProps } from "@/components/ui/multi-select";
 import { Grid2X2Plus, Earth, Globe, CalendarIcon } from "lucide-react";
+import groupBy from "object.groupby";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -98,7 +99,7 @@ function Filters(props: FiltersProps): JSX.Element {
   const locale = useLocale();
 
   const categoryOptions = useMemo(() => {
-    const groupedItems = Object.groupBy(categories, (item) =>
+    const groupedItems = groupBy(categories, (item) =>
       categoryType === "groups"
         ? GROUP_CATEGORY_MAP[item.slug as keyof typeof GROUP_CATEGORY_MAP]
         : FESTIVAL_CATEGORY_MAP[item.slug as keyof typeof FESTIVAL_CATEGORY_MAP]
