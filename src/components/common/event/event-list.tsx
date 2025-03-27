@@ -9,21 +9,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 
 const EVENTS = [
   {
-    title: "title1",
-    country: "country1",
-    start: "03/22/2025",
-    end: "03/28/2025",
-  },
-  {
     title: "title4",
     country: "country4",
     start: "04/26/2025",
-  },
-  {
-    title: "title2",
-    country: "country2",
-    start: "05/21/2025",
-    end: "05/25/2025",
   },
   {
     title: "title5",
@@ -56,12 +44,6 @@ const EVENTS = [
     end: "06/28/2025",
   },
   {
-    title: "title3",
-    country: "country3",
-    start: "10/19/2025",
-    end: "10/26/2025",
-  },
-  {
     title: "title10",
     country: "country10",
     start: "10/19/2025",
@@ -89,6 +71,7 @@ export default async function EventList(
         <span className="text-secular text-sm">
           {format(new Date(start), "LLL, dd")}
           {end ? format(new Date(end), " - LLL, dd") : null}
+          {format(new Date(end??start), " yyyy")}
         </span>
         <p>
           <span className="font-medium text-xl text-secular">
