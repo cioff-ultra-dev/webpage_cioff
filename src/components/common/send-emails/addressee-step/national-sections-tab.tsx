@@ -6,9 +6,8 @@ import {
   useEffect,
   useCallback,
 } from "react";
-import { MapPin, CheckCircle, House } from "lucide-react";
+import { MapPin, CheckCircle, Globe } from "lucide-react";
 import useSWR from "swr";
-import Image from "next/image";
 import { findFlagUrlByCountryName } from "country-flags-svg";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -137,7 +136,7 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
                 location={countryLang.name}
                 description={lang?.about ?? tCommon("noDescription")}
                 images={[countryUrl || "/logo.png"]}
-                icon={<House />}
+                icon={<Globe />}
                 hideDate
                 detailLink={`/national-sections/${id}`}
               />

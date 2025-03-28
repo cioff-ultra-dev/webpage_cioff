@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import useSWR from "swr";
-import { MapPin, CalendarCheck, Users } from "lucide-react";
+import {  CalendarIcon, Users } from "lucide-react";
 import {
   APIProvider,
   useMap,
@@ -12,9 +12,7 @@ import {
   Marker,
   AdvancedMarker,
 } from "@vis.gl/react-google-maps";
-import Link from "next/link";
 import { DateRange } from "react-day-picker";
-import Image from "next/image";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -404,7 +402,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
             regions={regionsMap}
             isRegionLoading={isLoadingRegionCast}
             locale={locale as Locale}
-            dispatch={() => { }}
+            dispatch={() => {}}
             selectedSections={[]}
             setCountries={setNationalSectionsCast}
             isCard
@@ -441,19 +439,19 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                 ) : null}
                 {!selectedPlace
                   ? nationalSectionMapClusters.map((item) => (
-                    <AdvancedMarker
-                      key={item.id}
-                      position={item.position}
-                      onClick={() =>
-                        setSelectedCountryId((prevState) => {
-                          return prevState === item.id ? 0 : item.id;
-                        })
-                      }
-                      title={t("marker_located_at", {
-                        name: item.name,
-                      })}
-                    />
-                  ))
+                      <AdvancedMarker
+                        key={item.id}
+                        position={item.position}
+                        onClick={() =>
+                          setSelectedCountryId((prevState) => {
+                            return prevState === item.id ? 0 : item.id;
+                          })
+                        }
+                        title={t("marker_located_at", {
+                          name: item.name,
+                        })}
+                      />
+                    ))
                   : null}
               </Map>
             </div>
@@ -506,19 +504,19 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                       ) : null}
                       {!selectedPlace
                         ? countryMapClusters.map((item) => (
-                          <AdvancedMarker
-                            key={item.id}
-                            position={item.position}
-                            onClick={() =>
-                              setSelectedCountryId((prevState) => {
-                                return prevState === item.id ? 0 : item.id;
-                              })
-                            }
-                            title={item.name
-                              ?.concat(" (", item?.location ?? "Pendiente")
-                              .concat(")")}
-                          />
-                        ))
+                            <AdvancedMarker
+                              key={item.id}
+                              position={item.position}
+                              onClick={() =>
+                                setSelectedCountryId((prevState) => {
+                                  return prevState === item.id ? 0 : item.id;
+                                })
+                              }
+                              title={item.name
+                                ?.concat(" (", item?.location ?? "Pendiente")
+                                .concat(")")}
+                            />
+                          ))
                         : null}
                     </Map>
                   </div>
@@ -533,7 +531,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                         event,
                         cover,
                       }) => ({
-                        icon: <CalendarCheck />,
+                        icon: <CalendarIcon />,
                         images: [cover?.url || "/placeholder.svg"],
                         title: lang.name ?? "",
                         endDate: event?.endDate,
@@ -553,8 +551,9 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                       selectedCategories
                     )}&type=${tabSelected}&locale=${locale}&countryId=${selectedCountryId}&page=1&regions=${JSON.stringify(
                       selectedRegions
-                    )}&countries=${JSON.stringify(selectedCountries)}${search ? `&${search}` : ""
-                      }`}
+                    )}&countries=${JSON.stringify(selectedCountries)}${
+                      search ? `&${search}` : ""
+                    }`}
                   />
                 </div>
               </div>
@@ -608,19 +607,19 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                       ) : null}
                       {!selectedPlace
                         ? countryGroupMapClusters.map((item) => (
-                          <AdvancedMarker
-                            key={item.id}
-                            position={item.position}
-                            onClick={() =>
-                              setSelectedCountryId((prevState) => {
-                                return prevState === item.id ? 0 : item.id;
-                              })
-                            }
-                            title={item.name
-                              ?.concat(" (", item?.location ?? "Pendiente")
-                              .concat(")")}
-                          />
-                        ))
+                            <AdvancedMarker
+                              key={item.id}
+                              position={item.position}
+                              onClick={() =>
+                                setSelectedCountryId((prevState) => {
+                                  return prevState === item.id ? 0 : item.id;
+                                })
+                              }
+                              title={item.name
+                                ?.concat(" (", item?.location ?? "Pendiente")
+                                .concat(")")}
+                            />
+                          ))
                         : null}
                     </Map>
                   </div>
@@ -642,8 +641,9 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                       selectedCategories
                     )}&type=${tabSelected}&locale=${locale}&groupId=${selectedCountryId}&page=1&regions=${JSON.stringify(
                       selectedRegions
-                    )}&countries=${JSON.stringify(selectedCountries)}${search ? `&${search}` : ""
-                      }`}
+                    )}&countries=${JSON.stringify(selectedCountries)}${
+                      search ? `&${search}` : ""
+                    }`}
                   />
                 </div>
               </div>

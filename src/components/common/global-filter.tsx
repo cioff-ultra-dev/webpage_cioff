@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { TabsContent } from "@radix-ui/react-tabs";
 import useSWR, { preload } from "swr";
 import useSWRInfinite from "swr/infinite";
-import { MapPin, CalendarCheck, Users } from "lucide-react";
+import {  CalendarIcon, Users } from "lucide-react";
 import {
   APIProvider,
   useMap,
@@ -14,8 +14,6 @@ import {
   AdvancedMarker,
 } from "@vis.gl/react-google-maps";
 import { DateRange } from "react-day-picker";
-import Link from "next/link";
-import Image from "next/image";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 
 import InfiniteScroll from "@/components/extension/swr-infinite-scroll";
@@ -484,7 +482,7 @@ export function WrapperFilter({
                       }) => (
                         <FilterCard
                           key={festival.id}
-                          icon={<CalendarCheck />}
+                          icon={<CalendarIcon />}
                           images={[cover?.url || "/placeholder.svg"]}
                           title={lang.name ?? ""}
                           endDate={event?.endDate}
