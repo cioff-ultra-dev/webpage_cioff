@@ -1,6 +1,7 @@
 import { JSX } from "react";
 import { getTranslations } from "next-intl/server";
 import { format } from "date-fns";
+import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,42 +13,49 @@ const EVENTS = [
     title: "title4",
     country: "country4",
     start: "04/26/2025",
+    image: "/America.jpg",
   },
   {
     title: "title5",
     country: "country5",
     start: "05/09/2025",
     end: "05/11/2025",
+    image: "/Europe.jpg",
   },
   {
     title: "title6",
     country: "country6",
     start: "05/21/2025",
     end: "05/25/2025",
+    image: "/Latin.jpg",
   },
   {
     title: "title7",
     country: "country7",
     start: "05/22/2025",
     end: "05/26/2025",
+    image: "/North.jpg",
   },
   {
     title: "title9",
     country: "country9",
     start: "05/10/2025",
     end: "05/15/2025",
+    image: "/Asia.jpg",
   },
   {
     title: "title8",
     country: "country8",
     start: "06/24/2025",
     end: "06/28/2025",
+    image: "/Africa.jpg",
   },
   {
     title: "title10",
     country: "country10",
     start: "10/19/2025",
     end: "10/26/2025",
+    image: "/WorldCongress.jpg",
   },
 ];
 
@@ -65,13 +73,14 @@ export default async function EventList(
 
   //const events = await getEventsByDate({ fromDate: new Date(), limit, locale });
 
-  const items = EVENTS.map(({ country, end, start, title }) => (
-    <div key={country} className="flex justify-start py-8 border-b items-end">
+  const items = EVENTS.map(({ country, end, start, title, image }) => (
+    <div key={country} className="flex justify-start py-8 border-b items-center">
+      <Image src={image} alt={title} width={80} height={90} className="mr-4" />
       <div className="flex flex-col">
         <span className="text-secular text-sm">
           {format(new Date(start), "LLL, dd")}
           {end ? format(new Date(end), " - LLL, dd") : null}
-          {format(new Date(end??start), " yyyy")}
+          {format(new Date(end ?? start), " yyyy")}
         </span>
         <p>
           <span className="font-medium text-xl text-secular">
