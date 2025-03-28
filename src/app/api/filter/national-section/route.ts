@@ -33,9 +33,9 @@ async function buildFilter(request: NextRequest) {
   const countryId: number = Number(
     request.nextUrl.searchParams.get("countryId") || "0"
   );
-const pageSize: number = Number(
-  request.nextUrl.searchParams.get("pageSize") || "10"
-);
+  const pageSize: number = Number(
+    request.nextUrl.searchParams.get("pageSize") || "10"
+  );
   const locale: Locale =
     (request.nextUrl.searchParams.get("locale") as Locale) || defaultLocale;
 
@@ -60,7 +60,10 @@ const pageSize: number = Number(
     .leftJoin(countriesLang, eq(countriesLang.countryId, countries.id))
     .leftJoin(
       nationalSectionsLang,
-      eq(nationalSectionsLang.nsId, nationalSections.id)
+      and(
+        eq(nationalSectionsLang.nsId, nationalSections.id),
+        eq(nationalSectionsLang.lang, sq)
+      )
     )
     .leftJoin(
       nationalSectionsPositions,
@@ -108,7 +111,7 @@ const pageSize: number = Number(
         positions: SelectNationalSectionPositions;
         countryLang: SelectCountryLang;
         id: number;
-        cover: SelectStorage|null;
+        cover: SelectStorage | null;
       }
     >
   >((acc, row) => {
