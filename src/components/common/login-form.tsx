@@ -82,13 +82,12 @@ export default function LoginForm() {
           </div>
         </Card>
       </form>
-      <div className="hidden bg-muted lg:block">
+      <div className="hidden bg-muted lg:block relative">
         <Image
-          src="/cover-login.jpg"
+          src="/login.jpg"
           alt="Image"
-          width="1920"
-          height="1080"
-          className="h-full w-full object-cover"
+          fill
+          className="!max-h-screen w-full object-cover"
         />
       </div>
     </div>
