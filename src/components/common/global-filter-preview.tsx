@@ -414,6 +414,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
             showIconLabels
             contentClassName="p-0 bg-white py-4 sm:py-6 w-full h-full"
             wrapperClassName="w-full h-full"
+            viewMoreLink="/national-sections"
           >
             <MapHandler
               place={selectedPlace}

@@ -102,7 +102,7 @@ export function FilterCard(props: FilterCardProps): JSX.Element {
         className="w-full h-[220px] rounded-t-md overflow-hidden relative"
         onClick={handleItemDetail}
       >
-        <CarouselImage images={CoverImages} />
+        <CarouselImage images={CoverImages} imageError="/logo.png" />
       </div>
       <div className="flex flex-col gap-1 relative px-2 pb-4 cursor-default">
         <Button

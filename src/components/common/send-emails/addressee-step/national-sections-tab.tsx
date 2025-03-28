@@ -1,4 +1,11 @@
-import { JSX, useState, useMemo, PropsWithChildren, useEffect } from "react";
+import {
+  JSX,
+  useState,
+  useMemo,
+  PropsWithChildren,
+  useEffect,
+  useCallback,
+} from "react";
 import { MapPin, CheckCircle, House } from "lucide-react";
 import useSWR from "swr";
 import Image from "next/image";
@@ -21,6 +28,7 @@ import { SkeletonList } from "@/components/common/filters/result-list";
 
 import Filters from "./filters";
 import { ListItem } from "./list-item";
+import { Button } from "@/components/ui/button";
 
 interface FestivalTabOptions extends PropsWithChildren {
   regions: MultiSelectProps["options"];
@@ -37,6 +45,7 @@ interface FestivalTabOptions extends PropsWithChildren {
   showIconLabels?: boolean;
   contentClassName?: string;
   wrapperClassName?: string;
+  viewMoreLink?: string;
 }
 
 function FestivalTab(props: FestivalTabOptions): JSX.Element {
@@ -56,6 +65,7 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
     showIconLabels = false,
     contentClassName,
     wrapperClassName,
+    viewMoreLink = "",
   } = props;
   const [search, setSearch] = useState("");
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
@@ -126,7 +136,7 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
                 title={lang.name}
                 location={countryLang.name}
                 description={lang?.about ?? tCommon("noDescription")}
-                images={[ countryUrl || "/placeholder.svg"]}
+                images={[countryUrl || "/logo.png"]}
                 icon={<House />}
                 hideDate
                 detailLink={`/national-sections/${id}`}
@@ -165,7 +175,35 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
             );
           })
       ),
-    [isLoadingItemList, itemList, isCard, selectedSections, router, dispatch]
+    [isLoadingItemList, itemList, isCard, tCommon, selectedSections, dispatch]
+  );
+
+  const handleViewMore = useCallback(
+    () => router.push(viewMoreLink),
+    [viewMoreLink, router]
+  );
+
+  const content = (
+    <div
+      className={cn(
+        isCard
+          ? "grid grid-cols-5 gap-4 h-full w-full max-sm:grid-cols-1 max-md:grid-cols-2 max-lg:grid-cols-4 mt-4"
+          : "flex flex-col gap-2"
+      )}
+    >
+      {items}
+      {isCard && (
+        <div className="w-full h-full flex justify-center items-center col-span-5 max-sm:col-span-1 max-md:col-span-2 max-lg:col-span-4 mt-6">
+          <Button
+            size="sm"
+            className="rounded-xl text-roboto font-semibold text-xs px-4 text-white hover:bg-white hover:text-primary hover:border hover:border-primary"
+            onClick={handleViewMore}
+          >
+            {tCommon("viewMore")}
+          </Button>
+        </div>
+      )}
+    </div>
   );
 
   return (
@@ -187,7 +225,7 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
           />
         </div>
       </section>
-      <Card className={cn(children && "border-none sm:pt-2")}>
+      <Card className={cn(children && "border-none sm:pt-2 shadow-none")}>
         <CardContent className={cn("pt-4", contentClassName)}>
           <div
             className={cn(
@@ -217,21 +255,13 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
                     !!children ? "rounded-b-lg" : "rounded-lg"
                   )}
                 >
-                  <ScrollArea
-                    className={cn(
-                      isCard ? "h-full w -full" : "h-[400px] w -full p-4"
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        isCard
-                          ? "grid grid-cols-5 gap-4 h-full w-full max-sm:grid-cols-1 max-md:grid-cols-2 max-lg:grid-cols-4 mt-4"
-                          : "flex flex-col gap-2"
-                      )}
-                    >
-                      {items}
-                    </div>
-                  </ScrollArea>
+                  {isCard ? (
+                    content
+                  ) : (
+                    <ScrollArea className="h-[400px] w -full p-4">
+                      {content}
+                    </ScrollArea>
+                  )}
                 </div>
               </div>
             </div>
