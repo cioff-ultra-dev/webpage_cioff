@@ -887,5 +887,13 @@
     "additional":"16500 Confolens",
     "country":"France",
     "become":"Become a member"
+  },
+  "login":{
+    "welcome":"Welcome",
+    "login":"Sign in",
+    "become":"Become a member",
+    "email":"Email",
+    "password":"Password",
+    "description":"Enter your email and password to access your account."
   }
 }

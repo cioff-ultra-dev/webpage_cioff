@@ -864,5 +864,13 @@
     "additional": "16500 Confolens",
     "country": "France",
     "become": "Devenez membre"
+  },
+  "login": {
+    "welcome": "Bem-vindo",
+    "login": "Entrar",
+    "become": "Torne-se um membro",
+    "email": "E-mail",
+    "password": "Senha",
+    "description": "Digite seu e-mail e senha para acessar sua conta."
   }
 }
