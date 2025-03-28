@@ -85,7 +85,7 @@ function BannerTab({
     }
 
     return [];
-  }, [banner]);
+  }, [banner, form]);
 
   const onLoadMainImage = useCallback(
     (error: FilePondErrorDescription | null, file: FilePondFile) => {

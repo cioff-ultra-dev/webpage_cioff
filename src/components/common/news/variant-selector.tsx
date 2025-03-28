@@ -32,6 +32,7 @@ function VariantSelector({ buttonInfo, callback }: VariantSelectorProps) {
         {translations(variant)}
       </SelectItem>
     ));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [translations, locale]);
 
   return (

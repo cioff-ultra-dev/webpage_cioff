@@ -96,7 +96,7 @@ function MenuItemComponent({
 
       handleClick();
     },
-    [handleSave, initialContent]
+    [handleClick, handleSave, initialContent]
   );
 
   return (

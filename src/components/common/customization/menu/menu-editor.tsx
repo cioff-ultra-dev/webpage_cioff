@@ -49,7 +49,7 @@ function MenuEditor(props: MenuEditorProps) {
           )}
         </Draggable>
       )),
-    [menu, handleSave]
+    [menu, handleRemove, handleSave]
   );
 
   return (

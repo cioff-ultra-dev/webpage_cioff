@@ -162,7 +162,7 @@ function TimelineTab({
 
       toast.error(translations("timeline.notUpdated"));
     }
-  }, [sections, locale]);
+  }, [sections, locale, translations]);
 
   return (
     <TabsContent value="timeline">
