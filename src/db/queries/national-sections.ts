@@ -427,6 +427,7 @@ export type CountryCastNationalSections = {
   lng: string | null;
   name: string | null;
   nationalSectionsCount: number;
+  countryId: number | null;
 }[];
 
 export async function getAllCountryCastNationalSections(

@@ -102,7 +102,7 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
     return countriesData.map((country) => {
       return {
         label: country.name || "",
-        value: String(country.id),
+        value: String(country.countryId),
       };
     });
   }, [countriesData]);
