@@ -115,7 +115,7 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
         )}&countries=${JSON.stringify(
           selectedCountries.length
             ? selectedCountries
-            : countriesData.map((item) => item.id)
+            : countriesData.map((item) => item.countryId)
         )}&page=1${search ? `&${search}` : ""}`,
       fetcher
     );

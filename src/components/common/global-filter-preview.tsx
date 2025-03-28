@@ -112,7 +112,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
               ? selectedCountries
               : selectedCountryId || search.length > 0
                 ? []
-                : countryCast.map((item) => item.id)
+                : countryCast.map((item) => item.countryId)
           )}&page=1${search ? `&${search}` : ""}`
           : null,
       fetcher
@@ -131,7 +131,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
               ? selectedCountries
               : selectedCountryId || search.length > 0
                 ? []
-                : countryGroupCast.map((item) => item.id)
+                : countryGroupCast.map((item) => item.countryId)
           )}&page=1${search ? `&${search}` : ""}`
           : null,
       fetcher
