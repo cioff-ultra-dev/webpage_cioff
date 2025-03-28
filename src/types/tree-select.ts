@@ -75,6 +75,7 @@ export interface TreeSelectProps
    * allow select all options
    */
   allowSelectAll?: boolean;
+  showInputSearch?: boolean;
 }
 
 

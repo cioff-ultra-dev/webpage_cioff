@@ -69,6 +69,7 @@ export const TreeSelect = forwardRef<HTMLButtonElement, TreeSelectProps>(
       className,
       hideSelectedValues = false,
       allowSelectAll = true,
+      showInputSearch = true,
       ...props
     },
     ref
@@ -278,10 +279,12 @@ export const TreeSelect = forwardRef<HTMLButtonElement, TreeSelectProps>(
           onEscapeKeyDown={() => setIsPopoverOpen(false)}
         >
           <Command>
-            <CommandInput
-              placeholder={translations("searchPlaceholder")}
-              onKeyDown={handleInputKeyDown}
-            />
+            {showInputSearch && (
+              <CommandInput
+                placeholder={translations("searchPlaceholder")}
+                onKeyDown={handleInputKeyDown}
+              />
+            )}
             <CommandList>
               <CommandEmpty>{translations("notResults")}</CommandEmpty>
               <CommandGroup>

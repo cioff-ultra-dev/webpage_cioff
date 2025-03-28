@@ -178,6 +178,7 @@ function Filters(props: FiltersProps): JSX.Element {
                 options={categoryOptions}
                 allowSelectAll={false}
                 defaultValue={defaultCategories}
+                showInputSearch={false}
               />
             </div>
           ) : null}
@@ -201,6 +202,7 @@ function Filters(props: FiltersProps): JSX.Element {
               disabled={isRegionLoading}
               placeholder={t("filters.selectRegions")}
               defaultValue={defaultRegions}
+              showInputSearch={false}
             />
           </div>
           <div

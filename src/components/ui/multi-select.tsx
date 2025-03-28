@@ -119,6 +119,7 @@ export interface MultiSelectProps
    * Optional, can be used to add custom styles.
    */
   className?: string;
+  showInputSearch?: boolean;
 }
 
 export const MultiSelect = React.forwardRef<
@@ -138,6 +139,7 @@ export const MultiSelect = React.forwardRef<
       asChild = false,
       className,
       hideSelectedValues = false,
+      showInputSearch = true,
       ...props
     },
     ref
@@ -290,10 +292,12 @@ export const MultiSelect = React.forwardRef<
           onEscapeKeyDown={() => setIsPopoverOpen(false)}
         >
           <Command>
-            <CommandInput
-              placeholder="Search..."
-              onKeyDown={handleInputKeyDown}
-            />
+            {showInputSearch && (
+              <CommandInput
+                placeholder="Search..."
+                onKeyDown={handleInputKeyDown}
+              />
+            )}
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
