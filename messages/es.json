@@ -857,5 +857,13 @@
         "five": "5 - Excelente"
       }
     }
+  },
+  "footer": {
+    "connect": "¡Conéctate con nosotros!",
+    "place": "Ayuntamiento",
+    "address": "1 Place Henri Coursaget",
+    "additional": "16500 Confolens",
+    "country": "Francia",
+    "become": "Hazte miembro"
   }
 }

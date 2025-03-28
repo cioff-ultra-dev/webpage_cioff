@@ -856,5 +856,13 @@
         "five": "5 - Excellent"
       }
     }
+  },
+  "footer": {
+    "connect": "Connectez-vous avec nous !",
+    "place": "Mairie",
+    "address": "1 Place Henri Coursaget",
+    "additional": "16500 Confolens",
+    "country": "France",
+    "become": "Devenez membre"
   }
 }
