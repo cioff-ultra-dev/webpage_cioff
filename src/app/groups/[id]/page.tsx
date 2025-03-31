@@ -348,46 +348,6 @@ export default async function GroupDetail({
                       ) : (
                         <ForbiddenContent />
                       )}
-                      <p>
-                        {festival?.langs.find((item) => item.l?.code === locale)
-                          ?.address ||
-                          festival?.langs.find(
-                            (item) => item.l?.code === defaultLocale
-                          )?.address}
-                      </p>
-                      <p className="flex gap-1 items-center">
-                        <Phone size={14} className="text-gray-500" />
-                        <span className="text-gray-500">{festival?.phone}</span>
-                      </p>
-                      <p className="flex gap-2 pt-6">
-                        {festival?.websiteLink ? (
-                          <Link
-                            href={festival?.websiteLink}
-                            target="_blank"
-                            title="Website"
-                          >
-                            <Link2 size={20} className="text-gray-500" />
-                          </Link>
-                        ) : null}
-                        {festival?.facebookLink ? (
-                          <Link
-                            href={festival?.facebookLink}
-                            target="_blank"
-                            title="Facebook Link"
-                          >
-                            <Facebook size={20} className="text-gray-500" />
-                          </Link>
-                        ) : null}
-                        {festival?.instagramLink ? (
-                          <Link
-                            href={festival?.instagramLink}
-                            target="_blank"
-                            title="Instagram Link"
-                          >
-                            <Instagram size={20} className="text-gray-500" />
-                          </Link>
-                        ) : null}
-                      </p>
                     </CardContent>
                   </Card>
                 </div>
