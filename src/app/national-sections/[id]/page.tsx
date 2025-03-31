@@ -21,6 +21,7 @@ import {
   NationalSectionTypeById,
 } from "@/db/queries/national-sections";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import Footer from "@/components/common/footer";
 
 function Positions({
   positions,
@@ -209,7 +210,7 @@ export default async function NationaSectionDetail({
                 ?.name}
           </span>
         </div>
-        <div className="flex flex-col w-full max-w-5xl mx-auto">
+        <div className="flex flex-col w-full max-w-5xl mx-auto mb-6">
           <Tabs defaultValue="profile" className="w-full">
             {/* <TabsList>
               <TabsTrigger value="profile">Profile</TabsTrigger>
@@ -299,21 +300,7 @@ export default async function NationaSectionDetail({
           </Tabs>
         </div>
       </main>
-      <footer className="py-4 sm:py-8 bg-gray-50">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-gray-400 text-xs sm:text-sm">info@cioff.org</p>
-          <Image
-            src="/logo.png"
-            width="100"
-            height="100"
-            alt="CIOFF Logo"
-            className="inline-block my-6"
-          />
-          <p className="text-gray-400 text-xs sm:text-sm">
-            © CIOFF 1998 - 2024 | cioff.org
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

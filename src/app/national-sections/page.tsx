@@ -1,9 +1,10 @@
-import { Header } from "@/components/common/header";
-import { getAllNationalSectionsPage } from "@/db/queries/national-sections";
 import { SquareArrowOutUpRight } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
-import Image from "next/image";
 import Link from "next/link";
+
+import { Header } from "@/components/common/header";
+import { getAllNationalSectionsPage } from "@/db/queries/national-sections";
+import Footer from "@/components/common/footer";
 
 export default async function NationaSectionList() {
   const locale = await getLocale();
@@ -13,7 +14,7 @@ export default async function NationaSectionList() {
   return (
     <div className="flex flex-col w-full min-h-screen">
       <Header className="border-b" text="text-black" />
-      <main className="flex flex-col flex-1 gap-4 md:gap-8 bg-gray-50">
+      <main className="flex flex-col flex-1 gap-4 md:gap-8 bg-gray-50 pb-8">
         <div className="flex flex-col w-full max-w-5xl mx-auto pt-8">
           <h1 className="text-3xl font-bold mb-8">{t("national_sections")}</h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -50,21 +51,7 @@ export default async function NationaSectionList() {
           </div>
         </div>
       </main>
-      <footer className="py-4 sm:py-8 bg-gray-50">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-gray-400 text-xs sm:text-sm">info@cioff.org</p>
-          <Image
-            src="/logo.png"
-            width="100"
-            height="100"
-            alt="CIOFF Logo"
-            className="inline-block my-6"
-          />
-          <p className="text-gray-400 text-xs sm:text-sm">
-            © CIOFF 1998 - 2024 | cioff.org
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

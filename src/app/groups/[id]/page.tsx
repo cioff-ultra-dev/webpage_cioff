@@ -1,21 +1,8 @@
 import Image from "next/image";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Header } from "@/components/common/header";
-import {
-  GalleryImageEvent,
-  CustomImage as GalleryImages,
-} from "@/components/common/event/gallery-images";
-import {
-  CarouselImage,
-  ICarouselImage,
-} from "@/components/common/carousel-image";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
-import { defaultLocale } from "@/i18n/config";
 import Link from "next/link";
+import { Image as GalleryImage } from "react-grid-gallery";
+import { auth } from "@/auth";
 import {
   Facebook,
   Instagram,
@@ -24,11 +11,23 @@ import {
   Youtube,
   Download,
 } from "lucide-react";
-import { Image as GalleryImage } from "react-grid-gallery";
+
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Header } from "@/components/common/header";
+import { GalleryImageEvent } from "@/components/common/event/gallery-images";
+import {
+  CarouselImage,
+  ICarouselImage,
+} from "@/components/common/carousel-image";
+import { defaultLocale } from "@/i18n/config";
 import { getGroupById } from "@/db/queries/groups";
-import { auth } from "@/auth";
 import { ForbiddenContent } from "@/components/common/forbidden-content";
 import Comments from "@/components/common/comments";
+import Footer from "@/components/common/footer";
 
 export interface CustomImage extends GalleryImage {}
 
@@ -75,7 +74,7 @@ export default async function GroupDetail({
   return (
     <div className="flex flex-col w-full min-h-screen">
       <Header className="border-b" text="text-black" />
-      <main className="flex flex-col flex-1 gap-4 md:gap-8 bg-gray-50">
+      <main className="flex flex-col flex-1 gap-4 md:gap-8 bg-gray-50 pb-8">
         <div className="relative w-full h-[400px]">
           <CarouselImage images={coverImages} />
           <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent">
@@ -523,21 +522,7 @@ export default async function GroupDetail({
           </Tabs>
         </div>
       </main>
-      <footer className="py-4 sm:py-8 bg-gray-50">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-gray-400 text-xs sm:text-sm">info@cioff.org</p>
-          <Image
-            src="/logo.png"
-            width="100"
-            height="100"
-            alt="CIOFF Logo"
-            className="inline-block my-6"
-          />
-          <p className="text-gray-400 text-xs sm:text-sm">
-            © CIOFF 1998 - 2024 | cioff.org
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
