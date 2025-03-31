@@ -1015,7 +1015,7 @@ export default function GroupForm({
                               value={field.value}
                               handleChange={field.onChange}
                               categories={categories}
-                              categoryType="festivals"
+                              categoryType="groups"
                               isLoading={false}
                             />
                           </FormControl>

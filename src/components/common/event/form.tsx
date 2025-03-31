@@ -1121,10 +1121,12 @@ export default function EventForm({
                           <CategoriesSelect
                             ref={field.ref}
                             disabled={isNSAccount}
-                            defaultValue={currentCategoriesSelected!}
+                            defaultValue={currentCategoriesSelected ?? []}
                             value={field.value}
                             handleChange={field.onChange}
-                            categories={categoryGroups}
+                            categories={categoryGroups.filter(
+                              (category) => category.slug !== "international" && category.slug !== "cioff"
+                            )}
                             categoryType="festivals"
                             isLoading={false}
                           />
