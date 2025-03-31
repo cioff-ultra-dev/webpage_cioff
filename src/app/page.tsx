@@ -149,7 +149,7 @@ export default async function Home() {
               asChild
               className="bg-white text-black rounded-xl text-xs px-3 h-10 hover:bg-white capitalize"
             >
-              <Link href="/about-us">{t("bannerLink1")}</Link>
+              <Link href="/unesco" prefetch>{t("bannerLink1")}</Link>
             </Button>
           </div>
         </div>
