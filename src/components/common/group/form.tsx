@@ -1829,6 +1829,7 @@ export default function GroupForm({
                         />
                       </div>
                     </div>
+                    <p className="text-gray-700 text-sm mt-6">{t("media_description")}</p>
                   </div>
                 </CardContent>
               </Card>
