@@ -17,7 +17,7 @@ function NewsDetailTemplate(props: NewsDetailTemplateProps) {
 
   return (
     <div>
-      <div className="relative h-[90vh]">
+      <div className="relative h-[90vh] bg-black/10">
         <Header
           text="text-white max-lg:text-black text-roboto text-2xl px-2 py-1 hover:bg-white/40 max-lg:hover:bg-black/20"
           className="absolute left-0 right-0 top-0"
