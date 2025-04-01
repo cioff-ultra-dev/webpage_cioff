@@ -1,7 +1,7 @@
 import { JSX } from "react";
 import { getTranslations } from "next-intl/server";
 import { format } from "date-fns";
-import Image from "next/image";
+import { GalleryImageEvent } from "@/components/common/event/gallery-images";
 
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -74,8 +74,26 @@ export default async function EventList(
   //const events = await getEventsByDate({ fromDate: new Date(), limit, locale });
 
   const items = EVENTS.map(({ country, end, start, title, image }) => (
-    <div key={country} className="flex justify-start py-8 border-b items-center">
-      <Image src={image} alt={title} width={100} height={120} className="mr-4" />
+    <div
+      key={country}
+      className="flex justify-start py-2 border-b items-center"
+    >
+      <div className="h-32 w-auto relative mr-4">
+        <GalleryImageEvent
+          gallery={[{ src: image, width: 1000, height: 1200 }]}
+          thumbnailStyle={{
+            height: 100,
+            width: 120,
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+          tileViewportStyle={{
+            height: 100,
+            width: 120,
+            borderRadius: "5px",
+          }}
+        />
+      </div>
       <div className="flex flex-col">
         <span className="text-secular text-sm">
           {format(new Date(start), "LLL, dd")}
