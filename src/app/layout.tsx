@@ -44,7 +44,7 @@ const fontPoppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: "CIOFF Website",
+  title: "CIOFF® International",
   description: "Small description for the CIOFF site",
 };
 
