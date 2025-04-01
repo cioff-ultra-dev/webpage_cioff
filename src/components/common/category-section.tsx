@@ -39,11 +39,11 @@ export async function CategorySection(
   ));
 
   return (
-    <Card className="col-span-1">
+    <Card className="col-span-1 pointer-events-none">
       <CardHeader>
         <CardTitle>{translations("detailFestivals.categories")}</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col flex-wrap gap-4 cursor-default">
+      <CardContent className="flex flex-col flex-wrap gap-4">
         {items}
       </CardContent>
     </Card>
