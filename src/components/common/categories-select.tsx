@@ -7,6 +7,8 @@ import { TreeNode } from "@/types/tree-select";
 
 import { TreeSelect } from "./tree-select/select";
 import { MultiSelectProps } from "../ui/multi-select";
+import { groupCategories } from "@/lib/utils";
+import { Locale } from "@/i18n/config";
 
 const FESTIVAL_CATEGORY_MAP = {
   music: "typeOfFestival",
@@ -50,42 +52,14 @@ export const CategoriesSelect = forwardRef<
   HTMLButtonElement,
   CategoriesSelectProps
 >((props, ref) => {
-  const { categories, categoryType, isLoading, handleChange, defaultValue=[] } =
+  const { categories, categoryType, isLoading, handleChange, defaultValue = [] } =
     props;
   const t = useTranslations();
-  const locale = useLocale();
+  const locale = useLocale() as Locale;
 
-  const categoryOptions = useMemo(() => {
-    const groupedItems = groupBy(categories??[], (item) =>
-      categoryType === "groups"
-        ? GROUP_CATEGORY_MAP[item.slug as keyof typeof GROUP_CATEGORY_MAP]
-        : FESTIVAL_CATEGORY_MAP[item.slug as keyof typeof FESTIVAL_CATEGORY_MAP]
-    );
-
-    delete groupedItems.undefined;
-
-    categoryType === "festivals" &&
-      groupedItems["styleOfFestival"]?.push(
-        categories.find((cat) => cat.slug === "mixed")!
-      );
-
-    return Object.keys(groupedItems).map((key) => {
-      const categories = groupedItems[key];
-
-      return {
-        label: t(`form.festival.tag.${key}`),
-        value: key,
-        children: categories?.length
-          ? categories.map((cat) => ({
-              label:
-                cat.langs.find((lang) => lang.l?.code === locale)?.name ??
-                cat.slug,
-              value: cat.id.toString(),
-            }))
-          : undefined,
-      };
-    }) as TreeNode[];
-  }, [categories, locale, t, categoryType]);
+  const categoryOptions = useMemo(() => groupCategories(categories, categoryType, locale, t),
+    [categories, locale, t, categoryType]
+  );
 
   return (
     <TreeSelect

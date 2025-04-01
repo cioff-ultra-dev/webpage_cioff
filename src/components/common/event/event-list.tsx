@@ -75,7 +75,7 @@ export default async function EventList(
 
   const items = EVENTS.map(({ country, end, start, title, image }) => (
     <div key={country} className="flex justify-start py-8 border-b items-center">
-      <Image src={image} alt={title} width={80} height={90} className="mr-4" />
+      <Image src={image} alt={title} width={100} height={120} className="mr-4" />
       <div className="flex flex-col">
         <span className="text-secular text-sm">
           {format(new Date(start), "LLL, dd")}

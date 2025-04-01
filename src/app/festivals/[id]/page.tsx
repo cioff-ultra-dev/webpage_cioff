@@ -37,20 +37,21 @@ import {
 } from "@/components/common/carousel-image";
 import Comments from "@/components/common/comments";
 import Footer from "@/components/common/footer";
+import { groupCategories } from "@/lib/utils";
+import { Locale } from "@/i18n/config";
+import { CategoriesType } from "@/db/queries/categories";
 
-export interface CustomImage extends GalleryImage {}
+export interface CustomImage extends GalleryImage { }
 
 export default async function EventDetail({
   params,
 }: {
   params: { id: string };
 }) {
-  const session = await auth();
-  const locale = await getLocale();
-  const formatter = await getFormatter();
+  const [session, locale, formatter, translations, t, categoryTranslations] = await Promise.all(
+    [auth(), getLocale(), getFormatter(), getTranslations("detailFestivals"), getTranslations("page.festival"), getTranslations()]);
+
   const festival = await getFestivalById(Number(params.id), locale);
-  const translations = await getTranslations("detailFestivals");
-  const t = await getTranslations("page.festival");
 
   let youtubeId = "";
 
@@ -69,15 +70,18 @@ export default async function EventDetail({
 
   const coverImages: ICarouselImage[] = festival?.coverPhotos.length
     ? festival?.coverPhotos.map(({ photo = {} }) => ({
-        name: photo?.name!,
-        url: photo?.url!,
-      }))
+      name: photo?.name!,
+      url: photo?.url!,
+    }))
     : [
-        {
-          url: festival?.coverPhoto?.url ?? "/placeholder.svg",
-          name: festival?.coverPhoto?.name ?? "default",
-        },
-      ];
+      {
+        url: festival?.coverPhoto?.url ?? "/placeholder.svg",
+        name: festival?.coverPhoto?.name ?? "default",
+      },
+    ];
+
+  const categories = festival?.festivalsToCategories?.map(({ category }) => category) as CategoriesType
+  const categoryGroups = groupCategories(categories, "festivals", locale as Locale, categoryTranslations)
 
   return (
     <div className="flex flex-col w-full min-h-screen">
@@ -194,11 +198,20 @@ export default async function EventDetail({
                     <CardHeader>
                       <CardTitle>{translations("categories")}</CardTitle>
                     </CardHeader>
-                    <CardContent className="flex flex-wrap gap-2">
-                      {festival?.festivalsToCategories.map((item) => (
-                        <Badge key={`category-${item.categoryId}`}>
-                          {item?.category?.langs.at(0)?.name}
-                        </Badge>
+                    <CardContent className="flex flex-col flex-wrap gap-4 cursor-default">
+                      {categoryGroups.map((item) => (
+                        <div key={item.value}>
+                          <p className="mb-2">{item.label}</p>
+                          <div className="flex flex-wrap gap-2">
+                            {
+                              item.children?.map(category => (
+                                <Badge key={category.value}>
+                                  {category.label}
+                                </Badge>
+                              ))
+                            }
+                          </div>
+                        </div>
                       ))}
                     </CardContent>
                   </Card>
