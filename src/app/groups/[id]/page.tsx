@@ -28,6 +28,9 @@ import { getGroupById } from "@/db/queries/groups";
 import { ForbiddenContent } from "@/components/common/forbidden-content";
 import Comments from "@/components/common/comments";
 import Footer from "@/components/common/footer";
+import { Locale } from "@/i18n/config";
+import { CategoriesType } from "@/db/queries/categories";
+import { CategorySection } from "@/components/common/category-section";
 
 export interface CustomImage extends GalleryImage {}
 
@@ -70,6 +73,10 @@ export default async function GroupDetail({
           name: festival?.coverPhoto?.name ?? "default",
         },
       ];
+
+      const categories = festival?.groupToCategories?.map(
+          ({ category }) => category
+        ) as CategoriesType;
 
   return (
     <div className="flex flex-col w-full min-h-screen">
@@ -245,18 +252,11 @@ export default async function GroupDetail({
                   </Card>
                 </div>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <Card className="col-span-1">
-                    <CardHeader>
-                      <CardTitle>Categories</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex flex-wrap gap-2">
-                      {festival?.groupToCategories.map((item) => (
-                        <Badge key={`category-${item.categoryId}`}>
-                          {item?.category?.langs.at(0)?.name}
-                        </Badge>
-                      ))}
-                    </CardContent>
-                  </Card>
+                  <CategorySection
+                    categories={categories}
+                    locale={locale as Locale}
+                    categoryType="festivals"
+                  />
                   <Card className="col-span-1">
                     <CardHeader>
                       <CardTitle>Contact</CardTitle>
