@@ -1780,45 +1780,55 @@ export default function GroupForm({
                       value={currentGroup?.logoId ?? undefined}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="video">{t("video")}</Label>
-                    <Input
-                      id="video"
-                      name="youtube"
-                      placeholder="YouTube Link"
-                      defaultValue={currentGroup?.youtubeId ?? undefined}
-                      disabled={isNSAccount}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="facebook">{t("facebook_link")}</Label>
-                    <Input
-                      id="facebook"
-                      name="facebook"
-                      type="url"
-                      defaultValue={currentGroup?.facebookLink ?? undefined}
-                      disabled={isNSAccount}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="instagram">{t("instagram_link")}</Label>
-                    <Input
-                      id="instagram"
-                      type="url"
-                      name="instagram"
-                      defaultValue={currentGroup?.instagramLink ?? undefined}
-                      disabled={isNSAccount}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="website">{t("website_link")}</Label>
-                    <Input
-                      id="website"
-                      type="url"
-                      name="website"
-                      defaultValue={currentGroup?.websiteLink ?? undefined}
-                      disabled={isNSAccount}
-                    />
+                  <div>
+                    <Label className="text-xl">{t("social_media")}</Label>
+                    <div className="space-y-2 mt-3">
+                      <div>
+                        <Label htmlFor="youtube">Youtube</Label>
+                        <Input
+                          id="youtube"
+                          name="youtube"
+                          placeholder="https://www.youtube.com"
+                          defaultValue={currentGroup?.youtubeId ?? undefined}
+                          disabled={isNSAccount}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="facebook">Facebook</Label>
+                        <Input
+                          id="facebook"
+                          name="facebook"
+                          type="url"
+                          placeholder="https://www.facebook.com"
+                          defaultValue={currentGroup?.facebookLink ?? undefined}
+                          disabled={isNSAccount}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="instagram">Instagram</Label>
+                        <Input
+                          id="instagram"
+                          type="url"
+                          name="instagram"
+                          placeholder="https://www.instagram.com"
+                          defaultValue={
+                            currentGroup?.instagramLink ?? undefined
+                          }
+                          disabled={isNSAccount}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="website">{t("website_link")}</Label>
+                        <Input
+                          id="website"
+                          type="url"
+                          name="website"
+                          placeholder="https://www.google.com"
+                          defaultValue={currentGroup?.websiteLink ?? undefined}
+                          disabled={isNSAccount}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

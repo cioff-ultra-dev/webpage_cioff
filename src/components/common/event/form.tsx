@@ -242,7 +242,6 @@ export default function EventForm({
   const t = useTranslations("form.festival");
   const router = useRouter();
   const isNSAccount = session?.user.role?.name === "National Sections";
-  console.log(currentCategoriesSelected);
   const [selectedPlace, setSelectedPlace] =
     useState<google.maps.places.PlaceResult | null>(null);
   const [selectedTransportPlace, setSelectedTransportPlace] =
@@ -1125,7 +1124,9 @@ export default function EventForm({
                             value={field.value}
                             handleChange={field.onChange}
                             categories={categoryGroups.filter(
-                              (category) => category.slug !== "international" && category.slug !== "cioff"
+                              (category) =>
+                                category.slug !== "international" &&
+                                category.slug !== "cioff"
                             )}
                             categoryType="festivals"
                             isLoading={false}
@@ -2006,48 +2007,57 @@ export default function EventForm({
                     />
                   </div>
                   <div>
-                    <Label htmlFor="youtubeId">{t("youtube")}</Label>
-                    <Input
-                      id="youtubeId"
-                      name="youtubeId"
-                      placeholder="YouTube Link"
-                      defaultValue={currentFestival?.youtubeId ?? undefined}
-                      disabled={isNSAccount}
-                    />
-                  </div>
-                  <div>
-                    <Label>{t("social_media")}</Label>
-                    <div className="space-y-2">
+                    <Label className="text-xl">{t("social_media")}</Label>
+                    <div className="space-y-2 mt-3">
                       <Input
                         name="socialId"
                         disabled={isNSAccount}
                         type="hidden"
                         defaultValue={currentFestival?.social?.id || 0}
                       />
-                      <Input
-                        name="facebook"
-                        placeholder={t("facebook_link")}
-                        defaultValue={
-                          currentFestival?.social?.facebookLink || undefined
-                        }
-                        disabled={isNSAccount}
-                      />
-                      <Input
-                        name="instagram"
-                        placeholder={t("instagram_link")}
-                        defaultValue={
-                          currentFestival?.social?.instagramLink || undefined
-                        }
-                        disabled={isNSAccount}
-                      />
-                      <Input
-                        name="website"
-                        placeholder={t(t("website_link"))}
-                        defaultValue={
-                          currentFestival?.social?.websiteLink || undefined
-                        }
-                        disabled={isNSAccount}
-                      />
+                      <div>
+                        <Label htmlFor="youtubeId">{t("youtube")}</Label>
+                        <Input
+                          id="youtubeId"
+                          name="youtubeId"
+                          placeholder="https://www.youtube.com"
+                          defaultValue={currentFestival?.youtubeId ?? undefined}
+                          disabled={isNSAccount}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="facebook">Facebook</Label>
+                        <Input
+                          name="facebook"
+                          placeholder="https://www.facebook.com"
+                          defaultValue={
+                            currentFestival?.social?.facebookLink || undefined
+                          }
+                          disabled={isNSAccount}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="instagram">Instagram</Label>
+                        <Input
+                          name="instagram"
+                          placeholder="https://www.instagram.com"
+                          defaultValue={
+                            currentFestival?.social?.instagramLink || undefined
+                          }
+                          disabled={isNSAccount}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="website">{t("website_link")}</Label>
+                        <Input
+                          name="website"
+                          placeholder="https://www.google.com"
+                          defaultValue={
+                            currentFestival?.social?.websiteLink || undefined
+                          }
+                          disabled={isNSAccount}
+                        />
+                      </div>
                     </div>
                   </div>
                 </CardContent>
