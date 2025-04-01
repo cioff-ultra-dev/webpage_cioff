@@ -17,7 +17,27 @@ function NewsDetailTemplate(props: NewsDetailTemplateProps) {
 
   return (
     <div>
-      <Header text="text-black" className="border-b" />
+      <div className="relative h-[90vh]">
+        <Header
+          text="text-white max-lg:text-black text-roboto text-2xl px-2 py-1 hover:bg-white/40 max-lg:hover:bg-black/20"
+          className="absolute left-0 right-0 top-0"
+        />
+        <div className="absolute w-full h-full">
+          {subPage.mainImage ? (
+            <Image
+              src={subPage.mainImage}
+              layout="fill"
+              objectFit="cover"
+              quality={100}
+              alt="main-image"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-200 flex justify-center items-center">
+              Image here
+            </div>
+          )}
+        </div>
+      </div>
       <main className="flex flex-col items-center pb-5 min-h-[90vh]">
         <div className="w-full h-full flex flex-col bg-white py-16 justify-center items-center">
           <div className="flex flex-col items-center w-full mb-12">
@@ -32,24 +52,7 @@ function NewsDetailTemplate(props: NewsDetailTemplateProps) {
                   .join(".")}
               </h3>
             ) : null}
-            <h1 className="font-bold mb-12 text-2xl">{title}</h1>
-            <div
-              style={{ position: "relative", width: "100%", height: "40rem" }}
-            >
-              {subPage.mainImage ? (
-                <Image
-                  src={subPage.mainImage}
-                  layout="fill"
-                  objectFit="cover"
-                  quality={100}
-                  alt="main-image"
-                />
-              ) : (
-                <div className="w-full h-full bg-gray-200 flex justify-center items-center">
-                  Image here
-                </div>
-              )}
-            </div>
+            <h1 className="font-bold mb-12 text-4xl text-secular">{title}</h1>
           </div>
           <div className="container h-full bg-white">
             <RenderSections sections={sections ?? []} />
