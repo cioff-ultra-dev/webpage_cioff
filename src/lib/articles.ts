@@ -287,7 +287,7 @@ export async function getAllSubPages({
         texts: true,
         country: true,
       },
-      orderBy: (subPages, { desc }) => [desc(subPages.createdAt)],
+      orderBy: (subPages, { desc }) => [desc(subPages.originalDate)],
       limit,
     });
 
