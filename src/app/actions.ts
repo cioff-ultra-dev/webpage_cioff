@@ -2381,6 +2381,9 @@ export async function updateGroup(formData: FormData) {
           "location",
           "lng",
           "lat",
+          "generalDirectorPhotoId",
+          "artisticDirectorPhotoId",
+          "musicalDirectorPhotoId",
         ]),
       })
       .returning();

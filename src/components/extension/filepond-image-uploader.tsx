@@ -58,7 +58,6 @@ export function FilepondImageUploader({
         }}
         name={name}
         onupdatefiles={(values: FilePondFile[]) => {
-          console.log("onupdatefiles", values);
           setFiles(values.map((item) => item.file as File));
         }}
         onremovefile={onRemoveCoverImages}
