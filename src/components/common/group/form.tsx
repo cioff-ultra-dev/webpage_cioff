@@ -303,13 +303,13 @@ export default function GroupForm({
       _styleOfGroup: undefined,
       membersNumber: currentGroup?.membersNumber,
       _specificRegion: currentGroup?.specificRegion
-        ? String(currentGroup?.specificRegion)
+        ? String(currentGroup?.specificRegion?.id)
         : undefined,
       _isAbleToTravel: currentGroup?.isAbleTravel ?? false,
       _isAbleToTravelToLiveMusic: currentGroup?.isAbleTravelLiveMusic ?? false,
       _specificDate: {
-        from: currentGroup?.specificTravelDateFrom?.toUTCString() ?? "",
-        to: currentGroup?.specificTravelDateTo?.toUTCString() ?? "",
+        from: currentGroup?.specificTravelDateFrom?.toISOString() ?? "",
+        to: currentGroup?.specificTravelDateTo?.toISOString() ?? "",
       },
       _lang: {
         id: currentLang?.id ?? 0,
@@ -1609,8 +1609,8 @@ export default function GroupForm({
                                     }}
                                     onValueChange={(rangeValue) => {
                                       onChange({
-                                        from: rangeValue?.from?.toUTCString(),
-                                        to: rangeValue?.to?.toUTCString() ?? "",
+                                        from: rangeValue?.from?.toISOString(),
+                                        to: rangeValue?.to?.toISOString() ?? "",
                                       });
                                     }}
                                   />
