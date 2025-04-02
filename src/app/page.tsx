@@ -171,12 +171,6 @@ export default async function Home() {
               resultClasses="max-sm:columns-1 max-md:columns-2"
             />
           </div>
-          <Button
-            size="sm"
-            className="rounded-xl text-roboto font-semibold text-sm px-4 text-white hover:bg-white hover:text-primary hover:border hover:border-primary mt-8 mb-16 capitalize"
-          >
-            <Link href="/news">{t("moreEvents")}</Link>
-          </Button>
         </section>
         <section className="bg-gray-900 py-4 sm:py-8 hidden">
           <div className="container mx-auto px-4">
