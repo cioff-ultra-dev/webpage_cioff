@@ -37,13 +37,12 @@ export function CarouselImage(props: CarouselProps) {
   const items = useMemo(
     () =>
       images.map((image, index) => (
-        <CarouselItem key={index} className="w-full">
+        <CarouselItem key={index} className="w-full relative">
           <Image
             key={index}
             src={image.url}
             alt={image.name}
-            width={200}
-            height={400}
+            fill
             className="w-full h-full object-cover"
             onError={(e) => (e.currentTarget.src = imageError)}
           />

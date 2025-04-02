@@ -326,7 +326,7 @@ export default function EventForm({
           lng: item.lng ?? "",
           location: item.location ?? "",
         })) || [],
-      _email: currentOwner?.user?.email,
+      _email: currentFestival?.email ??currentOwner?.user?.email,
       _lang: {
         id: currentLang?.id ?? 0,
         name: currentLang?.name,

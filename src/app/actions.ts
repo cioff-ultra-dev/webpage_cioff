@@ -1609,6 +1609,7 @@ export async function updatePasswordFields(formData: FormData) {
 
 export async function updateFestival(formData: FormData) {
   const locale = await getLocale();
+  const email = formData.get("_email") as string;
   const id = Number(formData.get("id"));
   const langId = Number(formData.get("_lang.id"));
   const name = formData.get("_lang.name") as string;
@@ -1716,6 +1717,7 @@ export async function updateFestival(formData: FormData) {
         youtubeId,
         slug: slug(name),
         countryId,
+        email,
       })
       .onConflictDoUpdate({
         target: festivals.id,
@@ -1733,16 +1735,17 @@ export async function updateFestival(formData: FormData) {
           "logoId",
           "youtubeId",
           "accomodationPhotoId",
+          "email",
         ]),
       })
       .returning();
 
-    if (coverPhotos.length) {
-      const coverPhotosRemoved = await tx
-        .delete(festivalCoverPhotos)
-        .where(eq(festivalCoverPhotos.festivalId, currentFestival.id))
-        .returning();
+    const coverPhotosRemoved = await tx
+      .delete(festivalCoverPhotos)
+      .where(eq(festivalCoverPhotos.festivalId, currentFestival.id))
+      .returning();
 
+    if (coverPhotos.length) {
       await tx.delete(storages).where(
         inArray(
           storages.id,

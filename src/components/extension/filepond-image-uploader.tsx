@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { FilePond, FilePondProps, registerPlugin } from "react-filepond";
-import { FilePondFile } from "filepond";
+import { FilePondErrorDescription, FilePondFile } from "filepond";
 
 import "filepond/dist/filepond.min.css";
 
@@ -24,10 +24,25 @@ registerPlugin(
 export function FilepondImageUploader({
   defaultFiles = [],
   name = "_image",
+  onremovefile,
   ...props
 }: FilePondProps & { defaultFiles?: FilePondProps["files"] }) {
   const [files, setFiles] = useState<FilePondProps["files"]>(defaultFiles);
   const fileRef = useRef(null);
+
+  const onRemoveCoverImages = (
+    error: FilePondErrorDescription | null,
+    file: FilePondFile
+  ) => {
+    if (error) {
+      console.error(error);
+
+      return;
+    }
+
+    setFiles(files?.filter((cover: any) => cover?.name !== file.filename));
+    onremovefile?.(error, file);
+  };
 
   return (
     <div className="w-full">
@@ -43,8 +58,10 @@ export function FilepondImageUploader({
         }}
         name={name}
         onupdatefiles={(values: FilePondFile[]) => {
+          console.log("onupdatefiles", values);
           setFiles(values.map((item) => item.file as File));
         }}
+        onremovefile={onRemoveCoverImages}
         {...props}
       />
     </div>
