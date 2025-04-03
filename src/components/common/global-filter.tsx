@@ -53,9 +53,6 @@ interface SearchFormElement extends HTMLFormElement {
   readonly elements: FormElements;
 }
 
-preload("/api/filter?categories=[]&countryId=0&page=1", fetcher);
-preload("/api/filter/country", fetcher);
-
 export function WrapperFilter({
   searchParams,
   categories,
@@ -71,7 +68,7 @@ export function WrapperFilter({
   const formatter = useFormatter();
 
   const [tabSelected, setTabSelected] = useState<string>(
-    (searchParams.type as string) || "festivals"
+    (searchParams?.type as string) || "festivals"
   );
   const [selectedRegions, setSelectedRegions] = useState<string[]>(() =>
     searchParams?.regions ? JSON.parse(searchParams?.regions as string) : []
