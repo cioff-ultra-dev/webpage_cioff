@@ -133,12 +133,11 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
               <FilterCard
                 key={id}
                 title={lang.name}
-                location={countryLang.name}
-                description={lang?.about ?? tCommon("noDescription")}
                 images={[countryUrl || "/logo.png"]}
                 icon={<Globe />}
                 hideDate
                 detailLink={`/national-sections/${id}`}
+                hideLocation
               />
             ) : (
               <ListItem

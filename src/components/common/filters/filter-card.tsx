@@ -28,6 +28,7 @@ export interface FilterCardProps {
   endDate?: Date;
   hideDate?: boolean;
   description?: string;
+  hideLocation?:boolean;
 }
 
 export function FilterCard(props: FilterCardProps): JSX.Element {
@@ -43,6 +44,7 @@ export function FilterCard(props: FilterCardProps): JSX.Element {
     hideDate = false,
     description,
     detailLink,
+    hideLocation = false,
   } = props;
 
   const formatter = useFormatter();
@@ -116,12 +118,12 @@ export function FilterCard(props: FilterCardProps): JSX.Element {
           <p className="text-roboto text-xs">4.5/5</p>
         </span> */}
         <label
-          className="line-clamp-1 text-base font-medium text-roboto cursor-pointer mt-3"
+          className="line-clamp-1 text-base font-medium text-roboto cursor-pointer mt-4"
           onClick={handleItemDetail}
         >
           {title}
         </label>
-        <p
+        {!hideLocation && <p
           className="flex gap-1 items-center w-full mb-2 cursor-pointer"
           onClick={handleClick}
         >
@@ -131,7 +133,7 @@ export function FilterCard(props: FilterCardProps): JSX.Element {
           <span className="text-gray-500 text-xs line-clamp-1 text-roboto">
             {location}
           </span>
-        </p>
+        </p>}
         {!hideDate && (
           <p className="flex gap-1 items-center">
             <div className="w-5 h-5">
