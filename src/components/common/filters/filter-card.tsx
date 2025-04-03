@@ -7,7 +7,6 @@ import {
 } from "react";
 import { MapPin, CalendarRange } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import {
@@ -48,11 +47,10 @@ export function FilterCard(props: FilterCardProps): JSX.Element {
 
   const formatter = useFormatter();
   const translations = useTranslations("common");
-  const router = useRouter();
 
   const handleItemDetail = useCallback(
-    () => router.push(detailLink),
-    [router, detailLink]
+    () => window.open(detailLink),
+    [detailLink]
   );
 
   const CoverImages: ICarouselImage[] = useMemo(
