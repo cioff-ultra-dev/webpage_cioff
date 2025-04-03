@@ -3,7 +3,6 @@ import { useTranslations, useLocale } from "next-intl";
 import { DateRange } from "react-day-picker";
 import { MultiSelectProps } from "@/components/ui/multi-select";
 import { Grid2X2Plus, Earth, Globe, CalendarIcon } from "lucide-react";
-import groupBy from "object.groupby";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -20,40 +19,11 @@ import {
 import { SearchIcon } from "@/components/common/icons/search";
 import { SearchFormElement } from "@/types/send-email";
 import { cn } from "@/lib/utils";
-import { TreeNode } from "@/types/tree-select";
+import { groupCategories } from "@/lib/utils";
 import { CategoriesType } from "@/db/queries/categories";
+import { Locale } from "@/i18n/config";
 
 import { TreeSelect } from "../../tree-select/select";
-
-const FESTIVAL_CATEGORY_MAP = {
-  music: "typeOfFestival",
-  dance: "typeOfFestival",
-  "dance-music": "typeOfFestival",
-  "youth-adults": "ageParticipants",
-  seniors: "ageParticipants",
-  "teenagers-children": "ageParticipants",
-  mixed: "ageParticipants",
-  authentic: "styleOfFestival",
-  elaborado: "styleOfFestival",
-  stylized: "styleOfFestival",
-  cioff: "status",
-  international: "status",
-  "host-families": "typeOfAccomodation",
-  "hotel-hostel-campus": "typeOfAccomodation",
-  "schools-gym-halls": "typeOfAccomodation",
-};
-
-const GROUP_CATEGORY_MAP = {
-  music: "groupType",
-  dance: "groupType",
-  "dance-music": "groupType",
-  "youth-adults": "groupAge",
-  seniors: "groupAge",
-  "teenagers-children": "groupAge",
-  authentic: "styleGroup",
-  elaborado: "styleGroup",
-  stylized: "styleGroup",
-};
 
 interface FiltersProps {
   regions: MultiSelectProps["options"];
@@ -98,37 +68,7 @@ function Filters(props: FiltersProps): JSX.Element {
   const t = useTranslations();
   const locale = useLocale();
 
-  const categoryOptions = useMemo(() => {
-    const groupedItems = groupBy(categories, (item) =>
-      categoryType === "groups"
-        ? GROUP_CATEGORY_MAP[item.slug as keyof typeof GROUP_CATEGORY_MAP]
-        : FESTIVAL_CATEGORY_MAP[item.slug as keyof typeof FESTIVAL_CATEGORY_MAP]
-    );
-
-    delete groupedItems.undefined;
-
-    categoryType === "festivals" &&
-      groupedItems["styleOfFestival"]?.push(
-        categories.find((cat) => cat.slug === "mixed")!
-      );
-
-    return Object.keys(groupedItems).map((key) => {
-      const categories = groupedItems[key];
-
-      return {
-        label: t(`form.festival.tag.${key}`),
-        value: key,
-        children: categories?.length
-          ? categories.map((cat) => ({
-              label:
-                cat.langs.find((lang) => lang.l?.code === locale)?.name ??
-                cat.slug,
-              value: cat.id.toString(),
-            }))
-          : undefined,
-      };
-    }) as TreeNode[];
-  }, [categories, locale, t, categoryType]);
+  const categoryOptions = useMemo(() => groupCategories(categories, categoryType, locale as Locale, t), [categories, locale, t, categoryType]);
 
   return (
     <Card>
