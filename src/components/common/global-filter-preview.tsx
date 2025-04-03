@@ -422,7 +422,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
             <div className="flex-1 h-full">
               <Map
                 mapId={"bf51a910020fa25a"}
-                style={{ width: "100%", height: "60vh" }}
+                style={{ width: "100%", height: "70vh" }}
                 defaultCenter={{
                   lat: 40,
                   lng: map?.getCenter()?.lng() || 0,
@@ -430,7 +430,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                 defaultZoom={2}
                 gestureHandling="greedy"
                 disableDefaultUI={true}
-                minZoom={3}
+                minZoom={2}
                 zoomControl
                 scrollwheel={false}
               >
@@ -487,7 +487,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                   <div className="flex-1 h-full">
                     <Map
                       mapId={"bf51a910020fa25a"}
-                      style={{ width: "100%", height: "60vh" }}
+                      style={{ width: "100%", height: "70vh" }}
                       defaultCenter={{
                         lat: 40,
                         lng: map?.getCenter()?.lng() || 0,
@@ -495,7 +495,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                       defaultZoom={2}
                       gestureHandling="greedy"
                       disableDefaultUI={true}
-                      minZoom={3.5}
+                      minZoom={2}
                       zoomControl
                       scrollwheel={false}
                     >
@@ -590,7 +590,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                   <div className="flex-1 h-full">
                     <Map
                       mapId={"bf51a910020fa25a"}
-                      style={{ width: "100%", height: "60vh" }}
+                      style={{ width: "100%", height: "70vh" }}
                       defaultCenter={{
                         lat: 40,
                         lng: map?.getCenter()?.lng() || 0,
@@ -598,7 +598,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                       defaultZoom={2}
                       gestureHandling="greedy"
                       disableDefaultUI={true}
-                      minZoom={3}
+                      minZoom={2}
                       zoomControl
                       scrollwheel={false}
                     >

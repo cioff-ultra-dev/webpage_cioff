@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { TabsContent } from "@radix-ui/react-tabs";
 import useSWR, { preload } from "swr";
 import useSWRInfinite from "swr/infinite";
-import {  CalendarIcon, Users } from "lucide-react";
+import { CalendarIcon, Users } from "lucide-react";
 import {
   APIProvider,
   useMap,
@@ -200,25 +200,31 @@ export function WrapperFilter({
   }, [regionCast, locale]);
 
   const countriesMap: MultiSelectProps["options"] = useMemo(() => {
-    return countryCast.filter((value, index, self) =>
-      index === self.findIndex((t) => t.countryId === value.countryId)
-    ).map((country) => {
-      return {
-        label: country.country || "",
-        value: String(country.countryId),
-      };
-    });
+    return countryCast
+      .filter(
+        (value, index, self) =>
+          index === self.findIndex((t) => t.countryId === value.countryId)
+      )
+      .map((country) => {
+        return {
+          label: country.country || "",
+          value: String(country.countryId),
+        };
+      });
   }, [countryCast]);
 
   const countriesGroupMap: MultiSelectProps["options"] = useMemo(() => {
-    return countryGroupCast.filter((value, index, self) =>
-      index === self.findIndex((t) => t.countryId === value.countryId)
-    ).map((country) => {
-      return {
-        label: country.country || "",
-        value: String(country.countryId),
-      };
-    });
+    return countryGroupCast
+      .filter(
+        (value, index, self) =>
+          index === self.findIndex((t) => t.countryId === value.countryId)
+      )
+      .map((country) => {
+        return {
+          label: country.country || "",
+          value: String(country.countryId),
+        };
+      });
   }, [countryGroupCast]);
 
   // https://developers.google.com/maps/documentation/javascript/reference/places-autocomplete-service#AutocompleteSessionToken
@@ -407,7 +413,7 @@ export function WrapperFilter({
                 <div className="flex-1 rounded-lg">
                   <Map
                     mapId={"bf51a910020fa25a"}
-                    style={{ width: "100%", height: "60vh" }}
+                    style={{ width: "100%", height: "70vh" }}
                     defaultCenter={{
                       lat: 40,
                       lng: map?.getCenter()?.lng() || 0,
@@ -415,7 +421,7 @@ export function WrapperFilter({
                     defaultZoom={2}
                     gestureHandling="greedy"
                     disableDefaultUI={true}
-                    minZoom={3}
+                    minZoom={2}
                     zoomControl
                     scrollwheel={false}
                   >
@@ -510,7 +516,7 @@ export function WrapperFilter({
                 <div className="flex-1 rounded-lg">
                   <Map
                     mapId={"bf51a910020fa25a"}
-                    style={{ width: "100%", height: "60vh" }}
+                    style={{ width: "100%", height: "70vh" }}
                     defaultCenter={{
                       lat: 40,
                       lng: map?.getCenter()?.lng() || 0,
@@ -518,7 +524,7 @@ export function WrapperFilter({
                     defaultZoom={2}
                     gestureHandling="greedy"
                     disableDefaultUI={true}
-                    minZoom={3}
+                    minZoom={2}
                     zoomControl
                     scrollwheel={false}
                   >
