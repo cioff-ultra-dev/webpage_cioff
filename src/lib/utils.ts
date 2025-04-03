@@ -67,7 +67,6 @@ const FESTIVAL_CATEGORY_MAP = {
   "youth-adults": "ageParticipants",
   seniors: "ageParticipants",
   "teenagers-children": "ageParticipants",
-  mixed: "ageParticipants",
   authentic: "styleOfFestival",
   elaborado: "styleOfFestival",
   stylized: "styleOfFestival",
@@ -98,11 +97,10 @@ export function groupCategories(categories: CategoriesType, categoryType: "group
   );
 
   delete groupedItems.undefined;
-
-  categoryType === "festivals" && categories.some((cat) => cat.slug === "mixed") &&
-    groupedItems["styleOfFestival"]?.push(
-      categories.find((cat) => cat.slug === "mixed")!
-    );
+  // categoryType === "festivals" && categories.some((cat) => cat.slug === "mixed") &&
+  //   groupedItems["styleOfFestival"]?.push(
+  //     categories.find((cat) => cat.slug === "mixed")!
+  //   );
 
   return Object.keys(groupedItems).map((key, index) => {
     const categories = groupedItems[key];
