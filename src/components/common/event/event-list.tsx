@@ -88,6 +88,7 @@ export default async function EventList(
       >
         <div className="h-32 w-auto relative mr-4">
           <GalleryImageEvent
+          containerClass="h-[100px] w-[120px]"
             gallery={[{ src: image, width: 1000, height: 1200 }]}
             thumbnailStyle={{
               height: 100,
