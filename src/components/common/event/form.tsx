@@ -326,7 +326,7 @@ export default function EventForm({
           lng: item.lng ?? "",
           location: item.location ?? "",
         })) || [],
-      _email: currentFestival?.email ??currentOwner?.user?.email,
+      _email: currentFestival?.email ?? currentOwner?.user?.email,
       _lang: {
         id: currentLang?.id ?? 0,
         name: currentLang?.name,
@@ -1608,306 +1608,6 @@ export default function EventForm({
               </Card>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="">
-                <CardHeader>
-                  <CardTitle>{t("status_and_details")}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <FormField
-                      control={form.control}
-                      name="_status"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                            {t("_status")}
-                          </FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            name={field.name}
-                            disabled
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select status" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {statuses.map((status) => (
-                                <SelectItem
-                                  key={status.slug}
-                                  value={String(status.id)}
-                                >
-                                  {status.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  {currentStatusId &&
-                  statuses.some(
-                    (status) =>
-                      String(status.id) === currentStatusId &&
-                      status.slug === "recognized-festival"
-                  ) ? (
-                    <>
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="text-base">
-                            {t("recognition")}
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                          <div>
-                            <FormField
-                              control={form.control}
-                              name="_recognizedSince"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>{t("recognized_since")}</FormLabel>
-                                  <FormControl>
-                                    <Input {...field} disabled={isNSAccount} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                          <div>
-                            <FormField
-                              control={form.control}
-                              name="_recognizedRange"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>
-                                    {t("range_last_recognition")}
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...field}
-                                      placeholder="e.g., 2014 - 2024"
-                                      disabled={isNSAccount}
-                                    />
-                                  </FormControl>
-                                  {/* <FormDescription> */}
-                                  {/**/}
-                                  {/* </FormDescription> */}
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                        </CardContent>
-                      </Card>
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="text-base">
-                            {t("type_compensation")}
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                          <div>
-                            <FormField
-                              control={form.control}
-                              name="_typeOfCompensation"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
-                                    name={field.name}
-                                    disabled={isNSAccount}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger>
-                                        <SelectValue
-                                          placeholder={t(
-                                            "select_type_compensation_display"
-                                          )}
-                                        />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      <SelectItem value="financial">
-                                        {t("financial_compensation")}
-                                      </SelectItem>
-                                      <SelectItem value="in-kind">
-                                        {t("in_kind_compensation")}
-                                      </SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <FormDescription>
-                                    {t("you_can_manage_type_compensation")}
-                                  </FormDescription>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                          {currentCompensation === "financial" ? (
-                            <div>
-                              <FormField
-                                control={form.control}
-                                name="_financialCompensation"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="How much?"
-                                        {...field}
-                                        type="number"
-                                        disabled={isNSAccount}
-                                      />
-                                    </FormControl>
-                                    <FormDescription>
-                                      Please, provide the value required on this
-                                      field.
-                                    </FormDescription>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                          ) : null}
-                          {currentCompensation === "in-kind" ? (
-                            <div>
-                              <FormField
-                                control={form.control}
-                                name="_inKindCompensation"
-                                render={({ field }) => (
-                                  <FormItem className="space-y-3">
-                                    <FormControl>
-                                      <Input
-                                        {...field}
-                                        value={field.value || ""}
-                                        placeholder="Provide your in-kind compensation"
-                                        disabled={isNSAccount}
-                                      />
-                                    </FormControl>
-                                    <FormDescription>
-                                      Please, provide the value required on this
-                                      field.
-                                    </FormDescription>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                          ) : null}
-                        </CardContent>
-                      </Card>
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="text-base">
-                            Components
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div>
-                            <FormField
-                              control={form.control}
-                              name="_componentsRecognized"
-                              render={({ field }) => {
-                                const options: MultiSelectProps["options"] =
-                                  componentsRecognized?.map((item) => ({
-                                    value: String(item.id) || "",
-                                    label: item.name || "",
-                                    caption: "",
-                                  })) ?? [];
-                                return (
-                                  <FormItem>
-                                    <FormControl>
-                                      <MultiSelect
-                                        options={options}
-                                        defaultValue={field.value}
-                                        disabled={isNSAccount}
-                                        onValueChange={(values) => {
-                                          field.onChange(values);
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormDescription>
-                                      Select the components provided by your
-                                      type of status
-                                    </FormDescription>
-                                    <FormMessage />
-                                    <input
-                                      type="hidden"
-                                      name="_components"
-                                      value={JSON.stringify(field.value ?? [])}
-                                    />
-                                  </FormItem>
-                                );
-                              }}
-                            />
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </>
-                  ) : null}
-                  {currentStatusId &&
-                  statuses.some(
-                    (status) =>
-                      String(status.id) === currentStatusId &&
-                      status.slug === "partner-festival"
-                  ) ? (
-                    <>
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="text-base">
-                            Components
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div>
-                            <FormField
-                              control={form.control}
-                              name="_componentsPartner"
-                              render={({ field }) => {
-                                const options: MultiSelectProps["options"] =
-                                  componentsPartner?.map((item) => ({
-                                    value: String(item.id) || "",
-                                    label: item.name || "",
-                                    caption: "",
-                                  })) ?? [];
-                                return (
-                                  <FormItem>
-                                    <FormControl>
-                                      <MultiSelect
-                                        options={options}
-                                        defaultValue={field.value}
-                                        disabled={isNSAccount}
-                                        onValueChange={(values) => {
-                                          field.onChange(values);
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormDescription>
-                                      Select the components provided by your
-                                      type of status
-                                    </FormDescription>
-                                    <FormMessage />
-                                    <input
-                                      type="hidden"
-                                      name="_components"
-                                      value={JSON.stringify(field.value ?? [])}
-                                    />
-                                  </FormItem>
-                                );
-                              }}
-                            />
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </>
-                  ) : null}
-                </CardContent>
-              </Card>
               <Card>
                 <CardHeader>
                   <CardTitle>{t("media")}</CardTitle>
@@ -2048,390 +1748,397 @@ export default function EventForm({
                         />
                       </div>
                     </div>
-                      <p className="text-gray-700 text-sm mt-6">{t("media_description")}</p>
+                    <p className="text-gray-700 text-sm mt-6">
+                      {t("media_description")}
+                    </p>
                   </div>
                 </CardContent>
               </Card>
-            </div>
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("additional_information")}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <FormField
-                    control={form.control}
-                    name="linkConditions"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("link_conditions_Applica")}</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            value={field.value || ""}
-                            placeholder={t("provide_URL_conditions")}
-                            disabled={isNSAccount}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          {t("Link_document_conditions_procedure")}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div>
-                  <FormField
-                    control={form.control}
-                    name="stagePhotos"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("pictures_your_stages")}</FormLabel>
-                        <FormControl>
-                          <FilepondImageUploader
-                            id="stagePhotos"
-                            name={field.name}
-                            allowMultiple
-                            acceptedFileTypes={["image/*"]}
-                            maxFiles={5}
-                            disabled={isNSAccount}
-                            defaultFiles={
-                              currentFestival?.stagePhotos.length
-                                ? currentFestival.stagePhotos.map((item) => {
-                                    return {
-                                      source: item.photo?.url!,
-                                      options: {
-                                        type: "local",
-                                      },
-                                    };
-                                  })
-                                : []
-                            }
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          {t("max_5_photos_min_600_600")}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div>
-                  <FormField
-                    control={form.control}
-                    name="_isGroupsConfirmed"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                        <div className="space-y-0.5">
-                          <FormLabel>{t("groups_confirmed")}</FormLabel>
-                          <FormDescription>
-                            {t("do_you_have_CIOFF_confirmed")}
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            disabled={isNSAccount}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {currentIsGroupsConfirmed ? (
-                  <div className="pl-5 border-l space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("additional_information")}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
                     <FormField
                       control={form.control}
-                      name="_countryGroupSelected"
+                      name="linkConditions"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>{t("select_country")}</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            disabled={isNSAccount}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue
-                                  placeholder={t("Sel_verifiedcount_display")}
-                                />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {countries?.map((item) => {
-                                return (
-                                  <SelectItem
-                                    key={item.id}
-                                    value={String(item.id)}
-                                  >
-                                    {
-                                      item.langs.find(
-                                        (itemLang) =>
-                                          itemLang.l?.code === locale
-                                      )?.name
-                                    }
-                                  </SelectItem>
-                                );
-                              })}
-                            </SelectContent>
-                          </Select>
+                          <FormLabel>{t("link_conditions_Applica")}</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              value={field.value || ""}
+                              placeholder={t("provide_URL_conditions")}
+                              disabled={isNSAccount}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            {t("Link_document_conditions_procedure")}
+                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    {currentCountryGroupSelected ? (
+                  </div>
+                  <div>
+                    <FormField
+                      control={form.control}
+                      name="stagePhotos"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t("pictures_your_stages")}</FormLabel>
+                          <FormControl>
+                            <FilepondImageUploader
+                              id="stagePhotos"
+                              name={field.name}
+                              allowMultiple
+                              acceptedFileTypes={["image/*"]}
+                              maxFiles={5}
+                              disabled={isNSAccount}
+                              defaultFiles={
+                                currentFestival?.stagePhotos.length
+                                  ? currentFestival.stagePhotos.map((item) => {
+                                      return {
+                                        source: item.photo?.url!,
+                                        options: {
+                                          type: "local",
+                                        },
+                                      };
+                                    })
+                                  : []
+                              }
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            {t("max_5_photos_min_600_600")}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <FormField
+                      control={form.control}
+                      name="_isGroupsConfirmed"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                          <div className="space-y-0.5">
+                            <FormLabel>{t("groups_confirmed")}</FormLabel>
+                            <FormDescription>
+                              {t("do_you_have_CIOFF_confirmed")}
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              disabled={isNSAccount}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  {currentIsGroupsConfirmed ? (
+                    <div className="pl-5 border-l space-y-4">
                       <FormField
                         control={form.control}
-                        name="_groupListSelected"
+                        name="_countryGroupSelected"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{t("select_country")}</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              disabled={isNSAccount}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue
+                                    placeholder={t("Sel_verifiedcount_display")}
+                                  />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {countries?.map((item) => {
+                                  return (
+                                    <SelectItem
+                                      key={item.id}
+                                      value={String(item.id)}
+                                    >
+                                      {
+                                        item.langs.find(
+                                          (itemLang) =>
+                                            itemLang.l?.code === locale
+                                        )?.name
+                                      }
+                                    </SelectItem>
+                                  );
+                                })}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      {currentCountryGroupSelected ? (
+                        <FormField
+                          control={form.control}
+                          name="_groupListSelected"
+                          render={({ field }) => {
+                            const data = stateGroupFetch?.data?.results || [];
+                            const options: MultiSelectProps["options"] =
+                              data?.map((item) => ({
+                                value: String(item.id) || "",
+                                label:
+                                  item.langs.find(
+                                    (lang) => lang.l?.code === locale
+                                  )?.name ||
+                                  item.langs.at(0)?.name ||
+                                  "",
+                                caption: "",
+                              })) ?? [];
+                            return (
+                              <FormItem>
+                                <FormLabel>{t("select_groups")}</FormLabel>
+                                <FormControl>
+                                  <MultiSelect
+                                    options={options}
+                                    defaultValue={
+                                      field.value.map((item) =>
+                                        String(item.groupId)
+                                      ) || []
+                                    }
+                                    disabled={
+                                      isNSAccount || stateGroupFetch.isLoading
+                                    }
+                                    hideSelectedValues
+                                    onValueChange={(values) => {
+                                      const contents = values.map((item) => {
+                                        return {
+                                          groupId: item,
+                                          name: data
+                                            ?.find(
+                                              (value) =>
+                                                value.id === Number(item)
+                                            )
+                                            ?.langs.find(
+                                              (lang) => lang?.l?.code === locale
+                                            )?.name,
+                                          countryName: countries
+                                            ?.find(
+                                              (country) =>
+                                                country.id ===
+                                                Number(
+                                                  currentCountryGroupSelected
+                                                )
+                                            )
+                                            ?.langs.find(
+                                              (lang) => lang?.l?.code === locale
+                                            )?.name,
+                                        };
+                                      });
+
+                                      const deprecateContents =
+                                        groupListFields.filter((item) => {
+                                          return !values.some(
+                                            (value) => value === item.groupId
+                                          );
+                                        });
+
+                                      if (deprecateContents.length) {
+                                        const nextDeprecate: number[] = [];
+                                        for (const deprecate of deprecateContents) {
+                                          const index =
+                                            groupListFields.findIndex(
+                                              (item) =>
+                                                item.groupId ===
+                                                deprecate.groupId
+                                            );
+                                          nextDeprecate.push(index);
+                                        }
+
+                                        removeGroupList(nextDeprecate);
+                                      }
+
+                                      const nextContents = contents.filter(
+                                        (value) =>
+                                          !groupListFields.some(
+                                            (festival) =>
+                                              festival.groupId === value.groupId
+                                          )
+                                      );
+                                      appendGroupList(nextContents);
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormDescription>
+                                  {/* Enter the correct location place */}
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            );
+                          }}
+                        />
+                      ) : null}
+                      {groupListFields.length ? (
+                        <div className="space-y-4">
+                          {groupListFields.map((field, index) => {
+                            return (
+                              <div key={field.id} className="space-y-6">
+                                <Card>
+                                  <CardHeader className="flex flex-row items-center justify-between space-y-0 gap-1">
+                                    <div>
+                                      <CardTitle className="text-base truncate max-w-[550px]">
+                                        {field.name}
+                                      </CardTitle>
+                                      <CardDescription>
+                                        {field.countryName}
+                                      </CardDescription>
+                                    </div>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() =>
+                                        void removeGroupList(index)
+                                      }
+                                      disabled={isNSAccount}
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </CardHeader>
+                                </Card>
+                                <input
+                                  type="hidden"
+                                  name={`_groupListSelected.${index}.id`}
+                                  value={field.groupId}
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : null}
+                      <input
+                        type="hidden"
+                        name="_groupListSelectedSize"
+                        value={groupListFields.length}
+                      />
+                    </div>
+                  ) : null}
+                  <div>
+                    <FormField
+                      control={form.control}
+                      name="_isLookingForGroups"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                          <div className="space-y-0.5">
+                            <FormLabel>{t("search_groups")}</FormLabel>
+                            <FormDescription>
+                              {t("are_looking_groups")}
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              disabled={isNSAccount}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  {currentIsLookingForGroups ? (
+                    <div className="pl-5 border-l space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="_groupRegionsSelected"
                         render={({ field }) => {
-                          const data = stateGroupFetch?.data?.results || [];
                           const options: MultiSelectProps["options"] =
-                            data?.map((item) => ({
+                            regions?.map((item) => ({
                               value: String(item.id) || "",
                               label:
                                 item.langs.find(
-                                  (lang) => lang.l?.code === locale
-                                )?.name ||
-                                item.langs.at(0)?.name ||
-                                "",
+                                  (lang) => lang?.l?.code === locale
+                                )?.name ?? "",
                               caption: "",
                             })) ?? [];
                           return (
                             <FormItem>
-                              <FormLabel>{t("select_groups")}</FormLabel>
+                              <FormLabel>{t("select_regions")}</FormLabel>
                               <FormControl>
                                 <MultiSelect
                                   options={options}
-                                  defaultValue={
-                                    field.value.map((item) =>
-                                      String(item.groupId)
-                                    ) || []
-                                  }
-                                  disabled={
-                                    isNSAccount || stateGroupFetch.isLoading
-                                  }
-                                  hideSelectedValues
+                                  defaultValue={field.value}
+                                  disabled={isNSAccount}
                                   onValueChange={(values) => {
-                                    const contents = values.map((item) => {
-                                      return {
-                                        groupId: item,
-                                        name: data
-                                          ?.find(
-                                            (value) => value.id === Number(item)
-                                          )
-                                          ?.langs.find(
-                                            (lang) => lang?.l?.code === locale
-                                          )?.name,
-                                        countryName: countries
-                                          ?.find(
-                                            (country) =>
-                                              country.id ===
-                                              Number(
-                                                currentCountryGroupSelected
-                                              )
-                                          )
-                                          ?.langs.find(
-                                            (lang) => lang?.l?.code === locale
-                                          )?.name,
-                                      };
-                                    });
-
-                                    const deprecateContents =
-                                      groupListFields.filter((item) => {
-                                        return !values.some(
-                                          (value) => value === item.groupId
-                                        );
-                                      });
-
-                                    if (deprecateContents.length) {
-                                      const nextDeprecate: number[] = [];
-                                      for (const deprecate of deprecateContents) {
-                                        const index = groupListFields.findIndex(
-                                          (item) =>
-                                            item.groupId === deprecate.groupId
-                                        );
-                                        nextDeprecate.push(index);
-                                      }
-
-                                      removeGroupList(nextDeprecate);
-                                    }
-
-                                    const nextContents = contents.filter(
-                                      (value) =>
-                                        !groupListFields.some(
-                                          (festival) =>
-                                            festival.groupId === value.groupId
-                                        )
-                                    );
-                                    appendGroupList(nextContents);
+                                    field.onChange(values);
                                   }}
                                 />
                               </FormControl>
                               <FormDescription>
-                                {/* Enter the correct location place */}
+                                {t("this_region_help_groups_region")}
                               </FormDescription>
                               <FormMessage />
+                              <input
+                                type="hidden"
+                                name="_groupRegions"
+                                value={JSON.stringify(field.value ?? [])}
+                              />
                             </FormItem>
                           );
                         }}
                       />
-                    ) : null}
-                    {groupListFields.length ? (
-                      <div className="space-y-4">
-                        {groupListFields.map((field, index) => {
-                          return (
-                            <div key={field.id} className="space-y-6">
-                              <Card>
-                                <CardHeader className="flex flex-row items-center justify-between space-y-0 gap-1">
-                                  <div>
-                                    <CardTitle className="text-base truncate max-w-[550px]">
-                                      {field.name}
-                                    </CardTitle>
-                                    <CardDescription>
-                                      {field.countryName}
-                                    </CardDescription>
-                                  </div>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => void removeGroupList(index)}
-                                    disabled={isNSAccount}
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </CardHeader>
-                              </Card>
-                              <input
-                                type="hidden"
-                                name={`_groupListSelected.${index}.id`}
-                                value={field.groupId}
-                              />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : null}
-                    <input
-                      type="hidden"
-                      name="_groupListSelectedSize"
-                      value={groupListFields.length}
-                    />
-                  </div>
-                ) : null}
-                <div>
-                  <FormField
-                    control={form.control}
-                    name="_isLookingForGroups"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                        <div className="space-y-0.5">
-                          <FormLabel>{t("search_groups")}</FormLabel>
-                          <FormDescription>
-                            {t("are_looking_groups")}
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            disabled={isNSAccount}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {currentIsLookingForGroups ? (
-                  <div className="pl-5 border-l space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="_groupRegionsSelected"
-                      render={({ field }) => {
-                        const options: MultiSelectProps["options"] =
-                          regions?.map((item) => ({
-                            value: String(item.id) || "",
-                            label:
-                              item.langs.find(
-                                (lang) => lang?.l?.code === locale
-                              )?.name ?? "",
-                            caption: "",
-                          })) ?? [];
-                        return (
-                          <FormItem>
-                            <FormLabel>{t("select_regions")}</FormLabel>
-                            <FormControl>
-                              <MultiSelect
-                                options={options}
-                                defaultValue={field.value}
-                                disabled={isNSAccount}
-                                onValueChange={(values) => {
-                                  field.onChange(values);
-                                }}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              {t("this_region_help_groups_region")}
-                            </FormDescription>
-                            <FormMessage />
-                            <input
-                              type="hidden"
-                              name="_groupRegions"
-                              value={JSON.stringify(field.value ?? [])}
-                            />
-                          </FormItem>
-                        );
-                      }}
-                    />
-                    {/* <FormField */}
-                    {/*   control={form.control} */}
-                    {/*   name="_groupRegionSelected" */}
-                    {/*   render={({ field }) => ( */}
-                    {/*     <FormItem> */}
-                    {/*       <FormLabel>Select a Region</FormLabel> */}
-                    {/*       <Select */}
-                    {/*         onValueChange={field.onChange} */}
-                    {/*         defaultValue={field.value} */}
-                    {/*         name={field.name} */}
-                    {/*         disabled={isNSAccount} */}
-                    {/*       > */}
-                    {/*         <FormControl> */}
-                    {/*           <SelectTrigger> */}
-                    {/*             <SelectValue placeholder="Select a verified region to display" /> */}
-                    {/*           </SelectTrigger> */}
-                    {/*         </FormControl> */}
-                    {/*         <SelectContent> */}
-                    {/*           {regions?.map((region) => { */}
-                    {/*             return ( */}
-                    {/*               <SelectItem */}
-                    {/*                 key={`group-region-${region.id}`} */}
-                    {/*                 value={String(region.id)} */}
-                    {/*               > */}
-                    {/*                 { */}
-                    {/*                   region.langs.find( */}
-                    {/*                     (lang) => lang?.l?.code === locale, */}
-                    {/*                   )?.name */}
-                    {/*                 } */}
-                    {/*               </SelectItem> */}
-                    {/*             ); */}
-                    {/*           })} */}
-                    {/*         </SelectContent> */}
-                    {/*       </Select> */}
-                    {/*       <FormDescription> */}
-                    {/*         This region will help you for groups of interest on */}
-                    {/*         selected region. */}
-                    {/*       </FormDescription> */}
-                    {/*       <FormMessage /> */}
-                    {/*     </FormItem> */}
-                    {/*   )} */}
-                    {/* /> */}
-                  </div>
-                ) : null}
-              </CardContent>
-            </Card>
+                      {/* <FormField */}
+                      {/*   control={form.control} */}
+                      {/*   name="_groupRegionSelected" */}
+                      {/*   render={({ field }) => ( */}
+                      {/*     <FormItem> */}
+                      {/*       <FormLabel>Select a Region</FormLabel> */}
+                      {/*       <Select */}
+                      {/*         onValueChange={field.onChange} */}
+                      {/*         defaultValue={field.value} */}
+                      {/*         name={field.name} */}
+                      {/*         disabled={isNSAccount} */}
+                      {/*       > */}
+                      {/*         <FormControl> */}
+                      {/*           <SelectTrigger> */}
+                      {/*             <SelectValue placeholder="Select a verified region to display" /> */}
+                      {/*           </SelectTrigger> */}
+                      {/*         </FormControl> */}
+                      {/*         <SelectContent> */}
+                      {/*           {regions?.map((region) => { */}
+                      {/*             return ( */}
+                      {/*               <SelectItem */}
+                      {/*                 key={`group-region-${region.id}`} */}
+                      {/*                 value={String(region.id)} */}
+                      {/*               > */}
+                      {/*                 { */}
+                      {/*                   region.langs.find( */}
+                      {/*                     (lang) => lang?.l?.code === locale, */}
+                      {/*                   )?.name */}
+                      {/*                 } */}
+                      {/*               </SelectItem> */}
+                      {/*             ); */}
+                      {/*           })} */}
+                      {/*         </SelectContent> */}
+                      {/*       </Select> */}
+                      {/*       <FormDescription> */}
+                      {/*         This region will help you for groups of interest on */}
+                      {/*         selected region. */}
+                      {/*       </FormDescription> */}
+                      {/*       <FormMessage /> */}
+                      {/*     </FormItem> */}
+                      {/*   )} */}
+                      {/* /> */}
+                    </div>
+                  ) : null}
+                </CardContent>
+              </Card>
+            </div>
             <Card className={cn("hidden")}>
               <CardHeader>
                 <CardTitle>Recognition Certification</CardTitle>
