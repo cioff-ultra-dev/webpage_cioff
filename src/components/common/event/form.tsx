@@ -562,13 +562,6 @@ export default function EventForm({
         <p className="text-sm text-muted-foreground pb-6 after:content-['*'] after:ml-0.5 after:text-red-500">
           {t("the_fields_mandatory")}
         </p>
-        {isNSAccount ? (
-          <FormStateNS
-            statuses={statuses}
-            festivalId={id}
-            currentStatusId={currentStatusId}
-          />
-        ) : null}
         <Form {...form}>
           <form
             ref={formRef}
@@ -1123,11 +1116,7 @@ export default function EventForm({
                             defaultValue={currentCategoriesSelected ?? []}
                             value={field.value}
                             handleChange={field.onChange}
-                            categories={categoryGroups.filter(
-                              (category) =>
-                                category.slug !== "international" &&
-                                category.slug !== "cioff"
-                            )}
+                            categories={categoryGroups}
                             categoryType="festivals"
                             isLoading={false}
                           />
