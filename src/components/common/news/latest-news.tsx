@@ -2,7 +2,6 @@ import dynamic from "next/dynamic";
 import { getTranslations } from "next-intl/server";
 
 import { getAllSubPages } from "@/lib/articles";
-import { Section } from "@/types/article";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -27,20 +26,10 @@ async function LatestNews({ limit, classes, resultClasses }: LatestNewsProps) {
       const text = articleData?.texts?.[0];
       if (!text) return null;
 
-      const sections = text.sections ?? [];
-
-      const firstParagraph = (sections.find(
-        (section: Section) => section.type === "paragraph"
-      )?.content || "") as string;
-
-      const description =
-        firstParagraph.split(" ").slice(0, 30).join(" ") +
-        (firstParagraph.split(" ").length > 30 ? "..." : "");
-
       return (
         <NewsCard
           key={articleData.id}
-          description={description}
+          date={articleData.originalDate}
           image={articleData.mainImage}
           title={text.title}
           subPageId={articleData.id}

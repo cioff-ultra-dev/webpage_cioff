@@ -3,24 +3,19 @@
 import { useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-
-import {
-  TooltipProvider,
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from "@/components/ui/tooltip";
+import { format } from "date-fns";
+import { CalendarRange } from "lucide-react";
 
 interface NewsCardProps {
   image?: string;
   title: string;
   subPageId: number;
-  description: string;
+  date: Date;
   url: string;
 }
 
 function NewsCard(props: NewsCardProps) {
-  const { image, title, subPageId, description, url } = props;
+  const { image, title, subPageId, date, url } = props;
 
   const router = useRouter();
 
@@ -45,14 +40,14 @@ function NewsCard(props: NewsCardProps) {
           <div className="w-full h-full bg-gray-200" />
         )}
       </div>
-      <div className="px-4 pt-3 pb-2 relative text-center h-32">
-        <h3 className="text-sm font-medium mb-2 transition-colors text-secular">
+      <div className="px-4 pt-3 pb-2 relative text-center h-28">
+        <h3 className="text-sm font-medium mb-3 transition-colors text-secular">
           {title}
         </h3>
-        <p
-          className="text-xs line-clamp-3 text-poppins"
-          dangerouslySetInnerHTML={{ __html: description }}
-        />
+        <p className="text-sm line-clamp-3 text-poppins flex items-center justify-center gap-4">
+          <CalendarRange size={20} strokeWidth={2} className="text-primary" />
+          {format(date, "dd/MM/yyyy")}
+        </p>
       </div>
     </div>
   );
