@@ -223,7 +223,7 @@ function Filters(props: FiltersProps): JSX.Element {
               options={countries}
               onValueChange={setCountries}
               disabled={isCountryLoading}
-              placeholder={t("filters.selectCountries")}
+              placeholder={t("filters.countries")}
               defaultValue={defaultCountries}
             />
           </div>
