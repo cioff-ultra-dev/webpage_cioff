@@ -80,7 +80,7 @@ function AnnualReport() {
   if (!path.includes("/annual-reports")) return null;
 
   return (
-    <div className="grid grid-cols-4 w-full gap-6 max-lg:grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1 px-48 max-lg:px-24 max-md:px-20 max-sm:px-20">
+    <div className="grid grid-cols-4 w-full gap-6 max-lg:grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1 px-36 max-lg:px-16 max-md:px-12 max-sm:px-12">
       {imagesComponents}
     </div>
   );
