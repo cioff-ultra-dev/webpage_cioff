@@ -5,6 +5,7 @@ import { Section, SelectedSubPage } from "@/types/article";
 import { Header } from "@/components/common/header";
 import RenderSections from "@/components/common/news/render-articles";
 import Footer from "@/components/common/footer";
+import AnnualReport from "@/components/common/news/annual-report";
 
 interface NewsDetailTemplateProps {
   subPage: SelectedSubPage;
@@ -32,7 +33,7 @@ function NewsDetailTemplate(props: NewsDetailTemplateProps) {
               alt="main-image"
             />
           ) : (
-            <div className="w-full h-full bg-gray-200 flex justify-center items-center">
+            <div className="w-full h-full bg-gray-400 flex justify-center items-center">
               Image here
             </div>
           )}
@@ -54,8 +55,9 @@ function NewsDetailTemplate(props: NewsDetailTemplateProps) {
             ) : null}
             <h1 className="font-bold mb-12 text-4xl text-secular">{title}</h1>
           </div>
-          <div className="container h-full bg-white">
+          <div className="container h-full bg-white relative">
             <RenderSections sections={sections ?? []} />
+            <AnnualReport />
           </div>
         </div>
       </main>
