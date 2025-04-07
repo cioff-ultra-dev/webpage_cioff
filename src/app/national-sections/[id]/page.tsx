@@ -1,11 +1,12 @@
-import Image from "next/image";
+import { Music, UserCircle, Users } from "lucide-react";
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
+import Link from "next/link";
+
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Header } from "@/components/common/header";
-import { getFormatter, getLocale, getTranslations } from "next-intl/server";
-import { defaultLocale } from "@/i18n/config";
-import { Music, UserCircle, Users } from "lucide-react";
+import { defaultLocale, Locale } from "@/i18n/config";
 import {
   Timeline,
   TimelineItem,
@@ -22,6 +23,32 @@ import {
 } from "@/db/queries/national-sections";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Footer from "@/components/common/footer";
+
+interface ItemList {
+  name: string;
+  logo?: string;
+  logoFallback: string;
+  email: string;
+  detailLink: string;
+}
+
+function ItemList({ email, logoFallback, name, logo, detailLink }: ItemList) {
+  return (
+    <Link
+      href={detailLink}
+      className="flex items-center gap-4 w-full hover:bg-gray-200 py-2 px-2 rounded-md"
+    >
+      <Avatar>
+        <AvatarImage src={logo} alt={name} />
+        <AvatarFallback>{logoFallback}</AvatarFallback>
+      </Avatar>
+      <div>
+        <h3 className="font-semibold">{name}</h3>
+        <p className="text-sm text-muted-foreground">{email}</p>
+      </div>
+    </Link>
+  );
+}
 
 function Positions({
   positions,
@@ -55,10 +82,10 @@ function Positions({
                   <h3 className="font-semibold">{position.name}</h3>
                   <p className="text-sm text-muted-foreground">
                     {position?.type?.langs.find(
-                      (item) => item.l?.code === currentLocale,
+                      (item) => item.l?.code === currentLocale
                     )?.name ||
                       position?.type?.langs.find(
-                        (item) => item.l?.code === defaultLocale,
+                        (item) => item.l?.code === defaultLocale
                       )?.name}
                   </p>
                 </div>
@@ -80,6 +107,21 @@ function Festivals({
   currentLocale: string;
   title?: string;
 }) {
+  const localFestivals = festivals.map((festival) => {
+    const name =
+      festival.langs.find((lang) => lang.l?.code === currentLocale)?.name ??
+      festival.langs?.[0]?.name ??
+      "";
+
+    return {
+      id: festival.id,
+      name,
+      logo: festival.logo?.url,
+      logoFallback: name?.toUpperCase()?.[0] ?? "",
+      email: festival.email ?? festival.owners.at(0)?.user?.email ?? "",
+    };
+  });
+
   return (
     <Card className="col-span-1">
       <CardHeader>
@@ -90,40 +132,15 @@ function Festivals({
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-56">
-          <ul className="space-y-4">
-            {festivals.map((festival, index) => (
-              <li key={index} className="flex items-center gap-4">
-                <Avatar>
-                  <AvatarImage
-                    src={festival.logo?.url}
-                    alt={
-                      festival.langs.find(
-                        (lang) => lang.l?.code === currentLocale,
-                      )?.name ?? ""
-                    }
-                  />
-                  <AvatarFallback>
-                    {festival.langs
-                      .find((lang) => lang.l?.code === currentLocale)
-                      ?.name.charAt(0)
-                      .toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h3 className="font-semibold">
-                    {
-                      festival.langs.find(
-                        (lang) => lang.l?.code === currentLocale,
-                      )?.name
-                    }
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {festival.owners.at(0)?.user?.email}
-                  </p>
-                </div>
-              </li>
+          <div className="space-y-4">
+            {localFestivals.map((festival) => (
+              <ItemList
+                key={festival.id}
+                {...festival}
+                detailLink={`/festivals/${festival.id}`}
+              />
             ))}
-          </ul>
+          </div>
         </ScrollArea>
       </CardContent>
     </Card>
@@ -139,6 +156,21 @@ function Groups({
   currentLocale: string;
   title?: string;
 }) {
+  const localGroups = groups.map((group) => {
+    const name =
+      group.langs.find((lang) => lang.l?.code === currentLocale)?.name ??
+      group.langs?.[0]?.name ??
+      "";
+
+    return {
+      id:group.id,
+      name,
+      logo: group.logo?.url,
+      logoFallback: name?.toUpperCase()?.[0] ?? "",
+      email: group.owners.at(0)?.user?.email ?? "",
+    };
+  });
+
   return (
     <Card className="col-span-1">
       <CardHeader>
@@ -150,33 +182,12 @@ function Groups({
       <CardContent>
         <ScrollArea className="h-56">
           <ul className="space-y-4">
-            {groups.map((group, index) => (
-              <li key={index} className="flex items-center gap-4">
-                <Avatar>
-                  <AvatarImage
-                    src={group.logo?.url}
-                    alt={
-                      group.langs.find((lang) => lang.l?.code === currentLocale)
-                        ?.name ?? ""
-                    }
-                  />
-                  <AvatarFallback>
-                    {group.langs
-                      .find((lang) => lang.l?.code === currentLocale)
-                      ?.name.charAt(0)
-                      .toUpperCase() ?? ""}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h3 className="font-semibold">
-                    {group.langs.find((lang) => lang.l?.code === currentLocale)
-                      ?.name ?? ""}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {group.owners.at(0)?.user?.email}
-                  </p>
-                </div>
-              </li>
+            {localGroups.map((group) => (
+              <ItemList
+                key={group.id}
+                {...group}
+                detailLink={`/groups/${group.id}`}
+              />
             ))}
           </ul>
         </ScrollArea>
@@ -193,8 +204,7 @@ export default async function NationaSectionDetail({
   const locale = await getLocale();
   const t = await getTranslations("page");
   const formatter = await getFormatter();
-  const ns = await getNationaSectionById(Number(params.id), locale);
-
+  const ns = await getNationaSectionById(Number(params.id), locale as Locale);
   return (
     <div className="flex flex-col w-full min-h-screen">
       <Header className="border-b" text="text-black" />
@@ -239,7 +249,7 @@ export default async function NationaSectionDetail({
                         {ns?.langs.find((item) => item.l?.code === locale)
                           ?.about ||
                           ns?.langs.find(
-                            (item) => item.l?.code === defaultLocale,
+                            (item) => item.l?.code === defaultLocale
                           )?.about}
                       </p>
                     </CardContent>
@@ -281,7 +291,7 @@ export default async function NationaSectionDetail({
                                   year: "numeric",
                                   month: "long",
                                   day: "numeric",
-                                },
+                                }
                               )}
                             </TimelineTitle>
                           </TimelineHeader>

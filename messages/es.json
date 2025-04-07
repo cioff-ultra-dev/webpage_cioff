@@ -38,7 +38,13 @@
     "Gener_group_invitat": "Generate Group Invitation",
     "send_invitation": "Enviar invitación",
     "website": "Ir al sitio web",
-    "previewProfile": "Vista previa del perfil"
+    "previewProfile": "Vista previa del perfil",
+    "ns": {
+      "positions": "Cargos",
+      "festivals": "Festivales",
+      "groups": "Grupos",
+      "events": "Eventos"
+    }
   },
   "locale_switch": {
     "select": "Seleccionar idioma",

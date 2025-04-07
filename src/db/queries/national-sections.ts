@@ -261,21 +261,12 @@ export type PositionTypeForNSType = Awaited<
 
 export async function getNationaSectionById(
   id: SelectNationalSection["id"],
-  locale: string
+  locale: Locale
 ) {
-  const localeValue = locale as SelectLanguages["code"];
-  const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
-
-  const pushLocales = [localeValue];
-
-  if (localeValue !== currentDefaultLocale) {
-    pushLocales.push(currentDefaultLocale);
-  }
-
   const sq = db
     .select({ id: languages.id })
     .from(languages)
-    .where(inArray(languages.code, pushLocales))
+    .where(inArray(languages.code, [locale]))
     .limit(1);
 
   return db.query.nationalSections.findFirst({
