@@ -40,11 +40,11 @@ function NewsCard(props: NewsCardProps) {
           <div className="w-full h-full bg-gray-200" />
         )}
       </div>
-      <div className="px-4 pt-3 pb-2 relative text-center h-28">
+      <div className="px-4 pt-3 pb-2 relative text-center h-auto">
         <h3 className="text-sm font-medium mb-3 transition-colors text-secular">
           {title}
         </h3>
-        <p className="text-sm line-clamp-3 text-poppins flex items-center justify-center gap-4">
+        <p className="text-sm line-clamp-3 text-poppins flex items-center justify-center gap-4 mb-4">
           <CalendarRange size={20} strokeWidth={2} className="text-primary" />
           {format(date, "dd/MM/yyyy")}
         </p>
