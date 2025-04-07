@@ -174,9 +174,7 @@ async function TranslateSubPage(content: SubPage, locale: Locale) {
         );
       } else {
         const textArray = extractTextFromHTML(section.content as string);
-        console.log("----------------------------");
-        console.log(JSON.stringify(textArray, null, 2));
-        console.log("----------------------------");
+
         const texts = await Promise.all(
           textArray.map(async (text) => {
             const response = await getTranslateText(text, locale);

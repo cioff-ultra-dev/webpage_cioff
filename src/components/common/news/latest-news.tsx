@@ -1,9 +1,10 @@
 import dynamic from "next/dynamic";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 
 import { getAllSubPages } from "@/lib/articles";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Locale } from "@/i18n/config";
 
 const NewsCard = dynamic(() => import("./news-card"), { ssr: false });
 
@@ -15,28 +16,28 @@ interface LatestNewsProps {
 
 async function LatestNews({ limit, classes, resultClasses }: LatestNewsProps) {
   const translations = await getTranslations("latestNews");
-  const articles = await getAllSubPages({
+  const locale = (await getLocale()) as Locale;
+  const articles = await getAllSubPages(locale, {
     limit,
     isNews: true,
     published: true,
   });
 
-  const items = articles
-    .map((articleData) => {
-      const text = articleData?.texts?.[0];
-      if (!text) return null;
+  const items = articles.map((articleData) => {
+    const text = articleData?.texts?.[0];
+    if (!text) return null;
 
-      return (
-        <NewsCard
-          key={articleData.id}
-          date={articleData.originalDate}
-          image={articleData.mainImage}
-          title={text.title}
-          subPageId={articleData.id}
-          url={articleData.url}
-        />
-      );
-    });
+    return (
+      <NewsCard
+        key={articleData.id}
+        date={articleData.originalDate}
+        image={articleData.mainImage}
+        title={text.title}
+        subPageId={articleData.id}
+        url={articleData.url}
+      />
+    );
+  });
 
   return (
     <div className={cn("bg-white", classes)}>
