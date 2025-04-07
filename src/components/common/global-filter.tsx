@@ -482,11 +482,14 @@ export function WrapperFilter({
                         cover,
                         countryLang,
                         event,
+                        coverPhotos
                       }) => (
                         <FilterCard
                           key={festival.id}
                           icon={<CalendarIcon />}
-                          images={[cover?.url || "/placeholder.svg"]}
+                          images={coverPhotos.length
+                          ? coverPhotos.map((photo) => photo.url!)
+                          : [cover?.url || "/placeholder.svg"]}
                           title={lang.name ?? ""}
                           endDate={event?.endDate}
                           startDate={event?.startDate}
@@ -578,11 +581,13 @@ export function WrapperFilter({
                 >
                   {(response) =>
                     response.map(
-                      ({ group, lang, countryLang, cover, country }) => (
+                      ({ group, lang, countryLang, cover, coverPhotos }) => (
                         <FilterCard
                           key={group.id}
                           icon={<Users />}
-                          images={[cover?.url || "/placeholder.svg"]}
+                          images={coverPhotos.length
+                          ? coverPhotos.map((photo) => photo.url!)
+                          : [cover?.url || "/placeholder.svg"]}
                           title={lang.name}
                           location={group?.location || countryLang?.name}
                           hideDate={true}
