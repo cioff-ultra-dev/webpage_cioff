@@ -15,6 +15,7 @@ import { getTranslateText } from "@/lib/translate";
 import { Locale, pickLocales } from "@/i18n/config";
 import { getAllLanguages } from "@/db/queries/languages";
 import { buildConditions } from "@/lib/query";
+import { languages } from "@/db/schema";
 
 interface SubPage {
   isNews: boolean;
@@ -173,7 +174,9 @@ async function TranslateSubPage(content: SubPage, locale: Locale) {
         );
       } else {
         const textArray = extractTextFromHTML(section.content as string);
-
+        console.log("----------------------------");
+        console.log(JSON.stringify(textArray, null, 2));
+        console.log("----------------------------");
         const texts = await Promise.all(
           textArray.map(async (text) => {
             const response = await getTranslateText(text, locale);
@@ -274,17 +277,26 @@ export async function saveArticle(
   });
 }
 
-export async function getAllSubPages({
-  limit,
-  ...restParams
-}: SubPagesParams): Promise<SelectedSubPage[]> {
+export async function getAllSubPages(
+  locale: Locale,
+  { limit, ...restParams }: SubPagesParams
+): Promise<SelectedSubPage[]> {
   try {
     const where = buildConditions(restParams, SubPagesProd);
 
     const articles = await db?.query?.SubPagesProd?.findMany({
       where,
       with: {
-        texts: true,
+        texts: {
+          where: (texts, { eq }) =>
+            eq(
+              texts.lang,
+              db
+                .select({ id: languages.id })
+                .from(languages)
+                .where(eq(languages.code, locale))
+            ),
+        },
         country: true,
       },
       orderBy: (subPages, { desc }) => [desc(subPages.originalDate)],

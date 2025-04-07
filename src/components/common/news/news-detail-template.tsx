@@ -44,7 +44,7 @@ function NewsDetailTemplate(props: NewsDetailTemplateProps) {
           <div className="flex flex-col items-center w-full mb-12">
             {subPage.isNews ? (
               <h3 className="text-gray-500">
-                {subPage.country.slug} -{" "}
+                {subPage?.country?.slug?.concat(" - ")}
                 {subPage.originalDate
                   .toISOString()
                   .split("T")[0]

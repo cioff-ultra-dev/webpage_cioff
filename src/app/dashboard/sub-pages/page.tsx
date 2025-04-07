@@ -16,7 +16,7 @@ interface NewsArticlesTableProps {
 export default async function NewsPage({
   searchParams: { tab = "all" },
 }: NewsArticlesTableProps) {
-  const locale = await getLocale();
+  const locale = (await getLocale()) as Locale;
   const session = await auth();
   const countryCast = await getAllCountries();
   const params: any = {};
@@ -25,12 +25,12 @@ export default async function NewsPage({
     return <p>User not authenticated</p>;
   }
 
-  const localeId = await getLanguageByLocale(locale as Locale);
+  const localeId = await getLanguageByLocale(locale);
   const isPublished = tab === "published";
 
   if (tab !== "all") params["published"] = isPublished;
 
-  const articles = await getAllSubPages(params);
+  const articles = await getAllSubPages(locale,params);
 
   return (
     <NewsArticlesTable
