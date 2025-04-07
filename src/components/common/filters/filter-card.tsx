@@ -100,11 +100,13 @@ export function FilterCard(props: FilterCardProps): JSX.Element {
     >
       <div
         className="w-full h-[220px] rounded-t-md overflow-hidden relative"
-        onClick={handleItemDetail}
       >
         <CarouselImage images={CoverImages} imageError="/logo.png" />
       </div>
-      <div className="flex flex-col gap-1 relative px-2 pb-4 cursor-default">
+      <div
+        className="flex flex-col gap-1 relative px-2 pb-4 cursor-default"
+        onClick={handleItemDetail}
+      >
         <Button
           className="rounded-full h-12 w-12 absolute -top-7 right-2 group transition-transform duration-300 cursor-pointer"
           onClick={handleItemDetail}
@@ -123,17 +125,19 @@ export function FilterCard(props: FilterCardProps): JSX.Element {
         >
           {title}
         </label>
-        {!hideLocation && <p
-          className="flex gap-1 items-center w-full mb-2 cursor-pointer"
-          onClick={handleClick}
-        >
-          <div className="w-5 h-5">
-            <MapPin size={20} strokeWidth={2} className="text-primary" />
-          </div>
-          <span className="text-gray-500 text-xs line-clamp-1 text-roboto">
-            {location}
-          </span>
-        </p>}
+        {!hideLocation && (
+          <p
+            className="flex gap-1 items-center w-full mb-2 cursor-pointer"
+            onClick={handleClick}
+          >
+            <div className="w-5 h-5">
+              <MapPin size={20} strokeWidth={2} className="text-primary" />
+            </div>
+            <span className="text-gray-500 text-xs line-clamp-1 text-roboto">
+              {location}
+            </span>
+          </p>
+        )}
         {!hideDate && (
           <p className="flex gap-1 items-center">
             <div className="w-5 h-5">

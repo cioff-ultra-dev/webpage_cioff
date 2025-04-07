@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import useSWR from "swr";
-import {  CalendarIcon, Users } from "lucide-react";
+import { CalendarIcon, Users } from "lucide-react";
 import {
   APIProvider,
   useMap,
@@ -80,8 +80,8 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
       () =>
         tabSelected === "festivals"
           ? `/api/filter/country?locale=${locale}&regions=${JSON.stringify(
-            selectedRegions
-          )}`
+              selectedRegions
+            )}`
           : null,
       fetcher
     );
@@ -91,8 +91,8 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
       () =>
         tabSelected === "groups"
           ? `/api/filter/country/group?locale=${locale}&regions=${JSON.stringify(
-            selectedRegions
-          )}`
+              selectedRegions
+            )}`
           : null,
       fetcher
     );
@@ -102,16 +102,16 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
       () =>
         tabSelected === "festivals"
           ? `api/filter?categories=${JSON.stringify(
-            selectedCategories
-          )}&type=${tabSelected}&locale=${locale}&festivalId=${selectedCountryId}&regions=${JSON.stringify(
-            selectedRegions
-          )}&countries=${JSON.stringify(
-            selectedCountries.length
-              ? selectedCountries
-              : selectedCountryId || search.length > 0
+              selectedCategories
+            )}&type=${tabSelected}&locale=${locale}&festivalId=${selectedCountryId}&regions=${JSON.stringify(
+              selectedRegions
+            )}&countries=${JSON.stringify(
+              selectedCountries.length
+                ? selectedCountries
+                : selectedCountryId || search.length > 0
                 ? []
                 : countryCast.map((item) => item.countryId)
-          )}&page=1${search ? `&${search}` : ""}`
+            )}&page=1${search ? `&${search}` : ""}`
           : null,
       fetcher
     );
@@ -121,16 +121,16 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
       () =>
         tabSelected === "groups"
           ? `api/filter/group?categories=${JSON.stringify(
-            selectedCategories
-          )}&type=${tabSelected}&locale=${locale}&groupId=${selectedCountryId}&regions=${JSON.stringify(
-            selectedRegions
-          )}&countries=${JSON.stringify(
-            selectedCountries.length
-              ? selectedCountries
-              : selectedCountryId || search.length > 0
+              selectedCategories
+            )}&type=${tabSelected}&locale=${locale}&groupId=${selectedCountryId}&regions=${JSON.stringify(
+              selectedRegions
+            )}&countries=${JSON.stringify(
+              selectedCountries.length
+                ? selectedCountries
+                : selectedCountryId || search.length > 0
                 ? []
                 : countryGroupCast.map((item) => item.countryId)
-          )}&page=1${search ? `&${search}` : ""}`
+            )}&page=1${search ? `&${search}` : ""}`
           : null,
       fetcher
     );
@@ -205,25 +205,31 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
   }, [regionCast, locale]);
 
   const countriesMap: MultiSelectProps["options"] = useMemo(() => {
-    return countryCast.filter((value, index, self) =>
-      index === self.findIndex((t) => t.countryId === value.countryId)
-    ).map((country) => {
-      return {
-        label: country.country || "",
-        value: String(country.countryId),
-      };
-    });
+    return countryCast
+      .filter(
+        (value, index, self) =>
+          index === self.findIndex((t) => t.countryId === value.countryId)
+      )
+      .map((country) => {
+        return {
+          label: country.country || "",
+          value: String(country.countryId),
+        };
+      });
   }, [countryCast]);
 
   const countriesGroupMap: MultiSelectProps["options"] = useMemo(() => {
-    return countryGroupCast.filter((value, index, self) =>
-      index === self.findIndex((t) => t.countryId === value.countryId)
-    ).map((country) => {
-      return {
-        label: country.country || "",
-        value: String(country.countryId),
-      };
-    });
+    return countryGroupCast
+      .filter(
+        (value, index, self) =>
+          index === self.findIndex((t) => t.countryId === value.countryId)
+      )
+      .map((country) => {
+        return {
+          label: country.country || "",
+          value: String(country.countryId),
+        };
+      });
   }, [countryGroupCast]);
 
   // https://developers.google.com/maps/documentation/javascript/reference/places-autocomplete-service#AutocompleteSessionToken
@@ -316,8 +322,10 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
 
     const searchValue = event.currentTarget.elements?.search.value;
     setSearch(
-      `search=${searchValue}&rangeDateFrom=${dateRange?.from ? Math.floor(dateRange!.from!.getTime() / 1000) : ""
-      }&rangeDateTo=${dateRange?.to ? Math.floor(dateRange!.to!.getTime() / 1000) : ""
+      `search=${searchValue}&rangeDateFrom=${
+        dateRange?.from ? Math.floor(dateRange!.from!.getTime() / 1000) : ""
+      }&rangeDateTo=${
+        dateRange?.to ? Math.floor(dateRange!.to!.getTime() / 1000) : ""
       }`
     );
   }
@@ -337,8 +345,9 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
 
     if (!lang && !festival?.location) return;
 
-    const possiblePredicctionAddress = `${festival?.location || ""} ${countryLang?.name
-      }`;
+    const possiblePredicctionAddress = `${festival?.location || ""} ${
+      countryLang?.name
+    }`;
 
     const locationPredictionAddress = {
       lat: Number(festival.lat ?? 0),
@@ -530,9 +539,12 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                         countryLang,
                         event,
                         cover,
+                        coverPhotos,
                       }) => ({
                         icon: <CalendarIcon />,
-                        images: [cover?.url || "/placeholder.svg"],
+                        images: coverPhotos.length
+                          ? coverPhotos.map((photo) => photo.url!)
+                          : [cover?.url || "/placeholder.svg"],
                         title: lang.name ?? "",
                         endDate: event?.endDate,
                         startDate: event?.startDate,
@@ -626,9 +638,11 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                   <ResultList
                     isLoading={isLoadingItemGroupList}
                     results={itemGroupList?.map(
-                      ({ group, cover, lang, countryLang }) => ({
+                      ({ group, cover, lang, countryLang, coverPhotos }) => ({
                         icon: <Users />,
-                        images: [cover?.url || "/placeholder.svg"],
+                        images: coverPhotos.length
+                          ? coverPhotos.map((photo) => photo.url!)
+                          : [cover?.url || "/placeholder.svg"],
                         title: lang.name,
                         location: group?.location || countryLang?.name,
                         hideDate: true,

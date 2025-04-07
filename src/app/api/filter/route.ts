@@ -3,6 +3,7 @@ import {
   countries,
   countriesLang,
   events,
+  festivalCoverPhotos,
   festivals,
   festivalsLang,
   festivalToCategories,
@@ -79,7 +80,10 @@ async function buildFilter(request: NextRequest) {
       cover: coverStorage,
     })
     .from(festivals)
-    .leftJoin(festivalToCategories, eq(festivalToCategories.festivalId, festivals.id))
+    .leftJoin(
+      festivalToCategories,
+      eq(festivalToCategories.festivalId, festivals.id)
+    )
     .leftJoin(events, eq(events.festivalId, festivals.id))
     .leftJoin(festivalsLang, eq(festivals.id, festivalsLang.festivalId))
     .leftJoin(countries, eq(festivals.countryId, countries.id))
@@ -137,21 +141,28 @@ async function buildFilter(request: NextRequest) {
     .limit(pageSize)
     .offset((page - 1) * pageSize);
 
-  const result = (await baseQuery).reduce<
-    Record<
-      number,
-      {
-        festival: SelectFestival;
-        country: SelectCountries | null;
-        lang: SelectFestivalLang;
-        countryLang: SelectCountryLang;
-        event: SelectEvent | null;
-        logo: SelectStorage;
-        events: SelectEvent[];
-        cover: SelectStorage;
-      }
+  const result = await (
+    await baseQuery
+  ).reduce<
+    Promise<
+      Record<
+        number,
+        {
+          festival: SelectFestival;
+          country: SelectCountries | null;
+          lang: SelectFestivalLang;
+          countryLang: SelectCountryLang;
+          event: SelectEvent | null;
+          logo: SelectStorage;
+          events: SelectEvent[];
+          cover: SelectStorage;
+          coverPhotos: { photoId: number | null; url: string | null }[];
+        }
+      >
     >
-  >((acc, row) => {
+  >(async (acc, row) => {
+    const record = await acc;
+
     const festival = row.festival;
     const country = row.country;
     const lang = row.lang;
@@ -160,8 +171,17 @@ async function buildFilter(request: NextRequest) {
     const logo = row.logo;
     const cover = row.cover;
 
-    if (!acc[festival.id]) {
-      acc[festival.id] = {
+    if (!record[festival.id]) {
+      const coverPhotos = await db
+        .select({
+          photoId: festivalCoverPhotos.photoId,
+          url: storages.url,
+        })
+        .from(festivalCoverPhotos)
+        .leftJoin(storages, eq(festivalCoverPhotos.photoId, storages.id))
+        .where(eq(festivalCoverPhotos.festivalId, festival.id));
+
+      record[festival.id] = {
         festival,
         country,
         lang: lang!,
@@ -170,15 +190,16 @@ async function buildFilter(request: NextRequest) {
         logo: logo!,
         events: [],
         cover: cover!,
+        coverPhotos: coverPhotos ?? [],
       };
     }
 
     if (event) {
-      acc[festival.id].events.push(event);
+      record[festival.id].events.push(event);
     }
 
-    return acc;
-  }, {});
+    return record;
+  }, Promise.resolve({}));
 
   return Object.values(result);
 }

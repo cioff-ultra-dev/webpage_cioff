@@ -6,6 +6,7 @@ import {
   festivals,
   festivalsLang,
   festivalToCategories,
+  groupCoverPhotos,
   groups,
   groupsLang,
   groupToCategories,
@@ -60,9 +61,9 @@ async function buildFilter(request: NextRequest) {
   const groupId: number = Number(
     request.nextUrl.searchParams.get("groupId") || "0"
   );
-const pageSize: number = Number(
-  request.nextUrl.searchParams.get("pageSize") || "10"
-);
+  const pageSize: number = Number(
+    request.nextUrl.searchParams.get("pageSize") || "10"
+  );
   const locale: Locale =
     (request.nextUrl.searchParams.get("locale") as Locale) || defaultLocale;
 
@@ -142,19 +143,26 @@ const pageSize: number = Number(
     .limit(pageSize)
     .offset((page - 1) * pageSize);
 
-  const result = (await baseQuery).reduce<
-    Record<
-      number,
-      {
-        group: SelectGroup;
-        country: SelectCountries | null;
-        lang: SelectGroupLang;
-        countryLang: SelectCountryLang;
-        logo: SelectStorage;
-        cover: SelectStorage;
-      }
+  const result = await (
+    await baseQuery
+  ).reduce<
+    Promise<
+      Record<
+        number,
+        {
+          group: SelectGroup;
+          country: SelectCountries | null;
+          lang: SelectGroupLang;
+          countryLang: SelectCountryLang;
+          logo: SelectStorage;
+          cover: SelectStorage;
+          coverPhotos: { photoId: number | null; url: string | null }[];
+        }
+      >
     >
-  >((acc, row) => {
+  >(async (acc, row) => {
+    const record = await acc;
+
     const group = row.group;
     const country = row.country;
     const lang = row.lang;
@@ -162,19 +170,29 @@ const pageSize: number = Number(
     const logo = row.logo;
     const cover = row.cover;
 
-    if (!acc[group.id]) {
-      acc[group.id] = {
+    if (!record[group.id]) {
+      const coverPhotos = await db
+        .select({
+          photoId: groupCoverPhotos.photoId,
+          url: storages.url,
+        })
+        .from(groupCoverPhotos)
+        .leftJoin(storages, eq(groupCoverPhotos.photoId, storages.id))
+        .where(eq(groupCoverPhotos.groupId, group.id));
+
+      record[group.id] = {
         group,
         country,
         lang: lang!,
         countryLang: countryLang!,
         logo: logo!,
         cover: cover!,
+        coverPhotos: coverPhotos ?? [],
       };
     }
 
-    return acc;
-  }, {});
+    return record;
+  }, Promise.resolve({}));
 
   return Object.values(result);
 }

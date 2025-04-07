@@ -43,7 +43,7 @@ export function CarouselImage(props: CarouselProps) {
             src={image.url}
             alt={image.name}
             fill
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-center"
             onError={(e) => (e.currentTarget.src = imageError)}
           />
         </CarouselItem>
@@ -57,12 +57,12 @@ export function CarouselImage(props: CarouselProps) {
     return [
       <CarouselPrevious
         key="arrow-prev"
-        className="absolute left-2 bg-transparent hover:bg-transparent border-none"
+        className="absolute left-1 bg-transparent hover:bg-transparent border-none"
         icon={<ChevronLeft className="text-white" strokeWidth={4} size={48} />}
       />,
       <CarouselNext
         key="arrow-next"
-        className="absolute right-2 bg-transparent hover:bg-transparent border-none"
+        className="absolute right-1 bg-transparent hover:bg-transparent border-none"
         icon={<ChevronRight className="text-white" strokeWidth={4} size={48} />}
       />,
     ];
