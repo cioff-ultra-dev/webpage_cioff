@@ -70,8 +70,6 @@ const FESTIVAL_CATEGORY_MAP = {
   authentic: "styleOfFestival",
   elaborado: "styleOfFestival",
   stylized: "styleOfFestival",
-  cioff: "status",
-  international: "status",
   "host-families": "typeOfAccomodation",
   "hotel-hostel-campus": "typeOfAccomodation",
   "schools-gym-halls": "typeOfAccomodation",
