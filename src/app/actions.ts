@@ -79,7 +79,6 @@ import path from "path";
 import { tmpdir } from "os";
 import { getTranslateText } from "@/lib/translate";
 import { Locale, pickLocales } from "@/i18n/config";
-import { group } from "console";
 
 const urlStringSchema = z.string().trim().url();
 
@@ -2134,7 +2133,7 @@ export async function updateFestival(formData: FormData) {
     }
 
     if (nextDateSize > 0) {
-      for (let index = 0; index < currentDateSize; index++) {
+      for (let index = 0; index < nextDateSize; index++) {
         const id = Number(formData.get(`_nextDates.${index}._rangeDate.id`));
         const fromDate = formData.get(
           `_nextDates.${index}._rangeDate.from`
@@ -2155,19 +2154,15 @@ export async function updateFestival(formData: FormData) {
     }
 
     if (currentDates.length) {
+      await tx.delete(events).where(eq(events.festivalId, currentFestival.id));
+
       await tx
         .insert(events)
-        .values(
-          currentDates.filter(
-            (date, index) =>
-              currentDates.findIndex((current, i) => current.id === date.id) ===
-              index
-          )
-        )
+        .values(currentDates)
         .onConflictDoUpdate({
           target: events.id,
           set: buildConflictUpdateColumns(events, ["startDate", "endDate"]),
-        });
+        })
     }
 
     if (groupCategories.length) {

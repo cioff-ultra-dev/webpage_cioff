@@ -266,26 +266,32 @@ export default function EventForm({
     defaultValues: {
       id: id ? Number(id) : 0,
       _nextDates:
-        currentFestival?.events?.map((event) => {
-          return {
-            _rangeDate: {
-              id: event.id ? String(event.id) : "0",
-              from: event.startDate?.toUTCString() ?? "",
-              to: event.endDate?.toUTCString() ?? "",
-            },
-          };
-        }) || [],
+        currentFestival?.events
+          ?.filter((event) =>
+            !isSameYear(event.startDate!, new Date())
+          )
+          ?.map((event) => {
+            return {
+              _rangeDate: {
+                id: event.id ? String(event.id) : "0",
+                from: event.startDate?.toUTCString() ?? "",
+                to: event.endDate?.toUTCString() ?? "",
+              },
+            };
+          }) || [],
       directorName: currentFestival?.directorName ?? "",
       _currentDates:
-        currentFestival?.events.map((event) => {
-          return {
-            _rangeDate: {
-              id: event.id ? String(event.id) : "0",
-              from: event.startDate?.toUTCString() ?? "",
-              to: event.endDate?.toUTCString() ?? "",
-            },
-          };
-        }) || [],
+        currentFestival?.events
+          ?.filter((event) => isThisYear(event.startDate!))
+          ?.map((event) => {
+            return {
+              _rangeDate: {
+                id: event.id ? String(event.id) : "0",
+                from: event.startDate?.toUTCString() ?? "",
+                to: event.endDate?.toUTCString() ?? "",
+              },
+            };
+          }) || [],
       contact: "__ad",
       peoples: currentFestival?.peoples ?? 0,
       phone: currentFestival?.phone ?? "",
