@@ -62,6 +62,7 @@ import {
   CircleCheck,
   MapPinIcon,
   PlusCircle,
+  Trash,
   X,
 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
@@ -267,9 +268,7 @@ export default function EventForm({
       id: id ? Number(id) : 0,
       _nextDates:
         currentFestival?.events
-          ?.filter((event) =>
-            !isSameYear(event.startDate!, new Date())
-          )
+          ?.filter((event) => !isSameYear(event.startDate!, new Date()))
           ?.map((event) => {
             return {
               _rangeDate: {
@@ -432,13 +431,17 @@ export default function EventForm({
     }
   };
 
-  const { fields: currentDateFields, append: appendCurrentDates } =
+  const { fields: currentDateFields, append: appendCurrentDates, remove:removeCurrentDates } =
     useFieldArray({
       control: form.control,
       name: "_currentDates",
     });
 
-  const { fields: nextDateFields, append: appendNextDates } = useFieldArray({
+  const {
+    fields: nextDateFields,
+    append: appendNextDates,
+    remove: removeNextDates,
+  } = useFieldArray({
     control: form.control,
     name: "_nextDates",
   });
@@ -877,7 +880,7 @@ export default function EventForm({
                                     {t("agenda")} {positionIndex}
                                   </FormLabel>
                                   <FormControl>
-                                    <>
+                                    <div className="flex gap-4">
                                       <DatePickerWithRange
                                         className="w-full"
                                         buttonClassName="w-full"
@@ -928,7 +931,15 @@ export default function EventForm({
                                         name={`_currentDates.${index}._rangeDate.to`}
                                         value={value.to}
                                       />
-                                    </>
+                                      <Button
+                                        variant="ghost"
+                                        onClick={() =>
+                                          removeCurrentDates(index)
+                                        }
+                                      >
+                                        <Trash className="text-red-500" />
+                                      </Button>
+                                    </div>
                                   </FormControl>
                                   {form?.getFieldState(
                                     `_currentDates.${index}._rangeDate.from`
@@ -1001,7 +1012,7 @@ export default function EventForm({
                                     {t("next_agenda")} {positionIndex}
                                   </FormLabel>
                                   <FormControl>
-                                    <>
+                                    <div className="flex gap-4">
                                       <DatePickerWithRange
                                         className="w-full"
                                         buttonClassName="w-full"
@@ -1060,7 +1071,13 @@ export default function EventForm({
                                         name={`_nextDates.${index}._rangeDate.to`}
                                         value={value.to}
                                       />
-                                    </>
+                                      <Button
+                                        variant="ghost"
+                                        onClick={() => removeNextDates(index)}
+                                      >
+                                        <Trash className="text-red-500" />
+                                      </Button>
+                                    </div>
                                   </FormControl>
                                   {form?.getFieldState(
                                     `_nextDates.${index}._rangeDate.from`
