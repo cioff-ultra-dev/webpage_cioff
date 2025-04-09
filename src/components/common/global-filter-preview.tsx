@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import useSWR from "swr";
-import { CalendarIcon, Users } from "lucide-react";
+import { CalendarIcon, Globe, Users } from "lucide-react";
 import {
   APIProvider,
   useMap,
@@ -375,9 +375,16 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
         >
           <div className="container mx-auto flex gap-4 flex-col items-center">
             <TabsList className="flex w-fit justify-center">
-              <TabsTrigger value="festivals">{tf("festivals")}</TabsTrigger>
-              <TabsTrigger value="groups">{tf("groups")}</TabsTrigger>
-              <TabsTrigger value="national_section">
+              <TabsTrigger value="festivals" className="flex gap-4">
+                <CalendarIcon />
+                {tf("festivals")}
+              </TabsTrigger>
+              <TabsTrigger value="groups" className="flex gap-4">
+                <Users />
+                {tf("groups")}
+              </TabsTrigger>
+              <TabsTrigger value="national_section" className="flex gap-4">
+                <Globe />
                 {tf("countries")}
               </TabsTrigger>
             </TabsList>

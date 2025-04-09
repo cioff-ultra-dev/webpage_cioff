@@ -344,8 +344,14 @@ export function WrapperFilter({
       >
         <div className="container mx-auto flex gap-4 flex-col items-center">
           <TabsList>
-            <TabsTrigger value="festivals">Festivals</TabsTrigger>
-            <TabsTrigger value="groups">Groups</TabsTrigger>
+            <TabsTrigger value="festivals" className="flex gap-4">
+              <CalendarIcon />
+              {tf("festivals")}
+            </TabsTrigger>
+            <TabsTrigger value="groups" className="flex gap-4">
+              <Users />
+              {tf("groups")}
+            </TabsTrigger>
           </TabsList>
           <div className="flex-1 w-2/3 max-md:w-full lg:w-1/3">
             <form
@@ -482,14 +488,16 @@ export function WrapperFilter({
                         cover,
                         countryLang,
                         event,
-                        coverPhotos
+                        coverPhotos,
                       }) => (
                         <FilterCard
                           key={festival.id}
                           icon={<CalendarIcon />}
-                          images={coverPhotos.length
-                          ? coverPhotos.map((photo) => photo.url!)
-                          : [cover?.url || "/placeholder.svg"]}
+                          images={
+                            coverPhotos.length
+                              ? coverPhotos.map((photo) => photo.url!)
+                              : [cover?.url || "/placeholder.svg"]
+                          }
                           title={lang.name ?? ""}
                           endDate={event?.endDate}
                           startDate={event?.startDate}
@@ -585,9 +593,11 @@ export function WrapperFilter({
                         <FilterCard
                           key={group.id}
                           icon={<Users />}
-                          images={coverPhotos.length
-                          ? coverPhotos.map((photo) => photo.url!)
-                          : [cover?.url || "/placeholder.svg"]}
+                          images={
+                            coverPhotos.length
+                              ? coverPhotos.map((photo) => photo.url!)
+                              : [cover?.url || "/placeholder.svg"]
+                          }
                           title={lang.name}
                           location={group?.location || countryLang?.name}
                           hideDate={true}
