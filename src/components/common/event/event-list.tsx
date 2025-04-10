@@ -86,19 +86,19 @@ export default async function EventList(
         key={country}
         className="flex justify-start py-2 border-b items-center"
       >
-        <div className="h-32 w-auto relative mr-4">
+        <div className="h-32 w-auto relative mr-14">
           <GalleryImageEvent
           containerClass="h-[100px] w-[120px]"
             gallery={[{ src: image, width: 1000, height: 1200 }]}
             thumbnailStyle={{
               height: 100,
-              width: 120,
+              width: 150,
               borderRadius: "5px",
               cursor: "pointer",
             }}
             tileViewportStyle={{
               height: 100,
-              width: 120,
+              width: 150,
               borderRadius: "5px",
             }}
           />
