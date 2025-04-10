@@ -149,7 +149,9 @@ export default async function Home() {
               asChild
               className="bg-white text-black rounded-xl text-xs px-3 h-10 hover:bg-white capitalize"
             >
-              <Link href="/unesco" prefetch>{t("bannerLink2")}</Link>
+              <Link href="/unesco" prefetch>
+                {t("bannerLink2")}
+              </Link>
             </Button>
           </div>
         </div>
@@ -166,10 +168,7 @@ export default async function Home() {
         </section>
         <section className="py-4 sm:py-8 px-52 max-lg:px-24 max-md:px-28 max-sm:px-8 flex flex-col items-center">
           <div className="min-h-auto overflow-hidden w-full">
-            <EventList
-              limit={5}
-              resultClasses="max-sm:columns-1 max-md:columns-2"
-            />
+            <EventList limit={5} />
           </div>
         </section>
         <section className="bg-gray-900 py-4 sm:py-8 hidden">
@@ -210,7 +209,7 @@ export default async function Home() {
           </div>
         </section>
       </main>
-      <Footer/>
+      <Footer />
     </div>
   );
 }

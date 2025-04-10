@@ -98,15 +98,14 @@ export function FilterCard(props: FilterCardProps): JSX.Element {
         containerClass
       )}
     >
-      <div
-        className="w-full h-[220px] rounded-t-md overflow-hidden relative"
-      >
-        <CarouselImage images={CoverImages} imageError="/logo.png" />
+      <div className="w-full h-[220px] rounded-t-md overflow-hidden relative">
+        <CarouselImage
+          images={CoverImages}
+          imageError="/logo.png"
+          onImageClick={handleItemDetail}
+        />
       </div>
-      <div
-        className="flex flex-col gap-1 relative px-2 pb-4 cursor-default"
-        onClick={handleItemDetail}
-      >
+      <div className="flex flex-col gap-1 relative px-2 pb-4 cursor-default">
         <Button
           className="rounded-full h-12 w-12 absolute -top-7 right-2 group transition-transform duration-300 cursor-pointer"
           onClick={handleItemDetail}

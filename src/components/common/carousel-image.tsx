@@ -23,6 +23,7 @@ interface CarouselProps {
   containerClass?: string;
   images: ICarouselImage[];
   imageError?: string;
+  onImageClick?: () => void;
 }
 
 export function CarouselImage(props: CarouselProps) {
@@ -30,6 +31,7 @@ export function CarouselImage(props: CarouselProps) {
     images,
     containerClass = "",
     imageError = "/placeholder.svg",
+    onImageClick
   } = props;
 
   const plugin = useRef(Autoplay({ delay: 2000, stopOnInteraction: false }));
@@ -45,10 +47,11 @@ export function CarouselImage(props: CarouselProps) {
             fill
             className="w-full h-full object-cover object-center"
             onError={(e) => (e.currentTarget.src = imageError)}
+            onClick={onImageClick}
           />
         </CarouselItem>
       )),
-    [imageError, images]
+    [imageError, images, onImageClick]
   );
 
   const arrows = useMemo(() => {
