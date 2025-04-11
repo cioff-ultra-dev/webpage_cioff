@@ -12,6 +12,9 @@ const config: Config = {
       fontFamily: {
         heading: ["var(--font-heading)", ...fontFamily.sans],
         body: ["var(--font-body)", ...fontFamily.sans],
+        secular: ["var(--font-secular)"],
+        roboto: ["var(--font-roboto)"],
+        poppins: ["var(--font-poppins)"],
       },
       colors: {
         border: "hsl(var(--border))",

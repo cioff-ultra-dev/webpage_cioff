@@ -5,7 +5,13 @@ import { ImpactItem } from "./impact-item";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-export function ImpactSection(): JSX.Element {
+interface ImpactSectionProps {
+  hideButton?: boolean;
+}
+
+export function ImpactSection(props: ImpactSectionProps): JSX.Element {
+  const { hideButton = false } = props;
+
   const translations = useTranslations("impact");
 
   return (
@@ -60,12 +66,16 @@ export function ImpactSection(): JSX.Element {
           description={translations("children")}
         />
       </div>
-      <Button
-        size="sm"
-        className="rounded-xl text-roboto font-semibold text-sm px-4 text-white hover:bg-white hover:text-primary hover:border hover:border-primary mt-8 mb-16 capitalize"
-      >
-        <Link href="/annual-reports" prefetch>{translations("more")}</Link>
-      </Button>
+      {!hideButton && (
+        <Button
+          size="sm"
+          className="rounded-xl text-roboto font-semibold text-sm px-4 text-white hover:bg-white hover:text-primary hover:border hover:border-primary mt-8 mb-16 capitalize"
+        >
+          <Link href="/annual-reports" prefetch>
+            {translations("more")}
+          </Link>
+        </Button>
+      )}
     </section>
   );
 }

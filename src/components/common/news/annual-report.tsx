@@ -42,7 +42,13 @@ const IMAGES = [
   },
 ];
 
-function AnnualReport() {
+interface AnnualReportProps {
+  validatePath?: boolean;
+}
+
+function AnnualReport(props: AnnualReportProps) {
+  const { validatePath = true } = props;
+
   const path = usePathname();
   const locale = useLocale() as Locale;
 
@@ -77,7 +83,7 @@ function AnnualReport() {
     [locale]
   );
 
-  if (!path.includes("/annual-reports")) return null;
+  if (validatePath && !path.includes("/annual-reports")) return null;
 
   return (
     <div className="grid grid-cols-4 w-full gap-6 max-lg:grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1 px-36 max-lg:px-16 max-md:px-12 max-sm:px-12">

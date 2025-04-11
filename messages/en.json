@@ -183,7 +183,7 @@
       "facebook_link": "Facebook link",
       "instagram_link": "Instagram Link",
       "website_link": "Website",
-      "media_description":"please always include the https:// before the link",
+      "media_description": "please always include the https:// before the link",
       "you_can_manage_type_compensation": "You can manage your type of compensation here.",
       "additional_information": "Additional Information",
       "link_conditions_Applica": "Link Conditions and Applications",
@@ -328,7 +328,7 @@
       "facebook_link": "Facebook link",
       "instagram_link": "Instagram Link",
       "website_link": "Website",
-      "media_description":"please always include the https:// before the link",
+      "media_description": "please always include the https:// before the link",
       "repertoire": "Repertoire",
       "add_your_perfo_repe_below": "Add your performance repertoire details below",
       "name": "Name",
@@ -883,20 +883,55 @@
       }
     }
   },
-  "footer":{
-    "connect":"Connect with us!",
-    "place":"Mairie",
-    "address":"1 Place Henri Coursaget",
-    "additional":"16500 Confolens",
-    "country":"France",
-    "become":"Become a member"
+  "footer": {
+    "connect": "Connect with us!",
+    "place": "Mairie",
+    "address": "1 Place Henri Coursaget",
+    "additional": "16500 Confolens",
+    "country": "France",
+    "become": "Become a member"
   },
-  "login":{
-    "welcome":"Welcome",
-    "login":"Sign in",
-    "become":"Become a member",
-    "email":"Email",
-    "password":"Password",
-    "description":"Enter your email and password to access your account."
+  "login": {
+    "welcome": "Welcome",
+    "login": "Sign in",
+    "become": "Become a member",
+    "email": "Email",
+    "password": "Password",
+    "description": "Enter your email and password to access your account."
+  },
+  "internationalPage": {
+    "bannerDescription1": "CIOFF® International, officially the International Council of Organizations of Folklore Festivals and Popular Arts, is a global non-governmental organization dedicated to the preservation and promotion of traditional culture and folklore./nFounded in 1970 in Confolens, France, it has since grown to be present in over 80 countries, supporting around 300 festivals worldwide. As an official UNESCO partner, accredited to the UNESCO Committee on Intangible Cultural Heritage, CIOFF® works to safeguard intangible cultural heritage, with a focus on traditional music, dance, rituals and crafts.",
+    "bannerTitle2": "ACTIVITIES",
+    "bannerDescription2": "CIOFF® activities include the World Folkloriada, educational programmes and youth engagement initiatives, fostering the continuity of cultural heritage among younger generations. Its efforts contribute significantly to global cultural diversity and sustainable development, closely aligning with UNESCO's goals of intercultural dialogue and peace./nThe organization operates through voluntary efforts and contributions from members and partners. CIOFF®'s role in facilitating cultural exchange and understanding is fundamental to maintaining the richness and diversity of the world's cultural traditions.",
+    "bannerTitle3": "MISSION",
+    "bannerDescription3": "The mission of CIOFF® is to promote and support the work of folklore festivals and groups from diverse cultures at international and national levels. Through its work, it seeks to ensure the preservation of cultural traditions and folklore expressions from around the world, in particular those that form part of the Intangible Cultural Heritage./nCIOFF® fosters cooperation between the different actors involved in popular culture, including artists, organizers and communities, to strengthen cultural exchange and raise awareness of the importance of protecting this legacy. In addition, the organization supports folklore entities in their efforts to innovate and adapt to new times, without losing the essence of their traditions./nIn short, CIOFF® works tirelessly to ensure that cultural practices and oral and artistic traditions are recognized, valued and transmitted to future generations, in an effort to safeguard the world's cultural diversity.",
+    "bannerTitle4": "VISION",
+    "bannerDescription4": "CIOFF®'s vision is to be the leader in promoting a culture of peace, friendship and understanding worldwide, through the integration of intercultural dialogue through festivals and folklore groups. The organization aims to create a space where different cultures can meet, share and learn from each other, fostering an environment of mutual respect and cooperation./nThrough the dissemination of folklore, CIOFF® seeks to overcome geographical, linguistic and social barriers, strengthening ties between nations and communities. Its focus on interculturality allows diverse artistic and cultural traditions to intertwine, offering common ground for the expression of each people's identity, while contributing to global peace./nIn this sense, CIOFF® promotes the idea that understanding and respect for other cultures are fundamental to building a more harmonious world, where diversity is seen as a value that enriches humanity as a whole.",
+    "bannerTitle5": "UNESCO",
+    "bannerDescription5": "CIOFF®'s vision is to be the leader in promoting a culture of peace, friendship and understanding worldwide, through the integration of intercultural dialogue through festivals and folklore groups. The organization aims to create a space where different cultures can meet, share and learn from each other, fostering an environment of mutual respect and cooperation. Through the dissemination of folklore, CIOFF® seeks to overcome geographical, linguistic and social barriers, strengthening ties.",
+    "president":"President",
+    "administrative":"Vice-Chairperson For Administrative Affairs",
+    "cultural":"Vice-Chairperson For Cultural Affairs",
+    "secretary":"Secretary General(A)",
+    "treasurer":"Treasurer",
+    "africa":"Africa",
+    "asia":"Asia & the pacific",
+    "europe":"Central & North Europe",
+    "america":"Latin America & The Caribbean",
+    "north":"North America",
+    "south":"South Europe",
+    "festival":"Festivals Commission",
+    "culturalCommission":"Cultural Commission",
+    "legal":"Legal Commission(A)",
+    "communications":"Communications Commission",
+    "youths":"Youths Commissions",
+    "unesco":"Representative to UNESCO",
+    "executive":"EXECUTIVE COMMITTEE",
+    "sector":"SECTOR REPRESENTATIVES",
+    "commissions":"COMMISSIONS CHAIRPERSONS",
+    "council":"COUNCIL",
+    "chart":"ORGANIZATIONAL CHART",
+    "history":"HISTORY",
+    "reports":"annual reports"
   }
 }
