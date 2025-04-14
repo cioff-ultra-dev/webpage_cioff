@@ -20,23 +20,23 @@ export function CouncilItem(props: CouncilItemProps) {
 
   return (
     <div className="flex h-auto gap-4 mt-14">
-      <div className="rounded-xl overflow-hidden relative h-60 w-40">
+      <div className="rounded-xl overflow-hidden relative min-h-60 h-60 min-w-40 w-40">
         <Image src={image} fill alt={title} objectFit="cover" />
       </div>
       <div className="flex flex-col">
         <p className="font-bold text-xl font-poppins max-md:text-lg mb-1">
           {title}
         </p>
-        <p className="flex flex-wrap gap-2 items-center text-gray-500">
+        <p className="flex flex-wrap gap-2 items-center text-gray-500 max-md:max-w-28 h-auto">
           <Mail />
           <Link
             href={`mailto:${email}`}
-            className="hover:underline font-poppins"
+            className="hover:underline font-poppins max-lg:max-w-32 break-words whitespace-normal"
           >
             {email}
           </Link>
         </p>
-        <p className="text-lg font-poppins font-semibold max-w-60 max-md:text-sm mt-2">
+        <p className="text-lg font-poppins font-semibold max-w-60 max-md:text-sm mt-2 max-lg:max-w-40">
           {description}
         </p>
         <Link className="mt-4" href={`/national-sections/${countryId}`}>

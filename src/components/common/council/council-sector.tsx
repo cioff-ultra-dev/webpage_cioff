@@ -22,7 +22,9 @@ export function CouncilSector(props: CouncilSectorProps) {
       <h1 className="bg-primary text-white font-medium font-secular uppercase text-2xl px-2 py-1 rounded-xl w-fit text-center max-md:text-lg">
         {title}
       </h1>
-      <div className="grid grid-cols-3 gap-6 h-auto max-md:grid-cols-1">{items}</div>
+      <div className="grid grid-cols-3 gap-6 h-auto max-md:grid-cols-1 max-lg:grid-cols-2">
+        {items}
+      </div>
     </section>
   );
 }
