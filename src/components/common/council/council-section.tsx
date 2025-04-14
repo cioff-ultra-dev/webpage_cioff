@@ -1,30 +1,29 @@
-import {useMemo} from "react";
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 
 import { CouncilSector } from "./council-sector";
-import { CHAIRPERSONS,EXECUTIVES,REPRESENTATIVE } from "./constants";
-
+import { CHAIRPERSONS, EXECUTIVES, REPRESENTATIVE } from "./constants";
 
 function CouncilSection() {
   const translations = useTranslations("internationalPage");
 
-    const {chairpersons,executives,representative} = useMemo(
-      () => ({
-        chairpersons: CHAIRPERSONS.map((item) => ({
-          ...item,
-          description: translations(item.description),
-        })),
-        executives: EXECUTIVES.map((item) => ({
-          ...item,
-          description: translations(item.description),
-        })),
-        representative: REPRESENTATIVE.map((item) => ({
-          ...item,
-          description: translations(item.description),
-        })),
-      }),
-      [translations]
-    );
+  const { chairpersons, executives, representative } = useMemo(
+    () => ({
+      chairpersons: CHAIRPERSONS.map((item) => ({
+        ...item,
+        description: translations(item.description),
+      })),
+      executives: EXECUTIVES.map((item) => ({
+        ...item,
+        description: translations(item.description),
+      })),
+      representative: REPRESENTATIVE.map((item) => ({
+        ...item,
+        description: translations(item.description),
+      })),
+    }),
+    [translations]
+  );
 
   return (
     <div className="w-2/3">
