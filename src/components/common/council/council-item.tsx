@@ -10,10 +10,11 @@ export interface CouncilItemProps {
   description: string;
   flag: string;
   email: string;
+  countryId: number;
 }
 
 export function CouncilItem(props: CouncilItemProps) {
-  const { title, description, flag, image, email } = props;
+  const { title, description, flag, image, email, countryId } = props;
 
   const urlFlag = findFlagUrlByCountryName(flag);
 
@@ -23,7 +24,9 @@ export function CouncilItem(props: CouncilItemProps) {
         <Image src={image} fill alt={title} objectFit="cover" />
       </div>
       <div className="flex flex-col">
-        <p className="font-bold text-xl font-poppins max-md:text-lg mb-1">{title}</p>
+        <p className="font-bold text-xl font-poppins max-md:text-lg mb-1">
+          {title}
+        </p>
         <p className="flex flex-wrap gap-2 items-center text-gray-500">
           <Mail />
           <Link
@@ -33,10 +36,10 @@ export function CouncilItem(props: CouncilItemProps) {
             {email}
           </Link>
         </p>
-        <p className="text-lg font-poppins font-semibold max-w-48 max-md:text-sm mt-2">
+        <p className="text-lg font-poppins font-semibold max-w-60 max-md:text-sm mt-2">
           {description}
         </p>
-        <div className="mt-4">
+        <Link className="mt-4" href={`/national-sections/${countryId}`}>
           <Image
             src={urlFlag}
             width={40}
@@ -44,7 +47,7 @@ export function CouncilItem(props: CouncilItemProps) {
             alt={title}
             objectFit="cover"
           />
-        </div>
+        </Link>
       </div>
     </div>
   );

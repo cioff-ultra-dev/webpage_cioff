@@ -8,6 +8,7 @@ export const EXECUTIVES: CouncilItemProps[] = [
     description: "president",
     flag: "canada",
     email: "christian.hidalgo-mazzei@cioff.org",
+    countryId: 11,
   },
   {
     image:
@@ -16,6 +17,7 @@ export const EXECUTIVES: CouncilItemProps[] = [
     description: "administrative",
     flag: "croatia",
     email: "kristina.medaric@cioff.org",
+    countryId: 17,
   },
   {
     image:
@@ -24,6 +26,7 @@ export const EXECUTIVES: CouncilItemProps[] = [
     description: "cultural",
     flag: "chile",
     email: "marcelo.fierro@cioff.org",
+    countryId: 12,
   },
   {
     image:
@@ -32,6 +35,7 @@ export const EXECUTIVES: CouncilItemProps[] = [
     description: "secretary",
     flag: "switzerland",
     email: "lauriane.zosso@cioff.org",
+    countryId: 56,
   },
   {
     image:
@@ -40,6 +44,7 @@ export const EXECUTIVES: CouncilItemProps[] = [
     description: "treasurer",
     flag: "belgium",
     email: "bart.dewitte@cioff.org",
+    countryId: 5,
   },
 ];
 
@@ -51,6 +56,7 @@ export const REPRESENTATIVE: CouncilItemProps[] = [
     description: "africa",
     flag: "benin",
     email: "marcel.zounon@cioff.org",
+    countryId: 6,
   },
   {
     image:
@@ -59,6 +65,7 @@ export const REPRESENTATIVE: CouncilItemProps[] = [
     description: "asia",
     flag: "india",
     email: "pawan.kapoor@cioff.org",
+    countryId: 29,
   },
   {
     image:
@@ -67,6 +74,7 @@ export const REPRESENTATIVE: CouncilItemProps[] = [
     description: "europe",
     flag: "romania",
     email: "ioan.cocian@cioff.org",
+    countryId: 48,
   },
   {
     image:
@@ -75,6 +83,7 @@ export const REPRESENTATIVE: CouncilItemProps[] = [
     description: "america",
     flag: "panama",
     email: "eduardo.hansell@cioff.org",
+    countryId: 43,
   },
   {
     image:
@@ -83,6 +92,7 @@ export const REPRESENTATIVE: CouncilItemProps[] = [
     description: "north",
     flag: "canada",
     email: "catherine.limbertie@cioff.org",
+    countryId: 11,
   },
   {
     image:
@@ -91,6 +101,7 @@ export const REPRESENTATIVE: CouncilItemProps[] = [
     description: "south",
     flag: "croatia",
     email: "enrih.merdic@cioff.org",
+    countryId: 17,
   },
 ];
 
@@ -102,6 +113,7 @@ export const CHAIRPERSONS: CouncilItemProps[] = [
     description: "festival",
     flag: "slovenia",
     email: "festivals@cioff.org",
+    countryId: 52,
   },
   {
     image:
@@ -110,6 +122,7 @@ export const CHAIRPERSONS: CouncilItemProps[] = [
     description: "culturalCommission",
     flag: "brazil",
     email: "culture@cioff.org",
+    countryId: 9,
   },
   {
     image:
@@ -118,6 +131,7 @@ export const CHAIRPERSONS: CouncilItemProps[] = [
     description: "legal",
     flag: "france",
     email: "legal@cioff.org",
+    countryId: 21,
   },
   {
     image:
@@ -126,6 +140,7 @@ export const CHAIRPERSONS: CouncilItemProps[] = [
     description: "communications",
     flag: "colombia",
     email: "communications@cioff.org",
+    countryId: 64,
   },
   {
     image:
@@ -134,6 +149,7 @@ export const CHAIRPERSONS: CouncilItemProps[] = [
     description: "youths",
     flag: "greece",
     email: "ycc@cioff.org",
+    countryId: 25,
   },
   {
     image:
@@ -142,5 +158,6 @@ export const CHAIRPERSONS: CouncilItemProps[] = [
     description: "unesco",
     flag: "france",
     email: "jean-pascal.mariot@cioff.org",
+    countryId: 21,
   },
 ];
