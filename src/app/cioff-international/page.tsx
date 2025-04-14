@@ -54,7 +54,7 @@ function International() {
           title={translations("bannerTitle3")}
           description={translations("bannerDescription3")}
         />
-        <h2 className="font-bold text-5xl text-center mb-16 font-secular max-md:text-3xl">
+        {/* <h2 className="font-bold text-5xl text-center mb-16 font-secular max-md:text-3xl">
           {translations("chart")}
         </h2>
         <div className="relative h-[650px] w-full mt-16 flex justify-center max-md:!h-[450px]">
@@ -64,15 +64,15 @@ function International() {
             fill
             className="!relative !w-[50vw] max-lg:!w-[80vw]"
           />
-        </div>
+        </div> */}
         <Banner
-          containerClass="my-36"
+          containerClass="mb-36"
           image="/international-banner-4.jpg"
           title={translations("bannerTitle4")}
           description={translations("bannerDescription4")}
           justify="right"
         />
-        <ImpactSection hideButton />
+        {/* <ImpactSection hideButton />
         <h2 className="font-bold text-3xl text-center mt-24 font-secular max-md:text-3xl">
           CIOFF<span className="align-top text-lg">®</span>{" "}
           {translations("reports")}
@@ -91,7 +91,7 @@ function International() {
             {translations("history")}
           </h2>
           <CarouselHistory containerClass="my-8 relative w-[90vw]" />
-        </section>
+        </section> */}
       </main>
       <Footer />
     </div>
