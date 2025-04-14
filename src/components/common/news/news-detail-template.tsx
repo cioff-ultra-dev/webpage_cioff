@@ -55,7 +55,7 @@ function NewsDetailTemplate(props: NewsDetailTemplateProps) {
             ) : null}
             <h1 className="font-bold mb-12 text-4xl text-secular">{title}</h1>
           </div>
-          <div className="h-full bg-white">
+          <div className="h-full bg-white w-full overflow-x-hidden">
             <RenderSections sections={sections ?? []} />
             <AnnualReport />
           </div>

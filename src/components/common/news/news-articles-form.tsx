@@ -45,6 +45,7 @@ import {
 
 import VariantSelector from "./variant-selector";
 import { SectionsMenubar } from "./sections-menubar";
+import { JustifyBannerSelector } from "./justify-banner-selector";
 
 type EditableArticleTemplateProps = {
   initialContent?: SelectedSubPage;
@@ -203,6 +204,13 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
               url: "",
               variant: "default",
             }
+          : type === "banner"
+          ? {
+              description: "",
+              title: "",
+              justify: "center",
+              image: "",
+            }
           : "",
       position: sections.length,
     };
@@ -307,15 +315,17 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
 
       return (
         <div>
-          <span>{translations("sections.bannerImage")}</span>
-          <FilepondImageUploader
-            allowMultiple
-            maxFiles={1}
-            defaultFiles={initialFiles}
-            onprocessfile={imageCallback}
-            {...props}
-          />
-          <div>
+          <div className="my-3">
+            <span className="mb-2">{translations("sections.banner")}</span>
+            <FilepondImageUploader
+              allowMultiple
+              maxFiles={1}
+              defaultFiles={initialFiles}
+              onprocessfile={imageCallback}
+              {...props}
+            />
+          </div>
+          <div className="my-3">
             <label className="text-sm font-medium">
               {translations("sections.bannerTitle")}
             </label>
@@ -327,7 +337,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
               className="focus-visible:ring-0  mt-2"
             />
           </div>
-          <div>
+          <div className="my-3">
             <label className="text-sm font-medium">
               {translations("sections.bannerDescription")}
             </label>
@@ -338,6 +348,12 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
               }
               className="focus-visible:ring-0  mt-2"
             />
+          </div>
+          <div className="my-3">
+            <label className="text-sm font-medium">
+              {translations("sections.justify")}
+            </label>
+            <JustifyBannerSelector value={banner.justify} callback={callback} />
           </div>
         </div>
       );

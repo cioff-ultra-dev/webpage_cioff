@@ -8,25 +8,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ButtonContent } from "@/types/article";
+import { BannerContent } from "@/types/article";
 
 interface VariantSelectorProps {
-  buttonInfo: ButtonContent;
-  callback: (key: keyof ButtonContent, value: string) => void;
+  value: string;
+  callback: (key: keyof BannerContent, value: string) => void;
 }
 
-function VariantSelector({ buttonInfo, callback }: VariantSelectorProps) {
+export function JustifyBannerSelector({ value, callback }: VariantSelectorProps) {
   const locale = useLocale();
   const translations = useTranslations("news.form.sections");
 
   const items = useMemo(() => {
     return [
-      "default",
-      "destructive",
-      "outline",
-      "secondary",
-      "ghost",
-      "link",
+      "center",
+      "left",
+      "right",
     ].map((variant, i) => (
       <SelectItem key={i} value={variant} className="flex gap-1">
         {translations(variant)}
@@ -37,15 +34,13 @@ function VariantSelector({ buttonInfo, callback }: VariantSelectorProps) {
 
   return (
     <Select
-      onValueChange={(value: string) => callback("variant", value)}
-      value={buttonInfo.variant}
+      onValueChange={(value: string) => callback("justify", value)}
+      value={value}
     >
       <SelectTrigger className="w-full">
-        <SelectValue placeholder={translations("variantPlaceholder")} />
+        <SelectValue placeholder={translations("justifyPlaceholder")} />
       </SelectTrigger>
       <SelectContent>{items}</SelectContent>
     </Select>
   );
 }
-
-export default VariantSelector;

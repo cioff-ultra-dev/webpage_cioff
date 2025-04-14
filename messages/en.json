@@ -494,7 +494,12 @@
         "banner":"Banner",
         "bannerTitle":"Title",
         "bannerImage":"Image",
-        "bannerDescription":"Description"
+        "bannerDescription":"Description",
+        "center":"Center",
+        "left":"Left",
+        "right":"Right",
+        "justifyPlaceholder":"Text justification",
+        "justify":"Text justify"
 
       }
     }

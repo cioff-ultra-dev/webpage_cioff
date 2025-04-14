@@ -478,7 +478,12 @@
         "banner": "Bannière",
         "bannerTitle": "Titre",
         "bannerImage": "Image",
-        "bannerDescription": "Description"
+        "bannerDescription": "Description",
+        "center": "Centre",
+        "left": "Gauche",
+        "right": "Droite",
+        "justifyPlaceholder": "Justification du texte",
+        "justify": "Justifier le texte"
       }
     }
   },

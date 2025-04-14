@@ -479,7 +479,12 @@
         "banner": "Banner",
         "bannerTitle": "Título",
         "bannerImage": "Imagen",
-        "bannerDescription": "Descripción"
+        "bannerDescription": "Descripción",
+        "center": "Centro",
+        "left": "Izquierda",
+        "right": "Derecha",
+        "justifyPlaceholder": "Justificación del texto",
+        "justify": "Justificar texto"
       }
     }
   },

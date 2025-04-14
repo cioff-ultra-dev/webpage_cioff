@@ -15,6 +15,7 @@ export type BannerContent = {
   image: string;
   title: string;
   description: string;
+  justify: "center" | "left" | "right";
 };
 
 export type Section = {

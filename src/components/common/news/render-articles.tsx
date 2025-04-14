@@ -111,6 +111,7 @@ function RenderArticles({ sections }: { sections: Section[] }) {
                   image={bannerInfo.image}
                   title={bannerInfo.title}
                   description={bannerInfo.description}
+                  justify={bannerInfo.justify}
                   containerClass="my-32 w-screen"
                 />
             );
@@ -122,7 +123,7 @@ function RenderArticles({ sections }: { sections: Section[] }) {
   );
 
   return (
-    <section className="h-full [&>div:not(#banner)]:px-28 [&>div:not(#banner)]:container [&>*:not(#banner)]:mx-auto text-center">
+    <section className="[&>div:not(#banner)]:px-28 [&>div:not(#banner)]:container [&>*:not(#banner)]:mx-auto text-center">
       {items}
     </section>
   );

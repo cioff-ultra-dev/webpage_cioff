@@ -8,15 +8,18 @@ import { twMerge } from "tailwind-merge";
 
 import { Button } from "@/components/ui/button";
 
-const BannerVariants = cva("absolute text-white flex flex-col left-6 px-60 md:px-24 max-md:px-4", {
-  variants: {
-    justify: {
-      center: "items-center",
-      left: "items-start",
-      right: "items-end [&>p]:text-end",
+const BannerVariants = cva(
+  "absolute text-white flex flex-col left-6 px-60 md:px-24 max-md:px-4 max-sm:px-8 w-full",
+  {
+    variants: {
+      justify: {
+        center: "items-center",
+        left: "items-start",
+        right: "items-end [&>p]:text-end",
+      },
     },
-  },
-});
+  }
+);
 
 interface BannerProps extends VariantProps<typeof BannerVariants> {
   image: string;
