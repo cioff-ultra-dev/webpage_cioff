@@ -474,7 +474,11 @@
         "variant": "Variante",
         "variantPlaceholder": "Sélectionnez la variante du bouton",
         "carouselContent": "Contenu du carrousel",
-        "latestNewsContent": "Contenu des actualités récentes"
+        "latestNewsContent": "Contenu des actualités récentes",
+        "banner": "Bannière",
+        "bannerTitle": "Titre",
+        "bannerImage": "Image",
+        "bannerDescription": "Description"
       }
     }
   },

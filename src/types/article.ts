@@ -11,6 +11,12 @@ export type ButtonContent = {
     | "link";
 };
 
+export type BannerContent = {
+  image: string;
+  title: string;
+  description: string;
+};
+
 export type Section = {
   id: string;
   type:
@@ -20,8 +26,9 @@ export type Section = {
     | "carousel"
     | "news"
     | "youtube"
-    | "button";
-  content: ButtonContent | string;
+    | "button"
+    | "banner";
+  content: ButtonContent | string | BannerContent;
   position: number;
 };
 

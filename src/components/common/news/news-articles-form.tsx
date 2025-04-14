@@ -17,16 +17,7 @@ import {
 import { useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { z } from "zod";
-import {
-  Pilcrow,
-  ImageIcon,
-  VideoIcon,
-  GalleryHorizontal,
-  Newspaper,
-  Youtube,
-  Trash2,
-  SquareMinus,
-} from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -49,9 +40,11 @@ import {
   SelectedSubPage,
   ArticleBody,
   ButtonContent,
+  BannerContent,
 } from "@/types/article";
-import { Card, CardContent } from "@/components/ui/card";
+
 import VariantSelector from "./variant-selector";
+import { SectionsMenubar } from "./sections-menubar";
 
 type EditableArticleTemplateProps = {
   initialContent?: SelectedSubPage;
@@ -217,7 +210,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
   };
 
   const updateSection = useCallback(
-    (id: string, content: string | ButtonContent) => {
+    (id: string, content: string | ButtonContent | BannerContent) => {
       setSections((sections) =>
         sections.map((section) =>
           section.id === id ? { ...section, content } : section
@@ -241,9 +234,9 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
 
         updateSection(
           section.id,
-          typeof section.content === "string" && section.content.length > 0
-            ? section.content.concat(",", file.serverId)
-            : file.serverId
+          typeof section.content === "string"
+            ? section.content?.concat(",", file.serverId)
+            : ({ ...section.content, image: file.serverId } as BannerContent)
         );
       },
     [updateSection]
@@ -251,7 +244,10 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
 
   const onChangeButton = useCallback(
     (section: Section) =>
-      (property: keyof ButtonContent, value: string | boolean) => {
+      (
+        property: keyof ButtonContent | keyof BannerContent,
+        value: string | boolean
+      ) => {
         const updatedContent = {
           ...(section.content as ButtonContent),
           [property]: value,
@@ -284,6 +280,66 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
             updateSection(section.id, content)
           }
         />
+      );
+    }
+
+    if (section.type === "banner") {
+      const banner = section.content as BannerContent;
+      const callback = onChangeButton(section);
+      const imageCallback = onProcessFile(section);
+      const props = {
+        acceptedFileTypes: ["image/*"],
+        id: "photos",
+        name: "photos",
+      };
+
+      const initialFiles: FilePondInitialFile[] =
+        Object.keys(initialValues).length > 0 && banner?.image
+          ? [
+              {
+                source: banner.image,
+                options: {
+                  type: "local",
+                },
+              },
+            ]
+          : [];
+
+      return (
+        <div>
+          <span>{translations("sections.bannerImage")}</span>
+          <FilepondImageUploader
+            allowMultiple
+            maxFiles={1}
+            defaultFiles={initialFiles}
+            onprocessfile={imageCallback}
+            {...props}
+          />
+          <div>
+            <label className="text-sm font-medium">
+              {translations("sections.bannerTitle")}
+            </label>
+            <Input
+              value={banner.title}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                callback("title", e.target.value)
+              }
+              className="focus-visible:ring-0  mt-2"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">
+              {translations("sections.bannerDescription")}
+            </label>
+            <Input
+              value={banner.description}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                callback("description", e.target.value)
+              }
+              className="focus-visible:ring-0  mt-2"
+            />
+          </div>
+        </div>
       );
     }
 
@@ -581,78 +637,11 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
             )}
           </Droppable>
         </DragDropContext>
-        <Card className="sticky bottom-5 mt-4 right-0 flex justify-between items-center gap-4 w-full ">
-          <CardContent className="flex-row items-center p-4 gap-2 flex w-full">
-            <Button
-              size="sm"
-              variant="outline"
-              title={translations("sections.paragraph")}
-              onClick={() => addSection("paragraph")}
-            >
-              <Pilcrow className="h-5 w-5" />
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              title={translations("sections.image")}
-              onClick={() => addSection("image")}
-            >
-              <ImageIcon className="h-5 w-5" />
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              title={translations("sections.video")}
-              onClick={() => addSection("video")}
-            >
-              <VideoIcon className="h-5 w-5" />
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              title={translations("sections.carousel")}
-              onClick={() => addSection("carousel")}
-            >
-              <GalleryHorizontal className="h-5 w-5" />
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              title={translations("sections.news")}
-              onClick={() => addSection("news")}
-            >
-              <Newspaper className="h-5 w-5" />
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              title={translations("sections.youtube")}
-              onClick={() => addSection("youtube")}
-            >
-              <Youtube className="h-5 w-5" />
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              title={translations("sections.button")}
-              onClick={() => addSection("button")}
-            >
-              <SquareMinus className="h-5 w-5" />
-            </Button>
-          </CardContent>
-          <CardContent className="flex-row items-center p-4 flex w-full justify-end">
-            <div className="flex gap-2">
-              {onExit && (
-                <Button variant="secondary" onClick={onExit}>
-                  {translations("sections.cancel")}
-                </Button>
-              )}
-              <Button onClick={form.handleSubmit(handleSaveClick)}>
-                {translations("sections.save")}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <SectionsMenubar
+          addSection={addSection}
+          onSubmit={form.handleSubmit(handleSaveClick)}
+          onExit={onExit}
+        />
       </div>
     </div>
   );

@@ -490,7 +490,12 @@
         "variant": "Variant",
         "variantPlaceholder": "Select the button variant",
         "carouselContent": "Carousel content",
-        "latestNewsContent": "Latest news content"
+        "latestNewsContent": "Latest news content",
+        "banner":"Banner",
+        "bannerTitle":"Title",
+        "bannerImage":"Image",
+        "bannerDescription":"Description"
+
       }
     }
   },

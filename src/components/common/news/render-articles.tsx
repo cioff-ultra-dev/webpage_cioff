@@ -3,10 +3,11 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 import CarouselHistory from "@/components/common/carousel-history";
-import { ButtonContent, Section } from "@/types/article";
+import { BannerContent, ButtonContent, Section } from "@/types/article";
 import LatestNews from "@/components/common/news/latest-news";
 import Button from "./button-content";
 import { CustomImage, GalleryImageEvent } from "../event/gallery-images";
+import Banner from "../banner";
 
 function RenderArticles({ sections }: { sections: Section[] }) {
   const translations = useTranslations("news.form");
@@ -60,7 +61,7 @@ function RenderArticles({ sections }: { sections: Section[] }) {
             return (
               <div
                 key={section.id}
-                className="text-base editor my-4"
+                className="text-base editor my-4 text-start [&>p]:mb-3"
                 dangerouslySetInnerHTML={{ __html: paragraph ?? "" }}
               />
             );
@@ -102,6 +103,17 @@ function RenderArticles({ sections }: { sections: Section[] }) {
             const buttonInfo = section.content as ButtonContent;
 
             return <Button key={section.id} {...buttonInfo} />;
+          case "banner":
+            const bannerInfo = section.content as BannerContent;
+            return (
+                <Banner
+                  key={section.id}
+                  image={bannerInfo.image}
+                  title={bannerInfo.title}
+                  description={bannerInfo.description}
+                  containerClass="my-32 w-screen"
+                />
+            );
           default:
             return section.content as string;
         }
@@ -109,7 +121,11 @@ function RenderArticles({ sections }: { sections: Section[] }) {
     [sections]
   );
 
-  return <section className="w-full h-full px-28">{items}</section>;
+  return (
+    <section className="h-full [&>div:not(#banner)]:px-28 [&>div:not(#banner)]:container [&>*:not(#banner)]:mx-auto text-center">
+      {items}
+    </section>
+  );
 }
 
 export default RenderArticles;
