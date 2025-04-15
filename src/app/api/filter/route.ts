@@ -195,7 +195,12 @@ async function buildFilter(request: NextRequest) {
     }
 
     if (event) {
-      record[festival.id].events.push(event);
+      const eventList = await db
+        .select()
+        .from(events)
+        .where(eq(events.festivalId, festival.id));
+
+      record[festival.id].events.push(...eventList);
     }
 
     return record;

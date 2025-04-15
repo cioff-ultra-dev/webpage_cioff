@@ -15,6 +15,7 @@ import {
 } from "@vis.gl/react-google-maps";
 import { DateRange } from "react-day-picker";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { isThisYear, compareAsc } from "date-fns";
 
 import InfiniteScroll from "@/components/extension/swr-infinite-scroll";
 import fetcher, { cn } from "@/lib/utils";
@@ -489,22 +490,34 @@ export function WrapperFilter({
                         countryLang,
                         event,
                         coverPhotos,
-                      }) => (
-                        <FilterCard
-                          key={festival.id}
-                          icon={<CalendarIcon />}
-                          images={
-                            coverPhotos.length
-                              ? coverPhotos.map((photo) => photo.url!)
-                              : [cover?.url || "/placeholder.svg"]
-                          }
-                          title={lang.name ?? ""}
-                          endDate={event?.endDate}
-                          startDate={event?.startDate}
-                          location={festival?.location || countryLang?.name}
-                          detailLink={`/festivals/${festival.id}`}
-                        />
-                      )
+                        events,
+                      }) => {
+                        const recentEvent = events
+                          ?.filter(
+                            (event) =>
+                              event.startDate && isThisYear(event.startDate)
+                          )
+                          .sort((a, b) => compareAsc(a.startDate, b.startDate))
+                          .at(0);
+                        return (
+                          <FilterCard
+                            key={festival.id}
+                            icon={<CalendarIcon />}
+                            images={
+                              coverPhotos.length
+                                ? coverPhotos.map((photo) => photo.url!)
+                                : [cover?.url || "/placeholder.svg"]
+                            }
+                            title={lang.name ?? ""}
+                            endDate={recentEvent?.endDate ?? event?.endDate}
+                            startDate={
+                              recentEvent?.startDate ?? event?.startDate
+                            }
+                            location={festival?.location || countryLang?.name}
+                            detailLink={`/festivals/${festival.id}`}
+                          />
+                        );
+                      }
                     )
                   }
                 </InfiniteScroll>

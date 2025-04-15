@@ -42,6 +42,7 @@ import { Skeleton } from "../ui/skeleton";
 import NationalSectionsTab from "./send-emails/addressee-step/national-sections-tab";
 import Filters from "./send-emails/addressee-step/filters";
 import { ResultList } from "./filters/result-list";
+import { isThisYear, compareAsc } from "date-fns";
 
 interface FormElements extends HTMLFormControlsCollection {
   search: HTMLInputElement;
@@ -547,24 +548,38 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                         event,
                         cover,
                         coverPhotos,
-                      }) => ({
-                        icon: <CalendarIcon />,
-                        images: coverPhotos.length
-                          ? coverPhotos.map((photo) => photo.url!)
-                          : [cover?.url || "/placeholder.svg"],
-                        title: lang.name ?? "",
-                        endDate: event?.endDate,
-                        startDate: event?.startDate,
-                        location: festival?.location || countryLang?.name,
-                        detailLink: `/festivals/${festival.id}`,
-                        handleClick: () =>
-                          handleClickSelected(
-                            festival,
-                            country,
-                            lang,
-                            countryLang
-                          ),
-                      })
+                        events = [],
+                      }) => {
+                        const recentEvent =
+                          events
+                            ?.filter(
+                              (event) =>
+                                event.startDate && isThisYear(event.startDate)
+                            )
+                            .sort((a, b) =>
+                              compareAsc(a.startDate, b.startDate)
+                            )
+                            .at(0);
+
+                        return {
+                          icon: <CalendarIcon />,
+                          images: coverPhotos.length
+                            ? coverPhotos.map((photo) => photo.url!)
+                            : [cover?.url || "/placeholder.svg"],
+                          title: lang.name ?? "",
+                          endDate: recentEvent?.endDate ?? event?.endDate,
+                          startDate: recentEvent?.startDate ?? event?.startDate,
+                          location: festival?.location || countryLang?.name,
+                          detailLink: `/festivals/${festival.id}`,
+                          handleClick: () =>
+                            handleClickSelected(
+                              festival,
+                              country,
+                              lang,
+                              countryLang
+                            ),
+                        };
+                      }
                     )}
                     viewMoreLink={`/search?categories=${JSON.stringify(
                       selectedCategories
