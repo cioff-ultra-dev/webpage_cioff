@@ -29,6 +29,11 @@ import Filters from "./filters";
 import { ListItem } from "./list-item";
 import { Button } from "@/components/ui/button";
 
+const countriesFallback: Record<string, string> = {
+  bolivia: "https://flagicons.lipis.dev/flags/4x3/bo.svg",
+  "east-timor": "https://flagicons.lipis.dev/flags/4x3/tl.svg",
+};
+
 interface FestivalTabOptions extends PropsWithChildren {
   regions: MultiSelectProps["options"];
   categories: CategoriesType;
@@ -127,7 +132,12 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
         itemList
           ?.slice(0, 10)
           ?.map(({ countryLang, lang, id, cover, country }) => {
-            const countryUrl = findFlagUrlByCountryName(country.slug);
+            let countryUrl = findFlagUrlByCountryName(
+              country.slug.replaceAll("-", " ")
+            );
+
+            if (!countryUrl || country.slug === "bolivia")
+              countryUrl = countriesFallback[country.slug];
 
             return isCard ? (
               <FilterCard
@@ -173,7 +183,7 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
             );
           })
       ),
-    [isLoadingItemList, itemList, isCard, tCommon, selectedSections, dispatch]
+    [isLoadingItemList, itemList, isCard, selectedSections, dispatch]
   );
 
   const handleViewMore = useCallback(
