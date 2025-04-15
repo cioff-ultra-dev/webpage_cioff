@@ -283,9 +283,6 @@ export async function getNationaSectionById(
             },
           },
           langs: {
-            where(fields, { eq }) {
-              return eq(fields.lang, sq);
-            },
             with: {
               l: true,
             },
@@ -301,9 +298,6 @@ export async function getNationaSectionById(
             },
           },
           langs: {
-            where(fields, { eq }) {
-              return eq(fields.lang, sq);
-            },
             with: {
               l: true,
             },

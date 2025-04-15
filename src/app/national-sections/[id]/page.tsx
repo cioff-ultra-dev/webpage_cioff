@@ -44,7 +44,6 @@ function ItemList({ email, logoFallback, name, logo, detailLink }: ItemList) {
       </Avatar>
       <div>
         <h3 className="font-semibold">{name}</h3>
-        <p className="text-sm text-muted-foreground">{email}</p>
       </div>
     </Link>
   );
