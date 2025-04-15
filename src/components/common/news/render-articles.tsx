@@ -34,6 +34,8 @@ function RenderArticles({ sections }: { sections: Section[] }) {
                 thumbnailStyle={{
                   height: 180,
                   width: 180,
+                  objectFit: "cover",
+                  objectPosition: "50% 50%",
                   borderRadius: "5px",
                   cursor: "pointer",
                 }}
