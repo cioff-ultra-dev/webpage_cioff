@@ -64,7 +64,13 @@ function AnnualReport(props: AnnualReportProps) {
               target="_blank"
               className="h-[500px] relative overflow-hidden rounded-lg hover:scale-105 transition-transform duration-300"
             >
-              <Image src={data.image} alt={item.name} fill />
+              <Image
+                src={data.image}
+                alt={item.name}
+                fill
+                objectFit="cover"
+                objectPosition="25% 50%"
+              />
             </Link>
           );
         }
@@ -74,9 +80,9 @@ function AnnualReport(props: AnnualReportProps) {
             key={item.name}
             href={item.link}
             target="_blank"
-            className="h-[500px] relative overflow-hidden rounded-lg hover:scale-105 transition-transform duration-300"
+            className="h-[500px] w-full relative overflow-hidden rounded-lg hover:scale-105 transition-transform duration-300"
           >
-            <Image src={item.image} alt={item.name} fill />
+            <Image src={item.image} alt={item.name} fill objectFit="cover" objectPosition="25% 50%" />
           </Link>
         );
       }),
@@ -86,7 +92,7 @@ function AnnualReport(props: AnnualReportProps) {
   if (validatePath && !path.includes("/annual-reports")) return null;
 
   return (
-    <div className="grid grid-cols-4 w-full gap-6 max-lg:grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1 px-36 max-lg:px-16 max-md:px-12 max-sm:px-12">
+    <div className="grid grid-cols-4 w-full gap-6 max-lg:grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1 px-36 max-lg:px-16 max-md:px-12 max-sm:px-12 pb-16">
       {imagesComponents}
     </div>
   );

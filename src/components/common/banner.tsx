@@ -9,12 +9,12 @@ import { twMerge } from "tailwind-merge";
 import { Button } from "@/components/ui/button";
 
 const BannerVariants = cva(
-  "absolute text-white flex flex-col left-6 px-60 md:px-24 max-md:px-4 max-sm:px-8 w-full",
+  "absolute text-white flex flex-col left-6 px-60 md:px-24 max-md:px-4 max-sm:px-8 w-auto",
   {
     variants: {
       justify: {
         center: "items-center",
-        left: "items-start",
+        left: "items-start [&>p]:text-start",
         right: "items-end [&>p]:text-end",
       },
     },
@@ -45,7 +45,7 @@ function Banner(props: BannerProps) {
     () =>
       description?.split("/n").map((text, i) => (
         <p
-          className="text-base text-poppins w-1/3 mb-3 max-lg:w-4/5 max-md:text-sm"
+          className="text-base text-poppins w-2/3 mb-3 max-lg:w-4/5 max-md:text-sm"
           key={i}
           dangerouslySetInnerHTML={{
             __html:
