@@ -2,6 +2,7 @@ import Image from "next/image";
 
 import LatestNews from "@/components/common/news/latest-news";
 import { Header } from "@/components/common/header";
+import Footer from "@/components/common/footer";
 
 export default async function NewsPage() {
   return (
@@ -24,6 +25,7 @@ export default async function NewsPage() {
       <main className="bg-gray-50">
         <LatestNews classes="min-h-screen" />
       </main>
+      <Footer />
     </div>
   );
 }
