@@ -26,7 +26,7 @@ function CouncilSection() {
   );
 
   return (
-    <div className="w-2/3">
+    <div className="w-3/4">
       <CouncilSector
         title={translations("executive")}
         councils={executives.map((item) => ({
