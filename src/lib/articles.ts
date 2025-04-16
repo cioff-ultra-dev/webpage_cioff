@@ -8,6 +8,7 @@ import {
   Section,
   ArticleBody,
   ButtonContent,
+  BannerContent,
 } from "@/types/article";
 import { db } from "@/db";
 import { SubPagesProd, SubPagesTextsLangProd } from "@/db/schema";
@@ -136,7 +137,11 @@ async function TranslateSubPage(content: SubPage, locale: Locale) {
 
   await Promise.all(
     content.sections.map(async (section) => {
-      if (section.type !== "paragraph" && section.type !== "button") {
+      if (
+        section.type !== "paragraph" &&
+        section.type !== "button" &&
+        section.type !== "banner"
+      ) {
         filteredLocales.map((locale) =>
           translatedSections[locale].sections.push(section)
         );
@@ -169,6 +174,41 @@ async function TranslateSubPage(content: SubPage, locale: Locale) {
             content: {
               ...buttonContent,
               buttonLabel: obj[locale],
+            },
+          })
+        );
+      } else if (section.type === "banner") {
+        const bannerContent = section.content as BannerContent;
+        const descriptionObj: Record<string, string> = Object.fromEntries(
+          filteredLocales.map((item) => [item, ""])
+        );
+
+        const [title, description] = await Promise.all([
+          getTranslateText(bannerContent.title, locale),
+          getTranslateText(bannerContent.description, locale),
+        ]);
+
+        title
+          .flat()
+          .forEach(
+            ({ result, locale }) =>
+              (obj[locale] = result ?? bannerContent.title)
+          );
+
+          description
+            .flat()
+            .forEach(
+              ({ result, locale }) =>
+                (descriptionObj[locale] = result ?? bannerContent.description)
+            );
+
+        filteredLocales.map((locale) =>
+          translatedSections[locale].sections.push({
+            ...section,
+            content: {
+              ...bannerContent,
+              title: obj[locale],
+              description: descriptionObj[locale],
             },
           })
         );
