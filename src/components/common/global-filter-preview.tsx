@@ -429,7 +429,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
             showIconLabels
             contentClassName="p-0 bg-white py-4 sm:py-6 w-full h-full"
             wrapperClassName="w-full h-full"
-            viewMoreLink="/national-sections"
+            viewMoreLink="/members"
           >
             <MapHandler
               place={selectedPlace}
@@ -550,16 +550,13 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                         coverPhotos,
                         events = [],
                       }) => {
-                        const recentEvent =
-                          events
-                            ?.filter(
-                              (event) =>
-                                event.startDate && isThisYear(event.startDate)
-                            )
-                            .sort((a, b) =>
-                              compareAsc(a.startDate, b.startDate)
-                            )
-                            .at(0);
+                        const recentEvent = events
+                          ?.filter(
+                            (event) =>
+                              event.startDate && isThisYear(event.startDate)
+                          )
+                          .sort((a, b) => compareAsc(a.startDate, b.startDate))
+                          .at(0);
 
                         return {
                           icon: <CalendarIcon />,

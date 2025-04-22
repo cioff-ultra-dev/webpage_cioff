@@ -30,7 +30,7 @@ export default async function DashboardPage() {
       session?.user.role?.name === "Council" ||
       session?.user.role?.name === "National Sections"
     ) {
-      return redirect("/dashboard/national-sections");
+      return redirect("/dashboard/members");
     }
 
     if (session?.user.role?.name === "Groups") {

@@ -1829,7 +1829,9 @@ export default function GroupForm({
                         />
                       </div>
                     </div>
-                    <p className="text-gray-700 text-sm mt-6">{t("media_description")}</p>
+                    <p className="text-gray-700 text-sm mt-6">
+                      {t("media_description")}
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -2056,9 +2058,7 @@ export default function GroupForm({
                   <CardContent className="flex-row items-center p-4 flex w-full justify-end">
                     <div className="flex gap-2">
                       <Button variant="ghost" asChild>
-                        <Link href="/dashboard/national-sections">
-                          {t("cancel")}
-                        </Link>
+                        <Link href="/dashboard/members">{t("cancel")}</Link>
                       </Button>
                       <Button
                         type="submit"

@@ -341,11 +341,11 @@ export default function NationalSectionForm({
       toast.error(result.error);
     }
 
-    customRevalidatePath(`/dashboard/national-sections/${slug}/edit`);
-    customRevalidatePath("/dashboard/national-sections");
+    customRevalidatePath(`/dashboard/members/${slug}/edit`);
+    customRevalidatePath("/dashboard/members");
 
     if (result.success) {
-      router.push("/dashboard/national-sections");
+      router.push("/dashboard/members");
     }
   };
 

@@ -39,7 +39,7 @@ export function CouncilItem(props: CouncilItemProps) {
         <p className="text-lg font-poppins font-semibold max-w-60 max-md:text-sm mt-2 max-lg:max-w-40">
           {description}
         </p>
-        <Link className="mt-4" href={`/national-sections/${countryId}`}>
+        <Link className="mt-4" href={`/members/${countryId}`}>
           <Image
             src={urlFlag}
             width={40}

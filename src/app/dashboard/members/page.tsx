@@ -79,7 +79,7 @@ export default async function DashboardPage() {
           {/*   </span> */}
           {/* </Button> */}
           {session?.user.role?.name === "Admin" ? (
-            <Link href="/dashboard/national-sections/new">
+            <Link href="/dashboard/members/new">
               <Button size="sm" className="h-8 gap-1">
                 <CirclePlusIcon className="h-3.5 w-3.5" />
                 <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
@@ -165,7 +165,7 @@ export default async function DashboardPage() {
                                 }
                               >
                                 <Link
-                                  href={`/dashboard/national-sections/${item?.slug}/edit`}
+                                  href={`/dashboard/members/${item?.slug}/edit`}
                                 >
                                   {t("edit")}
                                 </Link>

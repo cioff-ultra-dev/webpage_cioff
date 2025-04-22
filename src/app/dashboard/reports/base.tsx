@@ -43,7 +43,7 @@ const getStatusColor = (status: string) => {
 const mapTab = {
   ns: {
     key: "ns",
-    url: "/dashboard/reports/national-sections",
+    url: "/dashboard/reports/members",
   },
   festivals: {
     key: "festival",
@@ -132,7 +132,7 @@ export default function DashboardReportPage({
                             asChild
                           >
                             <Link
-                              href={`/dashboard/reports/national-sections/${item.id}`}
+                              href={`/dashboard/reports/members/${item.id}`}
                             >
                               <Eye className="h-4 w-4" />
                             </Link>

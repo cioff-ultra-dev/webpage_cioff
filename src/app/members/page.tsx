@@ -25,7 +25,7 @@ export default async function NationaSectionList() {
               >
                 <div className="p-4">
                   <Link
-                    href={`/national-sections/${country.id}`}
+                    href={`/members/${country.id}`}
                     className="flex w-full justify-between"
                   >
                     <h2 className="text-xl font-semibold mb-2 max-w-40">

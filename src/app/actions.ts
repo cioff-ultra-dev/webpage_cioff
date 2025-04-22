@@ -1145,8 +1145,8 @@ export async function createNationalSection(formData: FormData) {
     await tx.insert(groups).values(groupsItems);
   });
 
-  revalidatePath("/dashboard/national-sections");
-  redirect("/dashboard/national-sections");
+  revalidatePath("/dashboard/members");
+  redirect("/dashboard/members");
 }
 
 export async function generateFestival(formData: FormData) {

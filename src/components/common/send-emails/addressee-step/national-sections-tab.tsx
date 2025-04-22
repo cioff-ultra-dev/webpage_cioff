@@ -146,7 +146,7 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
                 images={[countryUrl || "/logo.png"]}
                 icon={<Globe />}
                 hideDate
-                detailLink={`/national-sections/${id}`}
+                detailLink={`/members/${id}`}
                 hideLocation
               />
             ) : (
