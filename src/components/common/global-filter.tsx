@@ -77,11 +77,17 @@ export function WrapperFilter({
   const [selectedCountries, setSelectedCountries] = useState<string[]>(() =>
     searchParams?.countries ? JSON.parse(searchParams?.countries as string) : []
   );
-  const [search, setSearch] = useState(
-    `search=${searchParams?.search ?? ""}&rangeDateFrom=${
-      searchParams?.rangeDateFrom ?? ""
-    }&rangeDateTo=${searchParams?.rangeDateTo ?? ""}`
-  );
+  const [search, setSearch] = useState(() => {
+    const params = new URLSearchParams();
+
+    searchParams?.search && params.set("search", searchParams.search as string);
+    searchParams?.rangeDateFrom &&
+      params.set("rangeDateFrom", searchParams?.rangeDateFrom as string);
+    searchParams?.rangeDateTo &&
+      params.set("rangeDateTo", searchParams.rangeDateTo as string);
+
+    return params.toString();
+  });
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() =>
     searchParams?.categories
       ? JSON.parse(searchParams?.categories as string)
@@ -130,9 +136,9 @@ export function WrapperFilter({
       )}&countries=${JSON.stringify(
         selectedCountries.length
           ? selectedCountries
-          : selectedCountryId || search.length > 0
+          : selectedCountryId
           ? []
-          : countryCast.map((item) => item.id)
+          : countryCast.map((item) => item.countryId)
       )}&page=${index + 1}${search ? `&${search}` : ""}`,
     fetcher
   );
