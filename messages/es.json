@@ -669,9 +669,12 @@
     "confirmGroup": "Grupos confirmados:",
     "uncomfirmedGroup": "No se han confirmado grupos.",
     "accommodation": "Acomodación:",
-    "noAccommodation": "no hay imagen del lugar",
-    "stage": "Escenario",
-    "stageImage": "No hay imagenes del escenario."
+    "noAccommodation": "no hay imagen del lugar.",
+    "stage": "Escenario:",
+    "stageImage": "No hay imagenes del escenario.",
+    "searchGroup": "El festival está buscando grupos de:",
+    "notSearchingGroups": "El festival no está buscando grupos.",
+    "logisticsSection": "Debe iniciar sesión para ver la información de acomodación, lugar de llegada, grupos confirmados, condiciones generales."
   },
   "common": {
     "forbiddenDescription": "Debe iniciar sesión para ver la información.",

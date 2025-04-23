@@ -2021,18 +2021,17 @@ export async function updateFestival(formData: FormData) {
       }
     }
 
-    if (groupRegions.length) {
-      await tx
-        .delete(festivalsGroupToRegions)
-        .where(eq(festivalsGroupToRegions.festivalId, currentFestival.id));
+    await tx
+      .delete(festivalsGroupToRegions)
+      .where(eq(festivalsGroupToRegions.festivalId, currentFestival.id));
 
-      await tx.insert(festivalsGroupToRegions).values(
-        groupRegions.map((regionId) => ({
-          regionId: Number(regionId),
-          festivalId: currentFestival.id,
-        }))
-      );
-    }
+      if (groupRegions.length)
+        await tx.insert(festivalsGroupToRegions).values(
+          groupRegions.map((regionId) => ({
+            regionId: Number(regionId),
+            festivalId: currentFestival.id,
+          }))
+        );
 
     if (transportLocationSize === 0) {
       await tx
@@ -2162,7 +2161,7 @@ export async function updateFestival(formData: FormData) {
         .onConflictDoUpdate({
           target: events.id,
           set: buildConflictUpdateColumns(events, ["startDate", "endDate"]),
-        })
+        });
     }
 
     if (groupCategories.length) {

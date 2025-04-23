@@ -38,6 +38,7 @@ import Footer from "@/components/common/footer";
 import { Locale } from "@/i18n/config";
 import { CategoriesType } from "@/db/queries/categories";
 import { CategorySection } from "@/components/common/category-section";
+import { Badge } from "@/components/ui/badge";
 
 export interface CustomImage extends GalleryImage {}
 
@@ -89,9 +90,12 @@ export default async function EventDetail({
 
   return (
     <div className="flex flex-col w-full min-h-screen">
-      <Header className="border-b" text="text-black" />
+      <Header
+        text="text-white max-lg:text-black text-roboto text-2xl px-2 py-1 hover:bg-white/40 max-lg:hover:bg-black/20"
+        className="absolute left-0 right-0 top-0"
+      />
       <main className="flex flex-col flex-1 gap-4 md:gap-8 bg-gray-50 pb-8">
-        <div className="relative w-full h-[400px]">
+        <div className="relative w-full h-[80vh]">
           <CarouselImage images={coverImages} />
           <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent">
             <div className="flex items-center gap-2">
@@ -133,18 +137,6 @@ export default async function EventDetail({
               <div className="flex flex-col gap-4">
                 <div className="flex gap-3">
                   {/* <Button variant="outline">Get directions</Button> */}
-                  <Button
-                    variant="outline"
-                    asChild
-                    disabled={!festival?.social?.websiteLink}
-                  >
-                    <Link
-                      href={festival?.social?.websiteLink ?? ""}
-                      target="_blank"
-                    >
-                      {translations("website")}
-                    </Link>
-                  </Button>
                   {/* <Button variant="outline">Bookmark</Button> */}
                   {/* <Button variant="outline">Share</Button> */}
                   {/* <Button variant="outline">Leave a review</Button> */}
@@ -327,7 +319,7 @@ export default async function EventDetail({
                               <Link
                                 href={festival?.linkConditions}
                                 target="_blank"
-                                className="hover:underline ml-2"
+                                className="hover:underline ml-2 break-words"
                               >
                                 {festival?.linkConditions}
                               </Link>
@@ -365,6 +357,29 @@ export default async function EventDetail({
                           </div>
                           <div className="grid grid-cols-1 gap-2 ">
                             <span className="font-semibold">
+                              {translations("searchGroup")}
+                            </span>
+                            <div className="flex flex-wrap gap-2 ml-2">
+                              {festival?.festivalsGroupToRegions &&
+                              festival?.festivalsGroupToRegions.length > 0 ? (
+                                festival?.festivalsGroupToRegions?.map(
+                                  (region) => (
+                                    <Badge
+                                      key={region.region?.langs?.[0]?.name}
+                                    >
+                                      {region.region?.langs?.[0]?.name}
+                                    </Badge>
+                                  )
+                                )
+                              ) : (
+                                <p className="text-muted-foreground">
+                                  {translations("notSearchingGroups")}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 gap-2 ">
+                            <span className="font-semibold">
                               {translations("confirmGroup")}
                             </span>
                             <ul className="flex flex-col gap-2 ml-2">
@@ -379,7 +394,9 @@ export default async function EventDetail({
                                     <p className="font-medium">
                                       {item.group?.langs.find(
                                         (lang) => lang?.l?.code === locale
-                                      )?.name ?? ""}
+                                      )?.name ??
+                                        item.group?.langs?.[0]?.name ??
+                                        ""}
                                     </p>
                                     <p className="text-sm text-gray-500">
                                       {
@@ -464,7 +481,9 @@ export default async function EventDetail({
                           </div>
                         </section>
                       ) : (
-                        <ForbiddenContent />
+                        <ForbiddenContent
+                          text={translations("logisticsSection")}
+                        />
                       )}
                     </CardContent>
                   </Card>

@@ -669,8 +669,11 @@
     "uncomfirmedGroup": "Aucun groupe confirmé.",
     "accommodation": "Hébergement :",
     "noAccommodation": "Pas d'image du lieu disponible.",
-    "stage": "Scène",
-    "stageImage": "Aucune image de la scène disponible."
+    "stage": "Scène:",
+    "stageImage": "Aucune image de la scène disponible.",
+    "searchGroup": "Le festival recherche des groupes de :",
+    "notSearchingGroups": "Le festival ne recherche pas de groupes.",
+    "logisticsSection": "Vous devez vous connecter pour voir les informations sur l'hébergement, le lieu d'arrivée, les groupes confirmés et les conditions générales."
   },
   "common": {
     "forbiddenDescription": "Vous devez vous connecter pour voir les informations.",

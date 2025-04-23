@@ -155,6 +155,22 @@ export async function getFestivalById(
           photo: true,
         },
       },
+      festivalsGroupToRegions: {
+        with:{
+          region: {
+            with: {
+              langs: {
+                where(fields, { inArray }) {
+                  return inArray(fields.lang, sq);
+                },
+                with: {
+                  l: true,
+                },
+              },
+            },
+          },
+        }
+      },
     },
   });
 }
