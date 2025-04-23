@@ -660,10 +660,21 @@
     "website": "Sitio web",
     "call": "Llamar",
     "email": "Correo electrónico",
-    "portfolioLink": "portafolio/folleto"
+    "portfolioLink": "portafolio/folleto",
+    "logistic": "Logística",
+    "conditionLink": "Condiciones y aplicaciones:",
+    "emptyLink": "No hay enlace de condiciones y aplicaciones.",
+    "transport": "Lugar de llegada:",
+    "emptyTransport": "No se ha definido el lugar de llegada.",
+    "confirmGroup": "Grupos confirmados:",
+    "uncomfirmedGroup": "No se han confirmado grupos.",
+    "accommodation": "Acomodación:",
+    "noAccommodation": "no hay imagen del lugar",
+    "stage": "Escenario",
+    "stageImage": "No hay imagenes del escenario."
   },
   "common": {
-    "forbiddenDescription": "Debe iniciar sesión para ver la información de contacto.",
+    "forbiddenDescription": "Debe iniciar sesión para ver la información.",
     "signIn": "Ingresar",
     "dateRange": "Desde {start} hasta {end}",
     "dateRangeFrom": "Desde {start}",

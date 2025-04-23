@@ -508,6 +508,11 @@ export default function EventForm({
     name: "_countryGroupSelected",
   });
 
+  const categoriesSelected = useWatch({
+    control: form.control,
+    name: "_categories",
+  });
+
   useEffect(() => {
     if (currentLang?.id) {
       form.setValue("_lang", {
@@ -1157,7 +1162,7 @@ export default function EventForm({
                         .filter(Boolean) || "[]"
                     )}
                   />
-                  {form.getValues("_categories").some((categoryId) => {
+                  {categoriesSelected.some((categoryId) => {
                     const category = categoryGroups?.find(
                       (cate) => String(cate.id) === categoryId
                     );

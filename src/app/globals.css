@@ -101,3 +101,11 @@
 .text-poppins {
   font-family: var(--font-poppins);
 }
+
+.ReactGridGallery_tile-viewport:hover {
+  cursor: pointer;
+}
+
+.ReactGridGallery_tile {
+  height: min-content;
+}

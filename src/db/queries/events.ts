@@ -148,6 +148,13 @@ export async function getFestivalById(
           photo: true,
         },
       },
+      accomodationPhoto: true,
+      transports: true,
+      stagePhotos: {
+        with: {
+          photo: true,
+        },
+      },
     },
   });
 }

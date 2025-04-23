@@ -677,10 +677,21 @@
     "website": "Website",
     "call": "Call",
     "email": "Email",
-    "portfolioLink": "portfolio/brochure"
+    "portfolioLink": "portfolio/brochure",
+    "logistic": "Logistics",
+    "conditionLink": "Conditions and applications:",
+    "emptyLink": "No conditions and applications link available.",
+    "transport": "Arrival location:",
+    "emptyTransport": "Arrival location has not been defined.",
+    "confirmGroup": "Confirmed groups:",
+    "uncomfirmedGroup": "No groups have been confirmed.",
+    "accommodation": "Accommodation:",
+    "noAccommodation": "No image of the place available.",
+    "stage": "Stage",
+    "stageImage": "No stage images available."
   },
   "common": {
-    "forbiddenDescription": "You must log in to view the contact information.",
+    "forbiddenDescription": "You must log in to view the information.",
     "signIn": "Sign in",
     "dateRange": "From {start} to {end}",
     "dateRangeFrom": "From {start}",

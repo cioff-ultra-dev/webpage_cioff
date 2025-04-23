@@ -1,14 +1,11 @@
-import Image from "next/image";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { getFestivalById } from "@/db/queries/events";
 import { Header } from "@/components/common/header";
 import { MapMarkerEvent } from "@/components/common/event/map-marker";
 import { GalleryImageEvent } from "@/components/common/event/gallery-images";
-import { CoverImageEvent } from "@/components/common/event/cover";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
 import Link from "next/link";
@@ -17,6 +14,7 @@ import {
   Facebook,
   Instagram,
   Link2,
+  MapPinIcon,
   Phone,
   Youtube,
 } from "lucide-react";
@@ -286,35 +284,190 @@ export default async function EventDetail({
                       )}
                     </CardContent>
                   </Card>
-                </div>
-                <Card className="col-span-1">
-                  <CardHeader>
-                    <CardTitle>{translations("events")}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex flex-wrap gap-2">
-                    <Timeline>
-                      {festival?.events.map((item) => (
-                        <TimelineItem key={`event-${item.id}`}>
-                          <TimelineConnector />
-                          <TimelineHeader>
-                            <TimelineIcon />
-                            <TimelineTitle>
-                              {formatter.dateTimeRange(
-                                item.startDate,
-                                item.endDate,
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                }
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>{translations("events")}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex flex-wrap gap-2">
+                      <Timeline>
+                        {festival?.events.map((item) => (
+                          <TimelineItem key={`event-${item.id}`}>
+                            <TimelineConnector />
+                            <TimelineHeader>
+                              <TimelineIcon />
+                              <TimelineTitle>
+                                {formatter.dateTimeRange(
+                                  item.startDate,
+                                  item.endDate,
+                                  {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                  }
+                                )}
+                              </TimelineTitle>
+                            </TimelineHeader>
+                          </TimelineItem>
+                        ))}
+                      </Timeline>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>{translations("logistic")}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex flex-wrap gap-x-2 gap-y-4">
+                      {session !== null ? (
+                        <section className="flex flex-col flex-wrap gap-4 w-full">
+                          <div className="grid grid-cols-1 gap-2 ">
+                            <span className="font-semibold">
+                              {translations("conditionLink")}
+                            </span>
+                            {festival?.linkConditions ? (
+                              <Link
+                                href={festival?.linkConditions}
+                                target="_blank"
+                                className="hover:underline ml-2"
+                              >
+                                {festival?.linkConditions}
+                              </Link>
+                            ) : (
+                              <p className="text-muted-foreground">
+                                {translations("emptyLink")}
+                              </p>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-1 gap-2 ">
+                            <span className="font-semibold">
+                              {translations("transport")}
+                            </span>
+                            <ul className="flex flex-col gap-2  ml-2">
+                              {festival?.transports ? (
+                                festival?.transports.map((item) => (
+                                  <li
+                                    key={item.id}
+                                    className="flex w-full gap-2 items-center py-4 px-2 border-b border-gray-200"
+                                  >
+                                    <MapPinIcon
+                                      size={16}
+                                      className="text-primary"
+                                    />
+                                    {item.location ?? ""}
+                                  </li>
+                                ))
+                              ) : (
+                                <p className="text-muted-foreground">
+                                  {translations("emptyTransport")}
+                                </p>
                               )}
-                            </TimelineTitle>
-                          </TimelineHeader>
-                        </TimelineItem>
-                      ))}
-                    </Timeline>
-                  </CardContent>
-                </Card>
+                            </ul>
+                          </div>
+                          <div className="grid grid-cols-1 gap-2 ">
+                            <span className="font-semibold">
+                              {translations("confirmGroup")}
+                            </span>
+                            <ul className="flex flex-col gap-2 ml-2">
+                              {festival?.festivalsToGroups &&
+                              festival?.festivalsToGroups?.length > 0 ? (
+                                festival?.festivalsToGroups.map((item) => (
+                                  <Link
+                                    key={item.id}
+                                    className="flex flex-col w-full py-2 px-4 border rounded-lg border-gray-100 hover:bg-gray-100"
+                                    href={`/groups/${item?.group?.id ?? ""}`}
+                                  >
+                                    <p className="font-medium">
+                                      {item.group?.langs.find(
+                                        (lang) => lang?.l?.code === locale
+                                      )?.name ?? ""}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                      {
+                                        item.group?.country?.langs.find(
+                                          (lang) => lang?.l?.code === locale
+                                        )?.name
+                                      }
+                                    </p>
+                                  </Link>
+                                ))
+                              ) : (
+                                <p className="text-muted-foreground">
+                                  {translations("uncomfirmedGroup")}
+                                </p>
+                              )}
+                            </ul>
+                          </div>
+                          <div className="grid grid-cols-1 gap-2 ">
+                            <span className="font-semibold">
+                              {translations("accommodation")}
+                            </span>
+                            <div className="ml-2">
+                              {festival?.accomodationPhoto?.url ? (
+                                <GalleryImageEvent
+                                  thumbnailStyle={{
+                                    width: 200,
+                                    borderRadius: "5px",
+                                  }}
+                                  tileViewportStyle={{
+                                    width: 200,
+                                    borderRadius: "5px",
+                                  }}
+                                  gallery={[
+                                    {
+                                      src: festival?.accomodationPhoto?.url,
+                                      width: 600,
+                                      height: 600,
+                                    },
+                                  ]}
+                                />
+                              ) : (
+                                <p className="text-muted-foreground">
+                                  {translations("noAccommodation")}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 gap-2 ">
+                            <span className="font-semibold">
+                              {translations("stage")}
+                            </span>
+                            <div className="ml-2">
+                              {festival?.stagePhotos?.length ? (
+                                <GalleryImageEvent
+                                  thumbnailStyle={{
+                                    height: 100,
+                                    width: 150,
+                                    borderRadius: "5px",
+                                    cursor: "pointer",
+                                    objectFit: "cover",
+                                    objectPosition: "50% 0%",
+                                  }}
+                                  tileViewportStyle={{
+                                    height: 100,
+                                    width: 150,
+                                    borderRadius: "5px",
+                                  }}
+                                  gallery={
+                                    festival?.stagePhotos.map((item) => ({
+                                      src: item.photo?.url!,
+                                      width: 600,
+                                      height: 600,
+                                    })) || []
+                                  }
+                                />
+                              ) : (
+                                <p className="text-muted-foreground">
+                                  {translations("stageImage")}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </section>
+                      ) : (
+                        <ForbiddenContent />
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
                 <Card className="col-span-1">
                   <CardHeader>
                     <CardTitle>{translations("gallery")}</CardTitle>

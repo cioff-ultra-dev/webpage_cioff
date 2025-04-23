@@ -659,10 +659,21 @@
     "website": "Site web",
     "call": "Appeler",
     "email": "Email",
-    "portfolioLink": "portfolio/brochure"
+    "portfolioLink": "portfolio/brochure",
+    "logistic": "Logistique",
+    "conditionLink": "Conditions et candidatures :",
+    "emptyLink": "Aucun lien de conditions et candidatures disponible.",
+    "transport": "Lieu d'arrivée :",
+    "emptyTransport": "Le lieu d'arrivée n'a pas été défini.",
+    "confirmGroup": "Groupes confirmés :",
+    "uncomfirmedGroup": "Aucun groupe confirmé.",
+    "accommodation": "Hébergement :",
+    "noAccommodation": "Pas d'image du lieu disponible.",
+    "stage": "Scène",
+    "stageImage": "Aucune image de la scène disponible."
   },
   "common": {
-    "forbiddenDescription": "Vous devez vous connecter pour voir les informations de contact.",
+    "forbiddenDescription": "Vous devez vous connecter pour voir les informations.",
     "signIn": "Se connecter",
     "dateRange": "De {start} à {end}",
     "dateRangeFrom": "De {start}",
