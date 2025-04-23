@@ -342,7 +342,8 @@ export default async function EventDetail({
                               {translations("transport")}
                             </span>
                             <ul className="flex flex-col gap-2  ml-2">
-                              {festival?.transports ? (
+                              {festival?.transports &&
+                              festival?.transports.length > 0 ? (
                                 festival?.transports.map((item) => (
                                   <li
                                     key={item.id}
