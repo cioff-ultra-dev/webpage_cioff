@@ -87,7 +87,12 @@ const GROUP_CATEGORY_MAP = {
   stylized: "styleGroup",
 };
 
-export function groupCategories(categories: CategoriesType, categoryType: "groups" | "festivals", locale: Locale, t: (key: string) => string): TreeNode[] {
+export function groupCategories(
+  categories: CategoriesType,
+  categoryType: "groups" | "festivals" | "national-sections",
+  locale: Locale,
+  t: (key: string) => string
+): TreeNode[] {
   const groupedItems = groupBy(categories ?? [], (item) =>
     categoryType === "groups"
       ? GROUP_CATEGORY_MAP[item.slug as keyof typeof GROUP_CATEGORY_MAP]
@@ -108,12 +113,12 @@ export function groupCategories(categories: CategoriesType, categoryType: "group
       value: key,
       children: categories?.length
         ? categories.map((cat) => ({
-          label:
-            cat?.langs?.find((lang) => lang?.l?.code === locale)?.name ??
-            cat?.slug,
-          value: cat?.id?.toString() ?? index,
-        }))
+            label:
+              cat?.langs?.find((lang) => lang?.l?.code === locale)?.name ??
+              cat?.slug,
+            value: cat?.id?.toString() ?? index,
+          }))
         : undefined,
     };
-  }) as TreeNode[]
+  }) as TreeNode[];
 }

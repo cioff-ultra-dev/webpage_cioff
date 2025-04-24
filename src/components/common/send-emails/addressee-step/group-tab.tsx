@@ -142,10 +142,10 @@ function GroupTab(props: GroupTabProps): JSX.Element {
             setCountries={setSelectedCountries}
             setRegions={setSelectedRegions}
             isRegionLoading={isRegionLoading}
-            isCountryLoading={isCountryLoading}
             showInputSearch={showInputSearch}
             showIconLabels={showIconLabels}
             categoryType="groups"
+            selectedRegions={selectedRegions}
           />
         </div>
       </section>

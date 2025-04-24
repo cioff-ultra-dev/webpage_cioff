@@ -145,10 +145,10 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
             setCountries={setSelectedCountries}
             setRegions={setSelectedRegions}
             isRegionLoading={isRegionLoading}
-            isCountryLoading={isCountryLoading}
             showInputSearch={showInputSearch}
             showIconLabels={showIconLabels}
             categoryType="festivals"
+            selectedRegions={selectedRegions}
           />
         </div>
       </section>

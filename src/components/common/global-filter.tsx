@@ -415,7 +415,6 @@ export function WrapperFilter({
               setRegions={setSelectedRegions}
               setCategories={setSelectedCategories}
               isRegionLoading={isLoadingRegionCast}
-              isCountryLoading={isLoadingCountryCast}
               setDateRange={
                 tabSelected === "festivals" ? setDateRange : undefined
               }
@@ -425,6 +424,7 @@ export function WrapperFilter({
               defaultRegions={selectedRegions}
               defaultCountries={selectedCountries}
               categoryType={tabSelected as "festivals" | "groups"}
+              selectedRegions={selectedRegions}
             />
           </div>
         </section>

@@ -24,16 +24,17 @@ import { CategoriesType } from "@/db/queries/categories";
 import { Locale } from "@/i18n/config";
 
 import { TreeSelect } from "../../tree-select/select";
+import RelatedCountrySelect from "./related-country-select"
 
 interface FiltersProps {
   regions: MultiSelectProps["options"];
   categories: CategoriesType;
-  countries: MultiSelectProps["options"];
+  countries?: MultiSelectProps["options"];
   isRegionLoading: boolean;
   handleSubmit: (event: FormEvent<SearchFormElement>) => Promise<void>;
   setCountries: MultiSelectProps["onValueChange"];
   setRegions: MultiSelectProps["onValueChange"];
-  isCountryLoading?: boolean;
+  selectedRegions?: string[];
   isCategoriesLoading?: boolean;
   setCategories?: MultiSelectProps["onValueChange"];
   setDateRange?: (value: DateRange | undefined) => void;
@@ -42,7 +43,7 @@ interface FiltersProps {
   defaultCategories?: string[];
   defaultRegions?: string[];
   defaultCountries?: string[];
-  categoryType: "festivals" | "groups";
+  categoryType: "festivals" | "groups"| "national-sections";
 }
 
 function Filters(props: FiltersProps): JSX.Element {
@@ -51,7 +52,7 @@ function Filters(props: FiltersProps): JSX.Element {
     regions,
     countries,
     handleSubmit,
-    isCountryLoading,
+    selectedRegions=[],
     isRegionLoading,
     setCategories,
     setCountries,
@@ -159,12 +160,11 @@ function Filters(props: FiltersProps): JSX.Element {
                 t("filters.countries")
               )}
             </Label>
-            <MultiSelect
-              options={countries}
-              onValueChange={setCountries}
-              disabled={isCountryLoading}
-              placeholder={t("filters.countries")}
-              defaultValue={defaultCountries}
+            <RelatedCountrySelect
+              setCountries={setCountries}
+              defaultCountries={defaultCountries}
+              categoryType={categoryType}
+              selectedRegions={selectedRegions}
             />
           </div>
           {setDateRange ? (

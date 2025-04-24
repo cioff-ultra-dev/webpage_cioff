@@ -184,7 +184,7 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
             setRegions={setSelectedRegions}
             setDateRange={setDateRange}
             isRegionLoading={isRegionLoading}
-            isCountryLoading={isCountryLoading}
+            selectedRegions={selectedRegions}
             showInputSearch={showInputSearch}
             showIconLabels
             categoryType="festivals"

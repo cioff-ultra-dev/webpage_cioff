@@ -91,7 +91,7 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
     setSearch(`search=${searchValue}`);
   }
 
-  const { data: countriesData = [], isLoading: isCountryLoading } =
+  const { data: countriesData = [], isLoading } =
     useSWR<CountryCastNationalSections>(
       () =>
         `/api/filter/country/national-section?locale=${locale}&regions=${JSON.stringify(
@@ -100,7 +100,9 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
       fetcher
     );
 
-  if (setCountries && countriesData.length > 0) setCountries(countriesData);
+  useEffect(() => {
+    if (setCountries && !isLoading) setCountries(countriesData);
+  }, [countriesData, setCountries, isLoading]);
 
   const countries: MultiSelectProps["options"] = useMemo(() => {
     return countriesData.map((country) => {
@@ -226,10 +228,10 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
             setCountries={setSelectedCountries}
             setRegions={setSelectedRegions}
             isRegionLoading={isRegionLoading}
-            isCountryLoading={isCountryLoading}
             showInputSearch={showInputSearch}
             showIconLabels={showIconLabels}
-            categoryType="festivals"
+            categoryType="national-sections"
+            selectedRegions={selectedRegions}
           />
         </div>
       </section>

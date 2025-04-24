@@ -265,6 +265,9 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
   useEffect(() => {
     setSelectedPlace(null);
     setSelectedCountryId(0);
+    setSelectedRegions([]);
+    setSelectedCountries([]);
+    setSearch("");
   }, [tabSelected]);
 
   const fetchPredictions = useCallback(
@@ -492,13 +495,13 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                 setRegions={setSelectedRegions}
                 setCategories={setSelectedCategories}
                 isRegionLoading={isLoadingRegionCast}
-                isCountryLoading={isLoadingCountryCast}
                 setDateRange={
                   tabSelected === "festivals" ? setDateRange : undefined
                 }
                 showInputSearch={false}
                 showIconLabels
                 categoryType="festivals"
+                selectedRegions={selectedRegions}
               />
             </div>
             <section className="bg-white py-4 sm:py-8 w-full">
@@ -609,13 +612,13 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                 setRegions={setSelectedRegions}
                 setCategories={setSelectedCategories}
                 isRegionLoading={isLoadingRegionCast}
-                isCountryLoading={isLoadingCountryCast}
                 setDateRange={
                   tabSelected === "festivals" ? setDateRange : undefined
                 }
                 showInputSearch={false}
                 showIconLabels
                 categoryType="groups"
+                selectedRegions={selectedRegions}
               />
             </div>
             <section className="bg-white py-4 sm:py-8 w-full">
