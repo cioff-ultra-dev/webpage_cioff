@@ -96,7 +96,7 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
       () =>
         `/api/filter/country/national-section?locale=${locale}&regions=${JSON.stringify(
           selectedRegions
-        )}`,
+        )}&${search}`,
       fetcher
     );
 

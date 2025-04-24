@@ -4,13 +4,15 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   const locale = request.nextUrl.searchParams.get("locale") ?? defaultLocale;
+  const search: string = request.nextUrl.searchParams.get("search") || "";
   const regionsIn: string[] = JSON.parse(
     request.nextUrl.searchParams.get("regions") || "[]"
   );
 
   const result = await getAllCountryCastNationalSections(
     locale as Locale,
-    regionsIn
+    regionsIn,
+    search
   );
 
   return NextResponse.json(result);

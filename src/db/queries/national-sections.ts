@@ -11,7 +11,7 @@ import {
   countriesLang,
 } from "@/db/schema";
 import { defaultLocale, Locale } from "@/i18n/config";
-import { and, countDistinct, eq, inArray, sql, SQLWrapper } from "drizzle-orm";
+import { and, countDistinct, eq, ilike, inArray, sql, SQLWrapper } from "drizzle-orm";
 
 export type LangWithNationalSection = SelectNationalSection & {
   langs: SelectNationalSectionLang[];
@@ -417,7 +417,8 @@ export type CountryCastNationalSections = {
 
 export async function getAllCountryCastNationalSections(
   locale: Locale,
-  regionsIn: string[] = []
+  regionsIn: string[] = [],
+  search?: string
 ): Promise<CountryCastNationalSections> {
   const sq = db
     .select({ id: languages.id })
@@ -439,6 +440,7 @@ export async function getAllCountryCastNationalSections(
     .from(nationalSections)
     .leftJoin(countries, eq(countries.id, nationalSections.countryId))
     .leftJoin(countriesLang, eq(countries.id, countriesLang.countryId))
+    .leftJoin(nationalSectionsLang, eq(nationalSections.id, nationalSectionsLang.nsId))
     .$dynamic();
 
   filters.push(
@@ -446,9 +448,10 @@ export async function getAllCountryCastNationalSections(
     eq(countriesLang.lang, sq)
   );
 
-  if (regionsIn.length) {
+  if (regionsIn.length)
     filters.push(inArray(countries.regionId, regionsIn.map(Number)));
-  }
+
+  if (search) filters.push(ilike(nationalSectionsLang.name, `%${search}%`));
 
   query
     .where(and(...filters))
