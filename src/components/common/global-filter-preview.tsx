@@ -82,7 +82,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
         tabSelected === "festivals"
           ? `/api/filter/country?locale=${locale}&regions=${JSON.stringify(
               selectedRegions
-            )}`
+            )}&${search}`
           : null,
       fetcher
     );
@@ -93,7 +93,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
         tabSelected === "groups"
           ? `/api/filter/country/group?locale=${locale}&regions=${JSON.stringify(
               selectedRegions
-            )}`
+            )}&${search}`
           : null,
       fetcher
     );
@@ -320,15 +320,23 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
 
   async function handleSubmit(event: React.FormEvent<SearchFormElement>) {
     event.preventDefault();
+    const searchParams = new URLSearchParams();
 
     const searchValue = event.currentTarget.elements?.search.value;
-    setSearch(
-      `search=${searchValue}&rangeDateFrom=${
-        dateRange?.from ? Math.floor(dateRange!.from!.getTime() / 1000) : ""
-      }&rangeDateTo=${
-        dateRange?.to ? Math.floor(dateRange!.to!.getTime() / 1000) : ""
-      }`
-    );
+    searchParams.set("search", searchValue);
+
+    if (dateRange?.from)
+      searchParams.set(
+        "rangeDateFrom",
+        Math.floor(dateRange!.from!.getTime() / 1000).toString()
+      );
+    if (dateRange?.to)
+      searchParams.set(
+        "rangeDateTo",
+        Math.floor(dateRange!.to!.getTime() / 1000).toString()
+      );
+
+    setSearch(searchParams.toString());
   }
 
   async function handleClickSelected(

@@ -12,7 +12,15 @@ import {
   groupsLang,
 } from "@/db/schema";
 import { defaultLocale, Locale } from "@/i18n/config";
-import { and, countDistinct, eq, inArray, sql, SQLWrapper } from "drizzle-orm";
+import {
+  and,
+  countDistinct,
+  eq,
+  ilike,
+  inArray,
+  sql,
+  SQLWrapper,
+} from "drizzle-orm";
 import { getLocale } from "next-intl/server";
 
 const preparedLanguagesByCode = db.query.languages
@@ -385,7 +393,8 @@ export type CountryCastGroups = {
 
 export async function getAllCountryCastGroups(
   locale: Locale,
-  regionsIn: string[] = []
+  regionsIn: string[] = [],
+  search?: string
 ): Promise<CountryCastGroups> {
   const sq = db
     .select({ id: languages.id })
@@ -408,7 +417,7 @@ export async function getAllCountryCastGroups(
     .leftJoin(groupsLang, eq(groups.id, groupsLang.groupId))
     .leftJoin(countriesLang, eq(groups.countryId, countriesLang.countryId))
     .leftJoin(countries, eq(countries.id, groups.countryId))
-    .innerJoin(groupToCategories, eq(groupToCategories.groupId, groups.id))
+    .leftJoin(groupToCategories, eq(groupToCategories.groupId, groups.id))
     .leftJoin(categories, eq(groupToCategories.categoryId, categories.id))
     .$dynamic();
 
@@ -418,14 +427,15 @@ export async function getAllCountryCastGroups(
     eq(groupsLang.lang, sq)
   );
 
-  if (regionsIn.length) {
+  if (regionsIn.length)
     filters.push(inArray(countries.regionId, regionsIn.map(Number)));
-  }
+
+  if (search) filters.push(ilike(groupsLang.name, `%${search}%`));
 
   query
     .where(and(...filters))
     .groupBy(countries.id, groups.id, groupsLang.id, countriesLang.id)
     .orderBy(countries.slug);
-
+console.log(query.toSQL().sql,  query.toSQL().params);
   return query;
 }

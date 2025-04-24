@@ -10,7 +10,7 @@ import {
   SelectLanguages,
 } from "@/db/schema";
 import { defaultLocale, Locale } from "@/i18n/config";
-import { and, eq, inArray, isNotNull, SQLWrapper } from "drizzle-orm";
+import { and, eq, ilike, inArray, isNotNull, SQLWrapper } from "drizzle-orm";
 import { getLocale } from "next-intl/server";
 
 export type CountryCastFestivals = {
@@ -25,7 +25,8 @@ export type CountryCastFestivals = {
 
 export async function getAllCountryCastFestivals(
   locale: Locale,
-  regionsIn: string[] = []
+  regionsIn: string[] = [],
+  search?: string
 ): Promise<CountryCastFestivals> {
   const sq = db
     .select({ id: languages.id })
@@ -57,9 +58,10 @@ export async function getAllCountryCastFestivals(
     eq(festivalsLang.lang, sq)
   );
 
-  if (regionsIn.length) {
+  if (regionsIn.length)
     filters.push(inArray(countries.regionId, regionsIn.map(Number)));
-  }
+
+  if (search) filters.push(ilike(festivalsLang.name, `%${search}%`));
 
   query
     .where(and(...filters))

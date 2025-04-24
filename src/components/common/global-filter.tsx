@@ -68,6 +68,9 @@ export function WrapperFilter({
   const tCommon = useTranslations("common");
   const formatter = useFormatter();
 
+  const [inputSearch, setInputSearch] = useState(
+    () => searchParams?.search ?? ""
+  );
   const [tabSelected, setTabSelected] = useState<string>(
     (searchParams?.type as string) || "festivals"
   );
@@ -111,7 +114,7 @@ export function WrapperFilter({
         tabSelected === "festivals"
           ? `/api/filter/country?locale=${locale}&regions=${JSON.stringify(
               selectedRegions
-            )}`
+            )}&${search}`
           : null,
       fetcher
     );
@@ -122,7 +125,7 @@ export function WrapperFilter({
         tabSelected === "groups"
           ? `/api/filter/country/group?locale=${locale}&regions=${JSON.stringify(
               selectedRegions
-            )}`
+            )}&${search}`
           : null,
       fetcher
     );
@@ -306,15 +309,23 @@ export function WrapperFilter({
 
   async function handleSubmit(event: React.FormEvent<SearchFormElement>) {
     event.preventDefault();
+    const searchParams = new URLSearchParams();
 
     const searchValue = event.currentTarget.elements?.search.value;
-    setSearch(
-      `search=${searchValue}&rangeDateFrom=${
-        dateRange?.from ? Math.floor(dateRange!.from!.getTime() / 1000) : ""
-      }&rangeDateTo=${
-        dateRange?.to ? Math.floor(dateRange!.to!.getTime() / 1000) : ""
-      }`
-    );
+    searchParams.set("search", searchValue);
+
+    if (dateRange?.from)
+      searchParams.set(
+        "rangeDateFrom",
+        Math.floor(dateRange!.from!.getTime() / 1000).toString()
+      );
+    if (dateRange?.to)
+      searchParams.set(
+        "rangeDateTo",
+        Math.floor(dateRange!.to!.getTime() / 1000).toString()
+      );
+
+    setSearch(searchParams.toString());
   }
 
   // async function handleClickSelected(
@@ -365,7 +376,13 @@ export function WrapperFilter({
               onSubmit={handleSubmit}
               className="flex items-end space-y-4 space-x-4 sm:space-y-0 px-4"
             >
-              <Input placeholder={tf("inputSearch")} name="search" />
+              <Input
+                placeholder={tf("inputSearch")}
+                name="search"
+                type="search"
+                value={inputSearch ?? ""}
+                onChange={(e) => setInputSearch(e.target.value)}
+              />
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
