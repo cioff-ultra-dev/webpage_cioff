@@ -8,11 +8,15 @@ export async function GET(request: NextRequest) {
   const regionsIn: string[] = JSON.parse(
     request.nextUrl.searchParams.get("regions") || "[]"
   );
+  const countriesIn: string[] = JSON.parse(
+    request.nextUrl.searchParams.get("countries") || "[]"
+  );
 
   const result = await getAllCountryCastNationalSections(
     locale as Locale,
     regionsIn,
-    search
+    search,
+    countriesIn
   );
 
   return NextResponse.json(result);

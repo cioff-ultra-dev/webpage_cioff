@@ -26,7 +26,8 @@ export type CountryCastFestivals = {
 export async function getAllCountryCastFestivals(
   locale: Locale,
   regionsIn: string[] = [],
-  search?: string
+  search?: string,
+  countriesIn: string[] = []
 ): Promise<CountryCastFestivals> {
   const sq = db
     .select({ id: languages.id })
@@ -62,6 +63,9 @@ export async function getAllCountryCastFestivals(
     filters.push(inArray(countries.regionId, regionsIn.map(Number)));
 
   if (search) filters.push(ilike(festivalsLang.name, `%${search}%`));
+
+  if (countriesIn.length)
+    filters.push(inArray(festivals.countryId, countriesIn.map(Number)));
 
   query
     .where(and(...filters))
