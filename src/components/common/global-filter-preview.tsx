@@ -82,7 +82,9 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
         tabSelected === "festivals"
           ? `/api/filter/country?locale=${locale}&regions=${JSON.stringify(
               selectedRegions
-            )}&countries=${JSON.stringify(selectedCountries)}&${search}`
+            )}&countries=${JSON.stringify(
+              selectedCountries
+            )}&categories=${JSON.stringify(selectedCategories)}&${search}`
           : null,
       fetcher
     );
@@ -93,7 +95,9 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
         tabSelected === "groups"
           ? `/api/filter/country/group?locale=${locale}&regions=${JSON.stringify(
               selectedRegions
-            )}&countries=${JSON.stringify(selectedCountries)}&${search}`
+            )}&countries=${JSON.stringify(
+              selectedCountries
+            )}&categories=${JSON.stringify(selectedCategories)}&${search}`
           : null,
       fetcher
     );

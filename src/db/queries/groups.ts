@@ -395,7 +395,8 @@ export async function getAllCountryCastGroups(
   locale: Locale,
   regionsIn: string[] = [],
   search?: string,
-  countriesIn: string[] = []
+  countriesIn?: string[],
+  categoriesIn?: string[]
 ): Promise<CountryCastGroups> {
   const sq = db
     .select({ id: languages.id })
@@ -433,7 +434,10 @@ export async function getAllCountryCastGroups(
 
   if (search) filters.push(ilike(groupsLang.name, `%${search}%`));
 
-  if (countriesIn.length)
+  if (categoriesIn?.length)
+    filters.push(inArray(categories.id, categoriesIn.map(Number)));
+
+  if (countriesIn?.length)
     filters.push(inArray(groups.countryId, countriesIn.map(Number)));
 
   query

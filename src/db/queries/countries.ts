@@ -2,10 +2,12 @@
 
 import { db } from "@/db";
 import {
+  categories,
   countries,
   countriesLang,
   festivals,
   festivalsLang,
+  festivalToCategories,
   languages,
   SelectLanguages,
 } from "@/db/schema";
@@ -27,7 +29,8 @@ export async function getAllCountryCastFestivals(
   locale: Locale,
   regionsIn: string[] = [],
   search?: string,
-  countriesIn: string[] = []
+  countriesIn?: string[],
+  categoriesIn?: string[]
 ): Promise<CountryCastFestivals> {
   const sq = db
     .select({ id: languages.id })
@@ -50,6 +53,11 @@ export async function getAllCountryCastFestivals(
     .leftJoin(festivalsLang, eq(festivalsLang.festivalId, festivals.id))
     .leftJoin(countriesLang, eq(festivals.countryId, countriesLang.countryId))
     .leftJoin(countries, eq(countries.id, festivals.countryId))
+    .leftJoin(
+      festivalToCategories,
+      eq(festivalToCategories.festivalId, festivals.id)
+    )
+    .leftJoin(categories, eq(festivalToCategories.categoryId, categories.id))
     .$dynamic();
 
   filters.push(
@@ -59,13 +67,16 @@ export async function getAllCountryCastFestivals(
     eq(festivalsLang.lang, sq)
   );
 
-  if (regionsIn.length)
+  if (regionsIn?.length)
     filters.push(inArray(countries.regionId, regionsIn.map(Number)));
 
   if (search) filters.push(ilike(festivalsLang.name, `%${search}%`));
 
-  if (countriesIn.length)
+  if (countriesIn?.length)
     filters.push(inArray(festivals.countryId, countriesIn.map(Number)));
+
+  if (categoriesIn?.length)
+    filters.push(inArray(categories.id, categoriesIn.map(Number)));
 
   query
     .where(and(...filters))

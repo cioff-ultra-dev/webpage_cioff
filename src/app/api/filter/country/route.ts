@@ -11,8 +11,17 @@ export async function GET(request: NextRequest) {
   const countriesIn: string[] = JSON.parse(
     request.nextUrl.searchParams.get("countries") || "[]"
   );
+const categoriesIn: string[] = JSON.parse(
+  request.nextUrl.searchParams.get("categories") || "[]"
+);
 
-  const result = await getAllCountryCastFestivals(locale as Locale, regionsIn, search, countriesIn);
+  const result = await getAllCountryCastFestivals(
+    locale as Locale,
+    regionsIn,
+    search,
+    countriesIn,
+    categoriesIn
+  );
 
   return NextResponse.json(result);
 }
