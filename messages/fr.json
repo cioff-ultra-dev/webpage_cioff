@@ -899,12 +899,12 @@
     "become": "Devenez membre"
   },
   "login": {
-    "welcome": "Bem-vindo",
-    "login": "Entrar",
-    "become": "Torne-se um membro",
-    "email": "E-mail",
-    "password": "Senha",
-    "description": "Digite seu e-mail e senha para acessar sua conta."
+    "welcome": "Bienvenue",
+    "login": "Se connecter",
+    "become": "Devenir membre",
+    "email": "Email",
+    "password": "Mot de passe",
+    "description": "Entrez votre email et mot de passe pour accéder à votre compte."
   },
   "internationalPage":{
     "bannerDescription1": "CIOFF® International, officiellement le Conseil International des Organisations de Festivals de Folklore et des Arts Populaires, est une organisation non gouvernementale mondiale dédiée à la préservation et à la promotion de la culture traditionnelle et du folklore./nFondée en 1970 à Confolens, en France, elle est aujourd’hui présente dans plus de 80 pays, soutenant environ 300 festivals à travers le monde. Partenaire officiel de l’UNESCO, accrédité auprès du Comité du patrimoine culturel immatériel de l’UNESCO, le CIOFF® œuvre à la sauvegarde du patrimoine culturel immatériel, en mettant l’accent sur la musique, la danse, les rituels et l’artisanat traditionnels.",
