@@ -5,6 +5,7 @@ import {
   categories,
   countries,
   countriesLang,
+  events,
   festivals,
   festivalsLang,
   festivalToCategories,
@@ -12,7 +13,7 @@ import {
   SelectLanguages,
 } from "@/db/schema";
 import { defaultLocale, Locale } from "@/i18n/config";
-import { and, eq, ilike, inArray, isNotNull, SQLWrapper } from "drizzle-orm";
+import { and, eq, gte, ilike, inArray, isNotNull, lte, SQLWrapper } from "drizzle-orm";
 import { getLocale } from "next-intl/server";
 
 export type CountryCastFestivals = {
@@ -30,7 +31,9 @@ export async function getAllCountryCastFestivals(
   regionsIn: string[] = [],
   search?: string,
   countriesIn?: string[],
-  categoriesIn?: string[]
+  categoriesIn?: string[],
+  rangeDateFrom?: string,
+  rangeDateTo?: string
 ): Promise<CountryCastFestivals> {
   const sq = db
     .select({ id: languages.id })
@@ -58,6 +61,7 @@ export async function getAllCountryCastFestivals(
       eq(festivalToCategories.festivalId, festivals.id)
     )
     .leftJoin(categories, eq(festivalToCategories.categoryId, categories.id))
+    .leftJoin(events, eq(events.festivalId, festivals.id))
     .$dynamic();
 
   filters.push(
@@ -77,6 +81,12 @@ export async function getAllCountryCastFestivals(
 
   if (categoriesIn?.length)
     filters.push(inArray(categories.id, categoriesIn.map(Number)));
+
+  if (rangeDateFrom || rangeDateTo)
+    filters.push(
+      gte(events.startDate, new Date(Number(rangeDateFrom) * 1000)),
+      lte(events.endDate, new Date(Number(rangeDateTo || rangeDateFrom) * 1000))
+    );
 
   query
     .where(and(...filters))

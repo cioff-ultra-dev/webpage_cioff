@@ -11,16 +11,22 @@ export async function GET(request: NextRequest) {
   const countriesIn: string[] = JSON.parse(
     request.nextUrl.searchParams.get("countries") || "[]"
   );
-const categoriesIn: string[] = JSON.parse(
-  request.nextUrl.searchParams.get("categories") || "[]"
-);
+  const categoriesIn: string[] = JSON.parse(
+    request.nextUrl.searchParams.get("categories") || "[]"
+  );
+  const rangeDateFrom: string =
+    request.nextUrl.searchParams.get("rangeDateFrom") || "";
+  const rangeDateTo: string =
+    request.nextUrl.searchParams.get("rangeDateTo") || "";
 
   const result = await getAllCountryCastFestivals(
     locale as Locale,
     regionsIn,
     search,
     countriesIn,
-    categoriesIn
+    categoriesIn,
+    rangeDateFrom,
+    rangeDateTo
   );
 
   return NextResponse.json(result);
