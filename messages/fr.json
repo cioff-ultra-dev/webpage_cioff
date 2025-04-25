@@ -382,7 +382,8 @@
     "selectRegions": "Régions",
     "results": "Résultats: {total}",
     "festivals": "Festivals",
-    "groups": "Groupes"
+    "groups": "Groupes",
+    "label": "Voir les résultats sous la carte"
   },
   "customErrors": {
     "file_required": "Veuillez télécharger un fichier",

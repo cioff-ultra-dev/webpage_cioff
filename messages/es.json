@@ -383,7 +383,8 @@
     "selectRegions": "Regiones",
     "results": "Resultados: {total}",
     "festivals": "Festivales",
-    "groups": "Grupos"
+    "groups": "Grupos",
+    "label": "Ver resultados debajo del mapa"
   },
   "customErrors": {
     "file_required": "Por favor, sube un archivo",

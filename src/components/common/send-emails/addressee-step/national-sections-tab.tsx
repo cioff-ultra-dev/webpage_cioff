@@ -234,6 +234,9 @@ function FestivalTab(props: FestivalTabOptions): JSX.Element {
             selectedRegions={selectedRegions}
           />
         </div>
+        <p className="pt-6 font-secular font-semibold text-muted-foreground text-center">
+          {translations("label")}
+        </p>
       </section>
       <Card className={cn(children && "border-none sm:pt-2 shadow-none")}>
         <CardContent className={cn("pt-4", contentClassName)}>

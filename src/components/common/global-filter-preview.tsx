@@ -442,7 +442,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
             showInputSearch={false}
             searchText={new URLSearchParams(search).get("search") ?? ""}
             showIconLabels
-            contentClassName="p-0 bg-white py-4 sm:py-6 w-full h-full"
+            contentClassName="p-0 bg-white pb-2 w-full h-full"
             wrapperClassName="w-full h-full"
             viewMoreLink="/members"
           >
@@ -489,7 +489,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
             </div>
           </NationalSectionsTab>
           <TabsContent value="festivals">
-            <div className="container mx-auto pb-6 pt-2 px-2">
+            <div className="container mx-auto pb-2 pt-2 px-2">
               <Filters
                 categories={categories}
                 countries={countriesMap}
@@ -507,8 +507,11 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                 categoryType="festivals"
                 selectedRegions={selectedRegions}
               />
+              <p className="pt-6 font-secular font-semibold text-muted-foreground text-center">
+                {tf("label")}
+              </p>
             </div>
-            <section className="bg-white py-4 sm:py-8 w-full">
+            <section className="bg-white py-4 w-full">
               <div className="w-full">
                 <div className="flex flex-col space-y-4 sm:space-y-0">
                   <MapHandler
@@ -606,7 +609,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
             </section>
           </TabsContent>
           <TabsContent value="groups">
-            <div className="container mx-auto pb-6 pt-2 px-2">
+            <div className="container mx-auto pb-2 pt-2 px-2">
               <Filters
                 categories={categories}
                 countries={countriesGroupMap}
@@ -624,8 +627,11 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
                 categoryType="groups"
                 selectedRegions={selectedRegions}
               />
+              <p className="pt-6 font-secular font-semibold text-muted-foreground text-center">
+                {tf("label")}
+              </p>
             </div>
-            <section className="bg-white py-4 sm:py-8 w-full">
+            <section className="bg-white py-4 w-full">
               <div className="w-full">
                 <div className="flex flex-col space-y-4 sm:space-y-0">
                   <MapHandler

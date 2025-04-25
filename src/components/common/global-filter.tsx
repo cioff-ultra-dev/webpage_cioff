@@ -406,7 +406,7 @@ export function WrapperFilter({
             </form>
           </div>
         </div>
-        <section className="py-4 sm:py-8">
+        <section className="py-4">
           <div className="container mx-auto px-2">
             <Filters
               categories={categories}
@@ -431,9 +431,12 @@ export function WrapperFilter({
               selectedRegions={selectedRegions}
             />
           </div>
+          <p className="pt-6 font-secular font-semibold text-muted-foreground text-center">
+            {tf("label")}
+          </p>
         </section>
         <TabsContent value="festivals">
-          <section className="bg-white py-4 sm:py-8">
+          <section className="bg-white py-2">
             <div className="w-full">
               <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0">
                 <MapHandler
@@ -553,7 +556,7 @@ export function WrapperFilter({
           </section>
         </TabsContent>
         <TabsContent value="groups">
-          <section className="bg-white py-4 sm:py-8">
+          <section className="bg-white py-2">
             <div className="w-full">
               <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0">
                 <MapHandler

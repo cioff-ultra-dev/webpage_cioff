@@ -398,7 +398,8 @@
     "selectRegions": "Regions",
     "results": "Results: {total}",
     "festivals": "Festivals",
-    "groups": "Groups"
+    "groups": "Groups",
+    "label": "See results below the map"
   },
   "customErrors": {
     "file_required": "Please upload a file",
