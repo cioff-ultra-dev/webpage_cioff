@@ -390,7 +390,7 @@ export function WrapperFilter({ categories }: { categories: CategoriesType }) {
           onValueChange={(value) => setTabSelected(value)}
         >
           <div className="container mx-auto flex gap-4 flex-col items-center">
-            <TabsList className="flex w-fit justify-center">
+            <TabsList className="flex w-fit justify-center max-sm:flex-wrap max-sm:my-6 max-sm:h-auto">
               <TabsTrigger value="festivals" className="flex gap-4">
                 <CalendarIcon />
                 {tf("festivals")}

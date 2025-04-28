@@ -35,7 +35,7 @@ function Footer() {
   return (
     <footer className="bg-primary py-4 sm:py-8 text-white flex justify-center">
       <div className="grid grid-cols-2 max-md:grid-cols-1 text-roboto w-2/5 max-md:w-full">
-        <section className="flex flex-col">
+        <section className="flex flex-col max-sm:items-center">
           <p className="text-lg">{t("connect")}</p>
           <Link href="mailto:info@cioff.org" className="text-md my-4 hover:underline hover:underline-offset-2">
             info@cioff.org
@@ -48,7 +48,7 @@ function Footer() {
           <p>{t("additional")}</p>
           <p>{t("country")}</p>
         </section>
-        <section className="flex flex-col items-center">
+        <section className="flex flex-col items-center max-sm:my-6">
           <Link href="mailto:legal@cioff.org" className="h-min">
             <Button className="text-lg hover:bg-white hover:text-primary border border-white">
               {t("become")}
