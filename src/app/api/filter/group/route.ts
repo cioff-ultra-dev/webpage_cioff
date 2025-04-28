@@ -66,6 +66,9 @@ async function buildFilter(request: NextRequest) {
   );
   const locale: Locale =
     (request.nextUrl.searchParams.get("locale") as Locale) || defaultLocale;
+  const regionsIn: string[] = JSON.parse(
+    request.nextUrl.searchParams.get("regions") || "[]"
+  );
 
   const sq = db
     .select({ id: languages.id })
@@ -129,6 +132,9 @@ async function buildFilter(request: NextRequest) {
   if (search) {
     filters.push(ilike(groupsLang.name, `%${search}%`));
   }
+
+  if (regionsIn?.length)
+    filters.push(inArray(countries.regionId, regionsIn.map(Number)));
 
   baseQuery
     .where(and(...filters))
