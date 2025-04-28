@@ -1162,7 +1162,7 @@ export default function EventForm({
                         .filter(Boolean) || "[]"
                     )}
                   />
-                  {categoriesSelected.some((categoryId) => {
+                  {categoriesSelected?.some((categoryId) => {
                     const category = categoryGroups?.find(
                       (cate) => String(cate.id) === categoryId
                     );
