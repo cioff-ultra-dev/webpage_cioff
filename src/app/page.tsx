@@ -116,7 +116,7 @@ export default async function Home() {
             className="absolute inset-0 w-full h-full object-cover"
             fill
           />
-          <div className="absolute text-white text-secular font-bold text-end text-5xl right-6 capitalize">
+          <div className="absolute text-white text-secular font-bold text-end text-5xl right-6 capitalize max-sm:text-lg max-sm:bottom-7">
             <p>
               {t.rich("bannerTitle1", {
                 mark: (chunks) => (
@@ -142,7 +142,7 @@ export default async function Home() {
             className="absolute inset-0 w-full h-full object-cover"
             fill
           />
-          <div className="absolute text-white text-secular font-bold text-start text-5xl left-6 capitalize">
+          <div className="absolute text-white text-secular font-bold text-start text-5xl left-6 capitalize max-sm:text-lg max-sm:bottom-7">
             <p>{t("bannerTitle2")}</p>
             <p>{t("bannerDescription2")}</p>
             <Button
