@@ -91,6 +91,7 @@ export async function getNationalSectionBySlug(
           photo: true,
         },
       },
+      owners: true,
     },
   });
 }

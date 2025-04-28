@@ -6,6 +6,7 @@ import {
   NationalSectionDetailsType,
 } from "@/db/queries/national-sections";
 import { getLocale } from "next-intl/server";
+import { redirect } from "next/navigation";
 
 export default async function EditNationalSection({
   params,
@@ -18,6 +19,12 @@ export default async function EditNationalSection({
     await getNationalSectionBySlug(params.id, locale);
   const currentLang = ns?.langs.find((lang) => lang.l?.code === locale);
   const typePositions = await getAllTypePositionsforNS(locale);
+
+  if (
+    ns !== undefined &&
+    !ns.owners.some((owner) => owner.userId === session?.user.id)
+  )
+    redirect("/dashboard/members");
 
   return (
     <NationalSectionForm
