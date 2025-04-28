@@ -125,7 +125,7 @@ function RenderArticles({ sections }: { sections: Section[] }) {
   );
 
   return (
-    <section className="[&>div:not(#banner)]:px-28 [&>div:not(#banner)]:container [&>*:not(#banner)]:mx-auto text-center">
+    <section className="[&>div:not(#banner)]:px-28 [&>div:not(#banner)]:container [&>*:not(#banner)]:mx-auto text-center [&>div:not(#banner)]:max-sm:px-10">
       {items}
     </section>
   );
