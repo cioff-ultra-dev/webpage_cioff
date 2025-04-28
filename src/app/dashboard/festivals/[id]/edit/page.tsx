@@ -1,4 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
+import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import EventForm from "@/components/common/event/form";
@@ -61,6 +62,12 @@ export default async function EditFestival({
     (owner) => owner.user?.role?.name === "Festivals"
   );
   const currentStatus = festival?.festivalsToStatuses.at(0);
+
+if (
+  festival !== undefined &&
+  !festival.owners.some((owner) => owner.userId === session?.user.id)
+)
+  redirect("/dashboard/festivals");
 
   return (
     <EventForm

@@ -8,6 +8,7 @@ import {
 import { getAllRegions, RegionsType } from "@/db/queries/regions";
 import { Locale } from "@/i18n/config";
 import { getLocale } from "next-intl/server";
+import { redirect } from "next/navigation";
 
 export default async function EditGroup({
   params,
@@ -31,6 +32,12 @@ export default async function EditGroup({
         return relation?.category?.id ? String(relation?.category?.id) : "";
       })
       .filter((id) => Boolean(id)) ?? [];
+
+  if (
+    group !== undefined &&
+    !group.owners.some((owner) => owner.userId === session?.user.id)
+  )
+    redirect("/dashboard/groups");
 
   return (
     <GroupForm
