@@ -45,7 +45,7 @@ function Banner(props: BannerProps) {
     () =>
       description?.split("/n").map((text, i) => (
         <p
-          className="text-base text-poppins w-2/3 mb-3 max-lg:w-4/5 max-md:text-sm"
+          className="text-poppins w-2/3 mb-3 max-lg:w-4/5 max-md:text-sm md:text-lg"
           key={i}
           dangerouslySetInnerHTML={{
             __html:
