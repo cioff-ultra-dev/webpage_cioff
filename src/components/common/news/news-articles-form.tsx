@@ -243,7 +243,11 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
         updateSection(
           section.id,
           typeof section.content === "string"
-            ? section.content?.concat(",", file.serverId)
+            ? section.content
+                ?.concat(",", file.serverId)
+                .split(",")
+                .filter((url) => !!url)
+                .join(",")
             : ({ ...section.content, image: file.serverId } as BannerContent)
         );
       },
@@ -383,7 +387,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
       return (
         <FilepondImageUploader
           allowMultiple
-          maxFiles={5}
+          maxFiles={30}
           defaultFiles={initialFiles}
           onprocessfile={callback}
           {...props}
