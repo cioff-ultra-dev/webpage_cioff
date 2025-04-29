@@ -60,7 +60,7 @@ function Banner(props: BannerProps) {
     <div
     id='banner'
       className={twMerge(
-        "relative w-full min-h-[40rem] flex items-center h-auto max-md:min-h-[47rem]",
+        "relative w-full min-h-[40rem] flex items-center h-auto max-md:min-h-[50rem]",
         containerClass
       )}
     >
