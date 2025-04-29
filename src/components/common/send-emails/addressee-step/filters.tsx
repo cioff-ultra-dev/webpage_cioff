@@ -76,7 +76,7 @@ function Filters(props: FiltersProps): JSX.Element {
       <CardContent className="pt-4">
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col items-end space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
+          className="flex flex-col items-end space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 max-lg:overflow-x-auto scrollbar"
         >
           {showInputSearch && (
             <div

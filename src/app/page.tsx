@@ -155,7 +155,7 @@ export default async function Home() {
             </Button>
           </div>
         </div>
-        <section className="py-4 sm:py-8 px-52 max-lg:px-24 max-md:px-28 max-sm:px-8 flex flex-col items-center">
+        <section className="py-4 sm:py-8 px-52 max-xl:px-48 max-lg:px-24 max-md:px-28 max-sm:px-8 flex flex-col items-center">
           <div className="h-auto overflow-hidden w-full">
             <News resultClasses="max-sm:columns-1 max-md:columns-2" />
           </div>
