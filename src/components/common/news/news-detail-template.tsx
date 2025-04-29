@@ -53,7 +53,7 @@ function NewsDetailTemplate(props: NewsDetailTemplateProps) {
                   .join(".")}
               </h3>
             ) : null}
-            <h1 className="font-bold mb-12 text-4xl text-secular">{title}</h1>
+            <h1 className="font-bold mb-12 text-4xl text-secular mx-4 text-center">{title}</h1>
           </div>
           <div className="h-full bg-white w-full overflow-hidden">
             <RenderSections sections={sections ?? []} />
