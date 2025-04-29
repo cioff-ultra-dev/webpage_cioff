@@ -19,7 +19,7 @@ const EVENTS = [
   {
     title: "title5",
     country: "country5",
-    continent: "continent4",
+    continent: "continent5",
     start: "05/09/2025",
     end: "05/11/2025",
     image: "/Europe.jpg",
