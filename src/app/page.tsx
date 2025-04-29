@@ -108,15 +108,15 @@ export default async function Home() {
           fallbackCountryCast={countryCast}
           categories={categories}
         />
-        <div className="relative w-full h-[35rem] flex items-center">
+        <div className="relative w-full h-[35rem] flex items-center max-sm:flex-col-reverse">
           <Image
             src="/banner-1.jpg"
             alt="banner 1"
             objectPosition="50% 20%"
-            className="absolute inset-0 w-full h-full object-cover"
+            className="inset-0 w-full h-[35rem] object-cover absolute max-sm:!relative"
             fill
           />
-          <div className="absolute text-white text-secular font-bold text-end text-5xl right-6 capitalize max-sm:text-lg max-sm:bottom-7">
+          <div className="text-white text-secular font-bold text-end text-5xl right-6 capitalize max-sm:text-lg max-sm:flex max-sm:flex-col max-sm:items-center max-sm:text-black max-sm:my-4 sm:absolute">
             <p>
               {t.rich("bannerTitle1", {
                 mark: (chunks) => (
@@ -127,27 +127,27 @@ export default async function Home() {
             <p>{t("bannerDescription1")}</p>
             <Button
               asChild
-              className="bg-white text-black rounded-xl text-xs px-3 h-10 hover:bg-white"
+              className="sm:bg-white sm:text-black rounded-xl text-xs px-3 h-10 sm:hover:bg-white max-sm:mt-4"
             >
               <Link href="/cioff-international">{t("bannerLink1")}</Link>
             </Button>
           </div>
         </div>
         <ImpactSection />
-        <div className="relative w-full h-[35rem] flex items-center">
+        <div className="relative w-full h-[35rem] flex items-center max-sm:flex-col-reverse">
           <Image
             src="https://static.wixstatic.com/media/f0ab27_4192ee051b6a41929772cbf6e78e0a63~mv2.jpg/v1/fill/w_1600,h_509,al_c,q_85,enc_auto/f0ab27_4192ee051b6a41929772cbf6e78e0a63~mv2.jpg"
             alt="Hero background"
             objectPosition="50% 20%"
-            className="absolute inset-0 w-full h-full object-cover"
+            className="inset-0 w-full h-[35rem] object-cover absolute max-sm:!relative"
             fill
           />
-          <div className="absolute text-white text-secular font-bold text-start text-5xl left-6 capitalize max-sm:text-lg max-sm:bottom-7">
+          <div className="text-white text-secular font-bold text-start text-5xl left-6 capitalize max-sm:text-lg max-sm:flex max-sm:flex-col max-sm:items-center max-sm:text-black max-sm:my-4 sm:absolute ">
             <p>{t("bannerTitle2")}</p>
             <p>{t("bannerDescription2")}</p>
             <Button
               asChild
-              className="bg-white text-black rounded-xl text-xs px-3 h-10 hover:bg-white capitalize"
+              className="sm:bg-white sm:text-black rounded-xl text-xs px-3 h-10 sm:hover:bg-white capitalize max-sm:mt-4"
             >
               <Link href="/unesco" prefetch>
                 {t("bannerLink2")}
