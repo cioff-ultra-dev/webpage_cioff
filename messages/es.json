@@ -44,7 +44,20 @@
       "festivals": "Festivales",
       "groups": "Grupos",
       "events": "Eventos"
+    },
+    "group": {
+      "general_director": "Presidente/Director General",
+      "musical_director": "Director Musical",
+      "artistic_director": "Nombre del Director Artístico",
+      "avail_trave_year": "Disponible para viajar este año",
+      "specific_date": "Fecha específica",
+      "specific_region": "Región específica",
+      "comments": "Comentarios"
     }
+  },
+  "action": {
+    "yes": "Sí",
+    "no": "No"
   },
   "locale_switch": {
     "select": "Seleccionar idioma",
@@ -649,7 +662,7 @@
     "emailSentMessage": "Correo enviado con éxito.",
     "notEmailSentMessage": "No se pudo enviar el correo."
   },
-  "detailFestivals": {
+  "detailProfile": {
     "contact": "Contacto",
     "director": "Director",
     "categories": "Categorias",
@@ -675,7 +688,11 @@
     "stageImage": "No hay imagenes del escenario.",
     "searchGroup": "El festival está buscando grupos de:",
     "notSearchingGroups": "El festival no está buscando grupos.",
-    "logisticsSection": "Debe iniciar sesión para ver la información de acomodación, lugar de llegada, grupos confirmados, condiciones generales."
+    "logisticsSection": "Debe iniciar sesión para ver la información de acomodación, lugar de llegada, grupos confirmados, condiciones generales.",
+    "profiles": "Perfiles",
+    "travelInformation": "Información de viaje",
+    "subgroups": "Subgrupos",
+    "members": "{count} miembros"
   },
   "common": {
     "forbiddenDescription": "Debe iniciar sesión para ver la información.",

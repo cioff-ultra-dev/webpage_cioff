@@ -51,7 +51,7 @@ export default async function EventDetail({
     auth(),
     getLocale(),
     getFormatter(),
-    getTranslations("detailFestivals"),
+    getTranslations("detailProfile"),
     getTranslations("page.festival"),
   ]);
 

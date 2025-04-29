@@ -44,7 +44,20 @@
       "festivals": "Festivals",
       "groups": "Groupes",
       "events": "Événements"
+    },
+    "group": {
+      "general_director": "Président / Directeur Général",
+      "musical_director": "Directeur Musical",
+      "artistic_director": "Nom du Directeur Artistique",
+      "avail_trave_year": "Disponible pour voyager cette année",
+      "specific_date": "Date spécifique",
+      "specific_region": "Région spécifique",
+      "comments": "Commentaires"
     }
+  },
+  "action": {
+    "yes": "Oui",
+    "no": "Non"
   },
   "locale_switch": {
     "select": "Sélectionner la langue",
@@ -158,7 +171,7 @@
       "facebook_link": "Lien Facebook",
       "instagram_link": "Enlace de Instagram",
       "website_link": "Site web",
-      "media_description":"Por favor, sempre inclua o https:// antes do link.",
+      "media_description": "Por favor, sempre inclua o https:// antes do link.",
       "select_festivals": "Sélectionner les festivals",
       "status_and_details": "Statut et détails",
       "upload_a_picture": "Télécharger une image",
@@ -312,7 +325,7 @@
       "facebook_link": "Lien Facebook",
       "instagram_link": "Lien Instagram",
       "website_link": "Site web",
-      "media_description":"Por favor, sempre inclua o https:// antes do link.",
+      "media_description": "Por favor, sempre inclua o https:// antes do link.",
       "repertoire": "Répertoire",
       "add_your_perfo_repe_below": "Ajoutez les détails de votre répertoire ci-dessous",
       "name": "nom",
@@ -648,7 +661,7 @@
     "emailSentMessage": "E-mail envoyé avec succès.",
     "notEmailSentMessage": "L'e-mail n'a pas pu être envoyé."
   },
-  "detailFestivals": {
+  "detailProfile": {
     "contact": "Contact",
     "director": "Directeur",
     "categories": "Catégories",
@@ -674,7 +687,11 @@
     "stageImage": "Aucune image de la scène disponible.",
     "searchGroup": "Le festival recherche des groupes de :",
     "notSearchingGroups": "Le festival ne recherche pas de groupes.",
-    "logisticsSection": "Vous devez vous connecter pour voir les informations sur l'hébergement, le lieu d'arrivée, les groupes confirmés et les conditions générales."
+    "logisticsSection": "Vous devez vous connecter pour voir les informations sur l'hébergement, le lieu d'arrivée, les groupes confirmés et les conditions générales.",
+    "profiles": "Profils",
+    "travelInformation": "Informations de voyage",
+    "subgroups": "Sous-groupes",
+    "members": "{count} membres"
   },
   "common": {
     "forbiddenDescription": "Vous devez vous connecter pour voir les informations.",
@@ -907,7 +924,7 @@
     "password": "Mot de passe",
     "description": "Entrez votre email et mot de passe pour accéder à votre compte."
   },
-  "internationalPage":{
+  "internationalPage": {
     "bannerDescription1": "CIOFF® International, officiellement le Conseil International des Organisations de Festivals de Folklore et des Arts Populaires, est une organisation non gouvernementale mondiale dédiée à la préservation et à la promotion de la culture traditionnelle et du folklore./nFondée en 1970 à Confolens, en France, elle est aujourd’hui présente dans plus de 80 pays, soutenant environ 300 festivals à travers le monde. Partenaire officiel de l’UNESCO, accrédité auprès du Comité du patrimoine culturel immatériel de l’UNESCO, le CIOFF® œuvre à la sauvegarde du patrimoine culturel immatériel, en mettant l’accent sur la musique, la danse, les rituels et l’artisanat traditionnels.",
     "bannerTitle2": "ACTIVITÉS",
     "bannerDescription2": "Les activités du CIOFF® comprennent la Folkloriade mondiale, des programmes éducatifs et des initiatives d'engagement des jeunes, favorisant la continuité du patrimoine culturel auprès des jeunes générations. Ses efforts contribuent de manière significative à la diversité culturelle mondiale et au développement durable, en étroite adéquation avec les objectifs de l'UNESCO en matière de dialogue interculturel et de paix./nL'organisation fonctionne grâce aux efforts volontaires et aux contributions des membres et partenaires. Le rôle du CIOFF® dans la facilitation des échanges et de la compréhension culturels est essentiel pour préserver la richesse et la diversité des traditions culturelles du monde.",

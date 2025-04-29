@@ -39,13 +39,16 @@ export default async function GroupDetail({
 }: {
   params: { id: string };
 }) {
-  const session = await auth();
-  const locale = await getLocale();
-  const formatter = await getFormatter();
-  const festival = await getGroupById(Number(params.id));
-  const t = await getTranslations("page.group");
-  const ta = await getTranslations("action");
-  const translations = await getTranslations("detailFestivals");
+  const [session, locale, formatter, festival, t, ta, translations] =
+    await Promise.all([
+      auth(),
+      getLocale(),
+      getFormatter(),
+      getGroupById(Number(params.id)),
+      getTranslations("page.group"),
+      getTranslations("action"),
+      getTranslations("detailProfile"),
+    ]);
 
   let youtubeId = "";
 
@@ -74,9 +77,9 @@ export default async function GroupDetail({
         },
       ];
 
-      const categories = festival?.groupToCategories?.map(
-          ({ category }) => category
-        ) as CategoriesType;
+  const categories = festival?.groupToCategories?.map(
+    ({ category }) => category
+  ) as CategoriesType;
 
   return (
     <div className="flex flex-col w-full min-h-screen">
@@ -124,15 +127,6 @@ export default async function GroupDetail({
               <div className="flex flex-col gap-4">
                 <div className="flex gap-3">
                   {/* <Button variant="outline">Get directions</Button> */}
-                  <Button
-                    variant="outline"
-                    asChild
-                    disabled={!festival?.websiteLink}
-                  >
-                    <Link href={festival?.websiteLink ?? ""} target="_blank">
-                      Website
-                    </Link>
-                  </Button>
                   {/* <Button variant="outline">Bookmark</Button> */}
                   {/* <Button variant="outline">Share</Button> */}
                   {/* <Button variant="outline">Leave a review</Button> */}
@@ -142,7 +136,7 @@ export default async function GroupDetail({
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Card className="col-span-1">
                     <CardHeader>
-                      <CardTitle>Description</CardTitle>
+                      <CardTitle>{translations("description")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p>
@@ -156,7 +150,7 @@ export default async function GroupDetail({
                   </Card>
                   <Card className="col-span-1">
                     <CardHeader>
-                      <CardTitle>Profiles</CardTitle>
+                      <CardTitle>{translations("profiles")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ul className="space-y-4">
@@ -259,7 +253,7 @@ export default async function GroupDetail({
                   />
                   <Card className="col-span-1">
                     <CardHeader>
-                      <CardTitle>Contact</CardTitle>
+                      <CardTitle>{translations("contact")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       {session !== null ? (
@@ -353,7 +347,7 @@ export default async function GroupDetail({
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Card className="col-span-1">
                     <CardHeader>
-                      <CardTitle>Travel Information</CardTitle>
+                      <CardTitle>{translations("travelInformation")}</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-wrap flex-col gap-2">
                       <div className="mb-1">
@@ -400,7 +394,7 @@ export default async function GroupDetail({
                   </Card>
                   <Card className="col-span-1">
                     <CardHeader>
-                      <CardTitle>Subgroups</CardTitle>
+                      <CardTitle>{translations("subgroups")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       {festival?.subgroups.map((item, index) => {
@@ -413,7 +407,11 @@ export default async function GroupDetail({
                                 item?.langs.find(
                                   (item) => item.l?.code === defaultLocale
                                 )?.name}{" "}
-                              - ({item.membersNumber} members)
+                              - (
+                              {translations("members", {
+                                count: item.membersNumber,
+                              })}
+                              )
                             </p>
                             <div className="my-1">
                               {item?.subgroupsToCategories.map((sitem) => (
@@ -465,7 +463,7 @@ export default async function GroupDetail({
                 </Card> */}
                 <Card className="col-span-1">
                   <CardHeader>
-                    <CardTitle>Gallery</CardTitle>
+                    <CardTitle>{translations("gallery")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <GalleryImageEvent gallery={gallery} />

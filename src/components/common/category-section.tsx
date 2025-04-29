@@ -41,7 +41,7 @@ export async function CategorySection(
   return (
     <Card className="col-span-1 pointer-events-none">
       <CardHeader>
-        <CardTitle>{translations("detailFestivals.categories")}</CardTitle>
+        <CardTitle>{translations("detailProfile.categories")}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col flex-wrap gap-4">
         {items}

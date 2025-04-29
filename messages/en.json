@@ -666,7 +666,7 @@
     "emailSentMessage": "Email sent successfully.",
     "notEmailSentMessage": "The email could not be sent."
   },
-  "detailFestivals": {
+  "detailProfile": {
     "contact": "Contact",
     "director": "Director",
     "categories": "Categories",
@@ -692,7 +692,11 @@
     "stageImage": "No stage images available.",
     "searchGroup": "The festival is looking for groups from:",
     "notSearchingGroups": "The festival is not looking for groups.",
-    "logisticsSection": "You must log in to view information about accommodation, arrival location, confirmed groups, and general conditions."
+    "logisticsSection": "You must log in to view information about accommodation, arrival location, confirmed groups, and general conditions.",
+    "profiles": "Profiles",
+    "travelInformation": "Travel information",
+    "subgroups": "Subgroups",
+    "members": "{count} members"
   },
   "common": {
     "forbiddenDescription": "You must log in to view the information.",
