@@ -703,7 +703,8 @@
     "pendingDate": "Pending date",
     "viewMore": "View more...",
     "results": "Results: {total}",
-    "noDescription": "No description."
+    "noDescription": "No description.",
+    "pickDate": "Pick a date"
   },
   "events": {
     "title": "Events",

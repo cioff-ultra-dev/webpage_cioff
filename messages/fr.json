@@ -685,7 +685,8 @@
     "pendingDate": "Date en attente",
     "viewMore": "Voir plus...",
     "results": "Résultats : {total}",
-    "noDescription": "Aucune description."
+    "noDescription": "Aucune description.",
+    "pickDate": "Choisissez une date"
   },
   "events": {
     "title": "Événements",

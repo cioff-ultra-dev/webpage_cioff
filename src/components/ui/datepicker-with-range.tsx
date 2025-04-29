@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { format } from "date-fns";
 import { DateRange, Matcher } from "react-day-picker";
+import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -31,6 +33,7 @@ export function DatePickerWithRange({
   disabled?: Matcher;
   showIcon?: boolean;
 }) {
+  const translations = useTranslations("common");
   const [date, setDate] = useState<DateRange | undefined>({
     from: defaultDates?.from ?? undefined,
     to: defaultDates?.to ?? undefined,
@@ -45,31 +48,43 @@ export function DatePickerWithRange({
   return (
     <div className={cn("grid gap-2", className)}>
       <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            id="date"
-            variant={"outline"}
-            className={cn(
-              "w-[300px] justify-start text-left font-normal text-muted-foreground",
-              !date && "text-muted-foreground",
-              buttonClassName
-            )}
-          >
-            {showIcon && <CalendarIcon className="mr-2 h-4 w-4" />}
-            {date?.from ? (
-              date.to ? (
-                <>
-                  {format(date.from, "LLL dd, y")} -{" "}
-                  {format(date.to, "LLL dd, y")}
-                </>
+        <div className="flex items-center border rounded-lg">
+          <PopoverTrigger asChild>
+            <Button
+              id="date"
+              variant="ghost"
+              className={cn(
+                "w-[300px] justify-start text-left font-normal text-muted-foreground rounded-r-none",
+                !date && "text-muted-foreground",
+                buttonClassName
+              )}
+            >
+              {showIcon && <CalendarIcon className="mr-2 h-4 w-4" />}
+              {date?.from ? (
+                date.to ? (
+                  <>
+                    {format(date.from, "LLL dd, y")} -{" "}
+                    {format(date.to, "LLL dd, y")}
+                  </>
+                ) : (
+                  format(date.from, "LLL dd, y")
+                )
               ) : (
-                format(date.from, "LLL dd, y")
-              )
-            ) : (
-              <span>Pick a date</span>
-            )}
-          </Button>
-        </PopoverTrigger>
+                <span>{translations("pickDate")}</span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          {date?.from && (
+            <Button
+              size="icon"
+              variant="ghost"
+              className="rounded-l-none"
+              onClick={() => setDate({ from: undefined, to: undefined })}
+            >
+              <X className="text-muted-foreground" />
+            </Button>
+          )}
+        </div>
         <PopoverContent className="w-auto p-0" align="start">
           <Calendar
             initialFocus
