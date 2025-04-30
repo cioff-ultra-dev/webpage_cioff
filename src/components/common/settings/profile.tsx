@@ -7,10 +7,8 @@ import {
   Card,
   CardTitle,
   CardDescription,
-  CardFooter,
   CardContent,
 } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -31,14 +29,29 @@ import { toast } from "sonner";
 import { useI18nZodErrors } from "@/hooks/use-i18n-zod-errors";
 import { useRouter } from "next/navigation";
 import { customRevalidatePath } from "../revalidateTag";
-import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 
 const profileFieldSchema = accountFieldsSchema;
 
 const accountPasswordSchema = z
   .object({
     currentPassword: z.string(),
-    newPassword: z.string().min(8),
+    newPassword: z
+      .string()
+      .min(8)
+      .max(16)
+      .refine((value) => /[A-Z]/.test(value), {
+        params: { i18n: "password_uppercase" },
+      })
+      .refine((value) => /[a-z]/.test(value), {
+        params: { i18n: "password_lowercase" },
+      })
+      .refine((value) => /\d/.test(value), {
+        params: { i18n: "password_number" },
+      })
+      .refine((value) => /[!@#$%^&*(),.?":{}|<>]/.test(value), {
+        params: { i18n: "password_special" },
+      }),
     confirmPassword: z.string().min(8),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
@@ -54,6 +67,7 @@ export default function SettingProfile({
   currentInfo: SelectUser;
 }) {
   useI18nZodErrors("profile");
+  const translations = useTranslations("form.profile");
   const router = useRouter();
 
   const accountForm = useForm<z.infer<typeof profileFieldSchema>>({
@@ -115,9 +129,11 @@ export default function SettingProfile({
     <>
       <Card x-chunk="dashboard-04-chunk-2">
         <CardHeader>
-          <CardTitle id="change-password">Change Password</CardTitle>
+          <CardTitle id="change-password">
+            {translations("changePassword")}
+          </CardTitle>
           <CardDescription>
-            This section will provide changing your password account
+            {translations("changePasswordDescription")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -133,7 +149,7 @@ export default function SettingProfile({
                   name="currentPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Current Password</FormLabel>
+                      <FormLabel>{translations("currentPassword")}</FormLabel>
                       <FormControl>
                         <Input
                           name={field.name}
@@ -145,7 +161,7 @@ export default function SettingProfile({
                         />
                       </FormControl>
                       <FormDescription>
-                        Include your current password
+                        {translations("currentPasswordDescription")}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -158,7 +174,7 @@ export default function SettingProfile({
                   name="newPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>New Password</FormLabel>
+                      <FormLabel>{translations("newPassword")}</FormLabel>
                       <FormControl>
                         <Input
                           name={field.name}
@@ -170,7 +186,7 @@ export default function SettingProfile({
                         />
                       </FormControl>
                       <FormDescription>
-                        Include your new password
+                        {translations("newPasswordDescription")}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -183,7 +199,7 @@ export default function SettingProfile({
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
+                      <FormLabel>{translations("confirmPassword")}</FormLabel>
                       <FormControl>
                         <Input
                           name={field.name}
@@ -195,7 +211,7 @@ export default function SettingProfile({
                         />
                       </FormControl>
                       <FormDescription>
-                        Include your confirmation of your new password
+                        {translations("confirmPasswordDescription")}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -207,7 +223,7 @@ export default function SettingProfile({
                   type="submit"
                   disabled={passwordForm.formState.isSubmitting}
                 >
-                  Save
+                  {translations("save")}
                 </Button>
               </div>
             </form>
@@ -216,9 +232,9 @@ export default function SettingProfile({
       </Card>
       <Card x-chunk="dashboard-04-chunk-1">
         <CardHeader>
-          <CardTitle>Profile Fields</CardTitle>
+          <CardTitle>{translations("profileFields")}</CardTitle>
           <CardDescription>
-            Provide base fields related to your account
+            {translations("profileFieldsDescription")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -234,7 +250,7 @@ export default function SettingProfile({
                   name="firstname"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>First name</FormLabel>
+                      <FormLabel>{translations("name")}</FormLabel>
                       <FormControl>
                         <Input
                           name={field.name}
@@ -245,7 +261,7 @@ export default function SettingProfile({
                         />
                       </FormControl>
                       <FormDescription>
-                        This is your current first name.
+                        {translations("nameDescription")}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -258,7 +274,7 @@ export default function SettingProfile({
                   name="lastname"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Last name</FormLabel>
+                      <FormLabel>{translations("lastName")}</FormLabel>
                       <FormControl>
                         <Input
                           name={field.name}
@@ -269,7 +285,7 @@ export default function SettingProfile({
                         />
                       </FormControl>
                       <FormDescription>
-                        This is your current last name.
+                        {translations("lastNameDescription")}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -282,7 +298,7 @@ export default function SettingProfile({
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email Address</FormLabel>
+                      <FormLabel>{translations("email")}</FormLabel>
                       <FormControl>
                         <Input
                           name={field.name}
@@ -293,7 +309,7 @@ export default function SettingProfile({
                         />
                       </FormControl>
                       <FormDescription>
-                        This is your current email.
+                        {translations("emailDescription")}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -305,7 +321,7 @@ export default function SettingProfile({
                   type="submit"
                   disabled={accountForm.formState.isSubmitting}
                 >
-                  Save
+                  {translations("save")}
                 </Button>
               </div>
             </form>

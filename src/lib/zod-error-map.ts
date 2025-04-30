@@ -63,7 +63,6 @@ export const makeZodI18nMap: MakeZodI18nMap = (option) => (issue, ctx) => {
   const { t, tForm, tCustom } = {
     ...option,
   };
-
   let message: string;
   message = defaultErrorMap(issue, ctx).message;
 
@@ -216,6 +215,13 @@ export const makeZodI18nMap: MakeZodI18nMap = (option) => (issue, ctx) => {
         ...values,
         ...path,
       });
+
+      if (message === key && tForm)
+        message = tForm(key as Parameters<typeof t>[0], {
+          ...values,
+          ...path,
+        });
+
       break;
     }
     case ZodIssueCode.invalid_intersection_types:

@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { db } from "@/db";
+import { addMonths, isAfter } from "date-fns";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -21,9 +22,14 @@ export default async function DashboardPage() {
   });
 
   if (isRootDashboard) {
-    if (!currentInfo?.active) {
+    const sixMonthsLater = addMonths(currentInfo?.updatedAt ?? new Date(), 6);
+    const passwordIsExpired = isAfter(new Date(), sixMonthsLater);
+
+    if (passwordIsExpired)
+      return redirect("/dashboard/settings#password-expired");
+
+    if (!currentInfo?.active)
       return redirect("/dashboard/settings#change-password");
-    }
 
     if (
       session?.user.role?.name === "Admin" ||
