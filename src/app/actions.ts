@@ -79,6 +79,7 @@ import path from "path";
 import { tmpdir } from "os";
 import { getTranslateText } from "@/lib/translate";
 import { Locale, pickLocales } from "@/i18n/config";
+import { decryptPassword } from "@/lib/utils";
 
 const urlStringSchema = z.string().trim().url();
 
@@ -1552,9 +1553,11 @@ export async function updateAccountFields(formData: FormData) {
 
 export async function updatePasswordFields(formData: FormData) {
   const session = await auth();
-  const currentPassword = formData.get("currentPassword") as string;
-  const newPassword = formData.get("newPassword") as string;
-  const confirmPassword = formData.get("confirmPassword") as string;
+  const currentPasswordEncrypted = formData.get("currentPassword") as string;
+  const confirmPasswordEncrypted = formData.get("confirmPassword") as string;
+
+  const currentPassword = decryptPassword(currentPasswordEncrypted);
+  const confirmPassword = decryptPassword(confirmPasswordEncrypted);
 
   const t = await getTranslations("notification");
   const hashedPassword = await generateHashPassword(confirmPassword);
@@ -2025,13 +2028,13 @@ export async function updateFestival(formData: FormData) {
       .delete(festivalsGroupToRegions)
       .where(eq(festivalsGroupToRegions.festivalId, currentFestival.id));
 
-      if (groupRegions.length)
-        await tx.insert(festivalsGroupToRegions).values(
-          groupRegions.map((regionId) => ({
-            regionId: Number(regionId),
-            festivalId: currentFestival.id,
-          }))
-        );
+    if (groupRegions.length)
+      await tx.insert(festivalsGroupToRegions).values(
+        groupRegions.map((regionId) => ({
+          regionId: Number(regionId),
+          festivalId: currentFestival.id,
+        }))
+      );
 
     if (transportLocationSize === 0) {
       await tx

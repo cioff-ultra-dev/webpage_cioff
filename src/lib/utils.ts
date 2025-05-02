@@ -1,6 +1,8 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import groupBy from "object.groupby";
+import { encrypt, decrypt } from "crypto-js/aes";
+import { enc } from "crypto-js";
 
 import { CategoriesType } from "@/db/queries/categories";
 import { TreeNode } from "@/types/tree-select";
@@ -31,8 +33,9 @@ export function formatBytes(
   const accurateSizes = ["Bytes", "KiB", "MiB", "GiB", "TiB"];
   if (bytes === 0) return "0 Byte";
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return `${(bytes / Math.pow(1024, i)).toFixed(decimals)} ${sizeType === "accurate" ? accurateSizes[i] ?? "Bytest" : sizes[i] ?? "Bytes"
-    }`;
+  return `${(bytes / Math.pow(1024, i)).toFixed(decimals)} ${
+    sizeType === "accurate" ? accurateSizes[i] ?? "Bytest" : sizes[i] ?? "Bytes"
+  }`;
 }
 
 export function absoluteUrl(path: string) {
@@ -121,4 +124,22 @@ export function groupCategories(
         : undefined,
     };
   }) as TreeNode[];
+}
+
+export function encryptPassword(password: string): string {
+  const hashedPassword = encrypt(
+    password,
+    process.env.NEXT_PUBLIC_CRYPTO_KEY ?? ""
+  );
+
+  return hashedPassword.toString();
+}
+
+export function decryptPassword(password: string): string {
+  const hashedPassword = decrypt(
+    password,
+    process.env.NEXT_PUBLIC_CRYPTO_KEY ?? ""
+  );
+
+  return hashedPassword.toString(enc.Utf8);
 }

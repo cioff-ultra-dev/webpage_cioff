@@ -30,6 +30,7 @@ import { useI18nZodErrors } from "@/hooks/use-i18n-zod-errors";
 import { useRouter } from "next/navigation";
 import { customRevalidatePath } from "../revalidateTag";
 import { useTranslations } from "next-intl";
+import { encryptPassword } from "@/lib/utils";
 
 const profileFieldSchema = accountFieldsSchema;
 
@@ -103,10 +104,14 @@ export default function SettingProfile({
 
   const onSubmitPasswordForm: SubmitHandler<
     z.infer<typeof accountPasswordSchema>
-  > = async (_data) => {
-    const result = await updatePasswordFields(
-      new FormData(passwordFormRef.current!)
-    );
+  > = async ({ confirmPassword, currentPassword, newPassword }) => {
+    const formData = new FormData();
+
+    formData.append("newPassword", encryptPassword(newPassword));
+    formData.append("confirmPassword", encryptPassword(confirmPassword));
+    formData.append("currentPassword", encryptPassword(currentPassword));
+
+    const result = await updatePasswordFields(formData);
     if (result.success) {
       toast.success(result.success);
     } else if (result.error) {

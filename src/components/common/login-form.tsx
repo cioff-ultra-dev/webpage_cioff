@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { authenticate } from "@/app/actions";
+import { encryptPassword } from "@/lib/utils";
 
 function Submit({ label }: { label: string }) {
   const status = useFormStatus();
@@ -36,7 +37,17 @@ function Submit({ label }: { label: string }) {
 }
 
 export default function LoginForm() {
-  const [error, formAction] = useFormState(authenticate, undefined);
+  const [error, formAction] = useFormState(
+    (prevState: string | undefined, formData: FormData) => {
+      formData.set(
+        "password",
+        encryptPassword(formData.get("password") as string)
+      );
+
+      return authenticate(prevState, formData);
+    },
+    undefined
+  );
 
   const translations = useTranslations("login");
 
@@ -48,7 +59,9 @@ export default function LoginForm() {
             <CardTitle className="text-2xl text-center">
               {translations("welcome")}
             </CardTitle>
-            <CardDescription className="text-center">{translations("description")}</CardDescription>
+            <CardDescription className="text-center">
+              {translations("description")}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">

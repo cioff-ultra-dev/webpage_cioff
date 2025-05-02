@@ -13,6 +13,7 @@ import {
 import { isSamePassword } from "@/lib/password";
 import { db } from "@/db";
 import { authConfig } from "../../auth.config";
+import { decryptPassword } from "@/lib/utils";
 
 declare module "next-auth" {
   interface Session {
@@ -73,8 +74,10 @@ export const {
 
         if (!user) return null;
 
+        const passwordDecrypted = decryptPassword(password || "");
+
         const passwordMatch = await isSamePassword(
-          password || "",
+          passwordDecrypted,
           user?.password || ""
         );
 
