@@ -1,6 +1,5 @@
 import { getLocale } from "next-intl/server";
 import { Locale } from "@/i18n/config";
-import { headers } from "next/headers";
 
 import { getSubPage } from "@/lib/articles";
 import { getLanguageByLocale } from "@/db/queries/languages";
@@ -12,13 +11,10 @@ export default async function DetailArticle({
 }: {
   params: { slug: string };
 }) {
-  const headersList = headers();
   const locale = await getLocale();
   const lang = await getLanguageByLocale(locale as Locale);
 
-  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
-  const host = headersList.get("host");
-  const url = `${protocol}://${host}/news/${params.slug}`;
+  const url = `/news/${params.slug}`;
 
   const article = await getSubPage({ url, published: true });
 

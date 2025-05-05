@@ -110,9 +110,10 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
     return {
       title: article?.title,
       subtitle: article?.subtitle ?? "",
-      url: initialContent?.url?.split(
-        initialContent.isNews ? "/news/" : window.location.origin + "/"
-      )[1],
+      url: initialContent?.url.replace(
+        initialContent.isNews ? "/news/" : "/",
+        ""
+      ),
       isNews: initialContent?.isNews,
       originalDate: initialContent?.originalDate?.toISOString()?.split("T")[0],
       country: String(initialContent?.countryId || ""),
@@ -139,8 +140,7 @@ const EditableArticleTemplate: React.FC<EditableArticleTemplateProps> = ({
     try {
       const contentToSave = {
         countryId: values.country ? +values.country : undefined,
-        url: window.location.origin.concat(
-          values.isNews ? "/news/" : "/",
+        url: (values.isNews ? "/news/" : "/").concat(
           values.url.toLowerCase().replaceAll(" ", "-")
         ),
         isNews: values.isNews ?? false,
