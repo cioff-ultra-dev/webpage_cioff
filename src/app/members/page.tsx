@@ -13,7 +13,10 @@ export default async function NationaSectionList() {
 
   return (
     <div className="flex flex-col w-full min-h-screen">
-      <Header className="border-b" text="text-black" />
+      <Header
+        className="border-b max-sm:fixed max-sm:bg-white w-full"
+        text="text-black"
+      />
       <main className="flex flex-col flex-1 gap-4 md:gap-8 bg-gray-50 pb-8">
         <div className="flex flex-col w-full max-w-5xl mx-auto pt-8">
           <h1 className="text-3xl font-bold mb-8">{t("national_sections")}</h1>

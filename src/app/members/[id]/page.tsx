@@ -206,7 +206,10 @@ export default async function NationaSectionDetail({
   const ns = await getNationaSectionById(Number(params.id), locale as Locale);
   return (
     <div className="flex flex-col w-full min-h-screen">
-      <Header className="border-b" text="text-black" />
+      <Header
+        className="border-b max-sm:fixed max-sm:bg-white w-full"
+        text="text-black"
+      />
       <main className="flex flex-col flex-1 gap-4 md:gap-8 bg-gray-50">
         <div className="flex flex-col w-full max-w-5xl mx-auto pt-8">
           <h1 className="text-2xl font-bold text-black">

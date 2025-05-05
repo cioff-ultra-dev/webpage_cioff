@@ -21,7 +21,7 @@ function NewsDetailTemplate(props: NewsDetailTemplateProps) {
       <div className="relative h-[90vh] bg-black/10">
         <Header
           text="text-white max-lg:text-black text-roboto text-2xl px-2 py-1 hover:bg-white/40 max-lg:hover:bg-black/20"
-          className="absolute left-0 right-0 top-0"
+          className="absolute left-0 right-0 top-0 max-sm:fixed max-sm:bg-white"
         />
         <div className="absolute w-full h-full">
           {subPage.mainImage ? (
@@ -53,7 +53,9 @@ function NewsDetailTemplate(props: NewsDetailTemplateProps) {
                   .join(".")}
               </h3>
             ) : null}
-            <h1 className="font-bold mb-12 text-4xl text-secular mx-4 text-center">{title}</h1>
+            <h1 className="font-bold mb-12 text-4xl text-secular mx-4 text-center">
+              {title}
+            </h1>
           </div>
           <div className="h-full bg-white w-full overflow-hidden">
             <RenderSections sections={sections ?? []} />

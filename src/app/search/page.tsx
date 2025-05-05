@@ -20,8 +20,11 @@ export default async function SearchPage({
   const categories = await getAllCategories(locale as Locale);
   return (
     <div>
-      <Header text="text-black" className="border-b" />
-      <main>
+      <Header
+        text="text-black"
+        className="border-b max-sm:fixed max-sm:bg-white w-full"
+      />
+      <main className="max-sm:pt-16">
         <GlobalFilter
           fallbackFestivals={festivals}
           fallbackCountryCast={countryCast}
@@ -29,7 +32,7 @@ export default async function SearchPage({
           categories={categories}
         />
       </main>
-      <Footer/>
+      <Footer />
     </div>
   );
 }

@@ -92,7 +92,7 @@ export default async function EventDetail({
     <div className="flex flex-col w-full min-h-screen">
       <Header
         text="text-white max-lg:text-black text-roboto text-2xl px-2 py-1 hover:bg-white/40 max-lg:hover:bg-black/20"
-        className="absolute left-0 right-0 top-0"
+        className="absolute left-0 right-0 top-0 max-sm:fixed max-sm:bg-white"
       />
       <main className="flex flex-col flex-1 gap-4 md:gap-8 bg-gray-50 pb-8">
         <div className="relative w-full h-[80vh]">

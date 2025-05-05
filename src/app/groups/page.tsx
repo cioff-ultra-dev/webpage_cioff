@@ -25,7 +25,7 @@ export default function Groups() {
 
   return (
     <div className="w-full bg-gray-900 text-white">
-      <Header className="border-b border-gray-800" />
+      <Header className="border-b border-gray-800 max-sm:fixed max-sm:bg-white" />
       <main className="p-4">
         <section className="mb-8">
           <div className="flex justify-between items-center my-4">

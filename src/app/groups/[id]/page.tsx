@@ -83,7 +83,10 @@ export default async function GroupDetail({
 
   return (
     <div className="flex flex-col w-full min-h-screen">
-      <Header className="border-b" text="text-black" />
+      <Header
+        className="border-b max-sm:fixed max-sm:bg-white w-full"
+        text="text-black"
+      />
       <main className="flex flex-col flex-1 gap-4 md:gap-8 bg-gray-50 pb-8">
         <div className="relative w-full h-[400px]">
           <CarouselImage images={coverImages} />
