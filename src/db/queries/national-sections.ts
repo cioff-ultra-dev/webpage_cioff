@@ -464,7 +464,7 @@ export async function getAllCountryCastNationalSections(
   if (regionsIn.length)
     filters.push(inArray(countries.regionId, regionsIn.map(Number)));
 
-  if (search) filters.push(ilike(nationalSectionsLang.name, `%${search}%`));
+  if (search) filters.push(ilike(countriesLang.name, `%${search}%`));
 
   if (countriesIn.length)
     filters.push(inArray(nationalSections.countryId, countriesIn.map(Number)));

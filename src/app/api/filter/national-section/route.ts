@@ -89,7 +89,7 @@ async function buildFilter(request: NextRequest) {
   }
 
   if (search) {
-    filters.push(ilike(nationalSectionsLang.name, `%${search}%`));
+    filters.push(ilike(countriesLang.name, `%${search}%`));
   }
 
   if (regionsIn?.length)
