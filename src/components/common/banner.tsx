@@ -9,11 +9,11 @@ import { twMerge } from "tailwind-merge";
 import { Button } from "@/components/ui/button";
 
 const BannerVariants = cva(
-  "absolute text-white flex flex-col sm:left-6 px-60 md:px-24 max-md:px-4 max-sm:px-8 w-auto max-sm:flex max-sm:flex-col max-sm:items-center max-sm:text-black max-sm:my-4 max-sm:relative",
+  "absolute text-white flex flex-col sm:left-6 px-60 md:px-24 max-md:px-4 max-sm:px-8 w-auto max-sm:flex max-sm:flex-col max-sm:items-center max-sm:text-black max-sm:my-4 max-sm:relative max-sm:[&>p]:text-justify",
   {
     variants: {
       justify: {
-        center: "items-center",
+        center: "items-center [&>p]:text-center",
         left: "items-start [&>p]:text-start",
         right: "items-end [&>p]:text-end",
       },
