@@ -62,12 +62,13 @@ function AnnualReport(props: AnnualReportProps) {
               key={item.name}
               href={data.link}
               target="_blank"
-              className="h-[500px] relative overflow-hidden rounded-lg hover:scale-105 transition-transform duration-300"
+              className="relative overflow-hidden rounded-lg hover:scale-105 transition-transform duration-300"
             >
               <Image
                 src={data.image}
                 alt={item.name}
-                fill
+                height={550}
+                width={500}
                 objectFit="cover"
                 objectPosition="25% 50%"
               />
@@ -80,9 +81,9 @@ function AnnualReport(props: AnnualReportProps) {
             key={item.name}
             href={item.link}
             target="_blank"
-            className="h-[500px] w-full relative overflow-hidden rounded-lg hover:scale-105 transition-transform duration-300"
+            className="w-full relative overflow-hidden rounded-lg hover:scale-105 transition-transform duration-300"
           >
-            <Image src={item.image} alt={item.name} fill objectFit="cover" objectPosition="25% 50%" />
+            <Image src={item.image} alt={item.name} objectFit="cover" objectPosition="25% 50%" height={550} width={500} />
           </Link>
         );
       }),
