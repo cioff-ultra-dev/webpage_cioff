@@ -32,13 +32,13 @@ function International() {
       </div>
       <main className="flex flex-col items-center pb-5 min-h-[90vh]">
         <Banner
-          containerClass="my-36"
+          containerClass="my-36 max-sm:my-20"
           image="/international-banner-1.jpg"
           title="CIOFF®"
           description={translations("bannerDescription1")}
         />
         <Banner
-          containerClass="mb-36 "
+          containerClass="mb-36 max-sm:mb-16"
           image="/international-banner-2.jpg"
           title={translations("bannerTitle2")}
           description={translations("bannerDescription2")}
@@ -49,7 +49,7 @@ function International() {
         </h2>
         <CouncilSection />
         <Banner
-          containerClass="my-36"
+          containerClass="my-36 max-sm:my-20"
           image="/international-banner-3.jpg"
           title={translations("bannerTitle3")}
           description={translations("bannerDescription3")}
@@ -66,7 +66,7 @@ function International() {
           />
         </div> */}
         <Banner
-          containerClass="mb-36"
+          containerClass="mb-36 max-sm:mb-16"
           image="/international-banner-4.jpg"
           title={translations("bannerTitle4")}
           description={translations("bannerDescription4")}

@@ -9,7 +9,7 @@ import { twMerge } from "tailwind-merge";
 import { Button } from "@/components/ui/button";
 
 const BannerVariants = cva(
-  "absolute text-white flex flex-col left-6 px-60 md:px-24 max-md:px-4 max-sm:px-8 w-auto",
+  "absolute text-white flex flex-col sm:left-6 px-60 md:px-24 max-md:px-4 max-sm:px-8 w-auto max-sm:flex max-sm:flex-col max-sm:items-center max-sm:text-black max-sm:my-4 max-sm:relative",
   {
     variants: {
       justify: {
@@ -58,9 +58,9 @@ function Banner(props: BannerProps) {
 
   return (
     <div
-    id='banner'
+      id="banner"
       className={twMerge(
-        "relative w-full min-h-[40rem] flex items-center h-auto max-md:min-h-[50rem]",
+        "relative w-full min-h-[40rem] flex items-center h-auto max-md:min-h-[50rem] max-sm:flex-col-reverse",
         containerClass
       )}
     >
@@ -68,7 +68,7 @@ function Banner(props: BannerProps) {
         src={image}
         alt="Hero background"
         objectPosition="50% 45%"
-        className="inset-0 w-full h-full object-cover"
+        className="inset-0 w-full h-full object-cover max-sm:!relative max-sm:!h-[35rem]"
         fill
       />
       <div className={BannerVariants({ justify })}>
