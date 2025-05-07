@@ -46,6 +46,7 @@ const fontPoppins = Poppins({
 export const metadata: Metadata = {
   title: "CIOFF® International",
   description: "Small description for the CIOFF site",
+  robots: { index: true, follow: true },
 };
 
 export default async function RootLayout({

@@ -10,8 +10,12 @@ import { showHomePage } from "./flags";
 function getLocale(request: Request) {
   const headers = Object.fromEntries(request.headers);
   let languages = new Negotiator({ headers }).languages();
-
-  return match(languages, locales, defaultLocale);
+  console.log(languages);
+  return match(
+    languages.map((lang) => (!lang || lang === "*" ? "es" : lang)),
+    locales,
+    defaultLocale
+  );
 }
 
 const auth = NextAuth(authConfig).auth;
