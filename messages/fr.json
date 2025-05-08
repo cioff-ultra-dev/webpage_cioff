@@ -82,7 +82,7 @@
   },
   "link": {
     "dashboard": "Tableau de bord",
-    "national-sections": "Members",
+    "national-sections": "Membres",
     "festivals": "Festivals",
     "groups": "Groupes",
     "edit": "Modifier",
@@ -93,7 +93,8 @@
     "website": "Aller au site web",
     "subscribe": "S'abonner",
     "billingPortal": "Portail de facturation",
-    "reports": "Rapports"
+    "reports": "Rapports",
+    "members": "Membres"
   },
   "form": {
     "notResults": "Aucun résultat trouvé",

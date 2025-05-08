@@ -19,7 +19,7 @@ const roleKeys = {
 };
 
 function getRoleAvailable(user: Session["user"]) {
-  const isEnabled = ["National Sections", "Festivals", "Groups"].includes(
+  const isEnabled = ["National Sections", "Festivals", "Groups", "Admin"].includes(
     user.role?.name!
   );
   return {

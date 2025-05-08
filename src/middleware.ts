@@ -10,7 +10,7 @@ import { showHomePage } from "./flags";
 function getLocale(request: Request) {
   const headers = Object.fromEntries(request.headers);
   let languages = new Negotiator({ headers }).languages();
-  console.log(languages);
+
   return match(
     languages.map((lang) => (!lang || lang === "*" ? "es" : lang)),
     locales,

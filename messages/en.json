@@ -96,7 +96,8 @@
     "website": "Go to website",
     "subscribe": "Subscribe",
     "billingPortal": "Billing Portal",
-    "reports": "Reports"
+    "reports": "Reports",
+    "members": "Members"
   },
   "form": {
     "notResults": "No results found",
