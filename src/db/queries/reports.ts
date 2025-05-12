@@ -28,10 +28,10 @@ export type ReportNationalSectionsType = Awaited<
   ReturnType<typeof getAllReportsNationalSections>
 >;
 
-export async function getReportsFestivals(id: SelectFestival["id"]) {
+export async function getReportsFestivals(id?: SelectFestival["id"]) {
   return db.query.reportFestival.findMany({
     where(fields, { eq }) {
-      return eq(fields.festivalId, id);
+      return id ? eq(fields.festivalId, id) : undefined;
     },
     orderBy(fields, { desc }) {
       return desc(fields.createdAt);
@@ -43,10 +43,10 @@ export type ReportFestivalsType = Awaited<
   ReturnType<typeof getReportsFestivals>
 >;
 
-export async function getReportsGroups(id: SelectGroup["id"]) {
+export async function getReportsGroups(id?: SelectGroup["id"]) {
   return db.query.reportGroup.findMany({
     where(fields, { eq }) {
-      return eq(fields.groupId, id);
+      return id ? eq(fields.groupId, id) : undefined;
     },
     orderBy(fields, { desc }) {
       return desc(fields.createdAt);
@@ -57,11 +57,11 @@ export async function getReportsGroups(id: SelectGroup["id"]) {
 export type ReportGroupsType = Awaited<ReturnType<typeof getReportsGroups>>;
 
 export async function getReportsNationalSections(
-  id: SelectNationalSection["id"],
+  id?: SelectNationalSection["id"]
 ) {
   return db.query.reportNationalSections.findMany({
     where(fields, { eq }) {
-      return eq(fields.nsId, id);
+      return id ? eq(fields.nsId, id) : undefined;
     },
     orderBy(fields, { desc }) {
       return desc(fields.createdAt);
@@ -74,7 +74,7 @@ export type ReportNationalSectionsProType = Awaited<
 >;
 
 export async function getFestivalsAndGroupsCounts(
-  countryId: SelectCountries["id"],
+  countryId: SelectCountries["id"]
 ): Promise<CountByCountriesResult> {
   const allCountsFestivalByCountries = db
     .select({ countFestivals: count() })
@@ -113,7 +113,7 @@ export async function getOwnerByUserId(userId: SelectUser["id"]) {
 
 export async function getReportTypeCategoriesBySlugs(
   slugs: string[],
-  locale: string = defaultLocale as SelectLanguages["code"],
+  locale: string = defaultLocale as SelectLanguages["code"]
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
@@ -147,7 +147,7 @@ export async function getReportTypeCategoriesBySlugs(
 }
 
 export async function getAllReportTypeCategories(
-  locale: string = defaultLocale as SelectLanguages["code"],
+  locale: string = defaultLocale as SelectLanguages["code"]
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
@@ -183,7 +183,7 @@ export type ReportTypeCategoriesType = Awaited<
 
 export async function getAllRatingQuestionByType(
   name: SelectRatingType["name"],
-  locale: string = defaultLocale as SelectLanguages["code"],
+  locale: string = defaultLocale as SelectLanguages["code"]
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
@@ -227,7 +227,7 @@ export type RatingQuestionsType = Awaited<
 
 export async function getReportGroup(
   id: number,
-  locale: string = defaultLocale as SelectLanguages["code"],
+  locale: string = defaultLocale as SelectLanguages["code"]
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
@@ -306,7 +306,7 @@ export type ReportGroupType = Awaited<ReturnType<typeof getReportGroup>>;
 
 export async function getReportFestival(
   id: number,
-  locale: string = defaultLocale as SelectLanguages["code"],
+  locale: string = defaultLocale as SelectLanguages["code"]
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
@@ -393,7 +393,7 @@ export type ReportFestivalType = Awaited<ReturnType<typeof getReportFestival>>;
 
 export async function getReportNationalSection(
   id: number,
-  locale: string = defaultLocale as SelectLanguages["code"],
+  locale: string = defaultLocale as SelectLanguages["code"]
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
@@ -439,7 +439,7 @@ export type ReportNationalSectionType = Awaited<
 >;
 
 export async function getAllRatingQuestions(
-  locale: string = defaultLocale as SelectLanguages["code"],
+  locale: string = defaultLocale as SelectLanguages["code"]
 ) {
   const localeValue = locale as SelectLanguages["code"];
   const currentDefaultLocale = defaultLocale as SelectLanguages["code"];
