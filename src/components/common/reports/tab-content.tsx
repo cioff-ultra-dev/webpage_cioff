@@ -22,18 +22,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CirclePlusIcon, Eye, Pencil } from "lucide-react";
 
-const BadgeVariants = cva(
-  "bg-gray-500/15 text-gray-700 hover:bg-gray-500/25",
-  {
-    variants: {
-      statusColor: {
-        completed: "bg-green-500/15 text-green-700 hover:bg-green-500/25",
-        progress: "bg-blue-500/15 text-blue-700 hover:bg-blue-500/25",
-        draft: "bg-yellow-500/15 text-yellow-700 hover:bg-yellow-500/25",
-      }
+const BadgeVariants = cva("bg-gray-500/15 text-gray-700 hover:bg-gray-500/25", {
+  variants: {
+    statusColor: {
+      completed: "bg-green-500/15 text-green-700 hover:bg-green-500/25",
+      progress: "bg-blue-500/15 text-blue-700 hover:bg-blue-500/25",
+      pending: "bg-yellow-500/15 text-yellow-700 hover:bg-yellow-500/25",
     },
-  }
-);
+  },
+});
 
 
 export interface ReportItem {

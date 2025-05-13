@@ -15,7 +15,7 @@ import { auth } from "@/auth";
 import DashboardReportPage, { Reports, DashboardReportProps } from "./base";
 
 const roleKeys = {
-  "National Sections": "ns",
+  "National Sections": "members",
   Festivals: "festivals",
   Groups: "groups",
   Admin: "admin",
@@ -35,7 +35,7 @@ function getRoleAvailable(user: Session["user"]) {
   };
 }
 
-export default async function ReportsPage(props:any) {
+export default async function ReportsPage(props: any) {
   const session = await auth();
 
   if (!session?.user) {
@@ -53,32 +53,40 @@ export default async function ReportsPage(props:any) {
 
   let reports: Reports = {};
 
-  if (role.key === "ns" || isAdmin) {
-    reports.ns = (await getReportsNationalSections(
-      isAdmin ? owner?.nsId! : undefined
+  if ((role.key === "members" && owner?.nsId) || isAdmin) {
+    reports.members = (await getReportsNationalSections(
+      isAdmin ? undefined : owner?.nsId!
     )) as ReportNationalSectionsProType;
+  } else if (role.key === "members") {
+    reports.members = [];
   }
 
   if ((role.key === "groups" && owner?.groupId) || isAdmin) {
     reports.groups = (await getReportsGroups(
-      isAdmin ? owner?.groupId! : undefined
+      isAdmin ? undefined : owner?.groupId!
     )) as ReportGroupsType;
+  } else if (role.key === "groups") {
+    reports.groups = [];
   }
 
   if ((role.key === "festivals" && owner?.festivalId) || isAdmin) {
     reports.festivals = (await getReportsFestivals(
-      isAdmin ? owner?.festivalId! : undefined
+      isAdmin ? undefined : owner?.festivalId!
     )) as ReportFestivalsType;
+  } else if (role.key === "festivals") {
+    reports.festivals = [];
   }
 
   return (
     <DashboardReportPage
       reports={reports}
-      roleKey={
+      allowEdition={user.email === "admin@cioff.org" || isAdmin}
+      initialTab={
         (role.key === "admin"
-          ? "ns"
-          : role.key) as DashboardReportProps["roleKey"]
+          ? "members"
+          : role.key) as DashboardReportProps["initialTab"]
       }
+      roleKey={role.key === "admin" ? "members" : role.key}
     />
   );
 }
